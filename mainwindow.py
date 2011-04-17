@@ -51,6 +51,13 @@ class MainWindow(QMainWindow):
         self.app = app
         self.settings = QSettings("CEGUI", "CEED")
 
+        # how many recent files should the editor remember
+        self.maxRecentFiles = 5
+        # to how many characters should the recent file names be trimmed to
+        self.recentFilesTrimLength = 40
+        # recent files actions
+        self.recentProjectActions = []
+
         self.editorFactories = [
             bitmapeditor.BitmapTabbedEditorFactory(),
             texteditor.TextTabbedEditorFactory(),
@@ -90,12 +97,15 @@ class MainWindow(QMainWindow):
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
         
+
+        
         self.connectActions()
         self.connectSignals()
         
         propertyinspector.PropertyInspectorManager.loadMappings("data/StockMappings.xml")
         
-        #self.restoreSettings()
+        self.restoreSettings()     
+        
     
     def connectActions(self):
         self.newFileAction = self.findChild(QAction, "actionNewFile")
@@ -135,10 +145,24 @@ class MainWindow(QMainWindow):
         # when this starts up, no project is opened, hence you can't close the current project
         self.closeProjectAction.setEnabled(False)
         
+        self.recentProjectsMainAction = self.findChild(QAction, "actionRecentProjects")
+        
         self.projectSettingsAction = self.findChild(QAction, "actionProjectSettings")
         self.projectSettingsAction.triggered.connect(self.slot_projectSettings)
         # when this starts up, no project is opened, hence you can't view/edit settings of the current project
         self.projectSettingsAction.setEnabled(False)
+
+        menu = QMenu(self)
+        menu.setObjectName("RecentFilesSubMenu")
+        menu.setTitle("Recent projects")
+        
+        for i in range(self.maxRecentFiles):
+            action = QAction(self, visible=False, triggered=self.openRecentProject)
+            self.recentProjectActions.append(action)
+            menu.addAction(action)
+                    
+        self.findChild(QMenu, "menuProject").addMenu(menu)
+
         
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
@@ -150,7 +174,7 @@ class MainWindow(QMainWindow):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
-    def openProject(self, path):
+    def openProject(self, path, fromRecentProject=False):
         assert(not self.project)
         
         self.project = project.Project()
@@ -163,11 +187,15 @@ class MainWindow(QMainWindow):
         # project has been opened
         # enable the project management tree
         #self.projectFiles.setEnabled(True)        
-        
+        if not fromRecentProject:
+            self.updateRecentProjects(path)
+            
         # and enable respective actions
         self.saveProjectAction.setEnabled(True)
         self.closeProjectAction.setEnabled(True)
         self.projectSettingsAction.setEnabled(True)
+        
+
         
     def closeProject(self):
         self.projectManager.setProject(None)
@@ -175,7 +203,7 @@ class MainWindow(QMainWindow):
         self.project = None
         
         # no project is opened anymore
-        #self.projectFiles.setEnabled(False)
+        self.projectFiles.setEnabled(False)
         
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
@@ -248,9 +276,11 @@ class MainWindow(QMainWindow):
             self.restoreGeometry(self.settings.value("geometry"))
         if self.settings.contains("state"):
             self.restoreState(self.settings.value("state"))
+        if self.settings.contains("recentProjects"):
+            self.updateRecentProjectsActions();
         
     def quit(self):
-        #self.saveSettings()
+        self.saveSettings()
         
         if self.project:
             # if the slot returned False, user pressed Cancel
@@ -477,3 +507,44 @@ class MainWindow(QMainWindow):
             
         else:
             event.accept()
+            
+    def updateRecentProjects(self,  fileName):
+        self.curFile = fileName
+        
+        files = []
+        if self.settings.contains("recentProjects"):
+            files = self.settings.value("recentProjects")
+        
+        files.insert(0, fileName)
+        
+        self.settings.setValue("recentProjects", files)
+        
+        if len(files) > self.maxRecentFiles:
+            files.removeAt(self.maxRecentFiles)
+
+
+        self.updateRecentProjectsActions()
+            
+    def updateRecentProjectsActions(self):
+        files = self.settings.value("recentProjects")
+
+        numRecentFiles = len(files)
+
+        for i in range(numRecentFiles):
+            fileName = files[i]
+            if (len(fileName) > self.recentFilesTrimLength):
+                # + 3 because of the ...
+                fileName = "...%s" % (fileName[-self.recentFilesTrimLength + 3:])
+        
+            text = "&%d %s" % (i + 1, fileName)
+            self.recentProjectActions[i].setText(text)
+            self.recentProjectActions[i].setData(files[i])
+            self.recentProjectActions[i].setVisible(True)
+
+        for j in range(numRecentFiles, self.maxRecentFiles):
+            self.recentProjectActions[j].setVisible(False)
+        
+    def openRecentProject(self):
+        action = self.sender()
+        if action:
+            self.openProject(action.data(), True)

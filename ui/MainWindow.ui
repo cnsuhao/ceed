@@ -309,6 +309,11 @@
     <string>Ctrl+O</string>
    </property>
   </action>
+  <action name="actionRecentProjects">
+   <property name="text">
+    <string>Recent Projects</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
