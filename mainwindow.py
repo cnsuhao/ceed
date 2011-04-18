@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
 
         menu = QMenu(self)
         menu.setObjectName("RecentFilesSubMenu")
-        menu.setTitle("Recent projects")
+        menu.setTitle(self.tr("Recent projects"))
         
         for i in range(self.maxRecentFiles):
             action = QAction(self, visible=False, triggered=self.openRecentProject)
@@ -196,14 +196,13 @@ class MainWindow(QMainWindow):
         self.projectSettingsAction.setEnabled(True)
         
 
-        
     def closeProject(self):
         self.projectManager.setProject(None)
         self.project.unload()
         self.project = None
         
         # no project is opened anymore
-        self.projectFiles.setEnabled(False)
+        #self.projectFiles.setEnabled(False)
         
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
