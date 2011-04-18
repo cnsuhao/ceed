@@ -265,7 +265,7 @@
      <normaloff>icons/actions/save_project.png</normaloff>icons/actions/save_project.png</iconset>
    </property>
    <property name="text">
-    <string>Save Project</string>
+    <string>Save project</string>
    </property>
   </action>
   <action name="actionProjectSettings">
@@ -312,6 +312,11 @@
   <action name="actionRecentProjects">
    <property name="text">
     <string>Recent Projects</string>
+   </property>
+  </action>
+  <action name="actionRecent_projects">
+   <property name="text">
+    <string>Recent projects</string>
    </property>
   </action>
  </widget>

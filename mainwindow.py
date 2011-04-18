@@ -52,11 +52,11 @@ class MainWindow(QMainWindow):
         self.settings = QSettings("CEGUI", "CEED")
 
         # how many recent files should the editor remember
-        self.maxRecentFiles = 5
+        self.maxRecentProjects = 5
         # to how many characters should the recent file names be trimmed to
-        self.recentFilesTrimLength = 40
+        self.recentProjectsNameTrimLength = 40
         # recent files actions
-        self.recentProjectActions = []
+        self.recentProjectsActions = []
 
         self.editorFactories = [
             bitmapeditor.BitmapTabbedEditorFactory(),
@@ -97,15 +97,12 @@ class MainWindow(QMainWindow):
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
         
-
-        
         self.connectActions()
         self.connectSignals()
         
         propertyinspector.PropertyInspectorManager.loadMappings("data/StockMappings.xml")
         
         self.restoreSettings()     
-        
     
     def connectActions(self):
         self.newFileAction = self.findChild(QAction, "actionNewFile")
@@ -157,14 +154,13 @@ class MainWindow(QMainWindow):
         menu.setObjectName("RecentFilesSubMenu")
         menu.setTitle(self.tr("Recent projects"))
         
-        for i in range(self.maxRecentFiles):
-            action = QAction(self, visible=False, triggered=self.openRecentProject)
-            self.recentProjectActions.append(action)
+        for i in range(self.maxRecentProjects):
+            action = QAction(self, visible = False, triggered = self.slot_openRecentProject)
+            self.recentProjectsActions.append(action)
             menu.addAction(action)
                     
         self.findChild(QMenu, "menuProject").addMenu(menu)
 
-        
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
         
@@ -268,14 +264,15 @@ class MainWindow(QMainWindow):
         self.tabEditors.remove(editor)
     
     def saveSettings(self):
-        self.settings.setValue("geometry", self.saveGeometry())
-        self.settings.setValue("state", self.saveState())
+        #self.settings.setValue("geometry", self.saveGeometry())
+        #self.settings.setValue("state", self.saveState())
+        pass
         
     def restoreSettings(self):
-        if self.settings.contains("geometry"):
-            self.restoreGeometry(self.settings.value("geometry"))
-        if self.settings.contains("state"):
-            self.restoreState(self.settings.value("state"))
+        #if self.settings.contains("geometry"):
+        #    self.restoreGeometry(self.settings.value("geometry"))
+        #if self.settings.contains("state"):
+        #    self.restoreState(self.settings.value("state"))
         if self.settings.contains("recentProjects"):
             self.updateRecentProjectsActions();
         
@@ -523,9 +520,8 @@ class MainWindow(QMainWindow):
         
         self.settings.setValue("recentProjects", files)
         
-        if len(files) > self.maxRecentFiles:
-            files.removeAt(self.maxRecentFiles)
-
+        if len(files) > self.maxRecentProjects:
+            files.removeAt(self.maxRecentProjects)
 
         self.updateRecentProjectsActions()
             
@@ -536,19 +532,22 @@ class MainWindow(QMainWindow):
 
         for i in range(numRecentFiles):
             fileName = files[i]
-            if (len(fileName) > self.recentFilesTrimLength):
+            if (len(fileName) > self.recentProjectsNameTrimLength):
                 # + 3 because of the ...
-                fileName = "...%s" % (fileName[-self.recentFilesTrimLength + 3:])
+                fileName = "...%s" % (fileName[-self.recentProjectsNameTrimLength + 3:])
         
             text = "&%d %s" % (i + 1, fileName)
-            self.recentProjectActions[i].setText(text)
-            self.recentProjectActions[i].setData(files[i])
-            self.recentProjectActions[i].setVisible(True)
+            self.recentProjectsActions[i].setText(text)
+            self.recentProjectsActions[i].setData(files[i])
+            self.recentProjectsActions[i].setVisible(True)
 
-        for j in range(numRecentFiles, self.maxRecentFiles):
-            self.recentProjectActions[j].setVisible(False)
+        for j in range(numRecentFiles, self.maxRecentProjects):
+            self.recentProjectsActions[j].setVisible(False)
         
-    def openRecentProject(self):
+    def slot_openRecentProject(self):
         action = self.sender()
         if action:
+            if self.project:
+                self.closeProject()
+            
             self.openProject(action.data(), True)
