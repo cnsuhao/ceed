@@ -143,23 +143,17 @@ class MainWindow(QMainWindow):
         # when this starts up, no project is opened, hence you can't close the current project
         self.closeProjectAction.setEnabled(False)
         
-        self.recentProjectsMainAction = self.findChild(QAction, "actionRecentProjects")
-        
         self.projectSettingsAction = self.findChild(QAction, "actionProjectSettings")
         self.projectSettingsAction.triggered.connect(self.slot_projectSettings)
         # when this starts up, no project is opened, hence you can't view/edit settings of the current project
         self.projectSettingsAction.setEnabled(False)
 
-        menu = QMenu(self)
-        menu.setObjectName("RecentFilesSubMenu")
-        menu.setTitle(self.tr("Recent projects"))
+        self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         
         for i in range(self.maxRecentProjects):
             action = QAction(self, visible = False, triggered = self.slot_openRecentProject)
             self.recentProjectsActions.append(action)
-            menu.addAction(action)
-                    
-        self.findChild(QMenu, "menuProject").addMenu(menu)
+            self.recentProjectsMenu.addAction(action)
 
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
@@ -548,6 +542,8 @@ class MainWindow(QMainWindow):
         action = self.sender()
         if action:
             if self.project:
-                self.closeProject()
+                # give user a chance to save changes if needed
+                if not self.slot_closeProject():
+                    return
             
             self.openProject(action.data(), True)

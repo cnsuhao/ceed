@@ -121,9 +121,19 @@
     <property name="title">
      <string>Project</string>
     </property>
+    <widget class="QMenu" name="menuRecentProjects">
+     <property name="title">
+      <string>Recent projects</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/actions/recent_projects.png</normaloff>icons/actions/recent_projects.png</iconset>
+     </property>
+    </widget>
     <addaction name="actionNewProject"/>
     <addaction name="separator"/>
     <addaction name="actionOpenProject"/>
+    <addaction name="menuRecentProjects"/>
     <addaction name="actionSaveProject"/>
     <addaction name="actionCloseProject"/>
     <addaction name="separator"/>
