@@ -127,12 +127,11 @@ class GraphicsScene(QGraphicsScene):
                      "graphics view")
             
             return
-        
-        # ensure we don't mess with the painter
-        painter.save()
-        
+                
         containerWidget = self.views()[0].containerWidget
         containerWidget.ensureCEGUIIsInitialised()
+        
+        painter.beginNativePainting()
             
         glClearColor(0, 0, 0, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -143,11 +142,10 @@ class GraphicsScene(QGraphicsScene):
         system.signalRedraw()
         system.renderGUI()
         
+        painter.endNativePainting()
+        
         # TODO: Fake time impulse for now
         system.injectTimePulse(1)
-        
-        # restore the painter in it's initial condition
-        painter.restore()
         
         # 20 msec after rendering is finished, we mark this as dirty to force a rerender
         # this seems to be a good compromise
@@ -550,12 +548,26 @@ class ContainerWidget(QWidget):
             parser.setProperty("SchemaDefaultResourceGroup", "schemas")
         
     def syncToProject(self, project):
-        progress = QProgressDialog("Cleaning embedded CEGUI...", "", 0, 3, self)
+        progress = QProgressDialog(self)
         progress.setWindowModality(Qt.WindowModal)
+        progress.setWindowTitle("Synchronising embedded CEGUI with the project")
+        progress.setCancelButton(None)
+        progress.resize(400, 100)
         progress.show()
         
         self.ensureCEGUIIsInitialised()
         self.makeGLContextCurrent()
+        
+        schemes = []
+        for file in os.listdir(project.getAbsolutePathOf(project.schemesPath)):
+            if file.endswith(".scheme"):
+                schemes.append(file)
+
+        progress.setMinimum(0)
+        progress.setMaximum(3 + len(schemes))
+        
+        progress.setLabelText("Purging all resources...")
+        progress.setValue(0)
         
         # destroy all previous resources (if any)
         PyCEGUI.ImageManager.getSingleton().destroyAll()
@@ -576,15 +588,13 @@ class ContainerWidget(QWidget):
         progress.setLabelText("Recreating all schemes...")
         progress.setValue(2)
         
-        self.createAllSchemes()
-        
+        for scheme in schemes:
+            progress.setValue(progress.value() + 1)
+            progress.setLabelText("Recreating all schemes... (%s)" % (scheme))
+            PyCEGUI.SchemeManager.getSingleton().createFromFile(scheme, "schemes")
+            
         progress.reset()
         
-    def createAllSchemes(self):
-        # I think just creating the schemes should be alright, schemes will
-        # case other resources to be loaded as well
-        PyCEGUI.SchemeManager.getSingleton().createAll("*.scheme", "schemes")
-    
     def getAvailableSkins(self):
         skins = []
 

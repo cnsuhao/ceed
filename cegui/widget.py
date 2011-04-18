@@ -87,6 +87,8 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
         self.preResizeSize = None
     
     def moveToFront(self):
+        self.widget.moveToFront()
+        
         parentItem = self.parentItem()
         if parentItem:
             for item in parentItem.childItems():
@@ -104,10 +106,14 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
     def itemChange(self, change, value):    
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value:
-                self.widget.moveToFront()
                 self.moveToFront()
         
         return super(Manipulator, self).itemChange(change, value)
+    
+    def notifyHandleSelected(self, handle):
+        super(Manipulator, self).notifyHandleSelected(handle)
+        
+        self.moveToFront()
     
     def getMinSize(self):
         if self.widget:
@@ -157,3 +163,122 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
         for item in self.childItems():
             if isinstance(item, Manipulator):
                 item.setVisible(True)
+
+    def boundingClipPath(self):
+        ret = QPainterPath()
+        ret.addRect(self.boundingRect())
+        
+        return ret
+
+    def isAboveItem(self, item):
+        # undecidable otherwise
+        assert(item.scene() == self.scene())
+        
+        # FIXME: nasty nasty way to do this
+        for i in self.scene().items():
+            if i is self:
+                return True
+            if i is item:
+                return False
+            
+        assert(False)
+        
+    def paint(self, painter, option, widget):
+        painter.save()
+        
+        clipPath = QPainterPath()
+        clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
+        for item in self.collidingItems():
+            if isinstance(item, Manipulator):
+                if item.isAboveItem(self):
+                    clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
+        
+        painter.setClipPath(clipPath)
+        
+        super(Manipulator, self).paint(painter, option, widget)
+        
+        baseSize = self.widget.getParentPixelSize()
+        if self.widget.getParent() is not None and not self.widget.isNonClientWindow():
+            baseSize = self.widget.getParent().getUnclippedInnerRect().getSize()
+        
+        guidePenSize = 1
+        
+        if self.resizeInProgress or self.isAnyHandleSelected():
+            # draw the size guides
+            
+            widgetSize = self.widget.getSize()
+    
+            relativeWidthInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_x.d_scale, 0), baseSize.d_width)
+            absoluteWidthInPixels = widgetSize.d_x.d_offset
+            
+            widthStartPoint = self.rect().topLeft() - QPointF(0, 1 + guidePenSize)
+            widthMidPoint = widthStartPoint + QPointF(relativeWidthInPixels, 0)
+            widthEndPoint = widthMidPoint + QPointF(absoluteWidthInPixels, 0)
+            widthAbsoluteOffset = QPointF(0, -guidePenSize) if relativeWidthInPixels * absoluteWidthInPixels < 0 else QPointF(0, 0)
+            
+            pen = QPen()
+            pen.setWidth(guidePenSize)
+            pen.setColor(QColor(255, 0, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(widthStartPoint, widthMidPoint)
+            pen.setColor(QColor(0, 255, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(widthMidPoint + widthAbsoluteOffset, widthEndPoint + widthAbsoluteOffset)
+            
+            relativeHeightInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_y.d_scale, 0), baseSize.d_height)
+            absoluteHeightInPixels = widgetSize.d_y.d_offset
+            
+            heightStartPoint = self.rect().topRight() + QPointF(1 + guidePenSize, 0)
+            heightMidPoint = heightStartPoint + QPointF(0, relativeHeightInPixels)
+            heightEndPoint = heightMidPoint + QPointF(0, absoluteHeightInPixels)
+            heightAbsoluteOffset = QPointF(guidePenSize, 0) if relativeHeightInPixels * absoluteHeightInPixels < 0 else QPointF(0, 0)
+            
+            pen = QPen()
+            pen.setWidth(guidePenSize)
+            pen.setColor(QColor(255, 0, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(heightStartPoint, heightMidPoint)
+            pen.setColor(QColor(0, 255, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(heightMidPoint + heightAbsoluteOffset, heightEndPoint + heightAbsoluteOffset)
+            
+        if self.isSelected() or self.resizeInProgress or self.isAnyHandleSelected():
+            # draw the position guides
+            widgetPosition = self.widget.getPosition()
+            # we draw right to left and hopefully this will end at the origin
+            
+            absoluteXInPixels = widgetPosition.d_x.d_offset
+            relativeXInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetPosition.d_x.d_scale, 0), baseSize.d_width)
+            
+            xStartPoint = self.rect().topLeft()
+            xMidPoint = xStartPoint - QPointF(absoluteXInPixels, 0)
+            xEndPoint = xMidPoint - QPointF(relativeXInPixels, 0)
+            xRelativeOffset = QPointF(0, guidePenSize) if relativeXInPixels * absoluteXInPixels < 0 else QPointF(0, 0)
+            
+            pen = QPen()
+            pen.setWidth(guidePenSize)
+            pen.setColor(QColor(0, 255, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(xStartPoint, xMidPoint)
+            pen.setColor(QColor(255, 0, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(xMidPoint + xRelativeOffset, xEndPoint + xRelativeOffset)
+            
+            absoluteYInPixels = widgetPosition.d_y.d_offset
+            relativeYInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetPosition.d_y.d_scale, 0), baseSize.d_height)
+            
+            yStartPoint = self.rect().topLeft()
+            yMidPoint = yStartPoint - QPointF(0, absoluteYInPixels)
+            yEndPoint = yMidPoint - QPointF(0, relativeYInPixels)
+            yRelativeOffset = QPointF(-guidePenSize, 0) if relativeYInPixels * absoluteYInPixels < 0 else QPointF(0, 0)
+            
+            pen = QPen()
+            pen.setWidth(guidePenSize)
+            pen.setColor(QColor(0, 255, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(yStartPoint, yMidPoint)
+            pen.setColor(QColor(255, 0, 0, 255))
+            painter.setPen(pen)
+            painter.drawLine(yMidPoint + yRelativeOffset, yEndPoint + yRelativeOffset)
+            
+        painter.restore()

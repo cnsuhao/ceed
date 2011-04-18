@@ -31,6 +31,27 @@ import undo
 
 import ui.imageseteditor.dockwidget
 
+class ImageEntryItemDelegate(QItemDelegate):
+    """The only reason for this is to track when we are editing.
+    
+    We need this to discard key events when editor is open.
+    TODO: Isn't there a better way to do this?
+    """
+    
+    def __init__(self):
+        super(ImageEntryItemDelegate, self).__init__()
+        self.editing = False
+        
+    def setEditorData(self, editor, index):
+        self.editing = True
+
+        super(ImageEntryItemDelegate, self).setEditorData(editor, index)
+    
+    def setModelData(self, editor, model, index):
+        super(ImageEntryItemDelegate, self).setModelData(editor, model, index)
+        
+        self.editing = False
+
 class ImagesetEditorDockWidget(QDockWidget):
     """Provides list of images, property editing of currently selected image and create/delete
     """
@@ -59,6 +80,7 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.filterBox.textChanged.connect(self.filterChanged)
         
         self.list = self.findChild(QListWidget, "list")
+        self.list.setItemDelegate(ImageEntryItemDelegate())
         self.list.itemSelectionChanged.connect(self.slot_itemSelectionChanged)
         self.list.itemChanged.connect(self.slot_itemChanged)
         
@@ -90,6 +112,11 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.imagesetEntry = imagesetEntry
         
     def refresh(self):
+        """Refreshes the whole list
+        
+        Note: User potentially looses selection when this is called!
+        """
+        
         # FIXME: This is really really weird!
         #        If I call list.clear() it crashes when undoing image deletes for some reason
         #        I already spent several hours tracking it down and I couldn't find anything
@@ -131,11 +158,21 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.filterChanged(self.filterBox.text())
 
     def setActiveImageEntry(self, imageEntry):
+        """Active image entry is the image entry that is selected when there are no
+        other image entries selected. It's properties show in the property box.
+        
+        Note: Imageset editing doesn't allow multi selection property editing because
+              IMO it doesn't make much sense.
+        """
+        
         self.activeImageEntry = imageEntry
         
         self.refreshActiveImageEntry()
     
     def refreshActiveImageEntry(self):
+        """Refreshes the properties of active image entry (from image entry to the property box)
+        """
+        
         if not self.activeImageEntry:
             self.positionX.setText("")
             self.positionX.setEnabled(False)
@@ -165,13 +202,17 @@ class ImagesetEditorDockWidget(QDockWidget):
             self.offsetY.setEnabled(True)
             
     def keyReleaseEvent(self, event):
-        if event.key() == Qt.Key_Delete:
-            selection = self.parent.scene().selectedItems()
-            
-            handled = self.parent.deleteImageEntries(selection)
-            
-            if handled:
-                return True
+        # if we are editing, we should discard key events
+        # (delete means delete character, not delete image entry in this context)
+        
+        if not self.list.itemDelegate().editing:
+            if event.key() == Qt.Key_Delete:
+                selection = self.parent.scene().selectedItems()
+                
+                handled = self.parent.deleteImageEntries(selection)
+                
+                if handled:
+                    return True
         
         return super(ImagesetEditorDockWidget, self).keyReleaseEvent(event)  
 
@@ -304,13 +345,17 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.metaslot_propertyChanged("yoffset", text)
 
 class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
+    """This is the "Visual" tab for imageset editing
+    """
+    
     def __init__(self, parent):
         mixedtab.EditMode.__init__(self)
         QGraphicsView.__init__(self)
-        
+                
         scene = QGraphicsScene()
         self.setScene(scene)
         
+        self.setFocusPolicy(Qt.ClickFocus)
         self.setFrameStyle(QFrame.NoFrame)
         
         # use OpenGL for view redrawing
@@ -393,6 +438,11 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
         
     def refreshSceneRect(self):
         boundingRect = self.imagesetEntry.boundingRect()
+        
+        # the reason to make the bounding rect 100px bigger on all the sides is to make
+        # middle button drag scrolling easier (you can put the image where you want without
+        # running out of scene
+        
         boundingRect.adjust(-100, -100, 100, 100)
         self.scene().setSceneRect(boundingRect)
         
@@ -420,8 +470,8 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
     def zoomIn(self):
         self.zoomFactor *= 2
         
-        if self.zoomFactor > 64:
-            self.zoomFactor = 64
+        if self.zoomFactor > 256:
+            self.zoomFactor = 256
         
         self.performZoom()
     
@@ -462,12 +512,20 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
             newRects = {}
             
             for imageEntry in imageEntries:
+
                 imageNames.append(imageEntry.name)
                 oldPositions[imageEntry.name] = imageEntry.pos()
                 newPositions[imageEntry.name] = imageEntry.pos() - topLeftDelta
                 oldRects[imageEntry.name] = imageEntry.rect()
+                
                 newRect = imageEntry.rect()
                 newRect.setBottomRight(newRect.bottomRight() - topLeftDelta + bottomRightDelta)
+
+                if newRect.width() < 1:
+                    newRect.setWidth(1)
+                if newRect.height() < 1:
+                    newRect.setHeight(1)
+                
                 newRects[imageEntry.name] = newRect
                 
             cmd = undo.GeometryChangeCommand(self, imageNames, oldPositions, oldRects, newPositions, newRects)
@@ -653,16 +711,24 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
             for selectedItem in expandedSelectedItems:
                 if isinstance(selectedItem, elements.ImageEntry):
                     if selectedItem.oldPosition:
-                        moveImageNames.append(selectedItem.name)
-                        moveImageOldPositions[selectedItem.name] = selectedItem.oldPosition
-                        moveImageNewPositions[selectedItem.name] = selectedItem.pos()
+                        if selectedItem.mouseOver:
+                            # show the label again if mouse is over because moving finished
+                            selectedItem.label.setVisible(True)
+                            
+                        # only include that if the position really changed
+                        if selectedItem.oldPosition != selectedItem.pos():
+                            moveImageNames.append(selectedItem.name)
+                            moveImageOldPositions[selectedItem.name] = selectedItem.oldPosition
+                            moveImageNewPositions[selectedItem.name] = selectedItem.pos()
                         
                     if selectedItem.resized:
-                        resizeImageNames.append(selectedItem.name)
-                        resizeImageOldPositions[selectedItem.name] = selectedItem.resizeOldPos
-                        resizeImageOldRects[selectedItem.name] = selectedItem.resizeOldRect
-                        resizeImageNewPositions[selectedItem.name] = selectedItem.pos()
-                        resizeImageNewRects[selectedItem.name] = selectedItem.rect()
+                        # only include that if the position or rect really changed
+                        if selectedItem.resizeOldPos != selectedItem.pos() or selectedItem.resizeOldRect != selectedItem.rect():
+                            resizeImageNames.append(selectedItem.name)
+                            resizeImageOldPositions[selectedItem.name] = selectedItem.resizeOldPos
+                            resizeImageOldRects[selectedItem.name] = selectedItem.resizeOldRect
+                            resizeImageNewPositions[selectedItem.name] = selectedItem.pos()
+                            resizeImageNewRects[selectedItem.name] = selectedItem.rect()
                         
                     selectedItem.potentialMove = False
                     selectedItem.oldPosition = None
@@ -670,9 +736,11 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
                     
                 elif isinstance(selectedItem, elements.ImageOffset):
                     if selectedItem.oldPosition:
-                        moveOffsetNames.append(selectedItem.parent.name)
-                        moveOffsetOldPositions[selectedItem.parent.name] = selectedItem.oldPosition
-                        moveOffsetNewPositions[selectedItem.parent.name] = selectedItem.pos()
+                        # only include that if the position really changed
+                        if selectedItem.oldPosition != selectedItem.pos():
+                            moveOffsetNames.append(selectedItem.parent.name)
+                            moveOffsetOldPositions[selectedItem.parent.name] = selectedItem.oldPosition
+                            moveOffsetNewPositions[selectedItem.parent.name] = selectedItem.pos()
                         
                     selectedItem.potentialMove = False
                     selectedItem.oldPosition = None
@@ -719,10 +787,24 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
             self.zoomOut()
             
     def keyReleaseEvent(self, event):
+        # TODO: offset keyboard handling
+        
         handled = False
         
         if event.key() in [Qt.Key_A, Qt.Key_D, Qt.Key_W, Qt.Key_S]:
-            selection = self.scene().selectedItems()
+            selection = []
+            
+            for item in self.scene().selectedItems():
+                if item in selection:
+                    continue
+                
+                if isinstance(item, elements.ImageEntry):
+                    selection.append(item)
+                    
+                elif isinstance(item, resizable.ResizingHandle):
+                    parent = item.parentItem()
+                    if not parent in selection:
+                        selection.append(parent)
             
             if len(selection) > 0:
                 delta = QPointF()
@@ -757,9 +839,6 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
             event.accept()
             
     def slot_selectionChanged(self):
-        if QApplication.closingDown():
-            return
-        
         # if dockWidget is changing the selection, back off
         if self.dockWidget.selectionUnderway:
             return

@@ -24,12 +24,7 @@ class GraphicsView(QGraphicsView):
     
     def __init__(self):
         super(GraphicsView, self).__init__()
-        
-    def scale(self, sx, sy):
-        super(GraphicsView, self).scale(sx, sy)
-        
-        self.scaleChanged(sx, sy)
-        
+
     def setTransform(self, transform):
         super(GraphicsView, self).setTransform(transform)
         
@@ -95,6 +90,7 @@ class ResizingHandle(QGraphicsRectItem):
             
         elif change == QGraphicsItem.ItemSelectedHasChanged:
             self.unselectAllSiblingHandles()
+            self.parentItem().notifyHandleSelected(self)
         
         elif change == QGraphicsItem.ItemPositionChange:
             if not self.parentItem().resizeInProgress and not self.ignoreGeometryChanges:
@@ -264,15 +260,18 @@ class CornerResizingHandle(ResizingHandle):
         super(CornerResizingHandle, self).__init__(parent)
         
         self.setPen(self.parentItem().getCornerResizingHandleHiddenPen())
-        self.setFlags(self.flags() |
-                      QGraphicsItem.ItemIgnoresTransformations)
+        self.setFlags(self.flags())
         
         self.setZValue(1)
 
-    def counterScale(self):
-        x, y = self.getCounteringScale()
-        
-        self.setScale(x, y)
+    def scaleChanged(self, sx, sy):
+        super(CornerResizingHandle, self).scaleChanged(sx, sy)
+
+        transform = self.transform()
+        transform = QTransform(1.0 / sx, transform.m12(), transform.m13(),
+                               transform.m21(), 1.0 / sy, transform.m23(),
+                               transform.m31(), transform.m32(), transform.m33())
+        self.setTransform(transform)
 
     def hoverEnterEvent(self, event):
         super(CornerResizingHandle, self).hoverEnterEvent(event)
@@ -482,6 +481,17 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         for item in self.childItems():
             if isinstance(item, ResizingHandle):
                 item.setSelected(False)
+    
+    def notifyHandleSelected(self, handle):
+        pass
+    
+    def isAnyHandleSelected(self):
+        for item in self.childItems():
+            if isinstance(item, ResizingHandle):
+                if item.isSelected():
+                    return True
+                
+        return False
         
     def ensureHandlesUpdated(self):        
         if self.handlesDirty and not self.resizeInProgress:

@@ -33,6 +33,15 @@ import xmlediting
 
 from xml.etree import ElementTree
 
+"""Special words used in imageset editing code:
+Imageset - definition of image rectangles on specified underlying image (~texture atlas)
+Image Entry - one rectangle of the imageset
+Image Offset - allows you to change the pivot point of the image entry which by default is at the
+               top left corner of the image. To make the pivot point be at the centre of the image
+               that is 25x25 pixels, set the offset to -12, -12
+Underlying image - the image that lies under the image entries/rectangles (bitmap image)
+"""
+
 class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
     """Binds all imageset editing functionality together
     """
