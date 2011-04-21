@@ -559,9 +559,15 @@ class ContainerWidget(QWidget):
         self.makeGLContextCurrent()
         
         schemes = []
-        for file in os.listdir(project.getAbsolutePathOf(project.schemesPath)):
-            if file.endswith(".scheme"):
-                schemes.append(file)
+        absoluteSchemesPath = project.getAbsolutePathOf(project.schemesPath)
+        if os.path.exists(absoluteSchemesPath):
+            for file in os.listdir(absoluteSchemesPath):
+                if file.endswith(".scheme"):
+                    schemes.append(file)
+        else:
+            # TODO: warning perhaps?
+            #       with a dialog to let user immediately remedy the situation before loading continues
+            pass
 
         progress.setMinimum(0)
         progress.setMaximum(3 + len(schemes))

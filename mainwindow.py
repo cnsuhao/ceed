@@ -515,7 +515,7 @@ class MainWindow(QMainWindow):
         self.settings.setValue("recentProjects", files)
         
         if len(files) > self.maxRecentProjects:
-            files.removeAt(self.maxRecentProjects)
+            files.remove(files[self.maxRecentProjects])
 
         self.updateRecentProjectsActions()
             
@@ -524,7 +524,7 @@ class MainWindow(QMainWindow):
 
         numRecentFiles = len(files)
 
-        for i in range(numRecentFiles):
+        for i in range(min(numRecentFiles, len(self.recentProjectsActions))):
             fileName = files[i]
             if (len(fileName) > self.recentProjectsNameTrimLength):
                 # + 3 because of the ...
