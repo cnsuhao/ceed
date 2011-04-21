@@ -63,8 +63,14 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
                 idx += 1
                 
         self.absoluteMode = False
+        
+        self.preResizePos = None
+        self.preResizeSize = None
         self.lastNewPos = None
         self.lastNewRect = None
+        
+        self.preMovePos = None
+        self.lastMoveNewPos = None
                 
     def updateFromWidgetData(self):
         assert(self.widget is not None)
@@ -78,8 +84,10 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
             parentUnclippedOuterRect = parentWidget.getUnclippedOuterRect()
             pos -= parentUnclippedOuterRect.getPosition()
         
+        self.ignoreGeometryChanges = True
         self.setPos(QPoint(pos.d_x, pos.d_y))
         self.setRect(QRectF(0, 0, size.d_width, size.d_height))
+        self.ignoreGeometryChanges = False
         
         for item in self.childItems():
             if not isinstance(item, Manipulator):
@@ -87,7 +95,7 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
             
             item.updateFromWidgetData()
     
-        self.preResizePosition = None
+        self.preResizePos = None
         self.preResizeSize = None
     
     def moveToFront(self):
@@ -143,7 +151,7 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()
         
-        self.preResizePosition = self.widget.getPosition()
+        self.preResizePos = self.widget.getPosition()
         self.preResizeSize = self.widget.getSize()
         
         for item in self.childItems():
@@ -170,7 +178,7 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaPos.x() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaPos.y() / baseSize.d_height, 0))
             deltaSize = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaSize.width() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaSize.height() / baseSize.d_height, 0))
         
-        self.widget.setPosition(self.preResizePosition + deltaPos)
+        self.widget.setPosition(self.preResizePos + deltaPos)
         self.widget.setSize(self.preResizeSize + deltaSize)
         
         for item in self.childItems():
@@ -191,6 +199,49 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
                 
         self.lastNewPos = None
         self.lastNewRect = None
+        
+    def notifyMoveStarted(self):
+        super(Manipulator, self).notifyMoveStarted()
+        
+        self.preMovePos = self.widget.getPosition()
+        
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                item.setVisible(False)
+    
+    def notifyMoveProgress(self, newPos):
+        super(Manipulator, self).notifyMoveProgress(newPos)
+        
+        # absolute pixel deltas
+        pixelDeltaPos = newPos - self.moveOldPos
+        
+        deltaPos = None
+        if self.absoluteMode:
+            deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
+            
+        else:
+            baseSize = self.getBaseSize()
+            
+            deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaPos.x() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaPos.y() / baseSize.d_height, 0))
+            
+        self.widget.setPosition(self.preMovePos + deltaPos)
+        
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                item.updateFromWidgetData()
+                
+        self.lastMoveNewPos = newPos
+        
+    def notifyMoveFinished(self, newPos):
+        super(Manipulator, self).notifyMoveFinished(newPos)
+        
+        self.updateFromWidgetData()
+        
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                item.setVisible(True)
+                
+        self.lastMoveNewPos = None
 
     def boundingClipPath(self):
         ret = QPainterPath()

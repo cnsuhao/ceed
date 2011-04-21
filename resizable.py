@@ -44,6 +44,8 @@ class GraphicsView(QGraphicsView):
         for selectedItem in self.scene().selectedItems():
             if isinstance(selectedItem, ResizingHandle):
                 selectedItem.mouseReleaseEventSelected(event)
+            elif isinstance(selectedItem, ResizableGraphicsRectItem):
+                selectedItem.mouseReleaseEventSelected(event)
 
 class ResizingHandle(QGraphicsRectItem):
     def __init__(self, parent):
@@ -377,7 +379,14 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         self.handlesDirty = True
         self.currentScaleX = 1
         self.currentScaleY = 1
+        
+        self.ignoreGeometryChanges = False
+        
         self.resizeInProgress = False
+        self.resizeOldPos = None
+        self.resizeOldRect = None
+        self.moveInProgress = False
+        self.moveOldPos = None
         
         self.hideAllHandles()
         
@@ -640,9 +649,20 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         pass
         
     def notifyResizeFinished(self, newPos, newRect):
+        self.ignoreGeometryChanges = True
         self.setRect(newRect)
         self.setPos(newPos)
-        
+        self.ignoreGeometryChanges = False
+    
+    def notifyMoveStarted(self):
+        pass
+    
+    def notifyMoveProgress(self, newPos):
+        pass
+    
+    def notifyMoveFinished(self, newPos):
+        pass
+    
     def scaleChanged(self, sx, sy):
         self.currentScaleX = sx
         self.currentScaleY = sy
@@ -666,6 +686,21 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
             else:
                 self.hideAllHandles()
         
+        elif change == QGraphicsItem.ItemPositionChange:
+            if not self.moveInProgress and not self.ignoreGeometryChanges:
+                self.moveInProgress = True
+                self.moveOldPos = self.pos()
+
+                #self.setPen(self.getPenWhileResizing())               
+                self.hideAllHandles()
+                
+                self.notifyMoveStarted()
+                
+            if self.moveInProgress:
+                newPos = self.pos()
+                
+                self.notifyMoveProgress(newPos)
+        
         return ret
         
     def hoverEnterEvent(self, event):
@@ -679,3 +714,10 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         self.setPen(self.getNormalPen())
     
         super(ResizableGraphicsRectItem, self).hoverLeaveEvent(event)
+        
+    def mouseReleaseEventSelected(self, event):
+        if self.moveInProgress:
+            self.moveInProgress = False
+            newPos = self.pos()
+            
+            self.notifyMoveFinished(newPos)
