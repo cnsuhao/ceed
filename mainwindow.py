@@ -514,7 +514,9 @@ class MainWindow(QMainWindow):
         
         self.settings.setValue("recentProjects", files)
         
-        if len(files) > self.maxRecentProjects:
+        # while because files could be in a bad state because of previously thrown exceptions
+        # make sure we trim them correctly in all circumstances
+        while len(files) > self.maxRecentProjects:
             files.remove(files[self.maxRecentProjects])
 
         self.updateRecentProjectsActions()

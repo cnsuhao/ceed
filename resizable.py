@@ -20,6 +20,13 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 class GraphicsView(QGraphicsView):
+    """If you plan to use ResizableGraphicsRectItems, make sure you view them
+    via a GraphicsView that is inherited from this exact class.
+    
+    The reason for that is that The ResizableRectItem needs to counter-scale
+    resizing handles
+    """
+    
     scaleChanged = Signal(float, float)
     
     def __init__(self):
@@ -35,7 +42,7 @@ class GraphicsView(QGraphicsView):
         
     def scaleChanged(self, sx, sy):
         for item in self.scene().items():
-            if isinstance(item, ResizableGraphicsRectItem):
+            if isinstance(item, ResizableRectItem):
                 item.scaleChanged(sx, sy)
                 
     def mouseReleaseEvent(self, event):
@@ -44,10 +51,17 @@ class GraphicsView(QGraphicsView):
         for selectedItem in self.scene().selectedItems():
             if isinstance(selectedItem, ResizingHandle):
                 selectedItem.mouseReleaseEventSelected(event)
-            elif isinstance(selectedItem, ResizableGraphicsRectItem):
+            elif isinstance(selectedItem, ResizableRectItem):
                 selectedItem.mouseReleaseEventSelected(event)
 
 class ResizingHandle(QGraphicsRectItem):
+    """A rectangle that when moved resizes the parent resizable rect item.
+    
+    The reason to go with a child GraphicsRectItem instead of just overriding mousePressEvent et al
+    is to easily support multi selection resizing (you can multi-select various edges in all imaginable
+    combinations and resize many things at once).
+    """
+    
     def __init__(self, parent):
         super(ResizingHandle, self).__init__()
         
@@ -64,6 +78,10 @@ class ResizingHandle(QGraphicsRectItem):
         self.currentView = None
 
     def adjustParentRect(self, delta_x1, delta_y1, delta_x2, delta_y2):
+        """Adjusts the parent rectangle and returns a 4-tuple of the actual used deltas
+        (with restrictions accounted for)
+        """
+        
         parent = self.parentItem()
         newRect = parent.rect().adjusted(delta_x1, delta_y1, delta_x2, delta_y2)
         newRect = parent.constrainResizeRect(newRect)
@@ -138,6 +156,9 @@ class ResizingHandle(QGraphicsRectItem):
         pass
 
 class EdgeResizingHandle(ResizingHandle):
+    """Resizing handle positioned on one of the 4 edges
+    """
+    
     def __init__(self, parent):
         super(EdgeResizingHandle, self).__init__(parent)
         
@@ -258,6 +279,9 @@ class RightEdgeResizingHandle(EdgeResizingHandle):
         self.setTransform(transform)
 
 class CornerResizingHandle(ResizingHandle):
+    """Resizing handle positioned in one of the 4 corners.
+    """
+    
     def __init__(self, parent):
         super(CornerResizingHandle, self).__init__(parent)
         
@@ -357,11 +381,20 @@ class TopLeftCornerResizingHandle(CornerResizingHandle):
             
         return ret
 
-class ResizableGraphicsRectItem(QGraphicsRectItem):
+class ResizableRectItem(QGraphicsRectItem):
+    """Rectangle that can be resized by dragging it's handles.
+    
+    Inherit from this class to gain resizing and moving capabilities.
+    
+    Depending on the size, the handles are shown outside the rectangle (if it's small)
+    or inside (if it's large). All this is tweakable.
+    """
+    
     def __init__(self, parentItem = None):
-        super(ResizableGraphicsRectItem, self).__init__(parentItem)
+        super(ResizableRectItem, self).__init__(parentItem)
         
-        self.setFlags(QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QGraphicsItem.ItemSendsGeometryChanges |
+                      QGraphicsItem.ItemIsMovable)
         
         self.setAcceptsHoverEvents(True)
         self.mouseOver = False
@@ -406,7 +439,7 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         
     def getNormalPen(self):
         ret = QPen()
-        ret.setColor(QColor(255, 255, 255, 255))
+        ret.setColor(QColor(255, 255, 255, 150))
         ret.setStyle(Qt.DotLine)
         
         return ret
@@ -459,7 +492,7 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         self.handlesDirty = True
         
     def setRect(self, rect):
-        super(ResizableGraphicsRectItem, self).setRect(rect)
+        super(ResizableRectItem, self).setRect(rect)
 
         self.handlesDirty = True
         self.ensureHandlesUpdated()
@@ -671,14 +704,14 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
             if isinstance(childItem, ResizingHandle):
                 childItem.scaleChanged(sx, sy)
                 
-            elif isinstance(childItem, ResizableGraphicsRectItem):
+            elif isinstance(childItem, ResizableRectItem):
                 childItem.scaleChanged(sx, sy)
                 
         self.handlesDirty = True
         self.ensureHandlesUpdated()
         
     def itemChange(self, change, value):
-        ret = super(ResizableGraphicsRectItem, self).itemChange(change, value)
+        ret = super(ResizableRectItem, self).itemChange(change, value)
         
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value:
@@ -704,7 +737,7 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         return ret
         
     def hoverEnterEvent(self, event):
-        super(ResizableGraphicsRectItem, self).hoverEnterEvent(event)
+        super(ResizableRectItem, self).hoverEnterEvent(event)
         
         self.setPen(self.getHoverPen())
         self.mouseOver = True
@@ -713,7 +746,7 @@ class ResizableGraphicsRectItem(QGraphicsRectItem):
         self.mouseOver = False
         self.setPen(self.getNormalPen())
     
-        super(ResizableGraphicsRectItem, self).hoverLeaveEvent(event)
+        super(ResizableRectItem, self).hoverLeaveEvent(event)
         
     def mouseReleaseEventSelected(self, event):
         if self.moveInProgress:

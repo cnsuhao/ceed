@@ -24,7 +24,7 @@ import PyCEGUI
 
 # This module contains helping classes for CEGUI widget handling
 
-class Manipulator(resizable.ResizableGraphicsRectItem):
+class Manipulator(resizable.ResizableRectItem):
     """
     This is a rectangle that is synchronised with given CEGUI widget,
     it provides moving and resizing functionality
@@ -178,7 +178,31 @@ class Manipulator(resizable.ResizableGraphicsRectItem):
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaPos.x() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaPos.y() / baseSize.d_height, 0))
             deltaSize = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaSize.width() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaSize.height() / baseSize.d_height, 0))
         
-        self.widget.setPosition(self.preResizePos + deltaPos)
+        # because the Qt manipulator is always top left aligned in the CEGUI sense,
+        # we have to process the size to factor in alignments if they differ
+        processedDeltaPos = PyCEGUI.UVector2()
+        
+        vAlignment = self.widget.getVerticalAlignment()
+        if vAlignment == PyCEGUI.VerticalAlignment.VA_TOP:
+            processedDeltaPos.d_y = deltaPos.d_y
+        elif vAlignment == PyCEGUI.VerticalAlignment.VA_CENTRE:
+            processedDeltaPos.d_y = deltaPos.d_y + 0.5 * deltaSize.d_y
+        elif vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM:
+            processedDeltaPos.d_y = deltaPos.d_y + deltaSize.d_y
+        else:
+            assert(False)
+        
+        hAlignment = self.widget.getHorizontalAlignment()    
+        if hAlignment == PyCEGUI.HorizontalAlignment.HA_LEFT:
+            processedDeltaPos.d_x = deltaPos.d_x
+        elif hAlignment == PyCEGUI.HorizontalAlignment.HA_CENTRE:
+            processedDeltaPos.d_x = deltaPos.d_x + 0.5 * deltaSize.d_x
+        elif hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT:
+            processedDeltaPos.d_x = deltaPos.d_x + deltaSize.d_x
+        else:
+            assert(False)
+        
+        self.widget.setPosition(self.preResizePos + processedDeltaPos)
         self.widget.setSize(self.preResizeSize + deltaSize)
         
         for item in self.childItems():

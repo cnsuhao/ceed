@@ -136,7 +136,7 @@ class ImageOffset(QGraphicsPixmapItem):
 
         super(ImageOffset, self).hoverLeaveEvent(event)
 
-class ImageEntry(resizable.ResizableGraphicsRectItem):
+class ImageEntry(resizable.ResizableRectItem):
     """Represents the image of the imageset, can be drag moved, selected, resized, ...
     """
     
