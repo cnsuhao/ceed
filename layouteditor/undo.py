@@ -19,3 +19,103 @@
 import commands
 
 idbase = 1200
+
+class MoveCommand(commands.UndoCommand):
+    """This command simply moves given widgets from old positions to new
+    """
+    
+    def __init__(self, visual, widgetPaths, oldPositions, newPositions):
+        super(MoveCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.oldPositions = oldPositions
+        self.newPositions = newPositions
+    
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Move '%s'" % (self.widgetPaths[0]))
+        else:
+            self.setText("Move %i widgets" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 1
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(MoveCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+        super(MoveCommand, self).redo()
+
+class ResizeCommand(commands.UndoCommand):
+    """This command resizes given widgets from old positions and old sizes to new
+    """
+    
+    def __init__(self, visual, widgetPaths, oldPositions, oldSizes, newPositions, newSizes):
+        super(ResizeCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.oldPositions = oldPositions
+        self.oldSizes = oldSizes
+        self.newPositions = newPositions
+        self.newSizes = newSizes
+    
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Resize '%s'" % (self.widgetPaths[0]))
+        else:
+            self.setText("Resize %i widgets" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 2
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(ResizeCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
+            widgetManipulator.widget.setSize(self.oldSizes[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
+            widgetManipulator.widget.setSize(self.newSizes[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+        super(ResizeCommand, self).redo()

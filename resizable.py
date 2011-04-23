@@ -46,13 +46,13 @@ class GraphicsView(QGraphicsView):
                 item.scaleChanged(sx, sy)
                 
     def mouseReleaseEvent(self, event):
-        super(GraphicsView, self).mouseReleaseEvent(event)
-       
         for selectedItem in self.scene().selectedItems():
             if isinstance(selectedItem, ResizingHandle):
                 selectedItem.mouseReleaseEventSelected(event)
             elif isinstance(selectedItem, ResizableRectItem):
                 selectedItem.mouseReleaseEventSelected(event)
+
+        super(GraphicsView, self).mouseReleaseEvent(event)
 
 class ResizingHandle(QGraphicsRectItem):
     """A rectangle that when moved resizes the parent resizable rect item.

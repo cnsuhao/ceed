@@ -25,6 +25,9 @@ import propertysetinspector
 import cegui
 import PyCEGUI
 
+import undo
+import resizable
+
 import ui.layouteditor.hierarchydockwidget
 import ui.layouteditor.propertiesdockwidget
 import ui.layouteditor.createwidgetdockwidget
@@ -119,13 +122,26 @@ class EditingScene(cegui.GraphicsScene):
         self.rootManipulator = cegui.widget.Manipulator(widget)
         self.addItem(self.rootManipulator)
         
+    def getWidgetManipulatorByPath(self, widgetPath):
+        path = widgetPath.split("/", 1)
+        assert(len(path) >= 1)
+        
+        if len(path) == 1:
+            assert(path[0] == self.rootManipulator.widget.getName())
+            
+            return self.rootManipulator
+        
+        else:
+            # path[1] is the remainder of the path
+            return self.rootManipulator.getWidgetManipulatorByPath(path[1])
+        
     def setSceneRect(self, rect):
         # overridden to keep the manipulators in sync
         
         super(EditingScene, self).setSceneRect(rect)
         
         if self.rootManipulator is not None:
-            self.rootManipulator.updateFromWidgetData()
+            self.rootManipulator.updateFromWidget()
             
     def slot_selectionChanged(self):
         selection = self.selectedItems()
@@ -136,6 +152,60 @@ class EditingScene(cegui.GraphicsScene):
                 sets.append(item.widget)
             
         self.parent.propertiesDockWidget.inspector.setPropertySets(sets)
+        
+    def mouseReleaseEvent(self, event):
+        super(EditingScene, self).mouseReleaseEvent(event)
+        
+        movedWidgetPaths = []
+        movedOldPositions = {}
+        movedNewPositions = {}
+        
+        resizedWidgetPaths = []
+        resizedOldPositions = {}
+        resizedOldSizes = {}
+        resizedNewPositions = {}
+        resizedNewSizes = {}
+        
+        # we have to "expand" the items, adding parents of resizing handles
+        # instead of the handles themselves
+        expandedSelectedItems = []
+        for selectedItem in self.selectedItems():
+            if isinstance(selectedItem, cegui.widget.Manipulator):
+                expandedSelectedItems.append(selectedItem)
+            elif isinstance(selectedItem, resizable.ResizingHandle):
+                if isinstance(selectedItem.parentItem(), cegui.widget.Manipulator):
+                    expandedSelectedItems.append(selectedItem.parentItem())
+        
+        for item in expandedSelectedItems:
+            if isinstance(item, cegui.widget.Manipulator):
+                if item.preMovePos is not None:
+                    widgetPath = item.widget.getNamePath()
+                    movedWidgetPaths.append(widgetPath)
+                    movedOldPositions[widgetPath] = item.preMovePos
+                    movedNewPositions[widgetPath] = item.widget.getPosition()
+                    
+                    # it won't be needed anymore so we use this to mark we picked this item up
+                    item.preMovePos = None
+
+                if item.preResizePos is not None and item.preResizeSize is not None:
+                    widgetPath = item.widget.getNamePath()
+                    resizedWidgetPaths.append(widgetPath)
+                    resizedOldPositions[widgetPath] = item.preResizePos
+                    resizedOldSizes[widgetPath] = item.preResizeSize
+                    resizedNewPositions[widgetPath] = item.widget.getPosition()
+                    resizedNewSizes[widgetPath] = item.widget.getSize()
+                    
+                    # it won't be needed anymore so we use this to mark we picked this item up
+                    item.preResizePos = None
+                    item.preResizeSize = None
+        
+        if len(movedWidgetPaths) > 0:
+            cmd = undo.MoveCommand(self, movedWidgetPaths, movedOldPositions, movedNewPositions)
+            self.parent.parent.undoStack.push(cmd)
+            
+        if len(resizedWidgetPaths) > 0:
+            cmd = undo.ResizeCommand(self, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
+            self.parent.parent.undoStack.push(cmd)
 
 class VisualEditing(QWidget, mixedtab.EditMode):
     def __init__(self, parent):

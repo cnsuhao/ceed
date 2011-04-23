@@ -45,7 +45,7 @@ class Manipulator(resizable.ResizableRectItem):
                       QGraphicsItem.ItemSendsGeometryChanges)
 
         self.widget = widget
-        self.updateFromWidgetData()
+        self.updateFromWidget()
         
         if recursive:
             idx = 0
@@ -66,13 +66,33 @@ class Manipulator(resizable.ResizableRectItem):
         
         self.preResizePos = None
         self.preResizeSize = None
-        self.lastNewPos = None
-        self.lastNewRect = None
+        self.lastResizeNewPos = None
+        self.lastResizeNewRect = None
         
         self.preMovePos = None
         self.lastMoveNewPos = None
-                
-    def updateFromWidgetData(self):
+    
+    def getWidgetManipulatorByPath(self, widgetPath):
+        path = widgetPath.split("/", 1)
+        assert(len(path) >= 1)
+        
+        baseName = path[0]
+        remainder = ""
+        if len(path) == 2:
+            remainder = path[1]
+        
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                if item.widget.getName() == baseName:
+                    if remainder == "":
+                        return item
+                    
+                    else:
+                        return item.getWidgetManipulatorByPath(remainder)
+        
+        raise RuntimeError("Can't find widget manipulator of path '" + path + "'")
+        
+    def updateFromWidget(self):
         assert(self.widget is not None)
         
         unclippedOuterRect = self.widget.getUnclippedOuterRect()
@@ -93,10 +113,7 @@ class Manipulator(resizable.ResizableRectItem):
             if not isinstance(item, Manipulator):
                 continue
             
-            item.updateFromWidgetData()
-    
-        self.preResizePos = None
-        self.preResizeSize = None
+            item.updateFromWidget()
     
     def moveToFront(self):
         self.widget.moveToFront()
@@ -207,22 +224,22 @@ class Manipulator(resizable.ResizableRectItem):
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
-                item.updateFromWidgetData()
+                item.updateFromWidget()
                 
-        self.lastNewPos = newPos
-        self.lastNewRect = newRect
+        self.lastResizeNewPos = newPos
+        self.lastResizeNewRect = newRect
         
     def notifyResizeFinished(self, newPos, newRect):
         super(Manipulator, self).notifyResizeFinished(newPos, newRect)
         
-        self.updateFromWidgetData()
+        self.updateFromWidget()
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
                 item.setVisible(True)
                 
-        self.lastNewPos = None
-        self.lastNewRect = None
+        self.lastResizeNewPos = None
+        self.lastResizeNewRect = None
         
     def notifyMoveStarted(self):
         super(Manipulator, self).notifyMoveStarted()
@@ -252,14 +269,14 @@ class Manipulator(resizable.ResizableRectItem):
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
-                item.updateFromWidgetData()
+                item.updateFromWidget()
                 
         self.lastMoveNewPos = newPos
         
     def notifyMoveFinished(self, newPos):
         super(Manipulator, self).notifyMoveFinished(newPos)
         
-        self.updateFromWidgetData()
+        self.updateFromWidget()
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
@@ -415,8 +432,10 @@ class Manipulator(resizable.ResizableRectItem):
             self.absoluteMode = True
             
             # immediately update if possible
-            if self.resizeInProgress and (self.lastNewPos is not None and self.lastNewRect is not None):
-                self.notifyResizeProgress(self.lastNewPos, self.lastNewRect)
+            if self.resizeInProgress:
+                self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
+            if self.moveInProgress:
+                self.notifyMoveProgress(self.lastMoveNewPos)
             
     def keyReleaseEvent(self, event):
         super(Manipulator, self).keyReleaseEvent(event)
@@ -425,8 +444,10 @@ class Manipulator(resizable.ResizableRectItem):
             self.absoluteMode = False
             
             # immediately update if possible
-            if self.resizeInProgress and (self.lastNewPos is not None and self.lastNewRect is not None):
-                self.notifyResizeProgress(self.lastNewPos, self.lastNewRect)
+            if self.resizeInProgress:
+                self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
+            if self.moveInProgress:
+                self.notifyMoveProgress(self.lastMoveNewPos)
 
     def paint(self, painter, option, widget):
         painter.save()
