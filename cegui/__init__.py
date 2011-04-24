@@ -31,8 +31,6 @@ import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
 import resizable
-# make it visible to the outside
-import widget
 
 #class CEGUIQtLogger(PyCEGUI.Logger):
 #    """Redirects CEGUI log info to CEGUIWidgetInfo"""
@@ -576,11 +574,11 @@ class ContainerWidget(QWidget):
         progress.setValue(0)
         
         # destroy all previous resources (if any)
-        PyCEGUI.ImageManager.getSingleton().destroyAll()
-        PyCEGUI.FontManager.getSingleton().destroyAll()
-        PyCEGUI.SchemeManager.getSingleton().destroyAll()
-        #PyCEGUI.WidgetLookManager.getSingleton().destroyAll()
         PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
+        PyCEGUI.FontManager.getSingleton().destroyAll()
+        PyCEGUI.ImageManager.getSingleton().destroyAll()
+        PyCEGUI.SchemeManager.getSingleton().destroyAll()
+        PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
         
         progress.setLabelText("Setting resource paths...")
         progress.setValue(1)
@@ -736,3 +734,6 @@ class ContainerWidget(QWidget):
 
     def slot_debugInfoButton(self):
         self.debugInfo.show()
+
+# make it visible to the outside
+import widget

@@ -20,9 +20,33 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 import resizable
+import cegui
 import PyCEGUI
 
 # This module contains helping classes for CEGUI widget handling
+
+class GraphicsScene(cegui.GraphicsScene):
+    """If you plan to use widget manipulators, use a scene inherited from this class.
+    """
+    
+    def __init__(self):
+        super(GraphicsScene, self).__init__()
+
+    def keyPressEvent(self, event):
+        super(GraphicsScene, self).keyPressEvent(event)
+        
+        if event.key() == Qt.Key_Control:
+            for item in self.items():
+                if isinstance(item, Manipulator):
+                    item.setAlternativeMode(True)
+        
+    def keyReleaseEvent(self, event):
+        super(GraphicsScene, self).keyReleaseEvent(event)
+        
+        if event.key() == Qt.Key_Control:
+            for item in self.items():
+                if isinstance(item, Manipulator):
+                    item.setAlternativeMode(False)
 
 class Manipulator(resizable.ResizableRectItem):
     """
@@ -62,7 +86,7 @@ class Manipulator(resizable.ResizableRectItem):
                 
                 idx += 1
                 
-        self.absoluteMode = False
+        self.alternativeMode = False
         
         self.preResizePos = None
         self.preResizeSize = None
@@ -91,7 +115,19 @@ class Manipulator(resizable.ResizableRectItem):
                         return item.getWidgetManipulatorByPath(remainder)
         
         raise RuntimeError("Can't find widget manipulator of path '" + path + "'")
+    
+    def setAlternativeMode(self, enabled):
+        if self.alternativeMode == enabled:
+            return
         
+        self.alternativeMode = enabled
+        
+        # immediately update if possible
+        if self.resizeInProgress:
+            self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
+        if self.moveInProgress:
+            self.notifyMoveProgress(self.lastMoveNewPos)
+
     def updateFromWidget(self):
         assert(self.widget is not None)
         
@@ -185,7 +221,7 @@ class Manipulator(resizable.ResizableRectItem):
         deltaPos = None
         deltaSize = None
         
-        if self.absoluteMode:
+        if self.alternativeMode:
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
             deltaSize = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
         
@@ -257,7 +293,7 @@ class Manipulator(resizable.ResizableRectItem):
         pixelDeltaPos = newPos - self.moveOldPos
         
         deltaPos = None
-        if self.absoluteMode:
+        if self.alternativeMode:
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
             
         else:
@@ -424,34 +460,13 @@ class Manipulator(resizable.ResizableRectItem):
         pen.setColor(QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(midHPoint + hOffset, endHPoint + hOffset)
-    
-    def keyPressEvent(self, event):
-        super(Manipulator, self).keyPressEvent(event)
-        
-        if event.key() == Qt.Key_Control:
-            self.absoluteMode = True
-            
-            # immediately update if possible
-            if self.resizeInProgress:
-                self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
-            if self.moveInProgress:
-                self.notifyMoveProgress(self.lastMoveNewPos)
-            
-    def keyReleaseEvent(self, event):
-        super(Manipulator, self).keyReleaseEvent(event)
-        
-        if event.key() == Qt.Key_Control:
-            self.absoluteMode = False
-            
-            # immediately update if possible
-            if self.resizeInProgress:
-                self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
-            if self.moveInProgress:
-                self.notifyMoveProgress(self.lastMoveNewPos)
 
     def paint(self, painter, option, widget):
         painter.save()
         
+        # We are drawing the outlines after CEGUI has already been rendered so he have to clip overlapping parts
+        # we basically query all items colliding with ourselves and if that's a manipulator and is over us we subtract
+        # that from the clipped path.
         clipPath = QPainterPath()
         clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
         for item in self.collidingItems():
@@ -465,6 +480,7 @@ class Manipulator(resizable.ResizableRectItem):
         
         super(Manipulator, self).paint(painter, option, widget)
 
+        # TODO: Snap Grid drawing
         painter.restore()
 
         baseSize = self.getBaseSize()

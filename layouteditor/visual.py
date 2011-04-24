@@ -107,7 +107,7 @@ class CreateWidgetDockWidget(QDockWidget):
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
 
-class EditingScene(cegui.GraphicsScene):
+class EditingScene(cegui.widget.GraphicsScene):
     def __init__(self, parent):
         super(EditingScene, self).__init__()
         

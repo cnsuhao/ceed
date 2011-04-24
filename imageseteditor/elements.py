@@ -175,11 +175,8 @@ class ImageEntry(resizable.ResizableRectItem):
         
         self.setFlags(QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemIsSelectable |
-                      #QGraphicsItem.ItemClipsChildrenToShape |
                       QGraphicsItem.ItemSendsGeometryChanges)
-        
-        self.setCursor(Qt.OpenHandCursor)
-        
+
         self.setVisible(True)
         
         self.label = ImageLabel(self)
