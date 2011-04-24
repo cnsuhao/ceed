@@ -258,6 +258,7 @@ class Manipulator(resizable.ResizableRectItem):
         self.widget.setPosition(self.preResizePos + processedDeltaPos)
         self.widget.setSize(self.preResizeSize + deltaSize)
         
+        # our size changed that means that all child manipulators are out of sync
         for item in self.childItems():
             if isinstance(item, Manipulator):
                 item.updateFromWidget()
@@ -321,6 +322,8 @@ class Manipulator(resizable.ResizableRectItem):
         self.lastMoveNewPos = None
 
     def boundingClipPath(self):
+        """Retrieves clip path containing the bounding rectangle"""
+        
         ret = QPainterPath()
         ret.addRect(self.boundingRect())
         
@@ -340,6 +343,8 @@ class Manipulator(resizable.ResizableRectItem):
         assert(False)
     
     def paintHorizontalGuides(self, baseSize, painter, option, widget):
+        """Paints horizontal dimension guides - position X and width guides"""
+        
         widgetPosition = self.widget.getPosition()
         widgetSize = self.widget.getSize()
         
@@ -401,6 +406,8 @@ class Manipulator(resizable.ResizableRectItem):
         painter.drawLine(midWPoint + wOffset, endWPoint + wOffset)
         
     def paintVerticalGuides(self, baseSize, painter, option, widget):
+        """Paints vertical dimension guides - position Y and height guides"""
+        
         widgetPosition = self.widget.getPosition()
         widgetSize = self.widget.getSize()
         

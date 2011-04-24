@@ -230,21 +230,28 @@ class SliderPropertyInspector(PropertyInspector):
         return str(ret)
     
 class PropertyInspectorManager(object):
-    inspectors = [
-        LineEditPropertyInspector(),
-        TextEditPropertyInspector(),
-        CheckBoxPropertyInspector(),
-        SliderPropertyInspector()
-    ]
+    def __init__(self):
+        self.inspectors = [
+            LineEditPropertyInspector(),
+            TextEditPropertyInspector(),
+            CheckBoxPropertyInspector(),
+            SliderPropertyInspector()
+        ]
     
-    mappings = []
+        self.mappings = []
+
+    def clearMappings(self):
+        """Clears mappings if any"""
+        
+        self.mappings = []
     
-    @staticmethod
-    def clearMappings():
-        PropertyInspectorManager.mappings = []
-    
-    @staticmethod    
-    def loadMappings(absolutePath):
+    def loadMappings(self, absolutePath):
+        """Appends mappings from given file.
+        
+        Mappings loaded later override mappings before them. All mappings are kept so that
+        you can see them in the settings screen in the future but are searched in reverse order.
+        """
+        
         tree = ElementTree.parse(absolutePath)
         root = tree.getroot()
         
@@ -253,14 +260,13 @@ class PropertyInspectorManager(object):
         for mappingElement in root.findall("mapping"):
             mapping = PropertyInspectorMapping()
             mapping.loadFromElement(mappingElement)
-            PropertyInspectorManager.mappings.append(mapping)
+            self.mappings.append(mapping)
     
-    @staticmethod
-    def getInspectorAndMapping(property):
+    def getInspectorAndMapping(self, propertyOrigin, propertyName):
         # reversed because custom mappings loaded later override stock mappings loaded earlier
-        for mapping in reversed(PropertyInspectorManager.mappings):
-            if mapping.propertyOrigin == property.getOrigin() and mapping.propertyName == property.getName():
-                for inspector in PropertyInspectorManager.inspectors:
+        for mapping in reversed(self.mappings):
+            if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
+                for inspector in self.inspectors:
                     if inspector.getName() == mapping.targetInspectorName:
                         return inspector, mapping
                 
@@ -268,4 +274,4 @@ class PropertyInspectorManager(object):
                                 "inspector of name '%s'" % (mapping.targetInspectorName))
         
         # mapping doesn't exist        
-        return None, None            
+        return None, None

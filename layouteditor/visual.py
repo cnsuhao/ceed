@@ -225,6 +225,9 @@ class VisualEditing(QWidget, mixedtab.EditMode):
         self.scene = EditingScene(self)
 
     def initialise(self, rootWidget):
+        # FIXME: unreadable
+        self.propertiesDockWidget.inspector.setPropertyInspectorManager(self.parent.mainWindow.project.propertyInspectorManager)
+        
         self.replaceRootWidget(rootWidget)
         self.createWidgetDockWidget.populate()
     

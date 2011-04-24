@@ -225,7 +225,8 @@ class PropertySetInspectorDelegate(QItemDelegate):
     
     def createEditor(self, parent, option, index):
         propertyEntry = self.setInspector.getPropertyEntry(index)
-        inspector, mapping = propertyinspector.PropertyInspectorManager.getInspectorAndMapping(propertyEntry.getPropertyInstance())
+        propertyInstance = propertyEntry.getPropertyInstance()
+        inspector, mapping = self.setInspector.propertyInspectorManager.getInspectorAndMapping(propertyInstance.getOrigin(), propertyInstance.getName())
         
         ret = inspector.createEditWidget(parent, propertyEntry, mapping)
     
@@ -247,8 +248,7 @@ class PropertySetInspectorDelegate(QItemDelegate):
         propertyEntry.update()
 
 class PropertySetInspector(QWidget):
-    """Allows browsing and editing of any CEGUI::PropertySet derived class
-    """
+    """Allows browsing and editing of any CEGUI::PropertySet derived class"""
     
     propertyEditingStarted = Signal(str)
     propertyEditingEnded = Signal(str, str, str)
@@ -256,6 +256,8 @@ class PropertySetInspector(QWidget):
     
     def __init__(self, parent = None):
         super(PropertySetInspector, self).__init__(parent)
+        
+        self.propertyInspectorManager = None
         
         self.ui = ui.propertysetinspector.Ui_PropertySetInspector()
         self.ui.setupUi(self)
@@ -270,6 +272,15 @@ class PropertySetInspector(QWidget):
         
         self.view.setItemDelegate(PropertySetInspectorDelegate(self))
         self.view.setModel(self.model)
+
+    def setPropertyInspectorManager(self, propertyInspectorManager):
+        """You have to set a valid property inspector manager before doing any inspecting.
+        
+        This class handles editing of the individual properties
+        """
+        
+        assert(self.propertySets == [])
+        self.propertyInspectorManager = propertyInspectorManager
 
     def getPropertyEntry(self, index):
         if not index.parent().isValid():
@@ -289,6 +300,8 @@ class PropertySetInspector(QWidget):
         self.propertySets = sets
         
         if len(self.propertySets) > 0:
+            assert(self.propertyInspectorManager is not None)
+            
             propertiesByOrigin = {}
             
             for set in self.propertySets:

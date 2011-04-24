@@ -398,8 +398,8 @@ class ResizableRectItem(QGraphicsRectItem):
         
         self.hideAllHandles()
         
-        self.setOuterHandleSize(20)
-        self.setInnerHandleSize(15)
+        self.setOuterHandleSize(15)
+        self.setInnerHandleSize(10)
     
         self.setCursor(Qt.OpenHandCursor)
         self.setPen(self.getNormalPen())

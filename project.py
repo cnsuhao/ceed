@@ -22,6 +22,8 @@ from PySide.QtGui import *
 import os
 import sys
 
+import propertyinspector
+
 from xml.etree import ElementTree
 
 import qtwidgets
@@ -264,6 +266,9 @@ class Project(QStandardItemModel):
         self.layoutsPath = "./layouts"
         
         self.changed = True
+        
+        self.propertyInspectorManager = propertyinspector.PropertyInspectorManager()
+        self.propertyInspectorManager.loadMappings(os.path.abspath("data/StockMappings.xml"))
 
     def getSupportedDropActions(self):
         return Qt.MoveAction

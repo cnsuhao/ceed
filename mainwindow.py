@@ -27,7 +27,6 @@ import commands
 import project
 import cegui
 import filesystembrowser
-import propertyinspector
 
 import tab
 
@@ -76,7 +75,6 @@ class MainWindow(QMainWindow):
         
         self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
-        #self.tabs.currentChanged.connect(self.slot_currentTabChanged)
         self.tabs.tabCloseRequested.connect(self.slot_tabCloseRequested)
         
         self.tabEditors = []
@@ -99,8 +97,6 @@ class MainWindow(QMainWindow):
         
         self.connectActions()
         self.connectSignals()
-        
-        propertyinspector.PropertyInspectorManager.loadMappings("data/StockMappings.xml")
         
         self.restoreSettings()     
     
