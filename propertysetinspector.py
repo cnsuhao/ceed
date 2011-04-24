@@ -116,6 +116,19 @@ class PropertyEntry(QStandardItem):
         
         return value
     
+    def getCurrentValues(self):
+        ret = {}
+        missingInSome = False
+        
+        for set in self.getPropertySets():
+            if not set.isPropertyPresent(self.propertyName):
+                missingInSome = True
+                continue
+            
+            ret[set] = set.getProperty(self.propertyName)
+                    
+        return ret
+    
     def isCurrentValueDefault(self):
         for set in self.getPropertySets():
             if set.isPropertyPresent(self.propertyName):
@@ -251,8 +264,8 @@ class PropertySetInspector(QWidget):
     """Allows browsing and editing of any CEGUI::PropertySet derived class"""
     
     propertyEditingStarted = Signal(str)
-    propertyEditingEnded = Signal(str, str, str)
     propertyEditingProgress = Signal(str, str)
+    propertyEditingEnded = Signal(str, dict, str)
     
     def __init__(self, parent = None):
         super(PropertySetInspector, self).__init__(parent)
@@ -312,11 +325,13 @@ class PropertySetInspector(QWidget):
                     propertyName = property.getName()
                     origin = property.getOrigin()
                     
-                    if not propertiesByOrigin.has_key(origin):
-                        propertiesByOrigin[origin] = []
-                    
-                    if propertyName not in propertiesByOrigin[origin]:
-                        propertiesByOrigin[origin].append(propertyName)
+                    # skip over if this property is ignored
+                    if not self.propertyInspectorManager.isPropertyIgnored(origin, propertyName):
+                        if not propertiesByOrigin.has_key(origin):
+                            propertiesByOrigin[origin] = []
+                        
+                        if propertyName not in propertiesByOrigin[origin]:
+                            propertiesByOrigin[origin].append(propertyName)
                     
                     propertyIt.next()
                 

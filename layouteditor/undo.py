@@ -56,13 +56,13 @@ class MoveCommand(commands.UndoCommand):
         super(MoveCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.updateFromWidget()
             
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.updateFromWidget()
             
@@ -106,16 +106,65 @@ class ResizeCommand(commands.UndoCommand):
         super(ResizeCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.widget.setSize(self.oldSizes[widgetPath])
             widgetManipulator.updateFromWidget()
             
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.widget.setSize(self.newSizes[widgetPath])
             widgetManipulator.updateFromWidget()
             
         super(ResizeCommand, self).redo()
+
+class PropertyEditCommand(commands.UndoCommand):
+    """This command resizes given widgets from old positions and old sizes to new
+    """
+    
+    def __init__(self, visual, propertyName, widgetPaths, oldValues, newValue):
+        super(PropertyEditCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.propertyName = propertyName
+        self.widgetPaths = widgetPaths
+        self.oldValues = oldValues
+        self.newValue = newValue
+        
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Change '%s' in '%s'" % (self.propertyName, self.widgetPaths[0]))
+        else:
+            self.setText("Change '%s' in %i widgets" % (self.propertyName, len(self.widgetPaths)))
+        
+    def id(self):
+        return idbase + 3
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(PropertyEditCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setProperty(self.propertyName, self.oldValues[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setProperty(self.propertyName, self.newValue)
+            widgetManipulator.updateFromWidget()
+            
+        super(PropertyEditCommand, self).redo()

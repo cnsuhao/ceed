@@ -27,7 +27,11 @@ import math
 
 class PropertyInspectorMapping(object):
     """Maps a CEGUI::Property (by origin and name) to a PropertyInspector to allow
-    its viewing and editing"""
+    its viewing and editing.
+    
+    If target inspector name is \"\" then this mapping means that the property should
+    be ignored in the property set inspector listing.
+    """
     
     def __init__(self, propertyOrigin = "", propertyName = "",
                        targetInspectorName = "", targetInspectorSettings = {}):
@@ -86,8 +90,8 @@ class PropertyInspector(object):
         pass
     
     def populateEditWidget(self, widget, propertyEntry, mapping):
-        # save the old value
-        widget.oldValue = propertyEntry.getCurrentValue()
+        # save the old values
+        widget.oldValues = propertyEntry.getCurrentValues()
         
         self.impl_populateEditWidget(widget, propertyEntry, mapping)
     
@@ -109,11 +113,11 @@ class PropertyInspector(object):
     
     def notifyEditingEnded(self, widget, propertyEntry, mapping):
         propertySetInspector = propertyEntry.parent.parent
-        oldValue = widget.oldValue
+        oldValues = widget.oldValues
         value = self.getCurrentValueForProperty(widget, propertyEntry, mapping)
         
         self.impl_populatePropertyEntry(widget, propertyEntry, mapping)
-        propertySetInspector.propertyEditingEnded.emit(propertyEntry.propertyName, oldValue, value) 
+        propertySetInspector.propertyEditingEnded.emit(propertyEntry.propertyName, oldValues, value) 
 
 class LineEditPropertyInspector(PropertyInspector):
     def canEdit(self):
@@ -266,6 +270,10 @@ class PropertyInspectorManager(object):
         # reversed because custom mappings loaded later override stock mappings loaded earlier
         for mapping in reversed(self.mappings):
             if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
+                if mapping.targetInspectorName == "":
+                    # this property is set to be ignored
+                    return None, None
+                
                 for inspector in self.inspectors:
                     if inspector.getName() == mapping.targetInspectorName:
                         return inspector, mapping
@@ -275,3 +283,16 @@ class PropertyInspectorManager(object):
         
         # mapping doesn't exist        
         return None, None
+
+    def isPropertyIgnored(self, propertyOrigin, propertyName):
+        for mapping in reversed(self.mappings):
+            if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
+                if mapping.targetInspectorName == "":
+                    # this property is set to be ignored
+                    return True
+                
+                else:
+                    return False
+
+        return False
+    

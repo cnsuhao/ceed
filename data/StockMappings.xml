@@ -16,6 +16,25 @@
     <mapping propertyOrigin="Window" propertyName="Visible" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="Window" propertyName="RestoreOldCapture" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="Window" propertyName="Text" targetInspectorName="TextEdit" />
+    <mapping propertyOrigin="Window" propertyName="ZOrderingEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="WantsMultiClickEvents" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="MouseAutoRepeatEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatDelay" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatRate" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="Window" propertyName="DistributeCapturedInputs" targetInspectorName="CheckBox" />
+    <!-- TODO: This should be a combobox listing only available tooltip types -->
+    <mapping propertyOrigin="Window" propertyName="TooltipType" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="Window" propertyName="TooltipText" targetInspectorName="TextEdit" />
+    <mapping propertyOrigin="Window" propertyName="InheritsTooltipText" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="RiseOnClickEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="Area" targetInspectorName="" />
+    <!-- TODO: Position -->
+    <mapping propertyOrigin="Window" propertyName="XPosition" targetInspectorName="" />
+    <mapping propertyOrigin="Window" propertyName="YPosition" targetInspectorName="" />
+    <!-- TODO: Size -->
+    <mapping propertyOrigin="Window" propertyName="Width" targetInspectorName="" />
+    <mapping propertyOrigin="Window" propertyName="Height" targetInspectorName="" />
+    
     
     <!-- CEGUI::FrameWindow -->
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingEnabled" targetInspectorName="CheckBox" />

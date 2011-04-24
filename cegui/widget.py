@@ -185,14 +185,14 @@ class Manipulator(resizable.ResizableRectItem):
             minPixelSize = PyCEGUI.CoordConverter.asAbsolute(self.widget.getMinSize(),
                                                              PyCEGUI.System.getSingleton().getRenderer().getDisplaySize())
             
-            return QSizeF(minPixelSize.d_x, minPixelSize.d_y)
+            return QSizeF(minPixelSize.d_width, minPixelSize.d_height)
     
     def getMaxSize(self):
         if self.widget:
             maxPixelSize = PyCEGUI.CoordConverter.asAbsolute(self.widget.getMaxSize(),
                                                              PyCEGUI.System.getSingleton().getRenderer().getDisplaySize())
             
-            return QSizeF(maxPixelSize.d_x, maxPixelSize.d_y)
+            return QSizeF(maxPixelSize.d_width, maxPixelSize.d_height)
     
     def getBaseSize(self):
         if self.widget.getParent() is not None and not self.widget.isNonClientWindow():
@@ -223,35 +223,35 @@ class Manipulator(resizable.ResizableRectItem):
         
         if self.alternativeMode:
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
-            deltaSize = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
+            deltaSize = PyCEGUI.USize(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
         
         else:
             baseSize = self.getBaseSize()
             
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaPos.x() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaPos.y() / baseSize.d_height, 0))
-            deltaSize = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaSize.width() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaSize.height() / baseSize.d_height, 0))
+            deltaSize = PyCEGUI.USize(PyCEGUI.UDim(pixelDeltaSize.width() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaSize.height() / baseSize.d_height, 0))
         
         # because the Qt manipulator is always top left aligned in the CEGUI sense,
         # we have to process the size to factor in alignments if they differ
         processedDeltaPos = PyCEGUI.UVector2()
         
-        vAlignment = self.widget.getVerticalAlignment()
-        if vAlignment == PyCEGUI.VerticalAlignment.VA_TOP:
-            processedDeltaPos.d_y = deltaPos.d_y
-        elif vAlignment == PyCEGUI.VerticalAlignment.VA_CENTRE:
-            processedDeltaPos.d_y = deltaPos.d_y + 0.5 * deltaSize.d_y
-        elif vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM:
-            processedDeltaPos.d_y = deltaPos.d_y + deltaSize.d_y
-        else:
-            assert(False)
-        
         hAlignment = self.widget.getHorizontalAlignment()    
         if hAlignment == PyCEGUI.HorizontalAlignment.HA_LEFT:
             processedDeltaPos.d_x = deltaPos.d_x
         elif hAlignment == PyCEGUI.HorizontalAlignment.HA_CENTRE:
-            processedDeltaPos.d_x = deltaPos.d_x + 0.5 * deltaSize.d_x
+            processedDeltaPos.d_x = deltaPos.d_x + 0.5 * deltaSize.d_width
         elif hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT:
-            processedDeltaPos.d_x = deltaPos.d_x + deltaSize.d_x
+            processedDeltaPos.d_x = deltaPos.d_x + deltaSize.d_width
+        else:
+            assert(False)
+        
+        vAlignment = self.widget.getVerticalAlignment()
+        if vAlignment == PyCEGUI.VerticalAlignment.VA_TOP:
+            processedDeltaPos.d_y = deltaPos.d_y
+        elif vAlignment == PyCEGUI.VerticalAlignment.VA_CENTRE:
+            processedDeltaPos.d_y = deltaPos.d_y + 0.5 * deltaSize.d_width
+        elif vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM:
+            processedDeltaPos.d_y = deltaPos.d_y + deltaSize.d_height
         else:
             assert(False)
         
@@ -353,8 +353,8 @@ class Manipulator(resizable.ResizableRectItem):
         offsetXInPixels = widgetPosition.d_x.d_offset
         
         # width
-        scaleWidthInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_x.d_scale, 0), baseSize.d_width)
-        offsetWidthInPixels = widgetSize.d_x.d_offset
+        scaleWidthInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_width.d_scale, 0), baseSize.d_width)
+        offsetWidthInPixels = widgetSize.d_width.d_offset
         
         hAlignment = self.widget.getHorizontalAlignment()
         startXPoint = 0
@@ -416,8 +416,8 @@ class Manipulator(resizable.ResizableRectItem):
         offsetYInPixels = widgetPosition.d_y.d_offset
         
         # height
-        scaleHeightInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_y.d_scale, 0), baseSize.d_height)
-        offsetHeightInPixels = widgetSize.d_y.d_offset
+        scaleHeightInPixels = PyCEGUI.CoordConverter.asAbsolute(PyCEGUI.UDim(widgetSize.d_height.d_scale, 0), baseSize.d_height)
+        offsetHeightInPixels = widgetSize.d_height.d_offset
         
         vAlignment = self.widget.getVerticalAlignment()
         startYPoint = 0

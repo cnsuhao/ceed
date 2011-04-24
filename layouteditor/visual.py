@@ -73,6 +73,34 @@ class PropertiesDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.inspector = self.findChild(propertysetinspector.PropertySetInspector, "inspector")
+        self.inspector.propertyEditingProgress.connect(self.slot_propertyEditingProgress)
+        self.inspector.propertyEditingEnded.connect(self.slot_propertyEditingEnded)
+        
+    def slot_propertyEditingProgress(self, propertyName, value):
+        # instant preview
+        for set in self.inspector.propertySets:
+            if set.isPropertyPresent(propertyName):
+                set.setProperty(propertyName, value)
+    
+    def slot_propertyEditingEnded(self, propertyName, oldValues, value):
+        widgetPaths = []
+        undoOldValues = {}
+        
+        # set the properties where applicable
+        for set in self.inspector.propertySets:
+            if set.isPropertyPresent(propertyName):
+                # the undo command will do this again anyways
+                #set.setProperty(propertyName, value)
+                
+                if oldValues[set] != value:
+                    widgetPath = set.getNamePath()
+                    widgetPaths.append(widgetPath)
+                    undoOldValues[widgetPath] = oldValues[set]
+        
+        if len(widgetPaths) > 0:        
+            cmd = undo.PropertyEditCommand(self.parent, propertyName, widgetPaths, undoOldValues, value)
+            # FIXME: unreadable
+            self.parent.parent.undoStack.push(cmd)
 
 class CreateWidgetDockWidget(QDockWidget):
     def __init__(self, parent):
@@ -200,11 +228,11 @@ class EditingScene(cegui.widget.GraphicsScene):
                     item.preResizeSize = None
         
         if len(movedWidgetPaths) > 0:
-            cmd = undo.MoveCommand(self, movedWidgetPaths, movedOldPositions, movedNewPositions)
+            cmd = undo.MoveCommand(self.parent, movedWidgetPaths, movedOldPositions, movedNewPositions)
             self.parent.parent.undoStack.push(cmd)
             
         if len(resizedWidgetPaths) > 0:
-            cmd = undo.ResizeCommand(self, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
+            cmd = undo.ResizeCommand(self.parent, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
             self.parent.parent.undoStack.push(cmd)
 
 class VisualEditing(QWidget, mixedtab.EditMode):
