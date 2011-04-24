@@ -34,6 +34,8 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         
         self.parent = parent
         self.ignoreUndoCommands = False
+        self.lastUndoText = None
+        self.lastUndoCursor = None
         
         self.document().setUndoRedoEnabled(False)
         self.document().contentsChange.connect(self.slot_contentsChange)
@@ -74,15 +76,14 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         return super(XMLEditing, self).deactivate()
     
     def slot_contentsChange(self, position, charsRemoved, charsAdded):
-        #if not self.ignoreUndoCommands:
-        #    totalChange = charsRemoved + charsAdded
-        #    
-        #    cmd = undo.XMLEditingCommand(self, self.lastUndoText, self.lastTextCursor,
-        #                                       self.toPlainText(), self.textCursor(),
-        #                                       totalChange)
-        #    self.parent.undoStack.push(cmd)
-        #    
-        #self.lastUndoText = self.toPlainText()
-        #self.lastTextCursor = self.textCursor()
-        pass
+        if not self.ignoreUndoCommands:
+            totalChange = charsRemoved + charsAdded
+            
+            cmd = undo.XMLEditingCommand(self, self.lastUndoText, self.lastTextCursor,
+                                               self.toPlainText(), self.textCursor(),
+                                               totalChange)
+            self.parent.undoStack.push(cmd)
+            
+        self.lastUndoText = self.toPlainText()
+        self.lastTextCursor = self.textCursor()
         

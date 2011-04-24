@@ -41,6 +41,8 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         self.parent = parent
         self.ignoreUndoCommands = False
         self.ignoreRefreshFromVisual = False
+        self.lastUndoText = None
+        self.lastUndoCursor = None
         
         self.document().setUndoRedoEnabled(False)
         self.document().contentsChange.connect(self.slot_contentsChange)

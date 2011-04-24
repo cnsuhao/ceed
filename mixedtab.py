@@ -48,9 +48,9 @@ class ModeSwitchCommand(commands.UndoCommand):
     def undo(self):
         super(ModeSwitchCommand, self).undo()
         
-        self.parent.ignoreCurrentChanged = True
+        self.parent.ignoreCurrentChangedForUndo = True
         self.parent.setCurrentIndex(self.oldTabIndex)
-        self.parent.ignoreCurrentChanged = False
+        self.parent.ignoreCurrentChangedForUndo = False
             
     def redo(self):
         # to avoid multiple event firing
@@ -148,10 +148,10 @@ class MixedTabbedEditor(tab.UndoStackTabbedEditor, QTabWidget):
         
         if newTab:
             newTab.activate()
-        
-        self.currentTabIndex = newTabIndex
 
         if not self.ignoreCurrentChangedForUndo:
             cmd = ModeSwitchCommand(self, self.currentTabIndex, newTabIndex)
             self.undoStack.push(cmd)
+        
+        self.currentTabIndex = newTabIndex
         
