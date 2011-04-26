@@ -147,7 +147,7 @@ class EditingScene(cegui.widget.GraphicsScene):
     def setRootWidget(self, widget):
         self.clear()
         
-        self.rootManipulator = cegui.widget.Manipulator(widget)
+        self.rootManipulator = cegui.widget.Manipulator(None, widget)
         self.addItem(self.rootManipulator)
         
     def getWidgetManipulatorByPath(self, widgetPath):
@@ -176,8 +176,17 @@ class EditingScene(cegui.widget.GraphicsScene):
         
         sets = []
         for item in selection:
+            widget = None
+            
             if isinstance(item, cegui.widget.Manipulator):
-                sets.append(item.widget)
+                widget = item.widget
+                
+            elif isinstance(item, resizable.ResizingHandle):
+                if isinstance(item.parentResizable, cegui.widget.Manipulator):
+                    widget = item.parentResizable.widget
+                    
+            if widget is not None and widget not in sets:
+                sets.append(widget)
             
         self.parent.propertiesDockWidget.inspector.setPropertySets(sets)
         

@@ -71,13 +71,13 @@ class ResizingHandle(QGraphicsRectItem):
     """
     
     def __init__(self, parent):
-        super(ResizingHandle, self).__init__()
+        super(ResizingHandle, self).__init__(parent)
+        self.parentResizable = parent
         
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemSendsGeometryChanges)
         
-        self.setParentItem(parent)
         self.setAcceptHoverEvents(True)
         
         self.ignoreGeometryChanges = False
@@ -95,9 +95,9 @@ class ResizingHandle(QGraphicsRectItem):
     def unselectAllSiblingHandles(self):
         """Makes sure all siblings of this handle are unselected."""
         
-        assert(self.parentItem())
+        assert(self.parentResizable)
         
-        for item in self.parentItem().childItems():
+        for item in self.parentResizable.childItems():
             if isinstance(item, ResizingHandle) and not self is item:
                 item.setSelected(False)
 
@@ -106,7 +106,7 @@ class ResizingHandle(QGraphicsRectItem):
         """
         
         if change == QGraphicsItem.ItemSelectedChange:
-            if self.parentItem().isSelected():
+            if self.parentResizable.isSelected():
                 # we disallow multi-selecting a resizable item and one of it's handles,
                 return False
             
@@ -115,28 +115,28 @@ class ResizingHandle(QGraphicsRectItem):
             # we allow multi-selecting multiple handles but only one handle per resizable is allowed
             
             self.unselectAllSiblingHandles()
-            self.parentItem().notifyHandleSelected(self)
+            self.parentResizable.notifyHandleSelected(self)
         
         elif change == QGraphicsItem.ItemPositionChange:
             # this is the money code
             # changing position of the handle resizes the whole resizable
-            if not self.parentItem().resizeInProgress and not self.ignoreGeometryChanges:
-                self.parentItem().resizeInProgress = True
-                self.parentItem().resizeOldPos = self.parentItem().pos()
-                self.parentItem().resizeOldRect = self.parentItem().rect()
+            if not self.parentResizable.resizeInProgress and not self.ignoreGeometryChanges:
+                self.parentResizable.resizeInProgress = True
+                self.parentResizable.resizeOldPos = self.parentResizable.pos()
+                self.parentResizable.resizeOldRect = self.parentResizable.rect()
 
-                self.parentItem().setPen(self.parentItem().getPenWhileResizing())               
-                self.parentItem().hideAllHandles(excluding = self)
+                self.parentResizable.setPen(self.parentResizable.getPenWhileResizing())               
+                self.parentResizable.hideAllHandles(excluding = self)
                 
-                self.parentItem().notifyResizeStarted()
+                self.parentResizable.notifyResizeStarted()
                 
-            if self.parentItem().resizeInProgress:
+            if self.parentResizable.resizeInProgress:
                 ret = self.performResizing(value)
                 
-                newPos = self.parentItem().pos() + self.parentItem().rect().topLeft()
-                newRect = QRectF(0, 0, self.parentItem().rect().width(), self.parentItem().rect().height())
+                newPos = self.parentResizable.pos() + self.parentResizable.rect().topLeft()
+                newRect = QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
 
-                self.parentItem().notifyResizeProgress(newPos, newRect)
+                self.parentResizable.notifyResizeProgress(newPos, newRect)
                 
                 return ret
 
@@ -147,15 +147,15 @@ class ResizingHandle(QGraphicsRectItem):
         This notifies us that resizing might have ended.
         """
         
-        if self.parentItem().resizeInProgress:
+        if self.parentResizable.resizeInProgress:
             # resize was in progress and just ended
-            self.parentItem().resizeInProgress = False
-            self.parentItem().setPen(self.parentItem().getHoverPen() if self.parentItem().mouseOver else self.parentItem().getNormalPen())
+            self.parentResizable.resizeInProgress = False
+            self.parentResizable.setPen(self.parentResizable.getHoverPen() if self.parentResizable.mouseOver else self.parentResizable.getNormalPen())
             
-            newPos = self.parentItem().pos() + self.parentItem().rect().topLeft()
-            newRect = QRectF(0, 0, self.parentItem().rect().width(), self.parentItem().rect().height())
+            newPos = self.parentResizable.pos() + self.parentResizable.rect().topLeft()
+            newRect = QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
             
-            self.parentItem().notifyResizeFinished(newPos, newRect)
+            self.parentResizable.notifyResizeFinished(newPos, newRect)
 
     def hoverEnterEvent(self, event):
         super(ResizingHandle, self).hoverEnterEvent(event)
@@ -177,15 +177,15 @@ class EdgeResizingHandle(ResizingHandle):
     def __init__(self, parent):
         super(EdgeResizingHandle, self).__init__(parent)
         
-        self.setPen(self.parentItem().getEdgeResizingHandleHiddenPen())
+        self.setPen(self.parentResizable.getEdgeResizingHandleHiddenPen())
 
     def hoverEnterEvent(self, event):
         super(EdgeResizingHandle, self).hoverEnterEvent(event)
         
-        self.setPen(self.parentItem().getEdgeResizingHandleHoverPen())
+        self.setPen(self.parentResizable.getEdgeResizingHandleHoverPen())
         
     def hoverLeaveEvent(self, event):
-        self.setPen(self.parentItem().getEdgeResizingHandleHiddenPen())
+        self.setPen(self.parentResizable.getEdgeResizingHandleHiddenPen())
         
         super(EdgeResizingHandle, self).hoverLeaveEvent(event)
 
@@ -197,7 +197,7 @@ class TopEdgeResizingHandle(EdgeResizingHandle):
         
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, 0, delta, 0, 0)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta, 0, 0)
 
         return QPointF(self.pos().x(), dy1 + self.pos().y())
 
@@ -218,7 +218,7 @@ class BottomEdgeResizingHandle(EdgeResizingHandle):
         
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, 0, 0, 0, delta)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, 0, delta)
             
         return QPointF(self.pos().x(), dy2 + self.pos().y())
 
@@ -239,7 +239,7 @@ class LeftEdgeResizingHandle(EdgeResizingHandle):
         
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, delta, 0, 0, 0)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta, 0, 0, 0)
             
         return QPointF(dx1 + self.pos().x(), self.pos().y())
 
@@ -260,7 +260,7 @@ class RightEdgeResizingHandle(EdgeResizingHandle):
         
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, 0, 0, delta, 0)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta, 0)
             
         return QPointF(dx2 + self.pos().x(), self.pos().y())
 
@@ -280,7 +280,7 @@ class CornerResizingHandle(ResizingHandle):
     def __init__(self, parent):
         super(CornerResizingHandle, self).__init__(parent)
         
-        self.setPen(self.parentItem().getCornerResizingHandleHiddenPen())
+        self.setPen(self.parentResizable.getCornerResizingHandleHiddenPen())
         self.setFlags(self.flags())
         
         self.setZValue(1)
@@ -297,10 +297,10 @@ class CornerResizingHandle(ResizingHandle):
     def hoverEnterEvent(self, event):
         super(CornerResizingHandle, self).hoverEnterEvent(event)
         
-        self.setPen(self.parentItem().getCornerResizingHandleHoverPen())
+        self.setPen(self.parentResizable.getCornerResizingHandleHoverPen())
         
     def hoverLeaveEvent(self, event):
-        self.setPen(self.parentItem().getCornerResizingHandleHiddenPen())
+        self.setPen(self.parentResizable.getCornerResizingHandleHiddenPen())
         
         super(CornerResizingHandle, self).hoverLeaveEvent(event)
 
@@ -313,7 +313,7 @@ class TopRightCornerResizingHandle(CornerResizingHandle):
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, 0, delta_y, delta_x, 0)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta_y, delta_x, 0)
 
         return QPointF(dx2 + self.pos().x(), dy1 + self.pos().y())
 
@@ -326,7 +326,7 @@ class BottomRightCornerResizingHandle(CornerResizingHandle):
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, 0, 0, delta_x, delta_y)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta_x, delta_y)
         
         return QPointF(dx2 + self.pos().x(), dy2 + self.pos().y())
 
@@ -339,7 +339,7 @@ class BottomLeftCornerResizingHandle(CornerResizingHandle):
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, delta_x, 0, 0, delta_y)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, 0, 0, delta_y)
         
         return QPointF(dx1 + self.pos().x(), dy2 + self.pos().y())
 
@@ -352,7 +352,7 @@ class TopLeftCornerResizingHandle(CornerResizingHandle):
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentItem().performResizing(self, delta_x, delta_y, 0, 0)
+        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, delta_y, 0, 0)
         
         return QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
 

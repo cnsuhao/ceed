@@ -54,14 +54,14 @@ class Manipulator(resizable.ResizableRectItem):
     it provides moving and resizing functionality
     """
     
-    def __init__(self, widget, recursive = True, skipAutoWidgets = True):
+    def __init__(self, parent, widget, recursive = True, skipAutoWidgets = True):
         """
         widget - CEGUI::Widget to wrap
         recursive - if true, even children of given widget are wrapped
         skipAutoWidgets - if true, auto widgets are skipped (only applicable if recursive is True)
         """
         
-        super(Manipulator, self).__init__()
+        super(Manipulator, self).__init__(parent)
         
         self.setFlags(QGraphicsItem.ItemIsFocusable | 
                       QGraphicsItem.ItemIsSelectable |
@@ -81,8 +81,7 @@ class Manipulator(resizable.ResizableRectItem):
                     idx += 1
                     continue
                 
-                child = Manipulator(childWidget, True, skipAutoWidgets)
-                child.setParentItem(self)
+                child = Manipulator(self, childWidget, True, skipAutoWidgets)
                 
                 idx += 1
                 
@@ -476,7 +475,8 @@ class Manipulator(resizable.ResizableRectItem):
         # that from the clipped path.
         clipPath = QPainterPath()
         clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
-        for item in self.collidingItems():
+        collidingItems = self.collidingItems()
+        for item in collidingItems:
             if isinstance(item, Manipulator):
                 if item.isAboveItem(self):
                     clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
