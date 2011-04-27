@@ -24,10 +24,10 @@ import mixedtab
 import PyCEGUI
 
 class LayoutPreviewer(QWidget, mixedtab.EditMode):
-    def __init__(self, parent):
+    def __init__(self, tabbedEditor):
         super(LayoutPreviewer, self).__init__()
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
         self.rootWidget = None
         
         layout = QVBoxLayout(self)
@@ -40,10 +40,10 @@ class LayoutPreviewer(QWidget, mixedtab.EditMode):
         assert(self.rootWidget is None)
         
         # we have to make the context the current context to ensure textures are fine
-        self.parent.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
+        mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
         
         # lets clone so we don't affect the layout at all
-        self.rootWidget = self.parent.visual.rootWidget.clone()
+        self.rootWidget = self.tabbedEditor.visual.rootWidget.clone()
         PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
         
     def deactivate(self):    
@@ -53,8 +53,8 @@ class LayoutPreviewer(QWidget, mixedtab.EditMode):
         return super(LayoutPreviewer, self).deactivate()
 
     def showEvent(self, event):
-        self.parent.mainWindow.ceguiContainerWidget.activate(self, self.parent.filePath)
-        self.parent.mainWindow.ceguiContainerWidget.enableInput()
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.enableInput()
         
         if self.rootWidget:
             PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
@@ -62,13 +62,13 @@ class LayoutPreviewer(QWidget, mixedtab.EditMode):
         super(LayoutPreviewer, self).showEvent(event)
 
     def hideEvent(self, event):
-        # this is sometimes called even before the parent is initialised
-        if hasattr(self.parent, "mainWindow"):
-            self.parent.mainWindow.ceguiContainerWidget.disableInput()
-            self.parent.mainWindow.ceguiContainerWidget.deactivate(self)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.disableInput()
+        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
 
         if self.rootWidget:
             PyCEGUI.System.getSingleton().setGUISheet(None)
             
         super(LayoutPreviewer, self).hideEvent(event)
-    
+
+# needs to be at the end, import to get the singleton
+import mainwindow

@@ -35,10 +35,10 @@ class XMLParseError(Exception):
         self.exception = exception
 
 class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
-    def __init__(self, parent):
+    def __init__(self, tabbedEditor):
         super(XMLEditing, self).__init__()
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
         self.ignoreUndoCommands = False
         self.ignoreRefreshFromVisual = False
         self.lastUndoText = None
@@ -49,7 +49,7 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         
     def refreshFromVisual(self):
         if not self.ignoreRefreshFromVisual:
-            element = self.parent.visual.imagesetEntry.saveToElement()
+            element = self.tabbedEditor.visual.imagesetEntry.saveToElement()
             xmledit.indent(element)
             
             self.ignoreUndoCommands = True
@@ -74,7 +74,7 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
             raise XMLParseError(e)
         
         else:
-            self.parent.visual.loadImagesetEntryFromElement(element)
+            self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
         
     def activate(self):
         super(XMLEditing, self).activate()
@@ -115,7 +115,7 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
             cmd = undo.XMLEditingCommand(self, self.lastUndoText, self.lastTextCursor,
                                                self.toPlainText(), self.textCursor(),
                                                totalChange)
-            self.parent.undoStack.push(cmd)
+            self.tabbedEditor.undoStack.push(cmd)
             
         self.lastUndoText = self.toPlainText()
         self.lastTextCursor = self.textCursor()

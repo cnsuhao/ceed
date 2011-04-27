@@ -34,30 +34,30 @@ class ModeSwitchCommand(commands.UndoCommand):
     undoable even though you can't affect the document in any way whilst in Live Preview
     mode.
     """
-    def __init__(self, parent, oldTabIndex, newTabIndex):
+    def __init__(self, tabbedEditor, oldTabIndex, newTabIndex):
         super(ModeSwitchCommand, self).__init__()
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
         
         self.oldTabIndex = oldTabIndex
         self.newTabIndex = newTabIndex
         
         # we never every merge edit mode changes, no need to define this as refreshText
-        self.setText("Change edit mode to '%s'" % self.parent.tabText(newTabIndex))
+        self.setText("Change edit mode to '%s'" % self.tabbedEditor.tabText(newTabIndex))
         
     def undo(self):
         super(ModeSwitchCommand, self).undo()
         
-        self.parent.ignoreCurrentChangedForUndo = True
-        self.parent.setCurrentIndex(self.oldTabIndex)
-        self.parent.ignoreCurrentChangedForUndo = False
+        self.tabbedEditor.ignoreCurrentChangedForUndo = True
+        self.tabbedEditor.setCurrentIndex(self.oldTabIndex)
+        self.tabbedEditor.ignoreCurrentChangedForUndo = False
             
     def redo(self):
         # to avoid multiple event firing
-        if self.parent.currentIndex() != self.newTabIndex:
-            self.parent.ignoreCurrentChangedForUndo = True
-            self.parent.setCurrentIndex(self.newTabIndex)
-            self.parent.ignoreCurrentChangedForUndo = False
+        if self.tabbedEditor.currentIndex() != self.newTabIndex:
+            self.tabbedEditor.ignoreCurrentChangedForUndo = True
+            self.tabbedEditor.setCurrentIndex(self.newTabIndex)
+            self.tabbedEditor.ignoreCurrentChangedForUndo = False
         
         super(ModeSwitchCommand, self).redo()
 

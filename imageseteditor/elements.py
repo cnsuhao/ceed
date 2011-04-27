@@ -30,10 +30,10 @@ class ImageLabel(QGraphicsTextItem):
     You should not use this directly! Use ImageEntry.name instead to get the name.    
     """
     
-    def __init__(self, parent):
-        super(ImageLabel, self).__init__(parent)
+    def __init__(self, imageEntry):
+        super(ImageLabel, self).__init__(imageEntry)
         
-        self.parent = parent
+        self.imageEntry = imageEntry
         
         self.setFlags(QGraphicsItem.ItemIgnoresTransformations)
         self.setOpacity(0.8)
@@ -71,10 +71,10 @@ class ImageOffset(QGraphicsPixmapItem):
     the artist's point of view.    
     """
     
-    def __init__(self, parent):
-        super(ImageOffset, self).__init__(parent)
+    def __init__(self, imageEntry):
+        super(ImageOffset, self).__init__(imageEntry)
         
-        self.parent = parent
+        self.imageEntry = imageEntry
         
         self.setFlags(QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemIsSelectable | 
@@ -119,7 +119,7 @@ class ImageOffset(QGraphicsPixmapItem):
         
         elif change == QGraphicsItem.ItemSelectedChange:
             if not value:
-                if not self.parent.isSelected():
+                if not self.imageEntry.isSelected():
                     self.setVisible(False)
             else:
                 self.setVisible(True)
@@ -160,10 +160,10 @@ class ImageEntry(resizable.ResizableRectItem):
     yoffset = property(lambda self: int(-(self.offset.pos().y() - 0.5)),
                        lambda self, value: self.offset.setY(-float(value) + 0.5))
     
-    def __init__(self, parent):
-        super(ImageEntry, self).__init__(parent)
+    def __init__(self, imagesetEntry):
+        super(ImageEntry, self).__init__(imagesetEntry)
         
-        self.parent = parent
+        self.imagesetEntry = imagesetEntry
         
         self.setAcceptsHoverEvents(True)
         self.isHovered = False
@@ -228,8 +228,8 @@ class ImageEntry(resizable.ResizableRectItem):
         
         This is mostly used for preview thumbnails in the dock widget.
         """
-        return self.parent.pixmap().copy(int(self.pos().x()), int(self.pos().y()),
-                                         int(self.rect().width()), int(self.rect().height()))
+        return self.imagesetEntry.pixmap().copy(int(self.pos().x()), int(self.pos().y()),
+                                                int(self.rect().width()), int(self.rect().height()))
 
     def updateListItem(self):
         """Updates the list item associated with this image entry in the dock widget
@@ -289,15 +289,13 @@ class ImageEntry(resizable.ResizableRectItem):
         dockWidget = self.listItem.dockWidget
         if dockWidget.activeImageEntry == self:
             dockWidget.refreshActiveImageEntry()
-        
-        # TODO: update the property editor in the dock widget
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value:
                 self.label.setVisible(True)
                 
-                if self.parent.showOffsets:
+                if self.imagesetEntry.showOffsets:
                     self.offset.setVisible(True)
                 
                 self.setZValue(self.zValue() + 1)
@@ -320,11 +318,13 @@ class ImageEntry(resizable.ResizableRectItem):
             
             newPosition = value
 
-            if not self.parent.pixmap().isNull():
-                # if, for whatever reason, the loading of the pixmap failed,
-                # we don't constrain to the empty null pixmap
+            # if, for whatever reason, the loading of the pixmap failed,
+            # we don't constrain to the empty null pixmap
+            
+            # only constrain when the pixmap is valid
+            if not self.imagesetEntry.pixmap().isNull():
                 
-                rect = self.parent.boundingRect()
+                rect = self.imagesetEntry.boundingRect()
                 rect.setWidth(rect.width() - self.rect().width())
                 rect.setHeight(rect.height() - self.rect().height())
                 
@@ -363,15 +363,13 @@ class ImageEntry(resizable.ResizableRectItem):
         
         self.label.setVisible(True)
         
-        # TODO: very unreadable
-        self.parent.parent.parent.mainWindow.statusBar().showMessage("Image: '%s'\t\tXPos: %i, YPos: %i, Width: %i, Height: %i" %
-                                                                     (self.name, self.pos().x(), self.pos().y(), self.rect().width(), self.rect().height()))
+        mainwindow.MainWindow.instance.statusBar().showMessage("Image: '%s'\t\tXPos: %i, YPos: %i, Width: %i, Height: %i" %
+                                                               (self.name, self.pos().x(), self.pos().y(), self.rect().width(), self.rect().height()))
         
         self.isHovered = True
     
     def hoverLeaveEvent(self, event):
-        # TODO: very unreadable
-        self.parent.parent.parent.mainWindow.statusBar().clearMessage()
+        mainwindow.MainWindow.instance.statusBar().clearMessage()
         
         self.isHovered = False
         
@@ -397,7 +395,7 @@ class ImagesetEntry(QGraphicsPixmapItem):
     to have the transparency background working properly.
     """
     
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(ImagesetEntry, self).__init__()
         
         self.name = "Unknown"
@@ -409,7 +407,7 @@ class ImagesetEntry(QGraphicsPixmapItem):
         self.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
         self.setCursor(Qt.ArrowCursor)
         
-        self.parent = parent
+        self.visual = visual
         self.imageEntries = []
         
         self.showOffsets = False
@@ -457,20 +455,20 @@ class ImagesetEntry(QGraphicsPixmapItem):
             imageEntry.setPos(imageEntry.pos())
             imageEntry.updateDockWidget()
             
-        self.parent.refreshSceneRect()
+        self.visual.refreshSceneRect()
     
     def getAbsoluteImageFile(self):
         """Returns an absolute (OS specific!) path of the underlying image
         """
         
-        return os.path.join(os.path.dirname(self.parent.parent.filePath), self.imageFile)
+        return os.path.join(os.path.dirname(self.visual.tabbedEditor.filePath), self.imageFile)
     
     def convertToRelativeImageFile(self, absoluteImageFile):
         """Converts given absolute underlying image path to relative path (relative to the directory where
         the .imageset file resides
         """
         
-        return os.path.normpath(os.path.relpath(absoluteImageFile, os.path.dirname(self.parent.parent.filePath)))
+        return os.path.normpath(os.path.relpath(absoluteImageFile, os.path.dirname(self.visual.tabbedEditor.filePath)))
     
     def loadFromElement(self, element):
         self.name = element.get("Name", "Unknown")
@@ -500,3 +498,6 @@ class ImagesetEntry(QGraphicsPixmapItem):
             ret.append(image.saveToElement())
             
         return ret
+
+# needs to be at the end, import to get the singleton
+import mainwindow

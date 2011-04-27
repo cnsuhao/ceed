@@ -18,7 +18,7 @@ def indent(elem, level = 0, tabImpostor = "    "):
             elem.tail = i
 
 class XMLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(XMLSyntaxHighlighter, self).__init__(parent)
  
         self.highlightingRules = []

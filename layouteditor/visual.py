@@ -33,10 +33,10 @@ import ui.layouteditor.propertiesdockwidget
 import ui.layouteditor.createwidgetdockwidget
 
 class HierarchyDockWidget(QDockWidget):
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(HierarchyDockWidget, self).__init__()
         
-        self.parent = parent
+        self.visual = visual
         
         self.ui = ui.layouteditor.hierarchydockwidget.Ui_HierarchyDockWidget()
         self.ui.setupUi(self)
@@ -64,10 +64,10 @@ class HierarchyDockWidget(QDockWidget):
         self.tree.expandAll()
 
 class PropertiesDockWidget(QDockWidget):
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(PropertiesDockWidget, self).__init__()
         
-        self.parent = parent
+        self.visual = visual
         
         self.ui = ui.layouteditor.propertiesdockwidget.Ui_PropertiesDockWidget()
         self.ui.setupUi(self)
@@ -98,15 +98,15 @@ class PropertiesDockWidget(QDockWidget):
                     undoOldValues[widgetPath] = oldValues[set]
         
         if len(widgetPaths) > 0:        
-            cmd = undo.PropertyEditCommand(self.parent, propertyName, widgetPaths, undoOldValues, value)
+            cmd = undo.PropertyEditCommand(self.visual, propertyName, widgetPaths, undoOldValues, value)
             # FIXME: unreadable
-            self.parent.parent.undoStack.push(cmd)
+            self.visual.tabbedEditor.undoStack.push(cmd)
 
 class CreateWidgetDockWidget(QDockWidget):
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(CreateWidgetDockWidget, self).__init__()
         
-        self.parent = parent
+        self.visual = visual
         
         self.ui = ui.layouteditor.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
         self.ui.setupUi(self)
@@ -116,7 +116,7 @@ class CreateWidgetDockWidget(QDockWidget):
     def populate(self):
         self.tree.clear()
         
-        wl = self.parent.parent.mainWindow.ceguiContainerWidget.getAvailableWidgetsBySkin()
+        wl = mainwindow.MainWindow.instance.ceguiContainerWidget.getAvailableWidgetsBySkin()
         
         for skin, widgets in wl.iteritems():
             skinItem = None
@@ -136,10 +136,10 @@ class CreateWidgetDockWidget(QDockWidget):
                 skinItem.addChild(widgetItem)
 
 class EditingScene(cegui.widget.GraphicsScene):
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(EditingScene, self).__init__()
         
-        self.parent = parent
+        self.visual = visual
         self.rootManipulator = None
         
         self.selectionChanged.connect(self.slot_selectionChanged)
@@ -188,7 +188,7 @@ class EditingScene(cegui.widget.GraphicsScene):
             if widget is not None and widget not in sets:
                 sets.append(widget)
             
-        self.parent.propertiesDockWidget.inspector.setPropertySets(sets)
+        self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
         
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
@@ -237,18 +237,18 @@ class EditingScene(cegui.widget.GraphicsScene):
                     item.preResizeSize = None
         
         if len(movedWidgetPaths) > 0:
-            cmd = undo.MoveCommand(self.parent, movedWidgetPaths, movedOldPositions, movedNewPositions)
-            self.parent.parent.undoStack.push(cmd)
+            cmd = undo.MoveCommand(self.visual, movedWidgetPaths, movedOldPositions, movedNewPositions)
+            self.visual.tabbedEditor.undoStack.push(cmd)
             
         if len(resizedWidgetPaths) > 0:
-            cmd = undo.ResizeCommand(self.parent, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
-            self.parent.parent.undoStack.push(cmd)
+            cmd = undo.ResizeCommand(self.visual, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
+            self.visual.tabbedEditor.undoStack.push(cmd)
 
 class VisualEditing(QWidget, mixedtab.EditMode):
-    def __init__(self, parent):
+    def __init__(self, tabbedEditor):
         super(VisualEditing, self).__init__()
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
         self.rootWidget = None
         
         self.hierarchyDockWidget = HierarchyDockWidget(self)
@@ -263,7 +263,7 @@ class VisualEditing(QWidget, mixedtab.EditMode):
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
-        self.propertiesDockWidget.inspector.setPropertyInspectorManager(self.parent.mainWindow.project.propertyInspectorManager)
+        self.propertiesDockWidget.inspector.setPropertyInspectorManager(mainwindow.MainWindow.instance.project.propertyInspectorManager)
         
         self.replaceRootWidget(rootWidget)
         self.createWidgetDockWidget.populate()
@@ -284,7 +284,7 @@ class VisualEditing(QWidget, mixedtab.EditMode):
         PyCEGUI.System.getSingleton().signalRedraw()
     
     def showEvent(self, event):
-        self.parent.mainWindow.ceguiContainerWidget.activate(self, self.parent.filePath, self.scene)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath, self.scene)
         
         PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
 
@@ -299,9 +299,9 @@ class VisualEditing(QWidget, mixedtab.EditMode):
         self.propertiesDockWidget.setEnabled(False)
         self.createWidgetDockWidget.setEnabled(False)
         
-        # this is sometimes called even before the parent is initialised
-        if hasattr(self.parent, "mainWindow"):
-            self.parent.mainWindow.ceguiContainerWidget.deactivate(self)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
             
         super(VisualEditing, self).hideEvent(event)
     
+# needs to be at the end, import to get the singleton
+import mainwindow

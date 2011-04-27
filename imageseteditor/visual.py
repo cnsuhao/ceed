@@ -56,10 +56,10 @@ class ImagesetEditorDockWidget(QDockWidget):
     """Provides list of images, property editing of currently selected image and create/delete
     """
     
-    def __init__(self, parent):
+    def __init__(self, visual):
         super(ImagesetEditorDockWidget, self).__init__()
         
-        self.parent = parent
+        self.visual = visual
         
         self.ui = ui.imageseteditor.dockwidget.Ui_DockWidget()
         self.ui.setupUi(self)
@@ -207,9 +207,9 @@ class ImagesetEditorDockWidget(QDockWidget):
         
         if not self.list.itemDelegate().editing:
             if event.key() == Qt.Key_Delete:
-                selection = self.parent.scene().selectedItems()
+                selection = self.visual.scene().selectedItems()
                 
-                handled = self.parent.deleteImageEntries(selection)
+                handled = self.visual.deleteImageEntries(selection)
                 
                 if handled:
                     return True
@@ -229,7 +229,7 @@ class ImagesetEditorDockWidget(QDockWidget):
             return
         
         self.selectionUnderway = True
-        self.parent.scene().clearSelection()
+        self.visual.scene().clearSelection()
         
         imageEntryNames = self.list.selectedItems()
         for imageEntryName in imageEntryNames:
@@ -238,7 +238,7 @@ class ImagesetEditorDockWidget(QDockWidget):
             
         if len(imageEntryNames) == 1:
             imageEntry = imageEntryNames[0].imageEntry
-            self.parent.centerOn(imageEntry)
+            self.visual.centerOn(imageEntry)
             
         self.selectionUnderway = False
         
@@ -250,8 +250,8 @@ class ImagesetEditorDockWidget(QDockWidget):
             # most likely caused by RenameCommand doing it's work or is bogus anyways
             return
         
-        cmd = undo.RenameCommand(self.parent, oldName, newName)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.RenameCommand(self.visual, oldName, newName)
+        self.visual.tabbedEditor.undoStack.push(cmd)
     
     def filterChanged(self, filter):
         # we append star at the end by default (makes image filtering much more practical)
@@ -272,8 +272,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         if oldName == newName:
             return
         
-        cmd = undo.ImagesetRenameCommand(self.parent, oldName, newName)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.ImagesetRenameCommand(self.visual, oldName, newName)
+        self.visual.tabbedEditor.undoStack.push(cmd)
         
     def slot_imageLoadClicked(self):
         oldImageFile = self.imagesetEntry.imageFile
@@ -282,8 +282,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         if oldImageFile == newImageFile:
             return
         
-        cmd = undo.ImagesetChangeImageCommand(self.parent, oldImageFile, newImageFile)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.ImagesetChangeImageCommand(self.visual, oldImageFile, newImageFile)
+        self.visual.tabbedEditor.undoStack.push(cmd)
         
     def slot_autoScaledChanged(self, newState):
         oldAutoScaled = self.imagesetEntry.autoScaled
@@ -292,8 +292,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         if oldAutoScaled == newAutoScaled:
             return
         
-        cmd = undo.ImagesetChangeAutoScaledCommand(self.parent, oldAutoScaled, newAutoScaled)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.ImagesetChangeAutoScaledCommand(self.visual, oldAutoScaled, newAutoScaled)
+        self.visual.tabbedEditor.undoStack.push(cmd)
         
     def slot_nativeResolutionEdited(self, newValue):
         oldHorzRes = self.imagesetEntry.nativeHorzRes
@@ -304,8 +304,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         if oldHorzRes == newHorzRes and oldVertRes == newVertRes:
             return
         
-        cmd = undo.ImagesetChangeNativeResolutionCommand(self.parent, oldHorzRes, oldVertRes, newHorzRes, newVertRes)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.ImagesetChangeNativeResolutionCommand(self.visual, oldHorzRes, oldVertRes, newHorzRes, newVertRes)
+        self.visual.tabbedEditor.undoStack.push(cmd)
 
     def metaslot_propertyChanged(self, propertyName, newTextValue):
         if not self.activeImageEntry:
@@ -323,8 +323,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         if oldValue == newValue:
             return
         
-        cmd = undo.PropertyEditCommand(self.parent, self.activeImageEntry.name, propertyName, oldValue, newValue)
-        self.parent.parent.undoStack.push(cmd)
+        cmd = undo.PropertyEditCommand(self.visual, self.activeImageEntry.name, propertyName, oldValue, newValue)
+        self.visual.tabbedEditor.undoStack.push(cmd)
 
     def slot_positionXChanged(self, text):
         self.metaslot_propertyChanged("xpos", text)
@@ -348,7 +348,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
     """This is the "Visual" tab for imageset editing
     """
     
-    def __init__(self, parent):
+    def __init__(self, tabbedEditor):
         mixedtab.EditMode.__init__(self)
         QGraphicsView.__init__(self)
                 
@@ -365,7 +365,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
         
         self.scene().selectionChanged.connect(self.slot_selectionChanged)
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
 
         self.setDragMode(QGraphicsView.RubberBandDrag)
         self.setBackgroundBrush(QBrush(Qt.lightGray))
@@ -495,7 +495,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
                 newPositions[imageEntry.name] = imageEntry.pos() + delta
                 
             cmd = undo.MoveCommand(self, imageNames, oldPositions, newPositions)
-            self.parent.undoStack.push(cmd)
+            self.tabbedEditor.undoStack.push(cmd)
             
             # we handled this
             return True
@@ -529,7 +529,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
                 newRects[imageEntry.name] = newRect
                 
             cmd = undo.GeometryChangeCommand(self, imageNames, oldPositions, oldRects, newPositions, newRects)
-            self.parent.undoStack.push(cmd)
+            self.tabbedEditor.undoStack.push(cmd)
             
             # we handled this
             return True
@@ -607,7 +607,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
         yoffset = 0
 
         cmd = undo.CreateCommand(self, name, xpos, ypos, width, height, xoffset, yoffset)
-        self.parent.undoStack.push(cmd)
+        self.tabbedEditor.undoStack.push(cmd)
     
     def createImageAtCursor(self):
         sceneCoordinates = self.mapToScene(self.lastMousePosition)
@@ -630,7 +630,7 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
                 oldOffsets[imageEntry.name] = imageEntry.offset.pos()
             
             cmd = undo.DeleteCommand(self, oldNames, oldPositions, oldRects, oldOffsets)
-            self.parent.undoStack.push(cmd)
+            self.tabbedEditor.undoStack.push(cmd)
             
             return True
         
@@ -738,9 +738,9 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
                     if selectedItem.oldPosition:
                         # only include that if the position really changed
                         if selectedItem.oldPosition != selectedItem.pos():
-                            moveOffsetNames.append(selectedItem.parent.name)
-                            moveOffsetOldPositions[selectedItem.parent.name] = selectedItem.oldPosition
-                            moveOffsetNewPositions[selectedItem.parent.name] = selectedItem.pos()
+                            moveOffsetNames.append(selectedItem.imageEntry.name)
+                            moveOffsetOldPositions[selectedItem.imageEntry.name] = selectedItem.oldPosition
+                            moveOffsetNewPositions[selectedItem.imageEntry.name] = selectedItem.pos()
                         
                     selectedItem.potentialMove = False
                     selectedItem.oldPosition = None
@@ -752,15 +752,15 @@ class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
             
             if len(moveImageNames) > 0:
                 cmd = undo.MoveCommand(self, moveImageNames, moveImageOldPositions, moveImageNewPositions)
-                self.parent.undoStack.push(cmd)
+                self.tabbedEditor.undoStack.push(cmd)
                 
             if len(moveOffsetNames) > 0:
                 cmd = undo.OffsetMoveCommand(self, moveOffsetNames, moveOffsetOldPositions, moveOffsetNewPositions)
-                self.parent.undoStack.push(cmd)
+                self.tabbedEditor.undoStack.push(cmd)
                 
             if len(resizeImageNames) > 0:
                 cmd = undo.GeometryChangeCommand(self, resizeImageNames, resizeImageOldPositions, resizeImageOldRects, resizeImageNewPositions, resizeImageNewRects)
-                self.parent.undoStack.push(cmd)
+                self.tabbedEditor.undoStack.push(cmd)
                 
         else:
             pass

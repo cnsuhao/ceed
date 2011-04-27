@@ -81,7 +81,7 @@ class PropertyInspector(object):
         ret.mapping = mapping
         ret.propertyEntry = propertyEntry
         
-        propertySetInspector = propertyEntry.parent.parent
+        propertySetInspector = propertyEntry.category.inspector
         propertySetInspector.propertyEditingStarted.emit(propertyEntry.propertyName)
         
         return ret 
@@ -106,13 +106,13 @@ class PropertyInspector(object):
         pass
     
     def notifyEditingProgress(self, widget, propertyEntry, mapping):
-        propertySetInspector = propertyEntry.parent.parent
+        propertySetInspector = propertyEntry.category.inspector
         value = self.getCurrentValueForProperty(widget, propertyEntry, mapping)
         
         propertySetInspector.propertyEditingProgress.emit(propertyEntry.propertyName, value) 
     
     def notifyEditingEnded(self, widget, propertyEntry, mapping):
-        propertySetInspector = propertyEntry.parent.parent
+        propertySetInspector = propertyEntry.category.inspector
         oldValues = widget.oldValues
         value = self.getCurrentValueForProperty(widget, propertyEntry, mapping)
         

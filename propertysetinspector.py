@@ -42,20 +42,17 @@ class PropertyValue(QStandardItem):
     This is displayed next to a PropertyEntry
     """
     
-    def __init__(self, parent):
-        """parent is the parent property entry
-        """
-        
+    def __init__(self, propertyEntry):
         super(PropertyValue, self).__init__()
         
-        self.parent = parent
+        self.propertyEntry = propertyEntry
         self.setEditable(True)
         
         self.update()
             
     def update(self):
-        self.setText(self.parent.getCurrentValue())
-        if self.parent.isCurrentValueDefault():
+        self.setText(self.propertyEntry.getCurrentValue())
+        if self.propertyEntry.isCurrentValueDefault():
             font = QFont()
             font.setItalic(True)
             
@@ -75,14 +72,14 @@ class PropertyEntry(QStandardItem):
     """Standard item displaying the name of a property
     """
         
-    def __init__(self, parent, propertyName):
-        """parent is the parent property category,
-        property is the property of this entry (the actual CEGUI::Property instance)
+    def __init__(self, category, propertyName):
+        """category is the parent property category,
+        propertyName is the property name of this entry
         """
         
         super(PropertyEntry, self).__init__()
         
-        self.parent = parent
+        self.category = category
         self.propertyName = propertyName
         self.setText(propertyName)
         self.setEditable(False)
@@ -94,7 +91,7 @@ class PropertyEntry(QStandardItem):
         self.value = PropertyValue(self)
         
     def getPropertySets(self):
-        return self.parent.getPropertySets()
+        return self.category.getPropertySets()
     
     def getCurrentValue(self):
         value = None
@@ -161,14 +158,14 @@ class PropertyCategory(QStandardItem):
     """Groups properties of the same origin
     """ 
     
-    def __init__(self, parent, origin):
-        """parent is the parent property editor (property categories shouldn't be nested),
+    def __init__(self, inspector, origin):
+        """inspector is the parent property inspector (property categories shouldn't be nested),
         origin is the origin that all the properties in this category have
         """
         
         super(PropertyCategory, self).__init__()
         
-        self.parent = parent
+        self.inspector = inspector
         
         label = origin
         # we strip the CEGUI/ if any because most users only use CEGUI stock widgets and it
@@ -190,7 +187,7 @@ class PropertyCategory(QStandardItem):
         self.propertyCount.setEditable(False)
         
     def getPropertySets(self):
-        return self.parent.getPropertySets()
+        return self.inspector.getPropertySets()
         
     def setFilterMatched(self, matched):
         if matched:

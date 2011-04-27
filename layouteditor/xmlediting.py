@@ -29,10 +29,10 @@ import xmledit
 import PyCEGUI
 
 class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
-    def __init__(self, parent):
+    def __init__(self, tabbedEditor):
         super(XMLEditing, self).__init__()
         
-        self.parent = parent
+        self.tabbedEditor = tabbedEditor
         self.ignoreUndoCommands = False
         self.lastUndoText = None
         self.lastUndoCursor = None
@@ -41,10 +41,10 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         self.document().contentsChange.connect(self.slot_contentsChange)
         
     def refreshFromVisual(self):
-        if not self.parent.visual.rootWidget:
+        if not self.tabbedEditor.visual.rootWidget:
             return
         
-        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.parent.visual.rootWidget)
+        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.tabbedEditor.visual.rootWidget)
         
         self.ignoreUndoCommands = True
         self.setPlainText(source)
@@ -61,10 +61,10 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         # TODO: What if this fails to parse? Do we show a message box that it failed and allow falling back
         #       to the previous visual state or do we somehow correct the XML like editors do?
         # we have to make the context the current context to ensure textures are fine
-        self.parent.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
+        mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
         
         newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(source)
-        self.parent.visual.replaceRootWidget(newRoot)
+        self.tabbedEditor.visual.replaceRootWidget(newRoot)
     
     def activate(self):
         super(XMLEditing, self).activate()
@@ -82,8 +82,10 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
             cmd = undo.XMLEditingCommand(self, self.lastUndoText, self.lastTextCursor,
                                                self.toPlainText(), self.textCursor(),
                                                totalChange)
-            self.parent.undoStack.push(cmd)
+            self.tabbedEditor.undoStack.push(cmd)
             
         self.lastUndoText = self.toPlainText()
         self.lastTextCursor = self.textCursor()
         
+# needs to be at the end, imported to get the singleton
+import mainwindow

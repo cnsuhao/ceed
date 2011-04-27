@@ -39,12 +39,23 @@ import layouteditor
 import about
 
 class MainWindow(QMainWindow):
-    """The central window of the application"""
+    """The central window of the application.
+    
+    This is a singleton class, it is assured to only be constructed once during runtime.
+    """
+    
+    # singleton pattern implemntation
+    # (usage: mainwindow.MainWindow.instance.doSomething() where mainwindow is the module)
+    instance = None
     
     # TODO: This class has grown too much, I think it has too many responsibilities
     #       and refactoring will be needed in the future.
     
     def __init__(self, app):
+        # make sure multiple instantiation won't happen
+        assert(MainWindow.instance is None)
+        MainWindow.instance = self
+        
         super(MainWindow, self).__init__()
         
         self.app = app
