@@ -516,6 +516,11 @@ class MainWindow(QMainWindow):
         files = []
         if self.settings.contains("recentProjects"):
             files = self.settings.value("recentProjects")
+            
+            # if something went wrong before, just drop recent projects and start anew,
+            # recent projects aren't that important
+            if not isinstance(files, list):
+                files = []
         
         files.insert(0, fileName)
         
@@ -530,6 +535,10 @@ class MainWindow(QMainWindow):
             
     def updateRecentProjectsActions(self):
         files = self.settings.value("recentProjects")
+        # if something went wrong before, just drop recent projects and start anew,
+        # recent projects aren't that important
+        if not isinstance(files, list):
+            files = []
 
         numRecentFiles = len(files)
 

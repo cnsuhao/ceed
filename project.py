@@ -499,6 +499,10 @@ class ProjectManager(QDockWidget):
                         "Create a new file and add it to the project",
                         self.project.getAbsolutePathOf(""))
         
+        if file == "":
+            # user cancelled
+            return
+        
         try:
             f = open(file, "w")
             f.close()
@@ -596,6 +600,8 @@ class ProjectManager(QDockWidget):
             return
         
         selectedIndices = self.view.selectedIndexes()
+        # when this is called the selection must not be empty
+        assert (len(selectedIndices) > 0)
         
         removeSpec = ""
         if len(selectedIndices) == 1:
