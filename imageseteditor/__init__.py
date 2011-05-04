@@ -82,7 +82,7 @@ class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
                                      "Can't parse given imageset!",
                                      "Parsing '%s' failed, it's most likely not a valid XML file. "
                                      "Constructing empty imageset instead (if you save you will override the invalid data!). "
-                                     "Exception details follow: %s" % (self.filePath, sys.exc_info()[0]),
+                                     "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
                                      QMessageBox.Ok)
             
             # we construct the minimal empty imageset    

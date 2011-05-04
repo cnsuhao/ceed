@@ -21,6 +21,7 @@ from PySide.QtGui import *
 
 import ui.mainwindow
 
+import sys
 import os
 
 import commands
@@ -172,7 +173,7 @@ class MainWindow(QMainWindow):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
-    def openProject(self, path, fromRecentProject=False):
+    def openProject(self, path, fromRecentProject = False):
         assert(not self.project)
         
         self.project = project.Project()
@@ -192,7 +193,6 @@ class MainWindow(QMainWindow):
         self.saveProjectAction.setEnabled(True)
         self.closeProjectAction.setEnabled(True)
         self.projectSettingsAction.setEnabled(True)
-        
 
     def closeProject(self):
         self.projectManager.setProject(None)
@@ -225,7 +225,12 @@ class MainWindow(QMainWindow):
         else: 
             for factory in self.editorFactories:
                 if factory.canEditFile(absolutePath):
-                    ret = factory.create(absolutePath)
+                    try:
+                        ret = factory.create(absolutePath)
+                        
+                    except:
+                        ret = tab.MessageTabbedEditor(absolutePath,
+                               "A problem has occurred when creating an editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
                     break
             
             # at this point if ret is None, no registered tabbed editor factory wanted
@@ -244,7 +249,20 @@ class MainWindow(QMainWindow):
             ret = tab.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
         
-        ret.initialise(self)
+        try:
+            ret.initialise(self)
+            
+        except:
+            # it may have been partly constructed at this point
+            try:
+                ret.finalise()
+            except:
+                pass
+            
+            ret = tab.MessageTabbedEditor(absolutePath,
+                      "A problem has occurred when initialising the editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
+            ret.initialise(self)
+                    
         self.tabEditors.append(ret)
         
         return ret    
@@ -296,7 +314,7 @@ class MainWindow(QMainWindow):
             
             self.slot_tabCloseRequested(0)
             
-        self.app.exit(0)
+        self.app.quit()
         
     def slot_newProject(self):
         if self.project:

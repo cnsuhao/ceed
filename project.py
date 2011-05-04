@@ -510,7 +510,7 @@ class ProjectManager(QDockWidget):
         except OSError:
             QMessageBox.question(self,
                                  "Can't create file!",
-                                 "Creating file '%s' failed. Exception details follow: %s" % (file, sys.exc_info()[0]),
+                                 "Creating file '%s' failed. Exception details follow:\n%s" % (file, sys.exc_info()[1]),
                                  QMessageBox.Ok)
             
             return
@@ -582,7 +582,7 @@ class ProjectManager(QDockWidget):
                 except OSError:
                     QMessageBox.question(self,
                                       "Can't rename!",
-                                      "Renaming file '%s' to '%s' failed. Exception details follow: %s" % (item.path, newPath, sys.exc_info()[0]),
+                                      "Renaming file '%s' to '%s' failed. Exception details follow:\n%s" % (item.path, newPath, sys.exc_info()[1]),
                                       QMessageBox.Ok)
         
         elif item.itemType == Item.Folder:
