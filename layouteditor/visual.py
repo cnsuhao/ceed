@@ -42,11 +42,17 @@ class HierarchyDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.tree = self.findChild(QTreeWidget, "tree")
+        self.ignoreSelectionChanges = False
+        self.tree.itemSelectionChanged.connect(self.slot_itemSelectionChanged)
         
         self.rootWidgetManipulator = None
         
     def getTreeItemForManipulator(self, manipulator):
         ret = QTreeWidgetItem([manipulator.widget.getName(), manipulator.widget.getType()])
+        
+        # interlink them so we can react on selection changes
+        ret.setData(0, Qt.UserRole, manipulator)
+        manipulator.treeWidgetItem = ret
         
         for item in manipulator.childItems():
             if isinstance(item, cegui.widget.Manipulator):
@@ -62,6 +68,40 @@ class HierarchyDockWidget(QDockWidget):
         self.tree.clear()
         self.tree.addTopLevelItem(rootWidgetItem)
         self.tree.expandAll()
+
+    def slot_itemSelectionChanged(self):
+        # todo: This method is really inefficient
+        if self.ignoreSelectionChanges:
+            return
+        
+        # AFAIK there is no better way to do this than this abomination
+        def collectTreeWidgetItems(root):
+            ret = []
+            ret.append(root)
+            
+            i = 0
+            while i < root.childCount():
+                ret.extend(collectTreeWidgetItems(root.child(i)))
+                i += 1
+            
+            return ret
+    
+        allItems = collectTreeWidgetItems(self.tree.invisibleRootItem())
+        selection = self.tree.selectedItems()
+        
+        self.visual.scene.ignoreSelectionChanges = True
+        self.visual.scene.clearSelection()
+        
+        for item in allItems:
+            manipulator = item.data(0, Qt.UserRole)
+            
+            if manipulator is not None:
+                for selected in selection:
+                    if item is selected:
+                        manipulator.setSelected(True)
+                        break
+        
+        self.visual.scene.ignoreSelectionChanges = False
 
 class PropertiesDockWidget(QDockWidget):
     def __init__(self, visual):
@@ -142,6 +182,7 @@ class EditingScene(cegui.widget.GraphicsScene):
         self.visual = visual
         self.rootManipulator = None
         
+        self.ignoreSelectionChanges = False
         self.selectionChanged.connect(self.slot_selectionChanged)
         
     def setRootWidget(self, widget):
@@ -189,6 +230,18 @@ class EditingScene(cegui.widget.GraphicsScene):
                 sets.append(widget)
             
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
+        
+        # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
+        if not self.ignoreSelectionChanges:
+            self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
+            
+            self.visual.hierarchyDockWidget.tree.clearSelection()
+            for item in selection:
+                if isinstance(item, cegui.widget.Manipulator):
+                    if hasattr(item, "treeWidgetItem") and item.treeWidgetItem is not None:
+                        item.treeWidgetItem.setSelected(True)
+        
+            self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
         
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
