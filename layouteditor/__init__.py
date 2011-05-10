@@ -86,20 +86,19 @@ class LayoutTabbedEditor(mixedtab.MixedTabbedEditor):
         super(LayoutTabbedEditor, self).deactivate()
         
     def saveAs(self, targetPath, updateCurrentPath = True):
-        #xmlmode = self.currentWidget() == self.xml
+        xmlmode = self.currentWidget() == self.xml
         
         # if user saved in xml mode, we process the xml by propagating it to visual
         # (allowing the change propagation to do the xml validating and other work for us)
         
-        #if xmlmode:
-        #    self.xml.propagateChangesToVisual()
+        if xmlmode:
+            self.xml.propagateChangesToVisual()
             
-        #rootElement = self.visual.imagesetEntry.saveToElement()
-        # we indent to make the resulting files as readable as possible
-        #xmledit.indent(rootElement)
+        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.visual.rootWidget)
         
-        #tree = ElementTree.ElementTree(rootElement)
-        #tree.write(targetPath, "utf-8")
+        f = open(targetPath, "w")
+        f.write(source)
+        f.close()
         
         super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
