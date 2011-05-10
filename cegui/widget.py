@@ -81,6 +81,7 @@ class Manipulator(resizable.ResizableRectItem):
                     idx += 1
                     continue
                 
+                # note: we don't have to assign child anywhere, we pass parent to the constructor
                 child = Manipulator(self, childWidget, True, skipAutoWidgets)
                 
                 idx += 1
@@ -487,12 +488,10 @@ class Manipulator(resizable.ResizableRectItem):
         
         super(Manipulator, self).paint(painter, option, widget)
 
-        # TODO: Snap Grid drawing
-        painter.restore()
-
-        baseSize = self.getBaseSize()
-        
-        # We intentionally draw this without clipping to make guides always be visible and "on top"
         if self.isSelected() or self.resizeInProgress or self.isAnyHandleSelected():
+            baseSize = self.getBaseSize()
             self.paintHorizontalGuides(baseSize, painter, option, widget)
             self.paintVerticalGuides(baseSize, painter, option, widget)
+
+        # TODO: Snap Grid drawing
+        painter.restore()
