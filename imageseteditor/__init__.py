@@ -30,6 +30,7 @@ import undo
 
 import visual
 import xmlediting
+import compatibility
 
 from xml.etree import ElementTree
 
@@ -62,8 +63,8 @@ class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
     
         root = None
         try:
-            tree = ElementTree.parse(self.filePath)
-            root = tree.getroot()
+            source = compatibility.imageset.Manager.instance.transformTo("CEGUI imageset", open(self.filePath, "r").read(), self.filePath)
+            root = ElementTree.fromstring(source)
             
         except:
             # things didn't go smooth
@@ -125,14 +126,16 @@ class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
         # we indent to make the resulting files as readable as possible
         xmledit.indent(rootElement)
         
-        tree = ElementTree.ElementTree(rootElement)
-        tree.write(targetPath, "utf-8")
+        targetType = compatibility.imageset.Manager.instance.guessType(open(self.filePath, "r").read(), self.filePath)
+        source = compatibility.imageset.Manager.instance.transform("CEGUI imageset", targetType, ElementTree.tostring(rootElement, "utf-8"))
+        
+        open(targetPath, "w").write(source)
         
         super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
 class ImagesetTabbedEditorFactory(tab.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = [".imageset"]
+        extensions = [".imageset", ".gorilla"]
         
         for extension in extensions:
             if filePath.endswith(extension):
