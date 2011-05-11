@@ -48,6 +48,73 @@ class GraphicsScene(cegui.GraphicsScene):
                 if isinstance(item, Manipulator):
                     item.setAlternativeMode(False)
 
+class SerialisationData(object):
+    def __init__(self, widget, serialiseChildren = True):
+        self.name = widget.getName()
+        self.type = widget.getType()
+        
+        parent = widget.getParent()
+        if parent is not None:
+            self.parentPath = parent.getNamePath()
+        else:
+            self.parentPath = ""
+        
+        self.properties = {}    
+        self.serialiseProperties(widget)
+        
+        self.children = []
+        if serialiseChildren:
+            self.serialiseChildren(widget)   
+        
+    def serialiseProperties(self, widget):
+        it = widget.getPropertyIterator()
+        while not it.isAtEnd():
+            propertyName = it.getCurrentKey()
+
+            if not widget.isPropertyDefault(propertyName):
+                self.properties[propertyName] = widget.getProperty(propertyName)
+
+            it.next()
+        
+    def serialiseChildren(self, widget):
+        i = 0
+        
+        while i < widget.getChildCount():
+            child = widget.getChildAtIdx(i)
+            if not child.isAutoWindow():
+                self.children.append(SerialisationData(child, True))
+                
+            i += 1
+            
+    def reconstruct(self, rootManipulator):
+        widget = PyCEGUI.WindowManager.getSingleton().createWindow(self.type, self.name)
+        for name, value in self.properties.iteritems():
+            widget.setProperty(name, value)
+        
+        ret = None
+            
+        if not rootManipulator:
+            #assert(self.parentPath == "")
+            
+            ret = Manipulator(rootManipulator, widget)
+            rootManipulator = ret
+            
+        else:
+            parentManipulator = None
+            parentPathSplit = self.parentPath.split("/", 1)
+            assert(len(parentPathSplit) >= 1)
+
+            if len(parentPathSplit) == 1:
+                parentManipulator = rootManipulator
+            else:
+                parentManipulator = rootManipulator.getWidgetManipulatorByPath(parentPathSplit[1])
+            
+            parentManipulator.widget.addChild(widget)
+            ret = Manipulator(parentManipulator, widget)
+            
+        for child in self.children:
+            widget.addChild(child.reconstruct(rootManipulator).widget)
+
 class Manipulator(resizable.ResizableRectItem):
     """
     This is a rectangle that is synchronised with given CEGUI widget,
@@ -96,6 +163,25 @@ class Manipulator(resizable.ResizableRectItem):
         self.preMovePos = None
         self.lastMoveNewPos = None
     
+    def detach(self, destroyWidget):
+        """Detaches itself from the GUI hierarchy and the manipulator hierarchy.
+        
+        This method doesn't destroy this instance immediately but it will be destroyed automatically
+        when nothing is referencing it.
+        """
+        
+        # detach from the GUI hierarchy
+        parentWidget = self.widget.getParent()
+        if parentWidget is not None:
+            parentWidget.removeChild(self.widget)
+
+        # detach from the parent manipulator
+        self.scene().removeItem(self)
+        
+        if destroyWidget:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(self.widget)
+            self.widget = None
+    
     def getWidgetManipulatorByPath(self, widgetPath):
         path = widgetPath.split("/", 1)
         assert(len(path) >= 1)
@@ -114,7 +200,18 @@ class Manipulator(resizable.ResizableRectItem):
                     else:
                         return item.getWidgetManipulatorByPath(remainder)
         
-        raise RuntimeError("Can't find widget manipulator of path '" + path + "'")
+        raise RuntimeError("Can't find widget manipulator of path '" + widgetPath + "'")
+    
+    def getAllDescendantManipulators(self):
+        ret = []
+        
+        for child in self.childItems():
+            if isinstance(child, Manipulator):
+                ret.append(child)
+                
+                ret.extend(child.getAllDescendantManipulators())
+                
+        return ret
     
     def setAlternativeMode(self, enabled):
         if self.alternativeMode == enabled:

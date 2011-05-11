@@ -64,10 +64,14 @@ class HierarchyDockWidget(QDockWidget):
     def setRootWidgetManipulator(self, root):
         self.rootWidgetManipulator = root
         
-        rootWidgetItem = self.getTreeItemForManipulator(root)
         self.tree.clear()
-        self.tree.addTopLevelItem(rootWidgetItem)
-        self.tree.expandAll()
+        if root is not None:
+            rootWidgetItem = self.getTreeItemForManipulator(root)
+            self.tree.addTopLevelItem(rootWidgetItem)
+            self.tree.expandAll()
+        
+    def refresh(self):
+        self.setRootWidgetManipulator(self.rootWidgetManipulator)
 
     def slot_itemSelectionChanged(self):
         # todo: This method is really inefficient
@@ -212,6 +216,17 @@ class EditingScene(cegui.widget.GraphicsScene):
         if self.rootManipulator is not None:
             self.rootManipulator.updateFromWidget()
             
+    def deleteSelectedWidgets(self):
+        widgetPaths = []
+        
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, cegui.widget.Manipulator):
+                widgetPaths.append(item.widget.getNamePath())
+                
+        cmd = undo.DeleteCommand(self.visual, widgetPaths)
+        self.visual.tabbedEditor.undoStack.push(cmd)
+    
     def slot_selectionChanged(self):
         selection = self.selectedItems()
         
@@ -296,6 +311,18 @@ class EditingScene(cegui.widget.GraphicsScene):
         if len(resizedWidgetPaths) > 0:
             cmd = undo.ResizeCommand(self.visual, resizedWidgetPaths, resizedOldPositions, resizedOldSizes, resizedNewPositions, resizedNewSizes)
             self.visual.tabbedEditor.undoStack.push(cmd)
+            
+    def keyReleaseEvent(self, event):
+        handled = False
+        
+        if event.key() == Qt.Key_Delete:
+            handled = self.deleteSelectedWidgets()           
+            
+        if not handled:
+            super(EditingScene, self).keyReleaseEvent(event)
+            
+        else:
+            event.accept()
 
 class VisualEditing(QWidget, mixedtab.EditMode):
     def __init__(self, tabbedEditor):

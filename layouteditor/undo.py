@@ -19,6 +19,8 @@
 import commands
 import copy
 
+import cegui
+
 idbase = 1200
 
 class MoveCommand(commands.UndoCommand):
@@ -121,6 +123,99 @@ class ResizeCommand(commands.UndoCommand):
             
         super(ResizeCommand, self).redo()
 
+class DeleteCommand(commands.UndoCommand):
+    """This command deletes given widgets"""
+    
+    def __init__(self, visual, widgetPaths):
+        super(DeleteCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.widgetData = {}
+        
+        # we have to add all the child widgets of all widgets we are deleting
+        for widgetPath in self.widgetPaths:
+            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            dependencies = manipulator.getAllDescendantManipulators()
+            
+            for dependency in dependencies:
+                depencencyNamePath = dependency.widget.getNamePath()
+                if depencencyNamePath not in self.widgetPaths:
+                    self.widgetPaths.append(depencencyNamePath)
+        
+        # now we have to sort them in a way that ensures the most depending widgets come first
+        # (the most deeply nested widgets get deleted first before their ancestors get deleted)
+        class ManipulatorDependencyKey(object):
+            def __init__(self, visual, path):
+                self.visual = visual
+                
+                self.path = path
+                self.manipulator = self.visual.scene.getWidgetManipulatorByPath(path)
+                
+            def __lt__(self, otherKey):
+                # if this is the ancestor of other manipulator, it comes after it
+                if self.manipulator.widget.isAncestor(otherKey.manipulator.widget):
+                    return True
+                # vice versa
+                if otherKey.manipulator.widget.isAncestor(self.manipulator.widget):
+                    return False
+                
+                # otherwise, we don't care but lets define a precise order
+                return self.path < otherKey.path
+        
+        self.widgetPaths = sorted(self.widgetPaths, key = lambda path: ManipulatorDependencyKey(self.visual, path))
+        
+        # we have to store everything about these widgets before we destroy them,
+        # we want to be able to restore if user decides to undo
+        for widgetPath in self.widgetPaths:
+            # serialiseChildren is False because we have already included all the children and they are handled separately
+            self.widgetData[widgetPath] = cegui.widget.SerialisationData(self.visual.scene.getWidgetManipulatorByPath(widgetPath).widget,
+                                                                         serialiseChildren = False)
+        
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Delete '%s'" % (self.widgetPaths[0]))
+        else:
+            self.setText("Delete %i widgets" % (len(self.widgetPaths)))
+        
+    def id(self):
+        return idbase + 3
+        
+    def mergeWith(self, cmd):
+        # we never merge deletes
+        return False
+        
+    def undo(self):
+        super(DeleteCommand, self).undo()
+        
+        # we have to undo in reverse to ensure widgets have their (potential) dependencies in place when they
+        # are constructed
+        for widgetPath in reversed(self.widgetPaths):
+            data = self.widgetData[widgetPath]
+            result = data.reconstruct(self.visual.scene.rootManipulator)
+            
+            if self.visual.scene.rootManipulator is None:
+                # the first that is undone is definitely the root if root is amongst the deleted widgets
+                #assert(data.parentPath == "")
+                self.visual.scene.rootManipulator = result
+                
+        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            manipulator.detach(destroyWidget = True)
+            
+            if manipulator is self.visual.scene.rootManipulator:
+                self.visual.scene.rootManipulator = None
+        
+        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
+        
+        super(DeleteCommand, self).redo()
+
 class PropertyEditCommand(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
@@ -144,7 +239,7 @@ class PropertyEditCommand(commands.UndoCommand):
             self.setText("Change '%s' in %i widgets" % (self.propertyName, len(self.widgetPaths)))
         
     def id(self):
-        return idbase + 3
+        return idbase + 4
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
@@ -169,7 +264,6 @@ class PropertyEditCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             
         super(PropertyEditCommand, self).redo()
-
 
 class XMLEditingCommand(commands.UndoCommand):
     """Extremely memory hungry implementation for now, I have to figure out how to use my own
@@ -197,7 +291,7 @@ class XMLEditingCommand(commands.UndoCommand):
             self.setText("XML edit, changed %i characters" % (self.totalChange))
         
     def id(self):
-        return idbase + 4
+        return idbase + 5
         
     def mergeWith(self, cmd):
         assert(self.xmlediting == cmd.xmlediting)
