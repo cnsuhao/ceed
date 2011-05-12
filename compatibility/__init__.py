@@ -16,8 +16,18 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# This module is the root of all compatibility support and layers in the editor,
+
+# NOTE: It should be importable with as few dependencies as possible because there is
+#       a high chance that this gets used in command line migration tools or such!
+
 class Layer(object):
-    """Compatibility layer can transform given code from source type to target type and back"""
+    """Compatibility layer can transform given code from source type to target type.
+    
+    If you want transparent loading and saving you need to implement 2 layers!
+    From your type to editor's supported type (or type for which there already are
+    compatibility layers) and back!
+    """
     
     def getSourceType(self):
         raise NotImplementedError("Compatibility layers have to override Layer.getSourceType!")
@@ -25,8 +35,8 @@ class Layer(object):
     def getTargetType(self):
         raise NotImplementedError("Compatibility layers have to override Layer.getTargetType!")
     
-    def transform(self, code):
-        """Transforms given code from sourceType (== self.getSourceType())
+    def transform(self, data):
+        """Transforms given data from sourceType (== self.getSourceType())
         to targetType (== self.getTargetType())
         """
         
@@ -38,17 +48,53 @@ class TypeDetector(object):
         
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
     
-    def matches(self, code, extension):
-        """Checks whether given source code and extension match this detector's type"""
+    def matches(self, data, extension):
+        """Checks whether given source code and extension match this detector's type.
+        
+        The detector should be as strict as possible, if it returns that the type matches, the editor will
+        assume it can safely open it as that type. If unsure, return False! User will be prompted to choose
+        which type the file is.
+        """
         
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
+
+class LayerNotFoundError(RuntimeError):
+    """Exception thrown when no compatibility layer or path can be found between 2 types"""
     
+    def __init__(self, sourceType, targetType):
+        super(LayerNotFoundError, self).__init__("Can't find any compatibility path from sourceType '%s' to targetType '%s'" % (sourceType, targetType))
+  
+class MultiplePossibleTypesError(RuntimeError):
+    """Exception thrown when multiple types match given data (from the guessType method), user should be
+    asked to choose the right type in this case
+    """
+    
+    def __init__(self, possibleTypes):
+        super(MultiplePossibleTypesError, self).__init__("Given data matches multiple types (%i possible types)" % (len(possibleTypes)))
+        
+        # we store possible types so that developers can catch this and offer a choice to the user
+        self.possibleTypes = possibleTypes
+
+class NoPossibleTypesError(RuntimeError):
+    """Exception thrown when no types match given data (from the guessType method), user should be
+    asked to choose the right type in this case
+    """
+    
+    def __init__(self, possibleTypes):
+        super(NoPossibleTypesError, self).__init__("Can't decide type of given code and extension, no positives turned up!")
+        
 class Manager(object):
+    """Manager holds type detectors and compatibility layers and is able to perform transformation between data.
+    
+    It is usually used as a singleton and this is just the base class! See compatibility.imageset.Manager for
+    example of use of this class
+    """
+    
     def __init__(self):
         self.detectors = []
         self.layers = []
     
-    def transform(self, sourceType, targetType, code):
+    def transform(self, sourceType, targetType, data):
         """Performs transformation of given source code from sourceType to targetType.
         
         TODO: This method doesn't even bother to try to find the shortest path possible or such,
@@ -57,48 +103,55 @@ class Manager(object):
         
         # special case:
         if sourceType == targetType:
-            return code
+            return data
         
         for layer in self.layers:
             if layer.getSourceType() == sourceType:
                 try:
-                    return self.transform(layer.getTargetType(), targetType, layer.transform(code))
+                    return self.transform(layer.getTargetType(), targetType, layer.transform(data))
                 
-                except RuntimeError as e:
+                except LayerNotFoundError:
                     # this path doesn't lead anywhere,
                     # lets try to find another one
-                    print e
+                    pass
                 
-        raise RuntimeError("Can't find any compatibility path from sourceType '%s' to targetType '%s'" % (sourceType, targetType))
+        raise LayerNotFoundError(sourceType, targetType)
     
     def guessType(self, code, extension = ""):
+        """Attempts to make an informed guess based on given data and extension. If the guess is positive, the 
+        data *should be* of returned type. It depends on type detectors however.
+        
+        If you pass full file path instead of the extension, the extension will be extracted from it.
+        """
+        
         extSplit = extension.rsplit(".", 1)
-        extension = ""
+        
         if len(extSplit) > 0:
             extension = extSplit[1] if len(extSplit) == 2 else extSplit[0]
-        
+        else:
+            extension = extension.lstrip(".", 1)
+            
         ret = []
-        
-        print "code: '%s'" % (code)
-        print "extension: '%s'" % (extension)
-        
+
         for detector in self.detectors:
             if detector.matches(code, extension):
                 ret.append(detector.getType())
                 
         if len(ret) > 1:
-            raise RuntimeError("Can't decide type of given code and extension, multiple positives turned up!")
+            raise MultiplePossibleTypesError(ret)
         
         if len(ret) == 0:
-            raise RuntimeError("Can't decide type of given code and extension, no positives turned up!")
-        
+            raise NoPossibleTypesError()
+            
         return ret[0]
     
-    def transformTo(self, targetType, code, extension):
+    def transformTo(self, targetType, code, extension = ""):
         """Transforms given code to given target type.
         
         extension is optional and used as a hint for the type guessing, you can pass the full file path,
         extension will be extracted.
+        
+        This method tries to guess type of given code and extension, in the case this fails, exception is thrown.
         """
             
         sourceType = self.guessType(code, extension)

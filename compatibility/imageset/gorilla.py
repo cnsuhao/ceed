@@ -19,12 +19,15 @@
 from xml.etree import ElementTree
 
 import compatibility
+import cegui
+
+GorillaFile = "Gorilla file"
 
 class GorillaTypeDetector(compatibility.TypeDetector):
     def getType(self):
-        return "Gorilla file"
+        return GorillaFile
     
-    def matches(self, code, extension):
+    def matches(self, data, extension):
         if extension != "gorilla":
             return False
         
@@ -33,15 +36,13 @@ class GorillaTypeDetector(compatibility.TypeDetector):
 
 class GorillaToCEGUILayer(compatibility.Layer):
     def getSourceType(self):
-        return "Gorilla file"
+        return GorillaFile
     
     def getTargetType(self):
-        return "CEGUI imageset"
+        return cegui.CEGUIImageset
     
-    def transform(self, code):
-        # TODO: very crude and work in progress transformation
-        print "transforming"
-        
+    def transform(self, data):
+        # TODO: very crude and work in progress transformation        
         class Sprite(object):
             def __init__(self, name, xpos, ypos, width, height):
                 self.name = name
@@ -55,7 +56,7 @@ class GorillaToCEGUILayer(compatibility.Layer):
         sprites = []
         section = None
         
-        for line in code.split("\n"):
+        for line in data.split("\n"):
             stripped = line.strip()
             
             if stripped.lower() == "[texture]":
@@ -77,7 +78,7 @@ class GorillaToCEGUILayer(compatibility.Layer):
                         
                         textureName = split[1]
                         
-                    # TODO: we ignore the whitepixels for now
+                    # TODO: we ignore whitepixels for now
                     
                 if section == "Sprites":
                     if stripped == "":
@@ -97,7 +98,10 @@ class GorillaToCEGUILayer(compatibility.Layer):
             raise RuntimeError("Gorilla file doesn't contain any sprites (font glyphs are not being converted, that's a TODO)")
         
         root = ElementTree.Element("Imageset")
-        root.set("Name", "Gorilla File")
+        
+        # from what I see, gorilla files don't have names in them, the filename is the
+        # name of the resource
+        root.set("Name", GorillaFile)
         root.set("Imagefile", textureName)
         
         for sprite in sprites:
@@ -116,13 +120,13 @@ class GorillaToCEGUILayer(compatibility.Layer):
 
 class CEGUIToGorillaLayer(compatibility.Layer):
     def getSourceType(self):
-        return "CEGUI imageset"
+        return cegui.CEGUIImageset
     
     def getTargetType(self):
-        return "Gorilla file"
+        return GorillaFile
     
-    def transform(self, code):
-        root = ElementTree.fromstring(code)
+    def transform(self, data):
+        root = ElementTree.fromstring(data)
         
         ret = ""
         ret += "[Texture]\n"
@@ -134,4 +138,3 @@ class CEGUIToGorillaLayer(compatibility.Layer):
             ret += "%s %s %s %s %s\n" % (image.get("Name"), image.get("XPos"), image.get("YPos"), image.get("Width"), image.get("Height"))
 
         return ret
-    

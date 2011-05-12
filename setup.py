@@ -18,13 +18,15 @@
 
 # Allows freezing the executable (currently Windows specific code pretty much)
 
-NAME = "CEED"
+VERSION = "0.1"
+# TODO: these should branch depending on the platform
+GUI_BASE_APP = "Win32GUI"
+CONSOLE_BASE_APP = "Console"
+EXECUTABLE_EXTENSION = ".exe"
 
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(
-    base = "Win32GUI",
-    
+buildOptions = dict(    
     packages =
     [
         "OpenGL",
@@ -43,14 +45,31 @@ buildOptions = dict(
 
 setup(
     name = "CEED",
-    version = "0.1",
+    version = VERSION,
     description = "CEGUI Unified Editor",
     options = dict(build_exe = buildOptions),
     executables = [
+        # this starts the GUI editor main application
         Executable(
             "entry.py",
-            targetName = NAME + ".exe",
+            base = GUI_BASE_APP,
+            targetName = "CEED" + EXECUTABLE_EXTENSION,
             icon = "icons/application_icon.ico"
-        )
+        ),
+        
+        # this starts the MetaImageset compiler
+        #Executable(
+        #    "mic/entry.py",
+        #    base = CONSOLE_BASE_APP,
+        #    targetName = "mic" + EXECUTABLE_EXTENSION,
+        #    icon = "icons/metaimageset_compiler.ico"
+        #),
+        # this starts the Asset Migration tool
+        #Executable(
+        #    "compatibility/entry.py",
+        #    base = CONSOLE_BASE_APP,
+        #    targetName = "migrate" + EXECUTABLE_EXTENSION,
+        #    icon = "icons/migrate_icon.ico"
+        #)
     ] 
 )
