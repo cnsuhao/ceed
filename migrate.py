@@ -23,8 +23,8 @@ def main():
     parser = argparse.ArgumentParser(description = "Migrate given files using compatibility layers of the editor")
     
     parser.add_argument("category", type = str, help = "Which compatibility category to use ('imageset', 'layout').")
-    parser.add_argument("--sourceType", type = str, default = "Auto", nargs = "?", help = "What is the source type of the data, if omitted, the type will be guessed")
-    parser.add_argument("--targetType", type = str, default = "Native", nargs = "?", help = "What should the target type be. If omitted, editor's native type is used")
+    parser.add_argument("--sourceType", type = str, default = "Auto", required = False, help = "What is the source type of the data, if omitted, the type will be guessed")
+    parser.add_argument("--targetType", type = str, default = "Native", required = False, help = "What should the target type be. If omitted, editor's native type is used")
     
     parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"), help = "Input file to be processed.")
     parser.add_argument("output", metavar = "OUTPUT_FILE", type = argparse.FileType("w"), help = "Output / target file path.")
@@ -33,12 +33,16 @@ def main():
     
     if args.category == "imageset":
         import compatibility.imageset as compat
-        
+    
+    elif args.category == "layout":
+        import compatibility.layout as compat
+    
     else:    
         print("Provided compatibility is not valid, such a compatibility module doesn't exist or can't be imported!")
         sys.exit(1)
     
-    print "\nStarting migration!\n"    
+    print "\nStarting migration!\n"
+        
     data = args.input.read()
     
     sourceType = args.sourceType if args.sourceType != "Auto" else compat.Manager.instance.guessType(data, args.input.name)
