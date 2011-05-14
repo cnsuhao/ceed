@@ -21,6 +21,8 @@ import compatibility
 import cegui
 import gorilla
 
+EditorNativeType = cegui.CEGUIImageset
+
 class Manager(compatibility.Manager):
     """Manager of imageset compatibility layers"""
     

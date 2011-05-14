@@ -51,7 +51,7 @@ setup(
     executables = [
         # this starts the GUI editor main application
         Executable(
-            "entry.py",
+            "CEED.py",
             base = GUI_BASE_APP,
             targetName = "CEED" + EXECUTABLE_EXTENSION,
             icon = "icons/application_icon.ico"
@@ -65,11 +65,10 @@ setup(
         #    icon = "icons/metaimageset_compiler.ico"
         #),
         # this starts the Asset Migration tool
-        #Executable(
-        #    "compatibility/entry.py",
-        #    base = CONSOLE_BASE_APP,
-        #    targetName = "migrate" + EXECUTABLE_EXTENSION,
-        #    icon = "icons/migrate_icon.ico"
-        #)
+        Executable(
+            "migrate.py",
+            base = CONSOLE_BASE_APP,
+            targetName = "migrate" + EXECUTABLE_EXTENSION
+        )
     ] 
 )
