@@ -94,11 +94,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         if xmlmode:
             self.xml.propagateChangesToVisual()
             
-        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.visual.rootWidget)
-        
-        f = open(targetPath, "w")
-        f.write(source)
-        f.close()
+        self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.visual.rootWidget)
         
         super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 

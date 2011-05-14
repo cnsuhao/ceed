@@ -124,10 +124,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         # we indent to make the resulting files as readable as possible
         xmledit.indent(rootElement)
         
-        targetType = compatibility.imageset.Manager.instance.guessType(open(self.filePath, "r").read(), self.filePath)
-        source = compatibility.imageset.Manager.instance.transform("CEGUI imageset", targetType, ElementTree.tostring(rootElement, "utf-8"))
-        
-        open(targetPath, "w").write(source)
+        self.nativeData = ElementTree.tostring(rootElement, "utf-8")
         
         super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 

@@ -249,6 +249,14 @@ class TabbedEditor(object):
         targetPath should be absolute file path.
         """
         
+        outputData = self.nativeData
+        if self.compatibilityManager is not None:
+            outputData = self.compatibilityManager.transform(self.nativeDataType, self.desiredSavingDataType, self.nativeData)
+        
+        f = open(targetPath, "w")
+        f.write(outputData)
+        f.close()
+        
         if updateCurrentPath:
             # changes current path to the path we saved to
             self.filePath = targetPath
