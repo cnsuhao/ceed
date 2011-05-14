@@ -23,6 +23,7 @@ import os
 import sys
 
 import editors
+import compatibility
 import xmledit
 
 import visual
@@ -38,7 +39,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(LayoutTabbedEditor, self).__init__(filePath)
+        super(LayoutTabbedEditor, self).__init__(compatibility.layout.Manager.instance, compatibility.layout.EditorNativeType, filePath)
         
         self.requiresProject = True
         
@@ -58,8 +59,8 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
-        # TODO: Not the proper path handling for now!!
-        root = PyCEGUI.WindowManager.getSingleton().loadLayoutFromFile(os.path.basename(self.filePath), "")
+        
+        root = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(self.nativeData)
         self.visual.initialise(root)
     
     def finalise(self):        

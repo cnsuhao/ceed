@@ -29,7 +29,7 @@ import resizable
 import elements
 import undo
 
-import ui.imageseteditor.dockwidget
+import ui.editors.imageset.dockwidget
 
 class ImageEntryItemDelegate(QItemDelegate):
     """The only reason for this is to track when we are editing.
@@ -61,7 +61,7 @@ class ImagesetEditorDockWidget(QDockWidget):
         
         self.visual = visual
         
-        self.ui = ui.imageseteditor.dockwidget.Ui_DockWidget()
+        self.ui = ui.editors.imageset.dockwidget.Ui_DockWidget()
         self.ui.setupUi(self)
         
         self.name = self.findChild(QLineEdit, "name")

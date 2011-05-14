@@ -21,16 +21,69 @@
 # This module contains interfaces needed to run editors tabs (multi-file editing)
 # Also groups all the editors together to avoid cluttering the root directory
 
-from PySide.QtGui import QUndoStack, QIcon
+from PySide.QtGui import *
 
 import os.path
+import compatibility
+
+import ui.editors.notypedetected
+import ui.editors.multipletypesdetected
+
+class NoTypeDetectedDialog(QDialog):
+    def __init__(self, compatibilityManager):
+        super(NoTypeDetectedDialog, self).__init__()
+
+        self.ui = ui.editors.notypedetected.Ui_NoTypeDetectedDialog()
+        self.ui.setupUi(self)
+        
+        self.typeChoice = self.findChild(QListWidget, "typeChoice")
+        
+        for type in compatibilityManager.getKnownTypes():
+            item = QListWidgetItem()
+            item.setText(type)
+            
+            self.typeChoice.addItem(item)
+
+class MultipleTypesDetectedDialog(QDialog):
+    def __init__(self, compatibilityManager, possibleTypes):
+        super(MultipleTypesDetectedDialog, self).__init__()
+        
+        self.ui = ui.editors.multipletypesdetected.Ui_MultipleTypesDetectedDialog()
+        self.ui.setupUi(self)
+        
+        self.typeChoice = self.findChild(QListWidget, "typeChoice")
+        
+        for type in compatibilityManager.getKnownTypes():
+            item = QListWidgetItem()
+            item.setText(type)
+            
+            if type in possibleTypes:
+                font = QFont()
+                font.setBold(True)
+                item.setFont(font)
+                
+            self.typeChoice.addItem(item)
 
 class TabbedEditor(object):
     """This is the base class for a class that takes a file and allows manipulation
     with it. It occupies exactly 1 tab space.
     """
     
-    def __init__(self, filePath):
+    def __init__(self, compatibilityManager, nativeDataType, filePath):
+        """Constructs the editor.
+        
+        compatibilityManager - manager that should be used to transform data between
+                               various data types using compatibility layers
+        nativeDataType - the data type that this editor can work with directly
+                         (all other data types will be transformed to this)
+        filePath - absolute file path of the file that should be opened
+        """
+        
+        self.compatibilityManager = compatibilityManager
+        self.nativeDataType = nativeDataType
+        self.desiredSavingDataType = nativeDataType
+        self.nativeData = None
+        
         self.requiresProject = False
         
         self.initialised = False
@@ -49,12 +102,64 @@ class TabbedEditor(object):
         
         self.mainWindow = mainWindow
         self.tabWidget.tabbedEditor = self
-                
+        
         self.mainWindow.tabs.addTab(self.tabWidget, self.tabLabel)
+        
+        if self.compatibilityManager is not None:
+            rawData = open(self.filePath, "r").read()
+            rawDataType = ""
+            
+            if rawData == "":
+                # it's an empty new file, the derived classes deal with this separately
+                self.nativeData = rawData
+                self.desiredSavingDataType = self.nativeDataType
+                
+            else:
+                try:
+                    rawDataType = self.compatibilityManager.guessType(rawData, self.filePath)
+                    
+                except compatibility.NoPossibleTypesError:
+                    dialog = NoTypeDetectedDialog(self.compatibilityManager)
+                    result = dialog.exec_()
+                    
+                    rawDataType = self.nativeDataType
+                    self.nativeData = ""
+                    
+                    if result == QDialog.Accepted:
+                        selection = dialog.typeChoice.selectedItems()
+                        
+                        if len(selection) == 1:
+                            rawDataType = selection[0].text()
+                            self.nativeData = None
+                
+                except compatibility.MultiplePossibleTypesError as e:
+                    dialog = MultipleTypesDetectedDialog(self.compatibilityManager, e.possibleTypes)
+                    result = dialog.exec_()
+                    
+                    rawDataType = self.nativeDataType
+                    self.nativeData = ""
+                    
+                    if result == QDialog.Accepted:
+                        selection = dialog.typeChoice.selectedItems()
+                        
+                        if len(selection) == 1:
+                            rawDataType = selection[0].text()
+                            self.nativeData = None
+                
+                # by default, save in the same format as we opened in
+                self.desiredSavingDataType = rawDataType
     
-        # we have to subscribe to the QTabWidget's signals so we know when
-        # tabs are activated/deactivated and when to close them
-    
+                # if nativeData is "" at this point, data type was not successful and user didn't select
+                # any data type as well so we will just use given file as an empty file
+                
+                if self.nativeData != "":
+                    try:
+                        self.nativeData = self.compatibilityManager.transform(rawDataType, self.nativeDataType, rawData)
+                        
+                    except compatibility.LayerNotFoundError:
+                        # TODO: Dialog, can't convert
+                        self.nativeData = ""
+        
         self.initialised = True
     
     def finalise(self):
@@ -205,8 +310,8 @@ class UndoStackTabbedEditor(TabbedEditor):
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
     """
     
-    def __init__(self, filePath):
-        super(UndoStackTabbedEditor, self).__init__(filePath)
+    def __init__(self, compatibilityManager, nativeDataType, filePath):
+        super(UndoStackTabbedEditor, self).__init__(compatibilityManager, nativeDataType, filePath)
         
         self.undoStack = QUndoStack()
         
@@ -315,7 +420,7 @@ class MessageTabbedEditor(TabbedEditor):
     def __init__(self, filePath, message):
         from PySide.QtGui import QLabel
         
-        super(MessageTabbedEditor, self).__init__(filePath)
+        super(MessageTabbedEditor, self).__init__(None, "", filePath)
         
         self.message = message
         self.tabWidget = QLabel(self.message)

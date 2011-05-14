@@ -47,7 +47,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(ImagesetTabbedEditor, self).__init__(filePath)
+        super(ImagesetTabbedEditor, self).__init__(compatibility.imageset.Manager.instance, compatibility.imageset.EditorNativeType, filePath)
         
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
@@ -62,8 +62,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     
         root = None
         try:
-            source = compatibility.imageset.Manager.instance.transformTo("CEGUI imageset", open(self.filePath, "r").read(), self.filePath)
-            root = ElementTree.fromstring(source)
+            root = ElementTree.fromstring(self.nativeData)
             
         except:
             # things didn't go smooth

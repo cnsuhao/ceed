@@ -16,15 +16,6 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-try:
-    import psyco
-    #psyco.log()
-    #psyco.profile()
-    psyco.full()
-
-except:
-    print "no psyco found, running without optimisations"
-
 import sys
 import os
 
@@ -108,12 +99,11 @@ class Application(QApplication):
         
         # first recompile all UI files to ensure they are up to date
         compileuifiles.compileUIFiles("./ui")
-        compileuifiles.compileUIFiles("./ui/imageseteditor")
-        compileuifiles.compileUIFiles("./ui/layouteditor")
+        compileuifiles.compileUIFiles("./ui/editors")
+        compileuifiles.compileUIFiles("./ui/editors/imageset")
+        compileuifiles.compileUIFiles("./ui/editors/layout")
         compileuifiles.compileUIFiles("./ui/widgets")
-        
-        self.mainwindow = None
-        
+
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")
         self.setApplicationName("CEED - CEGUI editor")

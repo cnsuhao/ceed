@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
         filePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"        
         
         if not os.path.exists(absolutePath):
-            ret = tab.MessageTabbedEditor(absolutePath,
+            ret = editors.MessageTabbedEditor(absolutePath,
                    "Couldn't find '%s' (project relative path: '%s'), please check that that your project's "
                    "base directory is set up correctly and that you hadn't deleted "
                    "the file from your HDD. Consider removing the file from the project." % (absolutePath, filePath))
@@ -222,7 +222,7 @@ class MainWindow(QMainWindow):
                         ret = factory.create(absolutePath)
                         
                     except:
-                        ret = tab.MessageTabbedEditor(absolutePath,
+                        ret = editors.MessageTabbedEditor(absolutePath,
                                "A problem has occurred when creating an editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
                     break
             
@@ -233,28 +233,28 @@ class MainWindow(QMainWindow):
             # IMO this is a reasonable compromise and plays well with the rest of 
             # the editor without introducing exceptions, etc...
             if not ret:
-                ret = tab.MessageTabbedEditor(absolutePath,
+                ret = editors.MessageTabbedEditor(absolutePath,
                        "No included tabbed editor was able to accept '%s' (project relative path: '%s'), please "
                        "check that it's a file CEED supports and that it has the correct extension "
                        "(CEED enforces proper extensions)" % (absolutePath, filePath))
         
         if not self.project and ret.requiresProject:
-            ret = tab.MessageTabbedEditor(absolutePath,
+            ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
         
-        try:
-            ret.initialise(self)
+        #try:
+        ret.initialise(self)
             
-        except:
-            # it may have been partly constructed at this point
-            try:
-                ret.finalise()
-            except:
-                pass
-            
-            ret = tab.MessageTabbedEditor(absolutePath,
-                      "A problem has occurred when initialising the editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
-            ret.initialise(self)
+        #except:
+        #    # it may have been partly constructed at this point
+        #    try:
+        #        ret.finalise()
+        #    except:
+        #        pass
+        #    
+        #    ret = editors.MessageTabbedEditor(absolutePath,
+        #              "A problem has occurred when initialising the editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
+        #    ret.initialise(self)
                     
         self.tabEditors.append(ret)
         

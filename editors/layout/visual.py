@@ -28,9 +28,9 @@ import PyCEGUI
 import undo
 import resizable
 
-import ui.layouteditor.hierarchydockwidget
-import ui.layouteditor.propertiesdockwidget
-import ui.layouteditor.createwidgetdockwidget
+import ui.editors.layout.hierarchydockwidget
+import ui.editors.layout.propertiesdockwidget
+import ui.editors.layout.createwidgetdockwidget
 
 class HierarchyDockWidget(QDockWidget):
     def __init__(self, visual):
@@ -38,7 +38,7 @@ class HierarchyDockWidget(QDockWidget):
         
         self.visual = visual
         
-        self.ui = ui.layouteditor.hierarchydockwidget.Ui_HierarchyDockWidget()
+        self.ui = ui.editors.layout.hierarchydockwidget.Ui_HierarchyDockWidget()
         self.ui.setupUi(self)
         
         self.tree = self.findChild(QTreeWidget, "tree")
@@ -113,7 +113,7 @@ class PropertiesDockWidget(QDockWidget):
         
         self.visual = visual
         
-        self.ui = ui.layouteditor.propertiesdockwidget.Ui_PropertiesDockWidget()
+        self.ui = ui.editors.layout.propertiesdockwidget.Ui_PropertiesDockWidget()
         self.ui.setupUi(self)
         
         self.inspector = self.findChild(propertysetinspector.PropertySetInspector, "inspector")
@@ -152,7 +152,7 @@ class CreateWidgetDockWidget(QDockWidget):
         
         self.visual = visual
         
-        self.ui = ui.layouteditor.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
+        self.ui = ui.editors.layout.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
         self.ui.setupUi(self)
         
         self.tree = self.findChild(QTreeWidget, "tree")

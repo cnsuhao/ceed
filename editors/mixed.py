@@ -103,8 +103,8 @@ class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
     You should not add/remove modes after the construction!
     """
 
-    def __init__(self, filePath):
-        editors.UndoStackTabbedEditor.__init__(self, filePath)
+    def __init__(self, compatibilityManager, nativeDataType, filePath):
+        editors.UndoStackTabbedEditor.__init__(self, compatibilityManager, nativeDataType, filePath)
         QTabWidget.__init__(self)
         
         self.setTabPosition(QTabWidget.South)

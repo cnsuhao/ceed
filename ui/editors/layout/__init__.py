@@ -16,28 +16,4 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import compatibility
-
-import cegui
-import gorilla
-
-EditorNativeType = cegui.CEGUI08Imageset
-
-class Manager(compatibility.Manager):
-    """Manager of imageset compatibility layers"""
-    
-    instance = None
-    
-    def __init__(self):
-        super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
-        
-        self.detectors.append(cegui.Imageset08TypeDetector())
-        
-        self.detectors.append(gorilla.GorillaTypeDetector())
-        self.layers.append(gorilla.GorillaToCEGUILayer())
-        self.layers.append(gorilla.CEGUIToGorillaLayer())
-
-Manager()
+# package stub file

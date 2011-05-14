@@ -28,7 +28,7 @@ class BitmapTabbedEditor(editors.TabbedEditor, QWidget):
         #       I need to pass 2 different argument sets so I am doing it explicit
         #super(BitmapTabbedEditor, self).__init__(filePath)
         
-        editors.TabbedEditor.__init__(self, filePath)
+        editors.TabbedEditor.__init__(self, None, "", filePath)
         QWidget.__init__(self)
         
         self.ui = ui.bitmapeditor.Ui_BitmapEditor()

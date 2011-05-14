@@ -18,11 +18,11 @@
 
 import compatibility
 
-CEGUIImageset = "CEGUI imageset"
+CEGUI08Imageset = "CEGUI 0.8 imageset"
 
-class ImagesetTypeDetector(compatibility.TypeDetector):
+class Imageset08TypeDetector(compatibility.TypeDetector):
     def getType(self):
-        return CEGUIImageset
+        return CEGUI08Imageset
     
     def matches(self, data, extension):
         if extension != "imageset":

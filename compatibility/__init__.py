@@ -18,8 +18,8 @@
 
 # This module is the root of all compatibility support and layers in the editor,
 
-# NOTE: It should be importable with as few dependencies as possible because there is
-#       a high chance that this gets used in command line migration tools or such!
+# NOTE: It should be importable with as few dependencies as possible because
+#       this is used in the command line migration tool!
 
 class Layer(object):
     """Compatibility layer can transform given code from source type to target type.
@@ -80,7 +80,7 @@ class NoPossibleTypesError(RuntimeError):
     asked to choose the right type in this case
     """
     
-    def __init__(self, possibleTypes):
+    def __init__(self):
         super(NoPossibleTypesError, self).__init__("Can't decide type of given code and extension, no positives turned up!")
         
 class Manager(object):
@@ -93,6 +93,15 @@ class Manager(object):
     def __init__(self):
         self.detectors = []
         self.layers = []
+    
+    def getKnownTypes(self):
+        """Retrieves types that we have detectors for"""
+        
+        ret = []
+        for detector in self.detectors:
+            ret.append(detector.getType())
+            
+        return ret
     
     def transform(self, sourceType, targetType, data):
         """Performs transformation of given source code from sourceType to targetType.
@@ -157,4 +166,6 @@ class Manager(object):
         sourceType = self.guessType(code, extension)
         return self.transform(sourceType, targetType, code) 
     
+# make these visible to the outside
 import imageset
+import layout
