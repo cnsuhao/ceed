@@ -98,11 +98,11 @@ class Application(QApplication):
         super(Application, self).__init__(argv)
         
         # first recompile all UI files to ensure they are up to date
-        #compileuifiles.compileUIFiles("./ui")
-        #compileuifiles.compileUIFiles("./ui/editors")
-        #compileuifiles.compileUIFiles("./ui/editors/imageset")
-        #compileuifiles.compileUIFiles("./ui/editors/layout")
-        #compileuifiles.compileUIFiles("./ui/widgets")
+        compileuifiles.compileUIFiles("./ui")
+        compileuifiles.compileUIFiles("./ui/editors")
+        compileuifiles.compileUIFiles("./ui/editors/imageset")
+        compileuifiles.compileUIFiles("./ui/editors/layout")
+        compileuifiles.compileUIFiles("./ui/widgets")
 
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")
