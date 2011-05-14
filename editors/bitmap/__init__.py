@@ -17,18 +17,18 @@
 ################################################################################
 
 from PySide.QtGui import *
-import tab
+import editors
 import ui.bitmapeditor
 
 ##
 # A simple external bitmap editor starter/image viewer
-class BitmapTabbedEditor(tab.TabbedEditor, QWidget):
+class BitmapTabbedEditor(editors.TabbedEditor, QWidget):
     def __init__(self, filePath):
         # TODO: maybe I am doing this wrong since I am not using super,
         #       I need to pass 2 different argument sets so I am doing it explicit
         #super(BitmapTabbedEditor, self).__init__(filePath)
         
-        tab.TabbedEditor.__init__(self, filePath)
+        editors.TabbedEditor.__init__(self, filePath)
         QWidget.__init__(self)
         
         self.ui = ui.bitmapeditor.Ui_BitmapEditor()
@@ -50,7 +50,7 @@ class BitmapTabbedEditor(tab.TabbedEditor, QWidget):
     def hasChanges(self):
         return False
 
-class BitmapTabbedEditorFactory(tab.TabbedEditorFactory):
+class BitmapTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = [".png", ".jpg", ".jpeg", ".tga", ".dds"]
         

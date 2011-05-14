@@ -19,7 +19,7 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
-import mixedtab
+import editors.mixed
 import propertysetinspector
 
 import cegui
@@ -324,7 +324,7 @@ class EditingScene(cegui.widget.GraphicsScene):
         else:
             event.accept()
 
-class VisualEditing(QWidget, mixedtab.EditMode):
+class VisualEditing(QWidget, editors.mixed.EditMode):
     def __init__(self, tabbedEditor):
         super(VisualEditing, self).__init__()
         

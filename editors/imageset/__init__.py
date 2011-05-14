@@ -22,8 +22,7 @@ from PySide.QtGui import *
 import os
 import sys
 
-import tab
-import mixedtab
+import editors
 import xmledit
 
 import undo
@@ -43,7 +42,7 @@ Image Offset - allows you to change the pivot point of the image entry which by 
 Underlying image - the image that lies under the image entries/rectangles (bitmap image)
 """
 
-class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
+class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     """Binds all imageset editing functionality together
     """
     
@@ -133,7 +132,7 @@ class ImagesetTabbedEditor(mixedtab.MixedTabbedEditor):
         
         super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
-class ImagesetTabbedEditorFactory(tab.TabbedEditorFactory):
+class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = [".imageset", ".gorilla"]
         

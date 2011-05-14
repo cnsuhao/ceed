@@ -22,8 +22,7 @@ from PySide.QtGui import *
 import os
 import sys
 
-import tab
-import mixedtab
+import editors
 import xmledit
 
 import visual
@@ -34,7 +33,7 @@ import PyCEGUI
 
 from xml.etree import ElementTree
 
-class LayoutTabbedEditor(mixedtab.MixedTabbedEditor):
+class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """Binds all layout editing functionality together
     """
     
@@ -102,7 +101,7 @@ class LayoutTabbedEditor(mixedtab.MixedTabbedEditor):
         
         super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
-class LayoutTabbedEditorFactory(tab.TabbedEditorFactory):
+class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = [".layout"]
         

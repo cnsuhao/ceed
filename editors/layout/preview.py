@@ -19,11 +19,11 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
-import mixedtab
+import editors.mixed
 
 import PyCEGUI
 
-class LayoutPreviewer(QWidget, mixedtab.EditMode):
+class LayoutPreviewer(QWidget, editors.mixed.EditMode):
     def __init__(self, tabbedEditor):
         super(LayoutPreviewer, self).__init__()
         

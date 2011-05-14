@@ -19,7 +19,7 @@
 ##
 # This module contains interfaces for mixed editing tabbed editors (visual, source, ...)
 
-import tab
+import editors
 import commands
 
 from PySide.QtGui import QTabWidget
@@ -91,7 +91,7 @@ class EditMode(object):
         
         return True
 
-class MixedTabbedEditor(tab.UndoStackTabbedEditor, QTabWidget):
+class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
     """This class represents tabbed editor that has little tabs on the bottom
     allowing you to switch editing "modes" - visual, code, ...
     
@@ -104,7 +104,7 @@ class MixedTabbedEditor(tab.UndoStackTabbedEditor, QTabWidget):
     """
 
     def __init__(self, filePath):
-        tab.UndoStackTabbedEditor.__init__(self, filePath)
+        editors.UndoStackTabbedEditor.__init__(self, filePath)
         QTabWidget.__init__(self)
         
         self.setTabPosition(QTabWidget.South)

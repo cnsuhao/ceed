@@ -29,14 +29,7 @@ import project
 import cegui
 import filesystembrowser
 
-import tab
-
-# the various editor imports
-import bitmapeditor
-import texteditor
-import imageseteditor
-import layouteditor
-
+import editors
 import about
 
 class MainWindow(QMainWindow):
@@ -70,10 +63,10 @@ class MainWindow(QMainWindow):
         self.recentProjectsActions = []
 
         self.editorFactories = [
-            bitmapeditor.BitmapTabbedEditorFactory(),
-            texteditor.TextTabbedEditorFactory(),
-            imageseteditor.ImagesetTabbedEditorFactory(),
-            layouteditor.LayoutTabbedEditorFactory()
+            editors.bitmap.BitmapTabbedEditorFactory(),
+            editors.imageset.ImagesetTabbedEditorFactory(),
+            editors.layout.LayoutTabbedEditorFactory(),
+            editors.text.TextTabbedEditorFactory()
         ]
         
         self.activeEditor = None

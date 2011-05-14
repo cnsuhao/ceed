@@ -22,7 +22,7 @@ from PySide.QtOpenGL import QGLWidget
 
 import fnmatch
 
-import mixedtab
+import editors.mixed
 import qtwidgets
 import resizable
 
@@ -344,12 +344,12 @@ class ImagesetEditorDockWidget(QDockWidget):
     def slot_offsetYChanged(self, text):
         self.metaslot_propertyChanged("yoffset", text)
 
-class VisualEditing(resizable.GraphicsView, mixedtab.EditMode):
+class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
     """This is the "Visual" tab for imageset editing
     """
     
     def __init__(self, tabbedEditor):
-        mixedtab.EditMode.__init__(self)
+        editors.mixed.EditMode.__init__(self)
         QGraphicsView.__init__(self)
                 
         scene = QGraphicsScene()

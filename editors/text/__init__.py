@@ -17,7 +17,7 @@
 ################################################################################
 
 from PySide.QtGui import *
-import tab
+import editors
 
 ##
 # Multi purpose text editor
@@ -25,7 +25,7 @@ import tab
 # TODO: This could get replaced by QScintilla once PySide guys get it to work.
 #       Scintilla would probably be overkill though, I can't imagine anyone
 #       doing any serious editing in this application
-class TextTabbedEditor(tab.TabbedEditor):
+class TextTabbedEditor(editors.TabbedEditor):
     def __init__(self, filePath):
         
         super(TextTabbedEditor, self).__init__(filePath)
@@ -70,7 +70,7 @@ class TextTabbedEditor(tab.TabbedEditor):
     def slot_redoAvailable(self, available):
         self.mainWindow.redoAction.setEnabled(available)
 
-class TextTabbedEditorFactory(tab.TabbedEditorFactory):
+class TextTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = [".py", ".lua", ".txt", ".xml"]
         

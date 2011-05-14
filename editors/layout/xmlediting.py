@@ -21,26 +21,19 @@ from PySide.QtCore import *
 
 from xml.etree import ElementTree
 
-import sys
-
-import mixedtab
+import editors.mixed
 
 import undo
 import xmledit
 
-class XMLParseError(Exception):
-    """XML parsing failed"""
-    
-    def __init__(self, exception):
-        self.exception = exception
+import PyCEGUI
 
-class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
+class XMLEditing(xmledit.XMLEditWidget, editors.mixed.EditMode):
     def __init__(self, tabbedEditor):
         super(XMLEditing, self).__init__()
         
         self.tabbedEditor = tabbedEditor
         self.ignoreUndoCommands = False
-        self.ignoreRefreshFromVisual = False
         self.lastUndoText = None
         self.lastUndoCursor = None
         
@@ -48,13 +41,14 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         self.document().contentsChange.connect(self.slot_contentsChange)
         
     def refreshFromVisual(self):
-        if not self.ignoreRefreshFromVisual:
-            element = self.tabbedEditor.visual.imagesetEntry.saveToElement()
-            xmledit.indent(element)
-            
-            self.ignoreUndoCommands = True
-            self.setPlainText(ElementTree.tostring(element, "utf-8"))
-            self.ignoreUndoCommands = False
+        if not self.tabbedEditor.visual.rootWidget:
+            return
+        
+        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.tabbedEditor.visual.rootWidget)
+        
+        self.ignoreUndoCommands = True
+        self.setPlainText(source)
+        self.ignoreUndoCommands = False
         
     def propagateChangesToVisual(self):
         source = self.document().toPlainText()
@@ -64,50 +58,23 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         if source == "":
             return
         
-        element = None
         # TODO: What if this fails to parse? Do we show a message box that it failed and allow falling back
         #       to the previous visual state or do we somehow correct the XML like editors do?
-        try:
-            element = ElementTree.fromstring(self.document().toPlainText())
+        # we have to make the context the current context to ensure textures are fine
+        mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
         
-        except Exception as e:
-            raise XMLParseError(e)
-        
-        else:
-            self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
-        
+        newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(source)
+        self.tabbedEditor.visual.replaceRootWidget(newRoot)
+    
     def activate(self):
         super(XMLEditing, self).activate()
         self.refreshFromVisual()
-
-    def deactivate(self):
-        ret = True
-      
-        try:
-            self.propagateChangesToVisual()
-            ret = True
         
-        except XMLParseError as e:
-            # the file contains more than just CR LF
-            result = QMessageBox.question(self,
-                                 "Parsing the XML changes failed!",
-                                 "Parsing of the changes done in XML edit mode failed, the result wasn't a well-formed XML.\n"
-                                 "Press Cancel to stay in the XML edit mode to correct the mistake(s) or press Discard to "
-                                 "discard the changes and go back to the previous state (before you entered xml edit mode).\n\n"
-                                 "Exception details follow: %s" % (e),
-                                 QMessageBox.Cancel | QMessageBox.Discard, QMessageBox.Cancel)
-            
-            if result == QMessageBox.Cancel:
-                # return False to indicate we don't want to switch out of this widget
-                ret = False
-                # TODO: eat the unnecessary undo commands
-                
-            elif result == QMessageBox.Discard:
-                # we return True, the visual element wasn't touched (the error is thrown before that)
-                ret = True
-                
-        return ret and super(XMLEditing, self).deactivate()
-
+    def deactivate(self):
+        self.propagateChangesToVisual()
+        
+        return super(XMLEditing, self).deactivate()
+    
     def slot_contentsChange(self, position, charsRemoved, charsAdded):
         if not self.ignoreUndoCommands:
             totalChange = charsRemoved + charsAdded
@@ -120,3 +87,5 @@ class XMLEditing(xmledit.XMLEditWidget, mixedtab.EditMode):
         self.lastUndoText = self.toPlainText()
         self.lastTextCursor = self.textCursor()
         
+# needs to be at the end, imported to get the singleton
+import mainwindow

@@ -16,8 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 ##
 # This module contains interfaces needed to run editors tabs (multi-file editing)
+# Also groups all the editors together to avoid cluttering the root directory
 
 from PySide.QtGui import QUndoStack, QIcon
 
@@ -321,3 +323,9 @@ class MessageTabbedEditor(TabbedEditor):
         
     def hasChanges(self):
         return False
+
+# make all the submodules visible
+import bitmap
+import imageset
+import layout
+import text
