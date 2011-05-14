@@ -313,14 +313,31 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionRecentProjects">
+  <action name="actionCloseTab">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/actions/close_tab.png</normaloff>icons/actions/close_tab.png</iconset>
+   </property>
    <property name="text">
-    <string>Recent Projects</string>
+    <string>Close this tab</string>
    </property>
   </action>
-  <action name="actionRecent_projects">
+  <action name="actionCloseOtherTabs">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/actions/close_other_tabs.png</normaloff>icons/actions/close_other_tabs.png</iconset>
+   </property>
    <property name="text">
-    <string>Recent projects</string>
+    <string>Close other tabs</string>
+   </property>
+  </action>
+  <action name="actionCloseAllTabs">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/actions/close_all_tabs.png</normaloff>icons/actions/close_all_tabs.png</iconset>
+   </property>
+   <property name="text">
+    <string>Close all tabs</string>
    </property>
   </action>
  </widget>

@@ -81,6 +81,10 @@ class MainWindow(QMainWindow):
         self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
         self.tabs.tabCloseRequested.connect(self.slot_tabCloseRequested)
+        # TODO: this is potentially nasty since the tabBar method is protected
+        self.tabBar = self.tabs.tabBar()
+        self.tabBar.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tabBar.customContextMenuRequested.connect(self.slot_tabBarCustomContextMenuRequested)
         
         self.tabEditors = []
         
@@ -161,6 +165,16 @@ class MainWindow(QMainWindow):
         
         self.quitAction = self.findChild(QAction, "actionQuit")
         self.quitAction.triggered.connect(self.slot_quit)
+        
+        # tab bar context menu
+        self.closeTabAction = self.findChild(QAction, "actionCloseTab")
+        self.closeTabAction.setEnabled(False)
+        self.closeTabAction.triggered.connect(self.slot_closeTab)
+        self.closeOtherTabsAction = self.findChild(QAction, "actionCloseOtherTabs")
+        self.closeOtherTabsAction.setEnabled(False)
+        self.closeOtherTabsAction.triggered.connect(self.slot_closeOtherTabs)
+        self.closeAllTabsAction = self.findChild(QAction, "actionCloseAllTabs")
+        self.closeAllTabsAction.triggered.connect(self.slot_closeAllTabs)
         
     def connectSignals(self):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
@@ -427,9 +441,6 @@ class MainWindow(QMainWindow):
         if self.activeEditor:
             self.activeEditor.deactivate()
 
-        # enable saving by default
-        self.saveAction.setEnabled(True)
-
         # it's the tabbed editor's responsibility to handle these,
         # we disable them by default
         self.undoAction.setEnabled(False)
@@ -449,12 +460,18 @@ class MainWindow(QMainWindow):
             self.saveAllAction.setEnabled(True)
             self.closeAction.setEnabled(True)
             
+            self.closeTabAction.setEnabled(True)
+            self.closeOtherTabsAction.setEnabled(True)
+            
             wdt.tabbedEditor.activate()
         else:
             # None is selected right now, lets disable Save and Close actions
             self.saveAction.setEnabled(False)
             self.saveAllAction.setEnabled(False)
             self.closeAction.setEnabled(False)
+            
+            self.closeTabAction.setEnabled(False)
+            self.closeOtherTabsAction.setEnabled(False)
             
         self.tabs.setUpdatesEnabled(True)
     
@@ -465,6 +482,7 @@ class MainWindow(QMainWindow):
         if not editor.hasChanges():
             # we can close immediately
             self.closeEditorTab(editor)
+            return True
             
         else:
             # we have changes, lets ask the user whether we should dump them or save them
@@ -480,14 +498,52 @@ class MainWindow(QMainWindow):
                 # lets save changes and then kill the editor (This is the default action)
                 editor.save()
                 self.closeEditorTab(editor)
+                return True
                 
             elif result == QMessageBox.Discard:
                 # changes will be discarded
                 # note: we don't have to call editor.discardChanges here
                 
                 self.closeEditorTab(editor)
+                return True
             
             # don't do anything if user selected 'Cancel'
+            return False
+
+    def slot_closeTab(self):
+        # a simple delegate
+        self.slot_tabCloseRequested(self.tabs.currentIndex())
+
+    def slot_closeOtherTabs(self):
+        current = self.tabs.currentWidget()
+        
+        i = 0
+        while i < self.tabs.count():
+            if self.tabs.widget(i) == current:
+                # we skip the current widget
+                i += 1
+            else:
+                if not self.slot_tabCloseRequested(i):
+                    # user selected Cancel, we skip this widget
+                    i += 1
+                    
+    def slot_closeAllTabs(self):
+        i = 0
+        while i < self.tabs.count():
+            if not self.slot_tabCloseRequested(i):
+                # user selected Cancel, we skip this widget
+                i += 1
+
+    def slot_tabBarCustomContextMenuRequested(self, point):
+        self.tabs.setCurrentIndex(self.tabBar.tabAt(point))
+        
+        menu = QMenu(self)
+        menu.addAction(self.closeTabAction)
+        menu.addSeparator()
+        menu.addAction(self.closeOtherTabsAction)
+        menu.addAction(self.closeAllTabsAction)
+        
+        menu.exec_(self.tabBar.mapToGlobal(point))
 
     def slot_save(self):
         if self.activeEditor:
