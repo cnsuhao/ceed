@@ -58,12 +58,11 @@ setup(
         ),
         
         # this starts the MetaImageset compiler
-        #Executable(
-        #    "mic/entry.py",
-        #    base = CONSOLE_BASE_APP,
-        #    targetName = "mic" + EXECUTABLE_EXTENSION,
-        #    icon = "icons/metaimageset_compiler.ico"
-        #),
+        Executable(
+            "mic.py",
+            base = CONSOLE_BASE_APP,
+            targetName = "mic" + EXECUTABLE_EXTENSION
+        ),
         # this starts the Asset Migration tool
         Executable(
             "migrate.py",

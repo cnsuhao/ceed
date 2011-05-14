@@ -16,6 +16,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# Data migration command line tool
+
 import sys
 import argparse
 
