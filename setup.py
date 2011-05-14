@@ -18,11 +18,18 @@
 
 # Allows freezing the executable (currently Windows specific code pretty much)
 
+import platform
+
 VERSION = "0.1"
 # TODO: these should branch depending on the platform
-GUI_BASE_APP = "Win32GUI"
+GUI_BASE_APP = "Console"
 CONSOLE_BASE_APP = "Console"
-EXECUTABLE_EXTENSION = ".exe"
+EXECUTABLE_EXTENSION = ""
+
+if platform.system() == "Windows":
+    # Windows is being special again
+    GUI_BASE_APP = "Win32GUI"
+    EXECUTABLE_EXTENSION = ".exe"
 
 from cx_Freeze import setup, Executable
 
@@ -31,15 +38,18 @@ buildOptions = dict(
     [
         "OpenGL",
         "OpenGL.platform",
-        "OpenGL.arrays.formathandler"
+        "OpenGL.arrays.formathandler",
+        
+        "encodings.ascii",
+        "encodings.utf_8"
     ],
     
     include_files =
     [
-        "icons",
-        "images",
-        "ui", # FIXME: because we always rebuild those upon starting
-        "data"
+        ["icons", "icons"],
+        ["images", "images"],
+        ["ui", "ui"], # FIXME: because we always rebuild those upon starting
+        ["data", "data"]
     ]
 )
 
