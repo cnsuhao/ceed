@@ -21,8 +21,23 @@
 import editors.imageset.elements
 import compatibility.imageset
 
+from PySide.QtGui import *
+
 import os
 from xml.etree import ElementTree
+
+class Image(object):
+    """Instance of the image, containing a bitmap (QImage)
+    and xoffset and yoffset
+    """
+    
+    def __init__(self, name, qimage, xoffset = 0, yoffset = 0):
+        self.name = name
+        
+        self.qimage = qimage
+        
+        self.xoffset = xoffset
+        self.yoffset = yoffset
 
 class Input(object):
     """Describes any input image source for the meta imageset.
@@ -42,10 +57,10 @@ class Input(object):
         raise NotImplementedError("Each Input subclass must override Input.saveToElement!")
     
     def getImages(self):
-        """Retrieves list of QImage objects each containing a bitmap representation
-        of some image this input provided.
+        """Retrieves list of Image objects each containing a bitmap representation
+        of some image this input provided, xoffset and yoffset.
         
-        For simple images, this will return [QImage(self.path)],
+        For simple images, this will return [ImageInstance(QImage(self.path))],
         For imagesets, this will return list of all images in the imageset
         (Each QImage containing only the specified portion of the underlying image)
         """
@@ -94,30 +109,86 @@ class Imageset(Input):
         ret = []
         
         for imageEntry in self.imagesetEntry.imageEntries:
-            ret.append(imageEntry.getPixmap().toImage())
+            ret.append(Image(self.imagesetEntry.name + "/" + imageEntry.name, imageEntry.getPixmap().toImage(), imageEntry.xoffset, imageEntry.yoffset))
         
         return ret
+    
+class BitmapGlob(Input):
+    def __init__(self, metaImageset):
+        super(BitmapGlob, self).__init__(metaImageset)
+        
+        self.xoffset = 0
+        self.yoffset = 0
+        self.images = []
+    
+    def loadFromElement(self, element):
+        self.path = element.get("path", "")
+        self.xoffset = int(element.get("xoffset", "0"))
+        self.yoffset = int(element.get("yoffset", "0"))
+        
+        import glob
+        self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
+
+        for path in self.paths:
+            pathSplit = path.rsplit(".", 1)
+            name = os.path.basename(pathSplit[0])
+            
+            image = Image(name, QImage(path), self.xoffset, self.yoffset)
+            self.images.append(image)
+    
+    def saveToElement(self):
+        ret = ElementTree.Element("Imageset")
+        ret.set("path", self.path)
+        ret.set("xoffset", str(self.xoffset))
+        ret.set("yoffset", str(self.yoffset))
+    
+    def getImages(self):
+        return self.images
     
 class MetaImageset(object):
     def __init__(self, filePath):
         self.filePath = filePath
         
+        self.name = ""
+        self.nativeHorzRes = 800
+        self.nativeVertRes = 600
+        self.autoScaled = False
+        
         self.onlyPOT = False
         
         self.output = ""
+        self.outputTargetType = compatibility.imageset.EditorNativeType
         self.inputs = []
     
     def loadFromElement(self, element):
+        self.name = element.get("name", "")
+        self.nativeHorzRes = int(element.get("nativeHorzRes", "800"))
+        self.nativeVertRes = int(element.get("nativeVertRes", "600"))
+        self.autoScaled = element.get("autoScaled", "false") == "true"
+        
+        self.outputTargetType = element.get("outputTargetType", compatibility.imageset.EditorNativeType)
         self.output = element.get("output", "")
         
-        for imagesetElement in element.findall("Imageset"):
+        for childElement in element.findall("Imageset"):
             imageset = Imageset(self)
-            imageset.loadFromElement(imagesetElement)
+            imageset.loadFromElement(childElement)
             
             self.inputs.append(imageset)
+            
+        for childElement in element.findall("BitmapGlob"):
+            bitmapGlob = BitmapGlob(self)
+            bitmapGlob.loadFromElement(childElement)
+            
+            self.inputs.append(bitmapGlob)
         
     def saveToElement(self):
         ret = ElementTree.Element("MetaImageset")
+        ret.set("name", self.name)
+        ret.set("nativeHorzRes", str(self.nativeHorzRes))
+        ret.set("nativeVertRes", str(self.nativeVertRes))
+        ret.set("autoScaled", "true" if self.autoScaled else "false")
+        
+        ret.set("outputTargetType", self.outputTargetType)
         ret.set("output", self.output)
         
         for input in self.inputs:

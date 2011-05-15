@@ -18,6 +18,7 @@
 
 import math
 import rectanglepacking
+import compatibility.imageset
 
 from PySide.QtCore import *
 from PySide.QtGui import *
@@ -45,8 +46,8 @@ class CompilerInstance(object):
         
         for input in self.metaImageset.inputs:
             for image in input.getImages():
-                area += image.width() * image.height()
-         
+                area += image.qimage.width() * image.qimage.height()
+        
         return math.sqrt(area)
     
     def compile(self):
@@ -68,7 +69,7 @@ class CompilerInstance(object):
             images.extend(input.getImages())
         
         # the image packer performs better if images are inserted by width, thinnest come first
-        images = sorted(images, key = lambda image: image.width())
+        images = sorted(images, key = lambda image: image.qimage.width())
         
         print("Performing texture side size determination...")
         i = 0
@@ -80,9 +81,9 @@ class CompilerInstance(object):
                 for image in images:
                     # TODO: borders to avoid artifacts
                     
-                    point = packer.Pack(image.width(), image.height())
+                    point = packer.Pack(image.qimage.width(), image.qimage.height())
                     imageInstances.append(ImageInstance(point.x, point.y, image))
-                        
+                    
                 # everything seems to have gone smoothly, lets use this configuration then
                 break
             
@@ -110,11 +111,27 @@ class CompilerInstance(object):
             
             # and then draw the real image on top
             painter.drawImage(QPointF(imageInstance.x, imageInstance.y),
-                              imageInstance.image)
+                              imageInstance.image.qimage)
             
         painter.end()
         
-        underlyingImage.save("output.png")
+        print("Saving underlying image...")
+        
+        outputSplit = self.metaImageset.output.rsplit(".", 1)
+        underlyingImageFileName = "%s.png" % (outputSplit[0])
+        underlyingImage.save(underlyingImageFileName)
+        
+        # CEGUI imageset format is very simple and easy to work with, using serialisation in the editor for this
+        # seemed like a wasted effort :-)
+        
+        nativeData = "<Imageset Name=\"%s\" Imagefile=\"%s\" NativeHorzRes=\"%i\" NativeVertRes=\"%i\" AutoScaled=\"%s\">\n" % (self.metaImageset.name, underlyingImageFileName, self.metaImageset.nativeHorzRes, self.metaImageset.nativeVertRes, "true" if self.metaImageset.autoScaled else "false")
+        for imageInstance in imageInstances:
+            nativeData += "    <Image Name=\"%s\" XPos=\"%i\" YPos=\"%i\" Width=\"%i\" Height=\"%i\" XOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x, imageInstance.y, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
+
+        nativeData += "</Imageset>\n"
+        
+        outputData = compatibility.imageset.Manager.instance.transform(compatibility.imageset.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
+        open(self.metaImageset.output, "w").write(outputData)
         
         print("All done and saved!")
         print("")
