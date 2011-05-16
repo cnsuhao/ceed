@@ -27,6 +27,9 @@ class GorillaTypeDetector(compatibility.TypeDetector):
     def getType(self):
         return GorillaFile
     
+    def getPossibleExtensions(self):
+        return ["gorilla"]
+    
     def matches(self, data, extension):
         if extension != "gorilla":
             return False

@@ -23,9 +23,27 @@ CEGUILayout2 = "CEGUI layout 2"
 CEGUILayout3 = "CEGUI layout 3"
 CEGUILayout4 = "CEGUI layout 4"
 
+class Layout2TypeDetector(compatibility.TypeDetector):
+    def getType(self):
+        return CEGUILayout2
+    
+    def getPossibleExtensions(self):
+        return ["layout"]
+    
+    def matches(self, data, extension):
+        if extension != "layout":
+            return False
+        
+        # todo: we should be at least a bit more precise
+        # (implement XSD based TypeDetector?)
+        return True
+
 class Layout3TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILayout3
+    
+    def getPossibleExtensions(self):
+        return ["layout"]
     
     def matches(self, data, extension):
         if extension != "layout":
@@ -38,6 +56,9 @@ class Layout3TypeDetector(compatibility.TypeDetector):
 class Layout4TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILayout4
+    
+    def getPossibleExtensions(self):
+        return ["layout"]
     
     def matches(self, data, extension):
         if extension != "layout":

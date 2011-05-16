@@ -100,10 +100,10 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = [".layout"]
+        extensions = compatibility.layout.Manager.instance.getAllPossibleExtensions()
         
         for extension in extensions:
-            if filePath.endswith(extension):
+            if filePath.endswith("." + extension):
                 return True
             
         return False

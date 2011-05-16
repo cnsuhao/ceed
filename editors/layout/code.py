@@ -16,76 +16,33 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-
-from xml.etree import ElementTree
-
 import editors.mixed
-
-import undo
-import xmledit
-
 import PyCEGUI
 
-class CodeEditing(QTextEdit, editors.mixed.EditMode):
+class CodeEditing(editors.mixed.CodeEditMode):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
         
         self.tabbedEditor = tabbedEditor
-        self.ignoreUndoCommands = False
-        self.lastUndoText = None
-        self.lastUndoCursor = None
         
-        self.document().setUndoRedoEnabled(False)
-        self.document().contentsChange.connect(self.slot_contentsChange)
-        
-    def refreshFromVisual(self):
+    def getNativeCode(self):
         if not self.tabbedEditor.visual.rootWidget:
-            return
+            return ""
         
-        source = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.tabbedEditor.visual.rootWidget)
+        return PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.tabbedEditor.visual.rootWidget)
         
-        self.ignoreUndoCommands = True
-        self.setPlainText(source)
-        self.ignoreUndoCommands = False
-        
-    def propagateChangesToVisual(self):
-        source = self.document().toPlainText()
-        
-        # for some reason, Qt calls hideEvent even though the tab widget was never shown :-/
-        # in this case the source will be empty and parsing it will fail
-        if source == "":
-            return
-        
-        # TODO: What if this fails to parse? Do we show a message box that it failed and allow falling back
-        #       to the previous visual state or do we somehow correct the XML like editors do?
+    def propagateNativeCode(self, code):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
         
-        newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(source)
-        self.tabbedEditor.visual.replaceRootWidget(newRoot)
-    
-    def activate(self):
-        super(CodeEditing, self).activate()
-        self.refreshFromVisual()
-        
-    def deactivate(self):
-        self.propagateChangesToVisual()
-        
-        return super(CodeEditing, self).deactivate()
-    
-    def slot_contentsChange(self, position, charsRemoved, charsAdded):
-        if not self.ignoreUndoCommands:
-            totalChange = charsRemoved + charsAdded
+        try:
+            newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(code)
+            self.tabbedEditor.visual.replaceRootWidget(newRoot)
             
-            cmd = undo.CodeEditingCommand(self, self.lastUndoText, self.lastTextCursor,
-                                                self.toPlainText(), self.textCursor(),
-                                                totalChange)
-            self.tabbedEditor.undoStack.push(cmd)
-            
-        self.lastUndoText = self.toPlainText()
-        self.lastTextCursor = self.textCursor()
+            return True
+        
+        except:
+            return False
         
 # needs to be at the end, imported to get the singleton
 import mainwindow

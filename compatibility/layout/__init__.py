@@ -40,6 +40,7 @@ class Manager(compatibility.Manager):
 
         self.EditorNativeType = cegui.CEGUILayout4
         
+        self.detectors.append(cegui.Layout2TypeDetector())
         self.detectors.append(cegui.Layout3TypeDetector())
         self.detectors.append(cegui.Layout4TypeDetector())
         

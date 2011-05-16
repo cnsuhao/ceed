@@ -21,7 +21,6 @@ from PySide.QtGui import *
 
 import ui.mainwindow
 
-import sys
 import os
 
 import commands
@@ -230,23 +229,51 @@ class MainWindow(QMainWindow):
                    "base directory is set up correctly and that you hadn't deleted "
                    "the file from your HDD. Consider removing the file from the project." % (absolutePath, filePath))
         else: 
+            possibleFactories = []
+            
             for factory in self.editorFactories:
                 if factory.canEditFile(absolutePath):
-                    ret = factory.create(absolutePath)
+                    possibleFactories.append(factory)
                     
-                    break
-            
-            # at this point if ret is None, no registered tabbed editor factory wanted
+            # at this point if possibleFactories is [], no registered tabbed editor factory wanted
             # to accept the file, so we create MessageTabbedEditor that will simply
             # tell the user that given file can't be edited
             #
             # IMO this is a reasonable compromise and plays well with the rest of 
             # the editor without introducing exceptions, etc...
-            if not ret:
+            if len(possibleFactories) == 0:
                 ret = editors.MessageTabbedEditor(absolutePath,
                        "No included tabbed editor was able to accept '%s' (project relative path: '%s'), please "
                        "check that it's a file CEED supports and that it has the correct extension "
                        "(CEED enforces proper extensions)" % (absolutePath, filePath))
+                
+            else:
+                # one or more factories wants to accept the file
+                factory = None
+                
+                if len(possibleFactories) == 1:
+                    # it's decided, just one factory wants to accept the file
+                    factory = possibleFactories[0]
+                    
+                else:
+                    assert(len(possibleFactories) > 1)
+                    
+                    # more than 1 factory wants to accept the file, offer a dialog and let user choose
+                    dialog = editors.MultiplePossibleFactoriesDialog(possibleFactories)
+                    result = dialog.exec_()
+                    
+                    if result == QDialog.Accepted:
+                        selection = dialog.factoryChoice.selectedItems()
+                        
+                        if len(selection) == 1:
+                            factory = selection[0].data(Qt.UserRole)
+        
+                if factory is None:
+                    ret = editors.MessageTabbedEditor(absolutePath,
+                       "You failed to choose an editor to open '%s' with (project relative path: '%s')." % (absolutePath, filePath))
+                
+                else:
+                    ret = factory.create(filePath)
         
         if not self.project and ret.requiresProject:
             # the old editor will be destroyed automatically by python GC
@@ -262,6 +289,7 @@ class MainWindow(QMainWindow):
                 ret.finalise()
                 
             except:
+                # catch all exception the finalisation raises (we can't deal with them anyways)
                 pass
             
             raise e
@@ -270,6 +298,10 @@ class MainWindow(QMainWindow):
         return ret    
 
     def openEditorTab(self, absolutePath):
+        """Opens editor tab. Creates new editor if such file wasn't opened yet and if it was opened,
+        it just makes the tab current.
+        """
+        
         absolutePath = os.path.normpath(absolutePath)
         
         for tabEditor in self.tabEditors:            
@@ -281,6 +313,11 @@ class MainWindow(QMainWindow):
         editor.makeCurrent()
         
     def closeEditorTab(self, editor):
+        """Closes given editor tab.
+        
+        note: No checks are made, make sure you pass proper existing editor!
+        """
+        
         editor.finalise()
         self.tabEditors.remove(editor)
     
@@ -298,6 +335,8 @@ class MainWindow(QMainWindow):
             self.updateRecentProjectsActions();
         
     def quit(self):
+        """Safely quits the editor, prompting user to save changes to files and the project."""
+        
         self.saveSettings()
         
         if self.project:

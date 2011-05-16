@@ -24,6 +24,9 @@ class Imageset1TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUIImageset1
     
+    def getPossibleExtensions(self):
+        return ["imageset"]
+    
     def matches(self, data, extension):
         if extension != "imageset":
             return False

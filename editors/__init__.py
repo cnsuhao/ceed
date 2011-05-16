@@ -21,6 +21,7 @@
 # This module contains interfaces needed to run editors tabs (multi-file editing)
 # Also groups all the editors together to avoid cluttering the root directory
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 
 import os.path
@@ -28,6 +29,7 @@ import compatibility
 
 import ui.editors.notypedetected
 import ui.editors.multipletypesdetected
+import ui.editors.multiplepossiblefactories
 
 class NoTypeDetectedDialog(QDialog):
     def __init__(self, compatibilityManager):
@@ -69,6 +71,22 @@ class MultipleTypesDetectedDialog(QDialog):
             item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
             
             self.typeChoice.addItem(item)
+
+class MultiplePossibleFactoriesDialog(QDialog):
+    def __init__(self, possibleFactories):
+        super(MultiplePossibleFactoriesDialog, self).__init__()
+        
+        self.ui = ui.editors.multiplepossiblefactories.Ui_MultiplePossibleFactoriesDialog()
+        self.ui.setupUi(self)
+        
+        self.factoryChoice = self.findChild(QListWidget, "factoryChoice")
+        
+        for factory in possibleFactories:
+            item = QListWidgetItem()
+            item.setText(factory.getName())
+            item.setData(Qt.UserRole, factory)
+            
+            self.factoryChoice.addItem(item)
 
 class TabbedEditor(object):
     """This is the base class for a class that takes a file and allows manipulation
@@ -441,6 +459,8 @@ class MessageTabbedEditor(TabbedEditor):
         return False
 
 # make all the submodules visible
+import mixed
+
 import bitmap
 import imageset
 import layout

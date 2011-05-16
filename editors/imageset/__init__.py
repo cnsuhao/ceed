@@ -130,10 +130,10 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = [".imageset", ".gorilla"]
+        extensions = compatibility.imageset.Manager.instance.getAllPossibleExtensions()
         
         for extension in extensions:
-            if filePath.endswith(extension):
+            if filePath.endswith("." + extension):
                 return True
             
         return False

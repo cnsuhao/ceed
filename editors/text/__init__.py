@@ -72,10 +72,10 @@ class TextTabbedEditor(editors.TabbedEditor):
 
 class TextTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = [".py", ".lua", ".txt", ".xml"]
+        extensions = ["py", "lua", "txt", "xml"]
         
         for extension in extensions:
-            if filePath.endswith(extension):
+            if filePath.endswith("." + extension):
                 return True
             
         return False

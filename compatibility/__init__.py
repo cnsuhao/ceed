@@ -48,12 +48,18 @@ class TypeDetector(object):
         
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
     
+    def getPossibleExtensions(self):
+        """Retrieves all possible extensions the type this detector detects can have."""
+        
+        raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getPossibleExtensions!")
+    
     def matches(self, data, extension):
         """Checks whether given source code and extension match this detector's type.
         
         The detector should be as strict as possible, if it returns that the type matches, the editor will
-        assume it can safely open it as that type. If unsure, return False! User will be prompted to choose
-        which type the file is.
+        assume it can safely open it as that type. If unsure, return False!
+        
+        User will be prompted to choose which type the file is if the editor can't make a 100% match.
         """
         
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
@@ -100,11 +106,20 @@ class Manager(object):
         self.layers = []
     
     def getKnownTypes(self):
-        """Retrieves types that we have detectors for"""
+        """Retrieves types that we have detectors for."""
         
         ret = []
         for detector in self.detectors:
             ret.append(detector.getType())
+            
+        return ret
+    
+    def getAllPossibleExtensions(self):
+        """Retrieves all possible extensions of all types this manager knows of."""
+    
+        ret = []
+        for detector in self.detectors:
+            ret.extend(detector.getPossibleExtensions())
             
         return ret
     
