@@ -31,6 +31,7 @@ def main():
     
     parser = argparse.ArgumentParser(description = "Compile given meta imageset")
     
+    parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5, help = "Number of pixels the size is increased as a step in the size determination.")
     parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"), help = "Input file to be processed.")
     
     args = parser.parse_args()
@@ -42,6 +43,7 @@ def main():
     metaImageset.loadFromElement(element)
     
     compiler = metaimageset.compiler.CompilerInstance(metaImageset)
+    compiler.sizeIncrement = args.sizeIncrement
     compiler.compile()
 
     print("")

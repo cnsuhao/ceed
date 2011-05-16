@@ -32,7 +32,7 @@ class ImageInstance(object):
 
 class CompilerInstance(object):
     def __init__(self, metaImageset):
-        self.sizeIncrement = 2
+        self.sizeIncrement = 5
         
         self.metaImageset = metaImageset
         
@@ -73,6 +73,7 @@ class CompilerInstance(object):
         
         print("Performing texture side size determination...")
         i = 0
+        # This could be way sped up if we used some sort of a "binary search" approach
         while True:
             packer = rectanglepacking.CygonRectanglePacker(sideSize, sideSize)
             try:
@@ -100,11 +101,10 @@ class CompilerInstance(object):
         
         print("Rendering the underlying image...")    
         underlyingImage = QImage(sideSize, sideSize, QImage.Format_ARGB32)
+        underlyingImage.fill(0)
         
         painter = QPainter()
         painter.begin(underlyingImage)
-        # just to be sure, draw transparent rectangle first (over the whole image)
-        painter.fillRect(0, 0, sideSize, sideSize, Qt.transparent)
         
         for imageInstance in imageInstances:
             # TODO: borders

@@ -21,7 +21,9 @@
 import editors.imageset.elements
 import compatibility.imageset
 
+from PySide.QtCore import *
 from PySide.QtGui import *
+from PySide.QtSvg import *
 
 import os
 from xml.etree import ElementTree
@@ -113,9 +115,9 @@ class Imageset(Input):
         
         return ret
     
-class BitmapGlob(Input):
+class Bitmap(Input):
     def __init__(self, metaImageset):
-        super(BitmapGlob, self).__init__(metaImageset)
+        super(Bitmap, self).__init__(metaImageset)
         
         self.xoffset = 0
         self.yoffset = 0
@@ -137,14 +139,54 @@ class BitmapGlob(Input):
             self.images.append(image)
     
     def saveToElement(self):
-        ret = ElementTree.Element("Imageset")
+        ret = ElementTree.Element("Bitmap")
         ret.set("path", self.path)
         ret.set("xoffset", str(self.xoffset))
         ret.set("yoffset", str(self.yoffset))
     
     def getImages(self):
         return self.images
+
+class SVG(Input):
+    def __init__(self, metaImageset):
+        super(SVG, self).__init__(metaImageset)
+        
+        self.xoffset = 0
+        self.yoffset = 0
+        self.images = []
     
+    def loadFromElement(self, element):
+        self.path = element.get("path", "")
+        self.xoffset = int(element.get("xoffset", "0"))
+        self.yoffset = int(element.get("yoffset", "0"))
+        
+        import glob
+        self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
+
+        for path in self.paths:
+            pathSplit = path.rsplit(".", 1)
+            name = os.path.basename(pathSplit[0])
+            
+            svgRenderer = QSvgRenderer(path)
+            qimage = QImage(svgRenderer.defaultSize().width(), svgRenderer.defaultSize().height(), QImage.Format_ARGB32)
+            qimage.fill(0)
+            painter = QPainter()
+            painter.begin(qimage)
+            svgRenderer.render(painter)
+            painter.end()
+            
+            image = Image(name, qimage, self.xoffset, self.yoffset)
+            self.images.append(image)
+    
+    def saveToElement(self):
+        ret = ElementTree.Element("SVG")
+        ret.set("path", self.path)
+        ret.set("xoffset", str(self.xoffset))
+        ret.set("yoffset", str(self.yoffset))
+    
+    def getImages(self):
+        return self.images
+
 class MetaImageset(object):
     def __init__(self, filePath):
         self.filePath = filePath
@@ -175,11 +217,17 @@ class MetaImageset(object):
             
             self.inputs.append(imageset)
             
-        for childElement in element.findall("BitmapGlob"):
-            bitmapGlob = BitmapGlob(self)
-            bitmapGlob.loadFromElement(childElement)
+        for childElement in element.findall("Bitmap"):
+            bitmap = Bitmap(self)
+            bitmap.loadFromElement(childElement)
             
-            self.inputs.append(bitmapGlob)
+            self.inputs.append(bitmap)
+            
+        for childElement in element.findall("SVG"):
+            svg = SVG(self)
+            svg.loadFromElement(childElement)
+            
+            self.inputs.append(svg)
         
     def saveToElement(self):
         ret = ElementTree.Element("MetaImageset")
