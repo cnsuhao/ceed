@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
     This is a singleton class, it is assured to only be constructed once during runtime.
     """
     
-    # singleton pattern implemntation
+    # singleton pattern implementation
     # (usage: mainwindow.MainWindow.instance.doSomething() where mainwindow is the module)
     instance = None
     
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         self.recentProjectsNameTrimLength = 40
         # recent files actions
         self.recentProjectsActions = []
-
+        
         self.editorFactories = [
             editors.bitmap.BitmapTabbedEditorFactory(),
             editors.imageset.ImagesetTabbedEditorFactory(),
@@ -232,12 +232,8 @@ class MainWindow(QMainWindow):
         else: 
             for factory in self.editorFactories:
                 if factory.canEditFile(absolutePath):
-                    try:
-                        ret = factory.create(absolutePath)
-                        
-                    except:
-                        ret = editors.MessageTabbedEditor(absolutePath,
-                               "A problem has occurred when creating an editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
+                    ret = factory.create(absolutePath)
+                    
                     break
             
             # at this point if ret is None, no registered tabbed editor factory wanted
@@ -253,25 +249,24 @@ class MainWindow(QMainWindow):
                        "(CEED enforces proper extensions)" % (absolutePath, filePath))
         
         if not self.project and ret.requiresProject:
+            # the old editor will be destroyed automatically by python GC
             ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
         
-        #try:
-        ret.initialise(self)
-            
-        #except:
-        #    # it may have been partly constructed at this point
-        #    try:
-        #        ret.finalise()
-        #    except:
-        #        pass
-        #    
-        #    ret = editors.MessageTabbedEditor(absolutePath,
-        #              "A problem has occurred when initialising the editor for file '%s'. The exception message follows:\n%s" % (absolutePath, sys.exc_info()[1]))
-        #    ret.initialise(self)
-                    
-        self.tabEditors.append(ret)
+        try:
+            ret.initialise(self)
         
+        except Exception as e:
+            # it may have been partly constructed at this point
+            try:
+                ret.finalise()
+                
+            except:
+                pass
+            
+            raise e
+            
+        self.tabEditors.append(ret)
         return ret    
 
     def openEditorTab(self, absolutePath):

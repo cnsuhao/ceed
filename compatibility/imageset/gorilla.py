@@ -39,7 +39,7 @@ class GorillaToCEGUILayer(compatibility.Layer):
         return GorillaFile
     
     def getTargetType(self):
-        return cegui.CEGUI08Imageset
+        return cegui.CEGUIImageset1
     
     def transform(self, data):
         # TODO: very crude and work in progress transformation        
@@ -120,7 +120,7 @@ class GorillaToCEGUILayer(compatibility.Layer):
 
 class CEGUIToGorillaLayer(compatibility.Layer):
     def getSourceType(self):
-        return cegui.CEGUI08Imageset
+        return cegui.CEGUIImageset1
     
     def getTargetType(self):
         return GorillaFile

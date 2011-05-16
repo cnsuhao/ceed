@@ -91,6 +91,11 @@ class Manager(object):
     """
     
     def __init__(self):
+        # derived Managers should override this and provide the info
+        self.CEGUIVersionTypes = {}
+        # as well as this
+        self.EditorNativeType = None
+        
         self.detectors = []
         self.layers = []
     
@@ -101,6 +106,15 @@ class Manager(object):
         for detector in self.detectors:
             ret.append(detector.getType())
             
+        return ret
+    
+    def getCEGUIVersionsCompatibleWithType(self, type):
+        ret = []
+        
+        for version, otherType in self.CEGUIVersionTypes.iteritems():
+            if type == otherType:
+                ret.append(version)
+                
         return ret
     
     def transform(self, sourceType, targetType, data):
@@ -162,10 +176,14 @@ class Manager(object):
         
         This method tries to guess type of given code and extension, in the case this fails, exception is thrown.
         """
-            
+        
         sourceType = self.guessType(code, extension)
         return self.transform(sourceType, targetType, code) 
-    
+
+CEGUIVersions = ["0.6", "0.7", "0.8"]
+EditorEmbeddedCEGUIVersion = "0.8"
+
 # make these visible to the outside
 import imageset
 import layout
+import project

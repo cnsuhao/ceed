@@ -42,6 +42,9 @@ class NoTypeDetectedDialog(QDialog):
             item = QListWidgetItem()
             item.setText(type)
             
+            # TODO: We should give a better feedback about what's compatible with what
+            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
+            
             self.typeChoice.addItem(item)
 
 class MultipleTypesDetectedDialog(QDialog):
@@ -61,7 +64,10 @@ class MultipleTypesDetectedDialog(QDialog):
                 font = QFont()
                 font.setBold(True)
                 item.setFont(font)
-                
+            
+            # TODO: We should give a better feedback about what's compatible with what
+            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
+            
             self.typeChoice.addItem(item)
 
 class TabbedEditor(object):
@@ -69,19 +75,16 @@ class TabbedEditor(object):
     with it. It occupies exactly 1 tab space.
     """
     
-    def __init__(self, compatibilityManager, nativeDataType, filePath):
+    def __init__(self, compatibilityManager, filePath):
         """Constructs the editor.
         
         compatibilityManager - manager that should be used to transform data between
                                various data types using compatibility layers
-        nativeDataType - the data type that this editor can work with directly
-                         (all other data types will be transformed to this)
         filePath - absolute file path of the file that should be opened
         """
         
         self.compatibilityManager = compatibilityManager
-        self.nativeDataType = nativeDataType
-        self.desiredSavingDataType = nativeDataType
+        self.desiredSavingDataType = "" if self.compatibilityManager is None else self.compatibilityManager.EditorNativeType
         self.nativeData = None
         
         self.requiresProject = False
@@ -112,7 +115,7 @@ class TabbedEditor(object):
             if rawData == "":
                 # it's an empty new file, the derived classes deal with this separately
                 self.nativeData = rawData
-                self.desiredSavingDataType = self.nativeDataType
+                self.desiredSavingDataType = self.compatibilityManager.EditorNativeType
                 
             else:
                 try:
@@ -122,7 +125,7 @@ class TabbedEditor(object):
                     dialog = NoTypeDetectedDialog(self.compatibilityManager)
                     result = dialog.exec_()
                     
-                    rawDataType = self.nativeDataType
+                    rawDataType = self.compatibilityManager.EditorNativeType
                     self.nativeData = ""
                     
                     if result == QDialog.Accepted:
@@ -136,7 +139,7 @@ class TabbedEditor(object):
                     dialog = MultipleTypesDetectedDialog(self.compatibilityManager, e.possibleTypes)
                     result = dialog.exec_()
                     
-                    rawDataType = self.nativeDataType
+                    rawDataType = self.compatibilityManager.EditorNativeType
                     self.nativeData = ""
                     
                     if result == QDialog.Accepted:
@@ -154,7 +157,7 @@ class TabbedEditor(object):
                 
                 if self.nativeData != "":
                     try:
-                        self.nativeData = self.compatibilityManager.transform(rawDataType, self.nativeDataType, rawData)
+                        self.nativeData = self.compatibilityManager.transform(rawDataType, self.compatibilityManager.EditorNativeType, rawData)
                         
                     except compatibility.LayerNotFoundError:
                         # TODO: Dialog, can't convert
@@ -251,7 +254,7 @@ class TabbedEditor(object):
         
         outputData = self.nativeData
         if self.compatibilityManager is not None:
-            outputData = self.compatibilityManager.transform(self.nativeDataType, self.desiredSavingDataType, self.nativeData)
+            outputData = self.compatibilityManager.transform(self.compatibilityManager.EditorNativeType, self.desiredSavingDataType, self.nativeData)
         
         f = open(targetPath, "w")
         f.write(outputData)
@@ -318,8 +321,8 @@ class UndoStackTabbedEditor(TabbedEditor):
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
     """
     
-    def __init__(self, compatibilityManager, nativeDataType, filePath):
-        super(UndoStackTabbedEditor, self).__init__(compatibilityManager, nativeDataType, filePath)
+    def __init__(self, compatibilityManager, filePath):
+        super(UndoStackTabbedEditor, self).__init__(compatibilityManager, filePath)
         
         self.undoStack = QUndoStack()
         
@@ -428,7 +431,7 @@ class MessageTabbedEditor(TabbedEditor):
     def __init__(self, filePath, message):
         from PySide.QtGui import QLabel
         
-        super(MessageTabbedEditor, self).__init__(None, "", filePath)
+        super(MessageTabbedEditor, self).__init__(None, filePath)
         
         self.message = message
         self.tabWidget = QLabel(self.message)

@@ -600,14 +600,14 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
    
         super(ImagesetChangeAutoScaledCommand, self).redo()
 
-class XMLEditingCommand(commands.UndoCommand):
+class CodeEditingCommand(commands.UndoCommand):
     """Extremely memory hungry implementation for now, I have to figure out how to use my own
     QUndoStack with QTextDocument in the future to fix this.
     """
-    def __init__(self, xmlediting, oldText, oldCursor, newText, newCursor, totalChange):
-        super(XMLEditingCommand, self).__init__()
+    def __init__(self, codeediting, oldText, oldCursor, newText, newCursor, totalChange):
+        super(CodeEditingCommand, self).__init__()
         
-        self.xmlediting = xmlediting
+        self.codeediting = codeediting
         self.oldText = oldText
         self.oldCursor = copy.copy(oldCursor)
         self.newText = newText
@@ -629,7 +629,7 @@ class XMLEditingCommand(commands.UndoCommand):
         return idbase + 12
         
     def mergeWith(self, cmd):
-        assert(self.xmlediting == cmd.xmlediting)
+        assert(self.codeediting == cmd.codeediting)
         
         # TODO: 10 chars for now for testing
         if self.totalChange + cmd.totalChange < 10:
@@ -644,21 +644,21 @@ class XMLEditingCommand(commands.UndoCommand):
         return False
         
     def undo(self):
-        super(XMLEditingCommand, self).undo()
+        super(CodeEditingCommand, self).undo()
         
-        self.xmlediting.ignoreUndoCommands = True
-        self.xmlediting.setPlainText(self.oldText)
-        self.xmlediting.ignoreUndoCommands = False
+        self.codeediting.ignoreUndoCommands = True
+        self.codeediting.setPlainText(self.oldText)
+        self.codeediting.ignoreUndoCommands = False
         #self.xmlediting.setTextCursor(self.oldCursor)
         
     def redo(self):
         if not self.dryRun:
-            self.xmlediting.ignoreUndoCommands = True
-            self.xmlediting.setPlainText(self.newText)
-            self.xmlediting.ignoreUndoCommands = False
+            self.codeediting.ignoreUndoCommands = True
+            self.codeediting.setPlainText(self.newText)
+            self.codeediting.ignoreUndoCommands = False
             #self.xmlediting.setTextCursor(self.newCursor)
             
         self.dryRun = False
 
-        super(XMLEditingCommand, self).redo()
+        super(CodeEditingCommand, self).redo()
         

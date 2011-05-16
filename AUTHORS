@@ -5,3 +5,5 @@ Martin Preisler - main developer
 Paul D Turner - layout editor base code, compileuifiles
 Charles Mattei - splashscreen             
 Stefan Stammberger - recent projects
+Markus 'Cygon' Ewald - rectangle packing code
+Eniko - porting rectangle packing code to Python

@@ -34,9 +34,9 @@ class XMLParseError(Exception):
     def __init__(self, exception):
         self.exception = exception
 
-class XMLEditing(xmledit.XMLEditWidget, editors.mixed.EditMode):
+class CodeEditing(QTextEdit, editors.mixed.EditMode):
     def __init__(self, tabbedEditor):
-        super(XMLEditing, self).__init__()
+        super(CodeEditing, self).__init__()
         
         self.tabbedEditor = tabbedEditor
         self.ignoreUndoCommands = False
@@ -77,7 +77,7 @@ class XMLEditing(xmledit.XMLEditWidget, editors.mixed.EditMode):
             self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
         
     def activate(self):
-        super(XMLEditing, self).activate()
+        super(CodeEditing, self).activate()
         self.refreshFromVisual()
 
     def deactivate(self):
@@ -106,15 +106,15 @@ class XMLEditing(xmledit.XMLEditWidget, editors.mixed.EditMode):
                 # we return True, the visual element wasn't touched (the error is thrown before that)
                 ret = True
                 
-        return ret and super(XMLEditing, self).deactivate()
+        return ret and super(CodeEditing, self).deactivate()
 
     def slot_contentsChange(self, position, charsRemoved, charsAdded):
         if not self.ignoreUndoCommands:
             totalChange = charsRemoved + charsAdded
             
-            cmd = undo.XMLEditingCommand(self, self.lastUndoText, self.lastTextCursor,
-                                               self.toPlainText(), self.textCursor(),
-                                               totalChange)
+            cmd = undo.CodeEditingCommand(self, self.lastUndoText, self.lastTextCursor,
+                                                self.toPlainText(), self.textCursor(),
+                                                totalChange)
             self.tabbedEditor.undoStack.push(cmd)
             
         self.lastUndoText = self.toPlainText()

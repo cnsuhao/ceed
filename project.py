@@ -22,6 +22,7 @@ from PySide.QtGui import *
 import os
 import sys
 
+import compatibility.project
 import propertyinspector
 
 from xml.etree import ElementTree
@@ -276,20 +277,21 @@ class Project(QStandardItemModel):
     def load(self, path):
         """Loads XML project file from given path (preferably absolute path)"""
         
-        tree = ElementTree.parse(path)
-        root = tree.getroot()
+        rawData = open(path, "r").read()
+        nativeData = compatibility.project.Manager.instance.transformTo(compatibility.project.Manager.instance.EditorNativeType, rawData, path)
         
-        assert(root.get("version") == "0.8")
-        
+        root = ElementTree.fromstring(nativeData)
+
         self.name = root.get("name", "Unknown")
             
-        self.baseDirectory = root.get("base_directory", "./")
+        self.baseDirectory = root.get("baseDirectory", "./")
+        self.CEGUIVersion = root.get("CEGUIVersion")
         
-        self.imagesetsPath = root.get("imagesets_path", "./imagesets")            
-        self.fontsPath = root.get("fonts_path", "./fonts")            
-        self.looknfeelsPath = root.get("looknfeels_path", "./looknfeel")            
-        self.schemesPath = root.get("schemes_path", "./schemes")            
-        self.layoutsPath = root.get("layouts_path", "./layouts")
+        self.imagesetsPath = root.get("imagesetsPath", "./imagesets")            
+        self.fontsPath = root.get("fontsPath", "./fonts")            
+        self.looknfeelsPath = root.get("looknfeelsPath", "./looknfeel")            
+        self.schemesPath = root.get("schemesPath", "./schemes")            
+        self.layoutsPath = root.get("layoutsPath", "./layouts")
         
         items = root.find("Items")
         
@@ -309,17 +311,16 @@ class Project(QStandardItemModel):
             self.changed = False
         
         root = ElementTree.Element("Project")
-        
-        # This CEED is built to conform CEGUI 0.8
-        root.set("version", "0.8")
+
         root.set("name", self.name)
-        root.set("base_directory", self.baseDirectory)
         
-        root.set("imagesets_path", self.imagesetsPath)
-        root.set("fonts_path", self.fontsPath)
-        root.set("looknfeels_path", self.looknfeelsPath)
-        root.set("schemes_path", self.schemesPath)
-        root.set("layouts_path", self.layoutsPath)
+        root.set("baseDirectory", self.baseDirectory)
+        
+        root.set("imagesetsPath", self.imagesetsPath)
+        root.set("fontsPath", self.fontsPath)
+        root.set("looknfeelsPath", self.looknfeelsPath)
+        root.set("schemesPath", self.schemesPath)
+        root.set("layoutsPath", self.layoutsPath)
         
         items = ElementTree.SubElement(root, "Items")
         
@@ -328,8 +329,10 @@ class Project(QStandardItemModel):
             items.append(self.item(i).saveToElement())
             i = i + 1
         
-        tree = ElementTree.ElementTree(root)
-        tree.write(path)
+        nativeData = ElementTree.tostring(root)
+        f = open(path, "w")
+        f.write(nativeData)
+        f.close()
     
     def hasChanges(self):
         return self.changed

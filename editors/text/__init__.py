@@ -28,7 +28,7 @@ import editors
 class TextTabbedEditor(editors.TabbedEditor):
     def __init__(self, filePath):
         
-        super(TextTabbedEditor, self).__init__(None, "", filePath)
+        super(TextTabbedEditor, self).__init__(None, filePath)
         
         self.tabWidget = QTextEdit()
     

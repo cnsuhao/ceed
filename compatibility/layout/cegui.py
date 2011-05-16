@@ -19,12 +19,13 @@
 import compatibility
 from xml.etree import ElementTree
 
-CEGUI07Layout = "CEGUI 0.7 layout"
-CEGUI08Layout = "CEGUI 0.8 layout"
+CEGUILayout2 = "CEGUI layout 2"
+CEGUILayout3 = "CEGUI layout 3"
+CEGUILayout4 = "CEGUI layout 4"
 
-class Layout07TypeDetector(compatibility.TypeDetector):
+class Layout3TypeDetector(compatibility.TypeDetector):
     def getType(self):
-        return CEGUI07Layout
+        return CEGUILayout3
     
     def matches(self, data, extension):
         if extension != "layout":
@@ -34,9 +35,9 @@ class Layout07TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return True
 
-class Layout08TypeDetector(compatibility.TypeDetector):
+class Layout4TypeDetector(compatibility.TypeDetector):
     def getType(self):
-        return CEGUI08Layout
+        return CEGUILayout4
     
     def matches(self, data, extension):
         if extension != "layout":
@@ -46,12 +47,12 @@ class Layout08TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return True
     
-class Layout07To08Layer(compatibility.Layer):
+class Layout3To4Layer(compatibility.Layer):
     def getSourceType(self):
-        return CEGUI07Layout
+        return CEGUILayout3
     
     def getTargetType(self):
-        return CEGUI08Layout
+        return CEGUILayout4
     
     def convertToRelativeNames(self, window, leadingName = ""):
         ret = ""
@@ -142,12 +143,12 @@ class Layout07To08Layer(compatibility.Layer):
             
         return ElementTree.tostring(root, "utf-8")
 
-class Layout08To07Layer(compatibility.Layer):
+class Layout4To3Layer(compatibility.Layer):
     def getSourceType(self):
-        return CEGUI08Layout
+        return CEGUILayout4
     
     def getTargetType(self):
-        return CEGUI07Layout
+        return CEGUILayout3
     
     def convertToAbsoluteNames(self, window, leadingName = ""):
         ret = ""

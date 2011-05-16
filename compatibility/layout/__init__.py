@@ -20,8 +20,6 @@ import compatibility
 
 import cegui
 
-EditorNativeType = cegui.CEGUI08Layout
-
 class Manager(compatibility.Manager):
     """Manager of layout compatibility layers"""
     
@@ -33,10 +31,19 @@ class Manager(compatibility.Manager):
         assert(Manager.instance is None)
         Manager.instance = self
         
-        self.detectors.append(cegui.Layout07TypeDetector())
-        self.detectors.append(cegui.Layout08TypeDetector())
+        self.CEGUIVersionTypes = {
+            "0.5" : cegui.CEGUILayout2,
+            "0.6" : cegui.CEGUILayout2,
+            "0.7" : cegui.CEGUILayout3,
+            "0.8" : cegui.CEGUILayout4
+        }
+
+        self.EditorNativeType = cegui.CEGUILayout4
         
-        self.layers.append(cegui.Layout07To08Layer())
-        self.layers.append(cegui.Layout08To07Layer())
+        self.detectors.append(cegui.Layout3TypeDetector())
+        self.detectors.append(cegui.Layout4TypeDetector())
+        
+        self.layers.append(cegui.Layout3To4Layer())
+        self.layers.append(cegui.Layout4To3Layer())
 
 Manager()

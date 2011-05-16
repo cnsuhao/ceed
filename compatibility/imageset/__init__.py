@@ -21,8 +21,6 @@ import compatibility
 import cegui
 import gorilla
 
-EditorNativeType = cegui.CEGUI08Imageset
-
 class Manager(compatibility.Manager):
     """Manager of imageset compatibility layers"""
     
@@ -34,7 +32,14 @@ class Manager(compatibility.Manager):
         assert(Manager.instance is None)
         Manager.instance = self
         
-        self.detectors.append(cegui.Imageset08TypeDetector())
+        self.EditorNativeType = cegui.CEGUIImageset1
+        self.CEGUIVersionTypes = {
+            "0.6" : cegui.CEGUIImageset1,
+            "0.7" : cegui.CEGUIImageset1,
+            "0.8" : cegui.CEGUIImageset1
+        }
+        
+        self.detectors.append(cegui.Imageset1TypeDetector())
         
         self.detectors.append(gorilla.GorillaTypeDetector())
         self.layers.append(gorilla.GorillaToCEGUILayer())

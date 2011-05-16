@@ -28,7 +28,7 @@ import xmledit
 import undo
 
 import visual
-import xmlediting
+import code
 import compatibility
 
 from xml.etree import ElementTree
@@ -47,13 +47,13 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(ImagesetTabbedEditor, self).__init__(compatibility.imageset.Manager.instance, compatibility.imageset.EditorNativeType, filePath)
+        super(ImagesetTabbedEditor, self).__init__(compatibility.imageset.Manager.instance, filePath)
         
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
         
-        self.xml = xmlediting.XMLEditing(self)
-        self.addTab(self.xml, "XML")
+        self.code = code.CodeEditing(self)
+        self.addTab(self.code, "Code")
         
         self.tabWidget = self
     
@@ -112,12 +112,12 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         super(ImagesetTabbedEditor, self).deactivate()
         
     def saveAs(self, targetPath, updateCurrentPath = True):
-        xmlmode = self.currentWidget() == self.xml
+        codeMode = self.currentWidget() is self.code
         
-        # if user saved in xml mode, we process the xml by propagating it to visual
-        # (allowing the change propagation to do the xml validating and other work for us)
+        # if user saved in code mode, we process the code by propagating it to visual
+        # (allowing the change propagation to do the code validating and other work for us)
         
-        if xmlmode:
+        if codeMode:
             self.xml.propagateChangesToVisual()
             
         rootElement = self.visual.imagesetEntry.saveToElement()
