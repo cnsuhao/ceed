@@ -17,6 +17,8 @@
 ################################################################################
 
 import math
+import os.path
+
 import rectanglepacking
 import compatibility.imageset
 
@@ -119,7 +121,7 @@ class CompilerInstance(object):
         
         outputSplit = self.metaImageset.output.rsplit(".", 1)
         underlyingImageFileName = "%s.png" % (outputSplit[0])
-        underlyingImage.save(underlyingImageFileName)
+        underlyingImage.save(os.path.join(self.metaImageset.getOutputDirectory(), underlyingImageFileName))
         
         # CEGUI imageset format is very simple and easy to work with, using serialisation in the editor for this
         # seemed like a wasted effort :-)
@@ -130,8 +132,8 @@ class CompilerInstance(object):
 
         nativeData += "</Imageset>\n"
         
-        outputData = compatibility.imageset.Manager.instance.transform(compatibility.imageset.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
-        open(self.metaImageset.output, "w").write(outputData)
+        outputData = compatibility.imageset.Manager.instance.transform(compatibility.imageset.Manager.instance.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
+        open(os.path.join(self.metaImageset.getOutputDirectory(), self.metaImageset.output), "w").write(outputData)
         
         print("All done and saved!")
         print("")

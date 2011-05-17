@@ -94,7 +94,7 @@ class Imageset(Input):
         self.filePath = os.path.join(os.path.dirname(self.metaImageset.filePath), element.get("path", ""))
         
         rawData = open(self.filePath, "r").read()
-        nativeData = compatibility.imageset.Manager.instance.transformTo(compatibility.imageset.EditorNativeType, rawData, self.filePath)
+        nativeData = compatibility.imageset.Manager.instance.transformTo(compatibility.imageset.Manager.instance.EditorNativeType, rawData, self.filePath)
         
         element = ElementTree.fromstring(nativeData)
 
@@ -199,8 +199,11 @@ class MetaImageset(object):
         self.onlyPOT = False
         
         self.output = ""
-        self.outputTargetType = compatibility.imageset.EditorNativeType
+        self.outputTargetType = compatibility.imageset.Manager.instance.EditorNativeType
         self.inputs = []
+    
+    def getOutputDirectory(self):
+        return os.path.abspath(os.path.dirname(self.filePath))
     
     def loadFromElement(self, element):
         self.name = element.get("name", "")
@@ -208,7 +211,7 @@ class MetaImageset(object):
         self.nativeVertRes = int(element.get("nativeVertRes", "600"))
         self.autoScaled = element.get("autoScaled", "false") == "true"
         
-        self.outputTargetType = element.get("outputTargetType", compatibility.imageset.EditorNativeType)
+        self.outputTargetType = element.get("outputTargetType", compatibility.imageset.Manager.instance.EditorNativeType)
         self.output = element.get("output", "")
         
         for childElement in element.findall("Imageset"):
