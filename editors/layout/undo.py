@@ -192,28 +192,34 @@ class DeleteCommand(commands.UndoCommand):
     def undo(self):
         super(DeleteCommand, self).undo()
         
+        manipulators = []
+        
         # we have to undo in reverse to ensure widgets have their (potential) dependencies in place when they
         # are constructed
         for widgetPath in reversed(self.widgetPaths):
             data = self.widgetData[widgetPath]
             result = data.reconstruct(self.visual.scene.rootManipulator)
             
-            if self.visual.scene.rootManipulator is None:
-                # the first that is undone is definitely the root if root is amongst the deleted widgets
-                #assert(data.parentPath == "")
-                self.visual.scene.rootManipulator = result
-                
-        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
-            
+            if result.widget.getParent() is None:
+                # this is a root widget being reconstructed, handle this accordingly
+                self.visual.setRootWidgetManipulator(result)
+        
+            manipulators.append(result)
+        
+        self.visual.notifyWidgetManipulatorsAdded(manipulators)
+        
     def redo(self):
         for widgetPath in self.widgetPaths:
             manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            wasRootWidget = manipulator.widget.getParent() is None
+                            
             manipulator.detach(destroyWidget = True)
-            
-            if manipulator is self.visual.scene.rootManipulator:
-                self.visual.scene.rootManipulator = None
         
-        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
+            if wasRootWidget:
+                # this was a root widget being deleted, handle this accordingly
+                self.visual.setRootWidgetManipulator(None)
+                
+        self.visual.notifyWidgetManipulatorsRemoved(self.widgetPaths)
         
         super(DeleteCommand, self).redo()
 
@@ -247,6 +253,8 @@ class CreateCommand(commands.UndoCommand):
         manipulator = self.visual.scene.getWidgetManipulatorByPath(self.parentWidgetPath + "/" + self.widgetName if self.parentWidgetPath != "" else self.widgetName)
         manipulator.detach(destroyWidget = True)
         
+        self.visual.hierarchyDockWidget.refresh()
+        
     def redo(self):
         data = widgethelpers.SerialisationData(self.visual)
 
@@ -268,6 +276,8 @@ class CreateCommand(commands.UndoCommand):
             self.visual.scene.rootManipulator = result
                 
         self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
+        
+        self.visual.hierarchyDockWidget.refresh()
         
         super(CreateCommand, self).redo()
 

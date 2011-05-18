@@ -42,13 +42,20 @@ class LayoutPreviewer(QWidget, editors.mixed.EditMode):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
         
-        # lets clone so we don't affect the layout at all
-        self.rootWidget = self.tabbedEditor.visual.rootWidget.clone()
+        currentRootWidget = self.tabbedEditor.visual.getCurrentRootWidget()
+        if currentRootWidget is None:
+            self.rootWidget = None
+        
+        else:
+            # lets clone so we don't affect the layout at all
+            self.rootWidget = currentRootWidget.clone()
+            
         PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
         
     def deactivate(self):    
-        PyCEGUI.WindowManager.getSingleton().destroyWindow(self.rootWidget)
-        self.rootWidget = None
+        if self.rootWidget is not None:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(self.rootWidget)
+            self.rootWidget = None
 
         return super(LayoutPreviewer, self).deactivate()
 

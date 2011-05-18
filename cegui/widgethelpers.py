@@ -580,7 +580,7 @@ class Manipulator(resizable.ResizableRectItem):
         painter.drawLine(midHPoint + hOffset, endHPoint + hOffset)
 
     def paint(self, painter, option, widget):
-        #painter.save()
+        painter.save()
         
         # TODO: The whole overlap avoiding code commented out because it's way too slow
         
@@ -610,4 +610,4 @@ class Manipulator(resizable.ResizableRectItem):
             self.paintHorizontalGuides(baseSize, painter, option, widget)
             self.paintVerticalGuides(baseSize, painter, option, widget)
 
-        #painter.restore()
+        painter.restore()

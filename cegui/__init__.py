@@ -118,6 +118,10 @@ class GraphicsScene(QGraphicsScene):
         slight flicker.
         """
         
+        # be robust, this is usually caused by recursive repainting
+        if painter.paintEngine() is None:
+            return
+        
         painterType = painter.paintEngine().type()
         if painterType != QPaintEngine.OpenGL and painterType != QPaintEngine.OpenGL2:
             qWarning("cegui.GraphicsScene: drawBackground needs a "

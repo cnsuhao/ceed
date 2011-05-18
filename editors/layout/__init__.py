@@ -60,7 +60,10 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
         
-        root = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(self.nativeData)
+        root = None
+        if self.nativeData != "":
+            root = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(self.nativeData)
+            
         self.visual.initialise(root)
     
     def finalise(self):        
@@ -93,8 +96,15 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         if codeMode:
             self.code.propagateChangesToVisual()
-            
-        self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(self.visual.rootWidget)
+        
+        currentRootWidget = self.visual.getCurrentRootWidget()
+        
+        if currentRootWidget is not None:    
+            self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
+        
+        else:
+            # empty layout
+            self.nativeData = ""
         
         super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 

@@ -230,12 +230,14 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
         
         self.ignoreSelectionChanges = False
         self.selectionChanged.connect(self.slot_selectionChanged)
-        
-    def setRootWidget(self, wdt):
+
+    def setRootWidgetManipulator(self, manipulator):
         self.clear()
         
-        self.rootManipulator = widgethelpers.Manipulator(self.visual, None, wdt)
-        self.addItem(self.rootManipulator)
+        self.rootManipulator = manipulator
+        
+        if self.rootManipulator is not None:
+            self.addItem(self.rootManipulator)
         
     def getWidgetManipulatorByPath(self, widgetPath):
         path = widgetPath.split("/", 1)
@@ -371,7 +373,6 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         super(VisualEditing, self).__init__()
         
         self.tabbedEditor = tabbedEditor
-        self.rootWidget = None
         
         self.hierarchyDockWidget = HierarchyDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
@@ -387,17 +388,19 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         # FIXME: unreadable
         self.propertiesDockWidget.inspector.setPropertyInspectorManager(mainwindow.MainWindow.instance.project.propertyInspectorManager)
         
-        self.replaceRootWidget(rootWidget)
+        self.setRootWidget(rootWidget)
         self.createWidgetDockWidget.populate()
     
-    def replaceRootWidget(self, newRoot):
-        oldRoot = self.rootWidget
-            
-        self.rootWidget = newRoot
-        self.scene.setRootWidget(newRoot)
+    def getCurrentRootWidget(self):
+        return self.scene.rootManipulator.widget if self.scene.rootManipulator is not None else None
+    
+    def setRootWidgetManipulator(self, manipulator):
+        oldRoot = self.getCurrentRootWidget()
+        
+        self.scene.setRootWidgetManipulator(manipulator)
         self.hierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
-
-        PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
+        
+        PyCEGUI.System.getSingleton().setGUISheet(self.getCurrentRootWidget())
     
         if oldRoot:
             PyCEGUI.WindowManager.getSingleton().destroyWindow(oldRoot)
@@ -405,14 +408,35 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         # cause full redraw to ensure nothing gets stuck
         PyCEGUI.System.getSingleton().signalRedraw()
     
+    def setRootWidget(self, widget):
+        if widget is None:
+            self.setRootWidgetManipulator(None)
+        
+        else:
+            self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
+    
+    def notifyWidgetManipulatorsAdded(self, manipulators):
+        self.hierarchyDockWidget.refresh()
+        
+    def notifyWidgetManipulatorsRemoved(self, widgetPaths):
+        """We are passing widget paths because manipulators might be destroyed at this point"""
+        
+        self.hierarchyDockWidget.refresh()
+    
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath, self.scene)
         
-        PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
+        PyCEGUI.System.getSingleton().setGUISheet(self.getCurrentRootWidget())
 
         self.hierarchyDockWidget.setEnabled(True)
         self.propertiesDockWidget.setEnabled(True)
         self.createWidgetDockWidget.setEnabled(True)
+
+        # make sure all the manipulators are in sync to matter what
+        # this is there mainly for the situation when you switch to live preview, then change resolution, then switch
+        # back to visual editing and all manipulators are of different size than they should be
+        if self.scene.rootManipulator is not None:
+            self.scene.rootManipulator.updateFromWidget()
 
         super(VisualEditing, self).showEvent(event)
     
