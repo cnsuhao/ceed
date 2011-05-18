@@ -53,13 +53,13 @@ class LayoutPreviewer(QWidget, editors.mixed.EditMode):
         return super(LayoutPreviewer, self).deactivate()
 
     def showEvent(self, event):
+        super(LayoutPreviewer, self).showEvent(event)
+
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath)
         mainwindow.MainWindow.instance.ceguiContainerWidget.enableInput()
         
         if self.rootWidget:
             PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
-
-        super(LayoutPreviewer, self).showEvent(event)
 
     def hideEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.disableInput()

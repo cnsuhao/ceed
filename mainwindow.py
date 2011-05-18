@@ -280,19 +280,19 @@ class MainWindow(QMainWindow):
             ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
         
-        try:
-            ret.initialise(self)
+        #try:
+        ret.initialise(self)
         
-        except Exception as e:
-            # it may have been partly constructed at this point
-            try:
-                ret.finalise()
-                
-            except:
-                # catch all exception the finalisation raises (we can't deal with them anyways)
-                pass
-            
-            raise e
+        #except Exception as e:
+        #    # it may have been partly constructed at this point
+        #    try:
+        #        ret.finalise()
+        #        
+        #    except:
+        #        # catch all exception the finalisation raises (we can't deal with them anyways)
+        #        pass
+        #    
+        #    raise e
             
         self.tabEditors.append(ret)
         return ret    

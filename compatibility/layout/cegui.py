@@ -31,12 +31,22 @@ class Layout2TypeDetector(compatibility.TypeDetector):
         return ["layout"]
     
     def matches(self, data, extension):
-        if extension != "layout":
+        if extension not in ["", "layout"]:
             return False
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
+        
+        try:
+            root = ElementTree.fromstring(data)
+            if root.tag != "GUILayout":
+                return False
+            
+            # Layout 2 has no version indication :-(
+            return True
+        
+        except:
+            return False
 
 class Layout3TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -46,12 +56,22 @@ class Layout3TypeDetector(compatibility.TypeDetector):
         return ["layout"]
     
     def matches(self, data, extension):
-        if extension != "layout":
+        if extension not in ["", "layout"]:
             return False
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
+        
+        try:
+            root = ElementTree.fromstring(data)
+            if root.tag != "GUILayout":
+                return False
+            
+            # Layout 3 has no version indication :-(
+            return True
+        
+        except:
+            return False
 
 class Layout4TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -61,13 +81,23 @@ class Layout4TypeDetector(compatibility.TypeDetector):
         return ["layout"]
     
     def matches(self, data, extension):
-        if extension != "layout":
+        if extension not in ["", "layout"]:
             return False
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
-    
+        
+        try:
+            root = ElementTree.fromstring(data)
+            if root.tag != "GUILayout":
+                return False
+            
+            # TODO: Layout 4 has no version indication yet :-(
+            return True
+        
+        except:
+            return False
+        
 class Layout3To4Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUILayout3

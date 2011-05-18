@@ -49,22 +49,31 @@ class GraphicsScene(cegui.GraphicsScene):
                     item.setAlternativeMode(False)
 
 class SerialisationData(object):
-    def __init__(self, widget, serialiseChildren = True):
-        self.name = widget.getName()
-        self.type = widget.getType()
-        
-        parent = widget.getParent()
-        if parent is not None:
-            self.parentPath = parent.getNamePath()
-        else:
-            self.parentPath = ""
-        
-        self.properties = {}    
-        self.serialiseProperties(widget)
-        
+    def __init__(self, widget = None, serialiseChildren = True):
+        self.name = ""
+        self.type = ""
+        self.parentPath = ""
+        self.properties = {}
         self.children = []
-        if serialiseChildren:
-            self.serialiseChildren(widget)   
+        
+        if widget is not None:
+            self.name = widget.getName()
+            self.type = widget.getType()
+            
+            parent = widget.getParent()
+            if parent is not None:
+                self.parentPath = parent.getNamePath()
+            
+            self.serialiseProperties(widget)
+            
+            if serialiseChildren:
+                self.serialiseChildren(widget)   
+    
+    def createChildData(self, widget, serialiseChildren):
+        return SerialisationData(widget, serialiseChildren)
+        
+    def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
+        return Manipulator(parentManipulator, widget, recursive, skipAutoWidgets)
         
     def serialiseProperties(self, widget):
         it = widget.getPropertyIterator()
@@ -82,7 +91,7 @@ class SerialisationData(object):
         while i < widget.getChildCount():
             child = widget.getChildAtIdx(i)
             if not child.isAutoWindow():
-                self.children.append(SerialisationData(child, True))
+                self.children.append(self.createChildData(child, True))
                 
             i += 1
             
@@ -96,7 +105,7 @@ class SerialisationData(object):
         if not rootManipulator:
             #assert(self.parentPath == "")
             
-            ret = Manipulator(rootManipulator, widget)
+            ret = self.createManipulator(rootManipulator, widget)
             rootManipulator = ret
             
         else:
@@ -110,10 +119,12 @@ class SerialisationData(object):
                 parentManipulator = rootManipulator.getWidgetManipulatorByPath(parentPathSplit[1])
             
             parentManipulator.widget.addChild(widget)
-            ret = Manipulator(parentManipulator, widget)
+            ret = self.createManipulator(parentManipulator, widget)
             
         for child in self.children:
             widget.addChild(child.reconstruct(rootManipulator).widget)
+            
+        return ret
 
 class Manipulator(resizable.ResizableRectItem):
     """
@@ -149,7 +160,7 @@ class Manipulator(resizable.ResizableRectItem):
                     continue
                 
                 # note: we don't have to assign child anywhere, we pass parent to the constructor
-                child = Manipulator(self, childWidget, True, skipAutoWidgets)
+                child = self.createChildManipulator(childWidget, True, skipAutoWidgets)
                 
                 idx += 1
                 
@@ -162,6 +173,9 @@ class Manipulator(resizable.ResizableRectItem):
         
         self.preMovePos = None
         self.lastMoveNewPos = None
+    
+    def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = True):
+        return Manipulator(self, childWidget, recursive, skipAutoWidgets)
     
     def detach(self, destroyWidget):
         """Detaches itself from the GUI hierarchy and the manipulator hierarchy.
@@ -566,22 +580,28 @@ class Manipulator(resizable.ResizableRectItem):
         painter.drawLine(midHPoint + hOffset, endHPoint + hOffset)
 
     def paint(self, painter, option, widget):
-        painter.save()
+        #painter.save()
+        
+        # TODO: The whole overlap avoiding code commented out because it's way too slow
         
         # We are drawing the outlines after CEGUI has already been rendered so he have to clip overlapping parts
         # we basically query all items colliding with ourselves and if that's a manipulator and is over us we subtract
         # that from the clipped path.
-        clipPath = QPainterPath()
-        clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
-        collidingItems = self.collidingItems()
-        for item in collidingItems:
-            if isinstance(item, Manipulator):
-                if item.isAboveItem(self):
-                    clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
+        #clipPath = QPainterPath()
+        #clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
+        # FIXME: I used self.collidingItems() but that seems way way slower than just going over everything on the scene
+        #        in reality we need siblings of ancestors recursively up to the top
+        #
+        #        this just begs for optimisation in the future
+        #collidingItems = self.scene().items()
+        #for item in collidingItems:
+        #    if item is not self and isinstance(item, Manipulator):
+        #        if item.isAboveItem(self):
+        #            clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
         
         # we clip using stencil buffers to prevent overlapping outlines appearing
         # FIXME: This could potentially get very slow for huge layouts
-        painter.setClipPath(clipPath)
+        #painter.setClipPath(clipPath)
         
         super(Manipulator, self).paint(painter, option, widget)
 
@@ -590,5 +610,4 @@ class Manipulator(resizable.ResizableRectItem):
             self.paintHorizontalGuides(baseSize, painter, option, widget)
             self.paintVerticalGuides(baseSize, painter, option, widget)
 
-        # TODO: Snap Grid drawing
-        painter.restore()
+        #painter.restore()

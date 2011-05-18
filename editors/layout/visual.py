@@ -22,15 +22,19 @@ from PySide.QtCore import *
 import editors.mixed
 import propertysetinspector
 
-import cegui
+import cegui.widgethelpers
 import PyCEGUI
 
 import undo
+import widgethelpers
+
 import resizable
 
-import ui.editors.layout.hierarchydockwidget
 import ui.editors.layout.propertiesdockwidget
-import ui.editors.layout.createwidgetdockwidget
+
+class WidgetHierarchyTreeWidget(QTreeWidget):
+    def __init__(self, parent = None):
+        super(WidgetHierarchyTreeWidget, self).__init__(parent)
 
 class HierarchyDockWidget(QDockWidget):
     def __init__(self, visual):
@@ -41,7 +45,7 @@ class HierarchyDockWidget(QDockWidget):
         self.ui = ui.editors.layout.hierarchydockwidget.Ui_HierarchyDockWidget()
         self.ui.setupUi(self)
         
-        self.tree = self.findChild(QTreeWidget, "tree")
+        self.tree = self.findChild(WidgetHierarchyTreeWidget, "tree")
         self.ignoreSelectionChanges = False
         self.tree.itemSelectionChanged.connect(self.slot_itemSelectionChanged)
         
@@ -49,13 +53,16 @@ class HierarchyDockWidget(QDockWidget):
         
     def getTreeItemForManipulator(self, manipulator):
         ret = QTreeWidgetItem([manipulator.widget.getName(), manipulator.widget.getType()])
+        ret.setFlags(Qt.ItemIsEnabled |
+                     Qt.ItemIsSelectable |
+                     Qt.ItemIsDropEnabled)
         
         # interlink them so we can react on selection changes
         ret.setData(0, Qt.UserRole, manipulator)
         manipulator.treeWidgetItem = ret
         
         for item in manipulator.childItems():
-            if isinstance(item, cegui.widget.Manipulator):
+            if isinstance(item, widgethelpers.Manipulator):
                 childItem = self.getTreeItemForManipulator(item)
                 ret.addChild(childItem)
                 
@@ -146,6 +153,41 @@ class PropertiesDockWidget(QDockWidget):
             # FIXME: unreadable
             self.visual.tabbedEditor.undoStack.push(cmd)
 
+class WidgetTypeTreeWidget(QTreeWidget):
+    def __init__(self, parent = None):
+        super(WidgetTypeTreeWidget, self).__init__(parent)
+        
+        self.setDragEnabled(True)
+        
+    def startDrag(self, dropActions):
+        # shamelessly stolen from CELE2 by Paul D Turner (GPLv3)
+        
+        item = self.currentItem()
+        widgetType = item.text(0)
+        
+        if item.parent():
+            look = item.parent().text(0)
+        else:
+            look = ""
+
+        mimeData = QMimeData()
+        
+        mimeData.setData("application/x-cegui-widget-type", QByteArray(str(look + "/" + widgetType if look else widgetType)))
+
+        pixmap = QPixmap(75,40)
+        painter = QPainter(pixmap)
+        painter.eraseRect(0, 0, 75, 40)
+        painter.setBrush(Qt.DiagCrossPattern)
+        painter.drawRect(0, 0, 74, 39)
+        painter.end()
+        
+        drag = QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setPixmap(pixmap)
+        drag.setHotSpot(QPoint(0, 0))
+
+        drag.exec_(Qt.CopyAction)
+
 class CreateWidgetDockWidget(QDockWidget):
     def __init__(self, visual):
         super(CreateWidgetDockWidget, self).__init__()
@@ -155,7 +197,7 @@ class CreateWidgetDockWidget(QDockWidget):
         self.ui = ui.editors.layout.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
         self.ui.setupUi(self)
         
-        self.tree = self.findChild(QTreeWidget, "tree")
+        self.tree = self.findChild(WidgetTypeTreeWidget, "tree")
         
     def populate(self):
         self.tree.clear()
@@ -179,7 +221,7 @@ class CreateWidgetDockWidget(QDockWidget):
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
 
-class EditingScene(cegui.widget.GraphicsScene):
+class EditingScene(cegui.widgethelpers.GraphicsScene):
     def __init__(self, visual):
         super(EditingScene, self).__init__()
         
@@ -189,10 +231,10 @@ class EditingScene(cegui.widget.GraphicsScene):
         self.ignoreSelectionChanges = False
         self.selectionChanged.connect(self.slot_selectionChanged)
         
-    def setRootWidget(self, widget):
+    def setRootWidget(self, wdt):
         self.clear()
         
-        self.rootManipulator = cegui.widget.Manipulator(None, widget)
+        self.rootManipulator = widgethelpers.Manipulator(self.visual, None, wdt)
         self.addItem(self.rootManipulator)
         
     def getWidgetManipulatorByPath(self, widgetPath):
@@ -221,7 +263,7 @@ class EditingScene(cegui.widget.GraphicsScene):
         
         selection = self.selectedItems()
         for item in selection:
-            if isinstance(item, cegui.widget.Manipulator):
+            if isinstance(item, widgethelpers.Manipulator):
                 widgetPaths.append(item.widget.getNamePath())
                 
         cmd = undo.DeleteCommand(self.visual, widgetPaths)
@@ -232,17 +274,17 @@ class EditingScene(cegui.widget.GraphicsScene):
         
         sets = []
         for item in selection:
-            widget = None
+            wdt = None
             
-            if isinstance(item, cegui.widget.Manipulator):
-                widget = item.widget
+            if isinstance(item, widgethelpers.Manipulator):
+                wdt = item.widget
                 
             elif isinstance(item, resizable.ResizingHandle):
-                if isinstance(item.parentResizable, cegui.widget.Manipulator):
-                    widget = item.parentResizable.widget
+                if isinstance(item.parentResizable, widgethelpers.Manipulator):
+                    wdt = item.parentResizable.widget
                     
-            if widget is not None and widget not in sets:
-                sets.append(widget)
+            if wdt is not None and wdt not in sets:
+                sets.append(wdt)
             
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
         
@@ -252,7 +294,7 @@ class EditingScene(cegui.widget.GraphicsScene):
             
             self.visual.hierarchyDockWidget.tree.clearSelection()
             for item in selection:
-                if isinstance(item, cegui.widget.Manipulator):
+                if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeWidgetItem") and item.treeWidgetItem is not None:
                         item.treeWidgetItem.setSelected(True)
         
@@ -275,14 +317,14 @@ class EditingScene(cegui.widget.GraphicsScene):
         # instead of the handles themselves
         expandedSelectedItems = []
         for selectedItem in self.selectedItems():
-            if isinstance(selectedItem, cegui.widget.Manipulator):
+            if isinstance(selectedItem, widgethelpers.Manipulator):
                 expandedSelectedItems.append(selectedItem)
             elif isinstance(selectedItem, resizable.ResizingHandle):
-                if isinstance(selectedItem.parentItem(), cegui.widget.Manipulator):
+                if isinstance(selectedItem.parentItem(), widgethelpers.Manipulator):
                     expandedSelectedItems.append(selectedItem.parentItem())
         
         for item in expandedSelectedItems:
-            if isinstance(item, cegui.widget.Manipulator):
+            if isinstance(item, widgethelpers.Manipulator):
                 if item.preMovePos is not None:
                     widgetPath = item.widget.getNamePath()
                     movedWidgetPaths.append(widgetPath)
@@ -382,6 +424,10 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
             
         super(VisualEditing, self).hideEvent(event)
+
+# needs to be at the end to sort circular deps
+import ui.editors.layout.hierarchydockwidget
+import ui.editors.layout.createwidgetdockwidget
     
 # needs to be at the end, import to get the singleton
 import mainwindow

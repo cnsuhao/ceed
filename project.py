@@ -312,6 +312,8 @@ class Project(QStandardItemModel):
         
         root = ElementTree.Element("Project")
 
+        root.set("version", compatibility.project.Manager.instance.EditorNativeType)
+
         root.set("name", self.name)
         
         root.set("baseDirectory", self.baseDirectory)

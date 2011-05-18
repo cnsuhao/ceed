@@ -31,7 +31,10 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTreeWidget" name="tree">
+     <widget class="WidgetHierarchyTreeWidget" name="tree">
+      <property name="defaultDropAction">
+       <enum>Qt::CopyAction</enum>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>
       </property>
@@ -50,6 +53,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetHierarchyTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>editors.layout.visual</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

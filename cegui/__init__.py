@@ -736,4 +736,4 @@ class ContainerWidget(QWidget):
         self.debugInfo.show()
 
 # make it visible to the outside
-import widget
+import widgethelpers

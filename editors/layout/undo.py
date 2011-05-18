@@ -19,7 +19,8 @@
 import commands
 import copy
 
-import cegui
+import widgethelpers
+import PyCEGUI
 
 idbase = 1200
 
@@ -170,8 +171,8 @@ class DeleteCommand(commands.UndoCommand):
         # we want to be able to restore if user decides to undo
         for widgetPath in self.widgetPaths:
             # serialiseChildren is False because we have already included all the children and they are handled separately
-            self.widgetData[widgetPath] = cegui.widget.SerialisationData(self.visual.scene.getWidgetManipulatorByPath(widgetPath).widget,
-                                                                         serialiseChildren = False)
+            self.widgetData[widgetPath] = widgethelpers.SerialisationData(self.visual, self.visual.scene.getWidgetManipulatorByPath(widgetPath).widget,
+                                                                          serialiseChildren = False)
         
         self.refreshText()
     
@@ -216,6 +217,60 @@ class DeleteCommand(commands.UndoCommand):
         
         super(DeleteCommand, self).redo()
 
+class CreateCommand(commands.UndoCommand):
+    """This command creates one widget"""
+    
+    def __init__(self, visual, parentWidgetPath, widgetType, widgetName):
+        super(CreateCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.parentWidgetPath = parentWidgetPath
+        self.widgetType = widgetType
+        self.widgetName = widgetName
+        
+        self.refreshText()
+    
+    def refreshText(self):
+        self.setText("create '%s' of type '%s'" % (self.widgetName, self.widgetType))
+        
+    def id(self):
+        return idbase + 4
+        
+    def mergeWith(self, cmd):
+        # we never merge deletes
+        return False
+        
+    def undo(self):
+        super(CreateCommand, self).undo()
+        
+        manipulator = self.visual.scene.getWidgetManipulatorByPath(self.parentWidgetPath + "/" + self.widgetName if self.parentWidgetPath != "" else self.widgetName)
+        manipulator.detach(destroyWidget = True)
+        
+    def redo(self):
+        data = widgethelpers.SerialisationData(self.visual)
+
+        data.name = self.widgetName
+        data.type = self.widgetType
+        data.parentPath = self.parentWidgetPath
+        
+        result = data.reconstruct(self.visual.scene.rootManipulator)
+        # if the size is 0x0, the widget will be hard to deal with, lets fix that in that case
+        if result.widget.getSize() == PyCEGUI.USize(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)):
+            result.widget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, 50), PyCEGUI.UDim(0, 50)))
+        
+        result.updateFromWidget()
+        # ensure this isn't obscured by it's parent
+        result.moveToFront()
+        
+        # the first created widget must be the root (every created widget must have a parent)
+        if self.visual.scene.rootManipulator is None:
+            self.visual.scene.rootManipulator = result
+                
+        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
+        
+        super(CreateCommand, self).redo()
+
 class PropertyEditCommand(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
@@ -239,7 +294,7 @@ class PropertyEditCommand(commands.UndoCommand):
             self.setText("Change '%s' in %i widgets" % (self.propertyName, len(self.widgetPaths)))
         
     def id(self):
-        return idbase + 4
+        return idbase + 5
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:

@@ -19,7 +19,7 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTreeWidget" name="tree">
+     <widget class="WidgetTypeTreeWidget" name="tree">
       <property name="toolTip">
        <string>Drag to the layout to create</string>
       </property>
@@ -33,6 +33,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WidgetTypeTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>editors.layout.visual</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

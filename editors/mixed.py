@@ -125,7 +125,6 @@ class CodeEditModeCommand(commands.UndoCommand):
         if self.totalChange + cmd.totalChange < 10:
             self.totalChange += cmd.totalChange
             self.newText = cmd.newText
-            self.newCursor = cmd.newCursor
             
             self.refreshText()
             
