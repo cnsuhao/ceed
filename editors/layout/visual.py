@@ -80,6 +80,15 @@ class HierarchyDockWidget(QDockWidget):
     def refresh(self):
         self.setRootWidgetManipulator(self.rootWidgetManipulator)
 
+    def keyReleaseEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            handled = self.visual.scene.deleteSelectedWidgets()
+            
+            if handled:
+                return True
+        
+        return super(HierarchyDockWidget, self).keyReleaseEvent(event)  
+
     def slot_itemSelectionChanged(self):
         # todo: This method is really inefficient
         if self.ignoreSelectionChanges:
