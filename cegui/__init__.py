@@ -26,6 +26,7 @@ import ui.ceguidebuginfo
 
 import os.path
 import time
+import math
 
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
@@ -106,6 +107,26 @@ class GraphicsScene(QGraphicsScene):
     def __init__(self):
         super(GraphicsScene, self).__init__()
         
+        self.initialised = False
+        
+        self.scenePadding = 100
+        
+        self.ceguiDisplaySize = PyCEGUI.Sizef(800, 600)
+        self.fbo = None
+        
+    def setCEGUIDisplaySize(self, width, height, lazyUpdate = True):
+        self.ceguiDisplaySize = PyCEGUI.Sizef(width, height)
+        self.setSceneRect(QRectF(-self.scenePadding, -self.scenePadding,
+                                 width + 2 * self.scenePadding, height + 2 * self.scenePadding))
+        
+        if not lazyUpdate:
+            PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(self.ceguiDisplaySize)
+            
+        self.fbo = None
+
+    def initialise(self):
+        self.setCEGUIDisplaySize(self.ceguiDisplaySize.d_width, self.ceguiDisplaySize.d_height)
+
     def drawBackground(self, painter, rect):
         """We override this and draw CEGUI instead of the whole background.
         
@@ -129,31 +150,91 @@ class GraphicsScene(QGraphicsScene):
                      "graphics view")
             
             return
+
+        painter.beginNativePainting()
                 
         containerWidget = self.views()[0].containerWidget
         containerWidget.ensureCEGUIIsInitialised()
         
-        painter.beginNativePainting()
-            
-        glClearColor(0, 0, 0, 1)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
+        if not self.initialised:
+            self.initialise()
+            self.initialised = True
+        
+        if self.ceguiDisplaySize != PyCEGUI.System.getSingleton().getRenderer().getDisplaySize():
+            PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(self.ceguiDisplaySize)
+        
         # signalRedraw is called to work around potential issues with dangling
         # references in the rendering code for some versions of CEGUI.
         system = PyCEGUI.System.getSingleton()
         system.signalRedraw()
+        
+        glClearColor(0.3, 0.3, 0.3, 1)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # we have to render to FBO and then scale/translate that since CEGUI doesn't allow
+        # scaling the whole rendering root directly
+        
+        # this makes sure the FBO is the correct size
+        if not self.fbo:
+            desiredSize = QSize(math.ceil(self.ceguiDisplaySize.d_width), math.ceil(self.ceguiDisplaySize.d_height))
+            self.fbo = QGLFramebufferObject(desiredSize, GL_TEXTURE_2D)
+            
+        self.fbo.bind()
+        
+        glClearColor(0, 0, 0, 1)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
         system.renderGUI()
+        
+        self.fbo.release()
+
+        # the stretch and translation should be done automatically by QPainter at this point so just
+        # this code will do
+        glActiveTexture(GL_TEXTURE0)
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D, self.fbo.texture())
+
+        glBegin(GL_TRIANGLES)
+        
+        # top left
+        glTexCoord2f(0, 1)
+        glVertex3f(0, 0, 0)
+        
+        # top right
+        glTexCoord2f(1, 1)
+        glVertex3f(self.fbo.size().width(), 0, 0)
+        
+        # bottom right
+        glTexCoord2f(1, 0)
+        glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
+        
+        # bottom right
+        glTexCoord2f(1, 0)
+        glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
+        
+        # bottom left
+        glTexCoord2f(0, 0)
+        glVertex3f(0, self.fbo.size().height(), 0)
+        
+        # top left
+        glTexCoord2f(0, 1)
+        glVertex3f(0, 0, 0)
+        system.signalRedraw()
+        
+        glEnd()
         
         painter.endNativePainting()
         
         # TODO: Fake time impulse for now
         system.injectTimePulse(1)
         
-        # 20 msec after rendering is finished, we mark this as dirty to force a rerender
+        # 10 msec after rendering is finished, we mark this as dirty to force a rerender
         # this seems to be a good compromise
-        #QTimer.singleShot(20, self.update)
+        #QTimer.singleShot(10, self.update)
         
         self.update()
+                
+        self.views()[0].parent().getWidgetPreviewImage("TaharezLook/FrameWindow").save("text.png")
 
 class GraphicsView(resizable.GraphicsView):
     """This is a final class, not suitable for subclassing. This views given scene
@@ -161,8 +242,8 @@ class GraphicsView(resizable.GraphicsView):
     
     """
     
-    def __init__(self):
-        super(GraphicsView, self).__init__()
+    def __init__(self, parent = None):
+        super(GraphicsView, self).__init__(parent)
         
         # we use Qt designer to put this together so we will set it later, not via constructor
         self.containerWidget = None
@@ -176,23 +257,15 @@ class GraphicsView(resizable.GraphicsView):
         self.setMouseTracking(True)
         # we might want key events
         self.setFocusPolicy(Qt.ClickFocus)
-    
-    def setScene(self, scene):
-        # overridden to make sure scene's size is always kept in sync with view's size
-        
-        super(GraphicsView, self).setScene(scene)
-        
-        if scene:
-            self.scene().setSceneRect(QRect(QPoint(0, 0), self.size()))
 
     def resizeEvent(self, event):
         # overridden to make sure scene's size is always kept in sync with view's size
 
-        if self.scene():
-            if self.containerWidget.CEGUIInitialised:
-                PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(PyCEGUI.Sizef(event.size().width(), event.size().height()))
-                
-            self.scene().setSceneRect(QRect(QPoint(0, 0), event.size()))
+        #if self.scene():
+        #    if self.containerWidget.CEGUIInitialised:
+        #        PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(PyCEGUI.Sizef(event.size().width(), event.size().height()))
+        #        
+        #    self.scene().setSceneRect(QRect(QPoint(0, 0), event.size()))
         
         super(GraphicsView, self).resizeEvent(event)
     
@@ -200,7 +273,8 @@ class GraphicsView(resizable.GraphicsView):
         handled = False
         
         if self.injectInput:
-            handled = PyCEGUI.System.getSingleton().injectMousePosition(event.x(), event.y())
+            point = self.mapToScene(QPoint(event.x(), event.y()))
+            handled = PyCEGUI.System.getSingleton().injectMousePosition(point.x(), point.y())
         
         if not handled:    
             super(GraphicsView, self).mouseMoveEvent(event)
@@ -216,6 +290,9 @@ class GraphicsView(resizable.GraphicsView):
         return ret
     
     def mousePressEvent(self, event):
+        # FIXME: Somehow, if you drag on the Live preview in layout editing on Linux,
+        #        it drag moves the whole window
+        
         handled = False
         
         if self.injectInput:
@@ -271,7 +348,7 @@ class GraphicsView(resizable.GraphicsView):
         elif button == Qt.Key_Right:
             return PyCEGUI.Key.ArrowRight
         elif button == Qt.Key_Down:
-            return PyCEGUI.Key.ArrowDown
+            return PyCEGUI.Key.ArrowDownGraphicsScene
         elif button == Qt.Key_PageUp:
             return PyCEGUI.Key.PageUp
         elif button == Qt.Key_PageDown:
@@ -486,10 +563,8 @@ class ContainerWidget(QWidget):
 
         self.debugInfo = DebugInfo(self)
         self.view = self.findChild(GraphicsView, "view")
+        self.view.setBackgroundRole(QPalette.Dark)
         self.view.containerWidget = self
-        
-        self.scrollArea = self.findChild(QScrollArea, "scrollArea")
-        self.scrollArea.setBackgroundRole(QPalette.Dark)
         
         self.autoExpand = self.findChild(QCheckBox, "autoExpand")
         self.autoExpand.stateChanged.connect(self.slot_autoExpandChanged)
@@ -503,7 +578,7 @@ class ContainerWidget(QWidget):
         if not self.CEGUIInitialised:
             self.makeGLContextCurrent()
             
-            PyCEGUIOpenGLRenderer.OpenGLRenderer.bootstrapSystem()
+            PyCEGUIOpenGLRenderer.OpenGLRenderer.bootstrapSystem(PyCEGUIOpenGLRenderer.OpenGLRenderer.TTT_NONE)
             self.CEGUIInitialised = True
 
             self.setDefaultResourceGroups()
@@ -686,6 +761,7 @@ class ContainerWidget(QWidget):
         
         # cause full redraw to ensure nothing gets stuck
         PyCEGUI.System.getSingleton().signalRedraw()
+        
         # and mark the view as dirty
         self.view.update()
         
@@ -703,16 +779,60 @@ class ContainerWidget(QWidget):
             
         self.currentParentWidget = None
         
+    def getWidgetPreviewImage(self, widgetType, previewWidth = 128, previewHeight = 64):
+        self.ensureCEGUIIsInitialised()
+        
+        self.makeGLContextCurrent()
+
+        system = PyCEGUI.System.getSingleton()
+        #system.signalRedraw()
+
+        renderer = system.getRenderer()
+        
+        renderTarget = PyCEGUIOpenGLRenderer.OpenGLViewportTarget(renderer)
+        renderTarget.setArea(PyCEGUI.Rectf(0, 0, previewWidth, previewHeight))
+        renderingSurface = PyCEGUI.RenderingSurface(renderTarget)
+        
+        widgetInstance = PyCEGUI.WindowManager.getSingleton().createWindow(widgetType, "preview")
+        widgetInstance.setRenderingSurface(renderingSurface)
+        # set it's size and position so that it shows up
+        widgetInstance.setPosition(PyCEGUI.UVector2(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)))
+        widgetInstance.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, previewWidth), PyCEGUI.UDim(0, previewHeight)))
+        # fake update to ensure everything is set
+        widgetInstance.update(1)
+        
+        temporaryFBO = QGLFramebufferObject(previewWidth, previewHeight, GL_TEXTURE_2D)
+        temporaryFBO.bind()
+        
+        renderingSurface.invalidate()
+
+        renderer.beginRendering()
+        
+        try:
+            widgetInstance.render()
+        
+        finally:
+            # no matter what happens we have to clean after ourselves!
+            
+            renderer.endRendering()
+            temporaryFBO.release()
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(widgetInstance)
+        
+        return temporaryFBO.toImage()
+        
     def slot_autoExpandChanged(self, expand):
         if expand == Qt.Checked:
-            self.scrollArea.setWidgetResizable(True)
-            self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            #self.view.setWidgetResizable(True)
+            #self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            pass
         else:
-            self.scrollArea.setWidgetResizable(False)
-            self.view.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            pass
+        
+            #self.biew.setWidgetResizable(False)
+            #self.view.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
             
             # set the currently preferred size
-            self.slot_resolutionBoxChanged(self.resolutionBox.currentText())
+            #self.slot_resolutionBoxChanged(self.resolutionBox.currentText())
                 
     def slot_resolutionBoxChanged(self, text):
         if text == "Project Default (Layout)":
@@ -730,9 +850,10 @@ class ContainerWidget(QWidget):
                     if height < 1:
                         height = 1
                     
-                    self.view.setGeometry(0, 0, width, height)
+                    self.makeGLContextCurrent()
+                    self.view.scene().setCEGUIDisplaySize(width, height, lazyUpdate = False)
                     
-                except:
+                except AttributeError:
                     # ignore invalid literals
                     pass
 

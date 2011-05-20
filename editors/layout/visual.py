@@ -168,6 +168,9 @@ class WidgetTypeTreeWidget(QTreeWidget):
         
         self.setDragEnabled(True)
         
+    def setVisual(self, visual):
+        self.visual = visual
+        
     def startDrag(self, dropActions):
         # shamelessly stolen from CELE2 by Paul D Turner (GPLv3)
         
@@ -196,6 +199,43 @@ class WidgetTypeTreeWidget(QTreeWidget):
         drag.setHotSpot(QPoint(0, 0))
 
         drag.exec_(Qt.CopyAction)
+        
+    def viewportEvent(self, event):
+        if event.type() == QEvent.ToolTip:
+            # TODO: The big question is whether to reuse cached previews or always render them again.
+            #       I always render them again for now to avoid all sorts of caching issues
+            #       (when scheme/looknfeel editing is in place, etc...)
+            
+            item = self.itemAt(event.pos())
+            
+            if item is not None and item.childCount() == 0:
+                skin = item.parent().text(0) if item.parent() is not None else "__no_skin__"
+                widgetType = item.text(0)
+                
+                fullWidgetType = widgetType if skin == "__no_skin__" else "%s/%s" % (skin, widgetType)
+                tooltipText = ""
+                try:
+                    if skin == "__no_skin__":
+                        tooltipText = "Unskinned widgetType"
+                        
+                    elif widgetType == "TabButton":
+                        tooltipText = "Can't render a preview as this is an auto widgetType, requires parent to be rendered."
+                        
+                    else:
+                        ba = QByteArray()
+                        buffer = QBuffer(ba)
+                        buffer.open(QIODevice.WriteOnly)
+                        
+                        self.visual.tabbedEditor.mainWindow.ceguiContainerWidget.getWidgetPreviewImage(fullWidgetType).save(buffer, "PNG")
+                        
+                        tooltipText = "<img src=\"data:image/png;base64,%s\" />" % (ba.toBase64())
+            
+                except:
+                    tooltipText = "Couldn't render a widgetType preview..."
+                    
+                item.setToolTip(0, "<small>Drag to the layout to create!</small><br />%s" % (tooltipText))
+                
+        return super(WidgetTypeTreeWidget, self).viewportEvent(event)
 
 class CreateWidgetDockWidget(QDockWidget):
     def __init__(self, visual):
@@ -207,6 +247,7 @@ class CreateWidgetDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.tree = self.findChild(WidgetTypeTreeWidget, "tree")
+        self.tree.setVisual(visual)
         
     def populate(self):
         self.tree.clear()
@@ -261,11 +302,12 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             # path[1] is the remainder of the path
             return self.rootManipulator.getWidgetManipulatorByPath(path[1])
         
-    def setSceneRect(self, rect):
+    def setCEGUIDisplaySize(self, width, height, lazyUpdate = True):
         # overridden to keep the manipulators in sync
         
-        super(EditingScene, self).setSceneRect(rect)
+        super(EditingScene, self).setCEGUIDisplaySize(width, height, lazyUpdate)
         
+        # FIXME: this won't do much with lazyUpdate = False
         if self.rootManipulator is not None:
             self.rootManipulator.updateFromWidget()
             

@@ -31,8 +31,8 @@ class GraphicsView(QGraphicsView):
     The overhead is minimal.
     """
     
-    def __init__(self):
-        super(GraphicsView, self).__init__()
+    def __init__(self, parent = None):
+        super(GraphicsView, self).__init__(parent)
 
     def setTransform(self, transform):
         super(GraphicsView, self).setTransform(transform)
