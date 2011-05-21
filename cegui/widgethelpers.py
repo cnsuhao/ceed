@@ -482,7 +482,8 @@ class Manipulator(resizable.ResizableRectItem):
         xOffset = QPointF(0, 1) if scaleXInPixels * offsetXInPixels < 0 else QPointF(0, 0)
 
         pen = QPen()
-        pen.setWidth(1)
+        # 0 means 1px size no matter the transformation
+        pen.setWidth(0)
         pen.setColor(QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startXPoint, midXPoint)
@@ -507,7 +508,8 @@ class Manipulator(resizable.ResizableRectItem):
         wOffset = QPointF(0, -1 if vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM else 1) if scaleWidthInPixels * offsetWidthInPixels < 0 else QPointF(0, 0)
         
         pen = QPen()
-        pen.setWidth(1)
+        # 0 means 1px size no matter the transformation
+        pen.setWidth(0)
         pen.setColor(QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startWPoint, midWPoint)
@@ -545,7 +547,8 @@ class Manipulator(resizable.ResizableRectItem):
         yOffset = QPointF(1, 0) if scaleYInPixels * offsetYInPixels < 0 else QPointF(0, 0)
 
         pen = QPen()
-        pen.setWidth(1)
+        # 0 means 1px size no matter the transformation
+        pen.setWidth(0)
         pen.setColor(QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startYPoint, midYPoint)
@@ -570,7 +573,8 @@ class Manipulator(resizable.ResizableRectItem):
         hOffset = QPointF(-1 if hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT else 1, 0) if scaleHeightInPixels * offsetHeightInPixels < 0 else QPointF(0, 0)
         
         pen = QPen()
-        pen.setWidth(1)
+        # 0 means 1px size no matter the transformation
+        pen.setWidth(0)
         pen.setColor(QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startHPoint, midHPoint)

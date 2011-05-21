@@ -34,6 +34,13 @@ class GraphicsView(QGraphicsView):
     def __init__(self, parent = None):
         super(GraphicsView, self).__init__(parent)
 
+        # disabled by default        
+        self.wheelZoomEnabled = False
+        self.zoomFactor = 1.0
+        
+        self.middleButtonDragScrollEnabled = False
+        self.lastDragScrollMousePosition = None
+
     def setTransform(self, transform):
         super(GraphicsView, self).setTransform(transform)
         
@@ -46,7 +53,52 @@ class GraphicsView(QGraphicsView):
         for item in self.scene().items():
             if isinstance(item, ResizableRectItem):
                 item.scaleChanged(sx, sy)
+    
+    def performZoom(self):
+        transform = QTransform()
+        transform.scale(self.zoomFactor, self.zoomFactor)
+        self.setTransform(transform)
+    
+    def zoomOriginal(self):
+        self.zoomFactor = 1
+        self.performZoom()
+    
+    def zoomIn(self):
+        self.zoomFactor *= 2
+        
+        if self.zoomFactor > 256:
+            self.zoomFactor = 256
+        
+        self.performZoom()
+    
+    def zoomOut(self):
+        self.zoomFactor /= 2
+        
+        if self.zoomFactor < 1:
+            self.zoomFactor = 1
+            
+        self.performZoom()
+    
+    def wheelEvent(self, event):
+        if self.wheelZoomEnabled:
+            if event.delta() == 0:
+                return
+            
+            if event.delta() > 0:
+                self.zoomIn()
+            else:
+                self.zoomOut()
                 
+        else:
+            super(GraphicsView, self).wheelEvent(event)
+    
+    def mousePressEvent(self, event): 
+        if self.middleButtonDragScrollEnabled and (event.buttons() == Qt.MiddleButton):
+            self.lastDragScrollMousePosition = event.pos()
+            
+        else:
+            super(GraphicsView, self).mousePressEvent(event) 
+
     def mouseReleaseEvent(self, event):
         """When mouse is released in a resizable view, we have to 
         go through all selected items and notify them of the release.
@@ -61,6 +113,18 @@ class GraphicsView(QGraphicsView):
                 selectedItem.mouseReleaseEventSelected(event)
 
         super(GraphicsView, self).mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event): 
+        if self.middleButtonDragScrollEnabled and (event.buttons() == Qt.MiddleButton): 
+            horizontal = self.horizontalScrollBar()
+            horizontal.setSliderPosition(horizontal.sliderPosition() - (event.pos().x() - self.lastDragScrollMousePosition.x()))
+            vertical = self.verticalScrollBar()
+            vertical.setSliderPosition(vertical.sliderPosition() - (event.pos().y() - self.lastDragScrollMousePosition.y()))
+        
+        else:
+            super(GraphicsView, self).mouseMoveEvent(event)
+            
+        self.lastDragScrollMousePosition = event.pos() 
 
 class ResizingHandle(QGraphicsRectItem):
     """A rectangle that when moved resizes the parent resizable rect item.

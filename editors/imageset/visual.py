@@ -349,9 +349,12 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
     """
     
     def __init__(self, tabbedEditor):
+        resizable.GraphicsView.__init__(self)
         editors.mixed.EditMode.__init__(self)
-        QGraphicsView.__init__(self)
-                
+        
+        self.wheelZoomEnabled = True
+        self.middleButtonDragScrollEnabled = True
+        
         scene = QGraphicsScene()
         self.setScene(scene)
         
@@ -370,7 +373,6 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.setDragMode(QGraphicsView.RubberBandDrag)
         self.setBackgroundBrush(QBrush(Qt.lightGray))
         
-        self.zoomFactor = 1.0
         self.imagesetEntry = None
         
         self.dockWidget = ImagesetEditorDockWidget(self)
@@ -457,31 +459,6 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         
         self.dockWidget.setImagesetEntry(self.imagesetEntry)
         self.dockWidget.refresh()
-        
-    def performZoom(self):
-        transform = QTransform()
-        transform.scale(self.zoomFactor, self.zoomFactor)
-        self.setTransform(transform)
-    
-    def zoomOriginal(self):
-        self.zoomFactor = 1
-        self.performZoom()
-    
-    def zoomIn(self):
-        self.zoomFactor *= 2
-        
-        if self.zoomFactor > 256:
-            self.zoomFactor = 256
-        
-        self.performZoom()
-    
-    def zoomOut(self):
-        self.zoomFactor /= 2
-        
-        if self.zoomFactor < 1:
-            self.zoomFactor = 1
-            
-        self.performZoom()
         
     def moveImageEntries(self, imageEntries, delta):
         if delta.manhattanLength() > 0 and len(imageEntries) > 0:
@@ -661,16 +638,13 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         super(VisualEditing, self).hideEvent(event)
     
     def mousePressEvent(self, event): 
-        if event.buttons() != Qt.MiddleButton:
-            super(VisualEditing, self).mousePressEvent(event) 
-            
-            if event.buttons() & Qt.LeftButton:
-                for selectedItem in self.scene().selectedItems():
-                    # selectedItem could be ImageEntry or ImageOffset!                    
-                    selectedItem.potentialMove = True
-                    selectedItem.oldPosition = None
-        else:
-            self.lastMousePosition = event.pos()
+        super(VisualEditing, self).mousePressEvent(event) 
+        
+        if event.buttons() & Qt.LeftButton:
+            for selectedItem in self.scene().selectedItems():
+                # selectedItem could be ImageEntry or ImageOffset!                    
+                selectedItem.potentialMove = True
+                selectedItem.oldPosition = None
     
     def mouseReleaseEvent(self, event):
         """When mouse is released, we have to check what items were moved and resized.
@@ -678,113 +652,88 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         AFAIK Qt doesn't give us any move finished notification so I do this manually
         """
         
-        if event.buttons() != Qt.MiddleButton:
-            super(VisualEditing, self).mouseReleaseEvent(event)
-            
-            # moving
-            moveImageNames = []
-            moveImageOldPositions = {}
-            moveImageNewPositions = {}
-            
-            moveOffsetNames = []
-            moveOffsetOldPositions = {}
-            moveOffsetNewPositions = {}
-            
-            # resizing            
-            resizeImageNames = []
-            resizeImageOldPositions = {}
-            resizeImageOldRects = {}
-            resizeImageNewPositions = {}
-            resizeImageNewRects = {}
-            
-            # we have to "expand" the items, adding parents of resizing handles
-            # instead of the handles themselves
-            expandedSelectedItems = []
-            for selectedItem in self.scene().selectedItems():
-                if isinstance(selectedItem, elements.ImageEntry):
-                    expandedSelectedItems.append(selectedItem)
-                elif isinstance(selectedItem, elements.ImageOffset):
-                    expandedSelectedItems.append(selectedItem)
-                elif isinstance(selectedItem, resizable.ResizingHandle):
-                    expandedSelectedItems.append(selectedItem.parentItem())
-            
-            for selectedItem in expandedSelectedItems:
-                if isinstance(selectedItem, elements.ImageEntry):
-                    if selectedItem.oldPosition:
-                        if selectedItem.mouseOver:
-                            # show the label again if mouse is over because moving finished
-                            selectedItem.label.setVisible(True)
-                            
-                        # only include that if the position really changed
-                        if selectedItem.oldPosition != selectedItem.pos():
-                            moveImageNames.append(selectedItem.name)
-                            moveImageOldPositions[selectedItem.name] = selectedItem.oldPosition
-                            moveImageNewPositions[selectedItem.name] = selectedItem.pos()
-                        
-                    if selectedItem.resized:
-                        # only include that if the position or rect really changed
-                        if selectedItem.resizeOldPos != selectedItem.pos() or selectedItem.resizeOldRect != selectedItem.rect():
-                            resizeImageNames.append(selectedItem.name)
-                            resizeImageOldPositions[selectedItem.name] = selectedItem.resizeOldPos
-                            resizeImageOldRects[selectedItem.name] = selectedItem.resizeOldRect
-                            resizeImageNewPositions[selectedItem.name] = selectedItem.pos()
-                            resizeImageNewRects[selectedItem.name] = selectedItem.rect()
-                        
-                    selectedItem.potentialMove = False
-                    selectedItem.oldPosition = None
-                    selectedItem.resized = False
-                    
-                elif isinstance(selectedItem, elements.ImageOffset):
-                    if selectedItem.oldPosition:
-                        # only include that if the position really changed
-                        if selectedItem.oldPosition != selectedItem.pos():
-                            moveOffsetNames.append(selectedItem.imageEntry.name)
-                            moveOffsetOldPositions[selectedItem.imageEntry.name] = selectedItem.oldPosition
-                            moveOffsetNewPositions[selectedItem.imageEntry.name] = selectedItem.pos()
-                        
-                    selectedItem.potentialMove = False
-                    selectedItem.oldPosition = None
-            
-            # NOTE: It should never happen that more than 2 of these sets are populated
-            #       User moves images XOR moves offsets XOR resizes images
-            #
-            #       I don't do elif for robustness though, who knows what can happen ;-)
-            
-            if len(moveImageNames) > 0:
-                cmd = undo.MoveCommand(self, moveImageNames, moveImageOldPositions, moveImageNewPositions)
-                self.tabbedEditor.undoStack.push(cmd)
-                
-            if len(moveOffsetNames) > 0:
-                cmd = undo.OffsetMoveCommand(self, moveOffsetNames, moveOffsetOldPositions, moveOffsetNewPositions)
-                self.tabbedEditor.undoStack.push(cmd)
-                
-            if len(resizeImageNames) > 0:
-                cmd = undo.GeometryChangeCommand(self, resizeImageNames, resizeImageOldPositions, resizeImageOldRects, resizeImageNewPositions, resizeImageNewRects)
-                self.tabbedEditor.undoStack.push(cmd)
-                
-        else:
-            pass
-    
-    def mouseMoveEvent(self, event): 
-        if event.buttons() != Qt.MiddleButton: 
-            super(VisualEditing, self).mouseMoveEvent(event)
-            
-        else:
-            horizontal = self.horizontalScrollBar()
-            horizontal.setSliderPosition(horizontal.sliderPosition() - (event.pos().x() - self.lastMousePosition.x()))
-            vertical = self.verticalScrollBar()
-            vertical.setSliderPosition(vertical.sliderPosition() - (event.pos().y() - self.lastMousePosition.y()))
-            
-        self.lastMousePosition = event.pos() 
-    
-    def wheelEvent(self, event):
-        if event.delta() == 0:
-            return
+        super(VisualEditing, self).mouseReleaseEvent(event)
         
-        if event.delta() > 0:
-            self.zoomIn()
-        else:
-            self.zoomOut()
+        # moving
+        moveImageNames = []
+        moveImageOldPositions = {}
+        moveImageNewPositions = {}
+        
+        moveOffsetNames = []
+        moveOffsetOldPositions = {}
+        moveOffsetNewPositions = {}
+        
+        # resizing            
+        resizeImageNames = []
+        resizeImageOldPositions = {}
+        resizeImageOldRects = {}
+        resizeImageNewPositions = {}
+        resizeImageNewRects = {}
+        
+        # we have to "expand" the items, adding parents of resizing handles
+        # instead of the handles themselves
+        expandedSelectedItems = []
+        for selectedItem in self.scene().selectedItems():
+            if isinstance(selectedItem, elements.ImageEntry):
+                expandedSelectedItems.append(selectedItem)
+            elif isinstance(selectedItem, elements.ImageOffset):
+                expandedSelectedItems.append(selectedItem)
+            elif isinstance(selectedItem, resizable.ResizingHandle):
+                expandedSelectedItems.append(selectedItem.parentItem())
+        
+        for selectedItem in expandedSelectedItems:
+            if isinstance(selectedItem, elements.ImageEntry):
+                if selectedItem.oldPosition:
+                    if selectedItem.mouseOver:
+                        # show the label again if mouse is over because moving finished
+                        selectedItem.label.setVisible(True)
+                        
+                    # only include that if the position really changed
+                    if selectedItem.oldPosition != selectedItem.pos():
+                        moveImageNames.append(selectedItem.name)
+                        moveImageOldPositions[selectedItem.name] = selectedItem.oldPosition
+                        moveImageNewPositions[selectedItem.name] = selectedItem.pos()
+                    
+                if selectedItem.resized:
+                    # only include that if the position or rect really changed
+                    if selectedItem.resizeOldPos != selectedItem.pos() or selectedItem.resizeOldRect != selectedItem.rect():
+                        resizeImageNames.append(selectedItem.name)
+                        resizeImageOldPositions[selectedItem.name] = selectedItem.resizeOldPos
+                        resizeImageOldRects[selectedItem.name] = selectedItem.resizeOldRect
+                        resizeImageNewPositions[selectedItem.name] = selectedItem.pos()
+                        resizeImageNewRects[selectedItem.name] = selectedItem.rect()
+                    
+                selectedItem.potentialMove = False
+                selectedItem.oldPosition = None
+                selectedItem.resized = False
+                
+            elif isinstance(selectedItem, elements.ImageOffset):
+                if selectedItem.oldPosition:
+                    # only include that if the position really changed
+                    if selectedItem.oldPosition != selectedItem.pos():
+                        moveOffsetNames.append(selectedItem.imageEntry.name)
+                        moveOffsetOldPositions[selectedItem.imageEntry.name] = selectedItem.oldPosition
+                        moveOffsetNewPositions[selectedItem.imageEntry.name] = selectedItem.pos()
+                    
+                selectedItem.potentialMove = False
+                selectedItem.oldPosition = None
+        
+        # NOTE: It should never happen that more than 2 of these sets are populated
+        #       User moves images XOR moves offsets XOR resizes images
+        #
+        #       I don't do elif for robustness though, who knows what can happen ;-)
+        
+        if len(moveImageNames) > 0:
+            cmd = undo.MoveCommand(self, moveImageNames, moveImageOldPositions, moveImageNewPositions)
+            self.tabbedEditor.undoStack.push(cmd)
+            
+        if len(moveOffsetNames) > 0:
+            cmd = undo.OffsetMoveCommand(self, moveOffsetNames, moveOffsetOldPositions, moveOffsetNewPositions)
+            self.tabbedEditor.undoStack.push(cmd)
+            
+        if len(resizeImageNames) > 0:
+            cmd = undo.GeometryChangeCommand(self, resizeImageNames, resizeImageOldPositions, resizeImageOldRects, resizeImageNewPositions, resizeImageNewRects)
+            self.tabbedEditor.undoStack.push(cmd)
             
     def keyReleaseEvent(self, event):
         # TODO: offset keyboard handling
