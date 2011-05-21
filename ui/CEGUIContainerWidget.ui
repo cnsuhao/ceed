@@ -116,11 +116,6 @@
         </property>
         <item>
          <property name="text">
-          <string>Project Default (Layout)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
           <string>800x600</string>
          </property>
         </item>
@@ -170,7 +165,7 @@
   <customwidget>
    <class>GraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>cegui</header>
+   <header>cegui.qtgraphics</header>
   </customwidget>
  </customwidgets>
  <resources/>

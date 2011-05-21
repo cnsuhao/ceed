@@ -226,7 +226,7 @@ class WidgetTypeTreeWidget(QTreeWidget):
                         buffer = QBuffer(ba)
                         buffer.open(QIODevice.WriteOnly)
                         
-                        self.visual.tabbedEditor.mainWindow.ceguiContainerWidget.getWidgetPreviewImage(fullWidgetType).save(buffer, "PNG")
+                        mainwindow.MainWindow.instance.ceguiInstance.getWidgetPreviewImage(fullWidgetType).save(buffer, "PNG")
                         
                         tooltipText = "<img src=\"data:image/png;base64,%s\" />" % (ba.toBase64())
             
@@ -252,7 +252,7 @@ class CreateWidgetDockWidget(QDockWidget):
     def populate(self):
         self.tree.clear()
         
-        wl = mainwindow.MainWindow.instance.ceguiContainerWidget.getAvailableWidgetsBySkin()
+        wl = mainwindow.MainWindow.instance.ceguiInstance.getAvailableWidgetsBySkin()
         
         for skin, widgets in wl.iteritems():
             skinItem = None
@@ -273,7 +273,7 @@ class CreateWidgetDockWidget(QDockWidget):
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     def __init__(self, visual):
-        super(EditingScene, self).__init__()
+        super(EditingScene, self).__init__(mainwindow.MainWindow.instance.ceguiInstance)
         
         self.visual = visual
         self.rootManipulator = None
@@ -308,9 +308,9 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
         super(EditingScene, self).setCEGUIDisplaySize(width, height, lazyUpdate)
         
         # FIXME: this won't do much with lazyUpdate = False
-        if self.rootManipulator is not None:
+        if hasattr(self, "rootManipulator") and self.rootManipulator is not None:
             self.rootManipulator.updateFromWidget()
-            
+    
     def deleteSelectedWidgets(self):
         widgetPaths = []
         

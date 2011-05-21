@@ -75,7 +75,8 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         
         # we start CEGUI early and we always start it
-        self.ceguiContainerWidget = cegui.ContainerWidget(self)
+        self.ceguiInstance = cegui.Instance()
+        self.ceguiContainerWidget = cegui.container.ContainerWidget(self.ceguiInstance)
         
         self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
@@ -187,7 +188,7 @@ class MainWindow(QMainWindow):
         self.projectManager.setProject(self.project)
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
         # sync up the cegui instance
-        self.ceguiContainerWidget.syncToProject(self.project)
+        self.ceguiInstance.syncToProject(self.project)
         
         # project has been opened
         # enable the project management tree
@@ -438,7 +439,7 @@ class MainWindow(QMainWindow):
         
         if dialog.exec_() == QDialog.Accepted:
             dialog.apply(self.project)
-            self.ceguiContainerWidget.syncToProject(self.project)
+            self.ceguiInstance.syncToProject(self.project)
     
     def slot_newFileDialog(self):
         dir = ""

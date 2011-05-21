@@ -20,17 +20,17 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 import resizable
-import cegui
+import qtgraphics
 import PyCEGUI
 
 # This module contains helping classes for CEGUI widget handling
 
-class GraphicsScene(cegui.GraphicsScene):
+class GraphicsScene(qtgraphics.GraphicsScene):
     """If you plan to use widget manipulators, use a scene inherited from this class.
     """
     
-    def __init__(self):
-        super(GraphicsScene, self).__init__()
+    def __init__(self, ceguiInstance):
+        super(GraphicsScene, self).__init__(ceguiInstance)
 
     def keyPressEvent(self, event):
         super(GraphicsScene, self).keyPressEvent(event)
@@ -160,8 +160,7 @@ class Manipulator(resizable.ResizableRectItem):
                     continue
                 
                 # note: we don't have to assign child anywhere, we pass parent to the constructor
-                child = self.createChildManipulator(childWidget, True, skipAutoWidgets)
-                
+                self.createChildManipulator(childWidget, True, skipAutoWidgets)
                 idx += 1
                 
         self.alternativeMode = False
