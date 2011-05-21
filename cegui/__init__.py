@@ -233,8 +233,6 @@ class GraphicsScene(QGraphicsScene):
         #QTimer.singleShot(10, self.update)
         
         self.update()
-                
-        self.views()[0].parent().getWidgetPreviewImage("TaharezLook/FrameWindow").save("text.png")
 
 class GraphicsView(resizable.GraphicsView):
     """This is a final class, not suitable for subclassing. This views given scene

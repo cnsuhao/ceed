@@ -447,8 +447,6 @@ class MessageTabbedEditor(TabbedEditor):
     This is for internal use only so there is no factory for this particular editor
     """
     def __init__(self, filePath, message):
-        from PySide.QtGui import QLabel
-        
         super(MessageTabbedEditor, self).__init__(None, filePath)
         
         self.message = message
