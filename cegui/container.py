@@ -154,6 +154,9 @@ class ContainerWidget(QWidget):
         # and mark the view as dirty
         self.view.update()
         
+        # finally, set the OpenGL context for CEGUI as current as other code may rely on it
+        self.makeGLContextCurrent()
+        
     def deactivate(self, parentWidget):
         if self.currentParentWidget != parentWidget:
             return
