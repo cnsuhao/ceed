@@ -116,7 +116,10 @@ class ContainerWidget(QWidget):
         self.view.viewport().makeCurrent()
     
     def setViewFeatures(self, wheelZoom, middleButtonScroll):
+        # always zoom to the original 100% when changing view features
+        self.view.zoomOriginal()
         self.view.wheelZoomEnabled = wheelZoom
+        
         self.view.middleButtonDragScrollEnabled = middleButtonScroll
         
     def activate(self, parentWidget, resourceIdentifier, scene = None):
