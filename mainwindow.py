@@ -193,8 +193,8 @@ class MainWindow(QMainWindow):
         # project has been opened
         # enable the project management tree
         #self.projectFiles.setEnabled(True)        
-        if not fromRecentProject:
-            self.updateRecentProjects(path)
+        #if not fromRecentProject:
+        self.updateRecentProjects(path)
             
         # and enable respective actions
         self.saveProjectAction.setEnabled(True)
@@ -624,7 +624,17 @@ class MainWindow(QMainWindow):
             if not isinstance(files, list):
                 files = []
         
-        files.insert(0, fileName)
+        isInList = False
+        for f in files:
+            if f == fileName:
+                files.remove(f)
+                files.insert(0, f)
+                isInList = True
+                break
+        
+        #only insert the file if it is not already in list,
+        if not isInList:
+            files.insert(0, fileName)
         
         self.settings.setValue("recentProjects", files)
         
