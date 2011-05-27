@@ -64,13 +64,24 @@ class ErrorHandler(object):
     def installExceptionHook(self):
         sys.excepthook = self.excepthook
         
+    def uninstallExceptionHook(self):
+        sys.excepthook = sys.__excepthook__
+        
     def excepthook(self, exc_type, exc_message, exc_traceback):
         if not self.mainWindow:
             sys.__excepthook__(exc_type, exc_message, exc_traceback)
             
         else:
             dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
-            dialog.exec_()
+            result = dialog.exec_()
             
             # we also call the original excepthook which will just output things to stderr
             sys.__excepthook__(exc_type, exc_message, exc_traceback)
+            
+            # if the dialog was reject, the user chose to quit the whole app immediately (coward...)
+            if result == QDialog.Rejected:
+                # stop annoying the user
+                self.uninstallExceptionHook()
+                # and try to quit as soon as possible
+                # we don't care about exception safety/cleaning up at this point
+                sys.exit(1)
