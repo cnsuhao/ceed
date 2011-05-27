@@ -98,8 +98,6 @@ class ContainerWidget(QWidget):
         self.view.setBackgroundRole(QPalette.Dark)
         self.view.containerWidget = self
         
-        self.autoExpand = self.findChild(QCheckBox, "autoExpand")
-        self.autoExpand.stateChanged.connect(self.slot_autoExpandChanged)
         self.resolutionBox = self.findChild(QComboBox, "resolutionBox")
         self.resolutionBox.editTextChanged.connect(self.slot_resolutionBoxChanged)
         
@@ -173,21 +171,7 @@ class ContainerWidget(QWidget):
         self.currentParentWidget.setUpdatesEnabled(True)
             
         self.currentParentWidget = None
-        
-    def slot_autoExpandChanged(self, expand):
-        if expand == Qt.Checked:
-            #self.view.setWidgetResizable(True)
-            #self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            pass
-        else:
-            pass
-        
-            #self.biew.setWidgetResizable(False)
-            #self.view.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-            
-            # set the currently preferred size
-            #self.slot_resolutionBoxChanged(self.resolutionBox.currentText())
-                
+
     def slot_resolutionBoxChanged(self, text):
         if text == "Project Default (Layout)":
             # special case

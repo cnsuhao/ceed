@@ -91,13 +91,6 @@
        </spacer>
       </item>
       <item>
-       <widget class="QCheckBox" name="autoExpand">
-        <property name="text">
-         <string>Auto expand</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QComboBox" name="resolutionBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -169,22 +162,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>autoExpand</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>resolutionBox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>611</x>
-     <y>669</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>708</x>
-     <y>669</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
