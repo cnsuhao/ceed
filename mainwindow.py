@@ -222,13 +222,13 @@ class MainWindow(QMainWindow):
     def createEditorForFile(self, absolutePath):
         ret = None
                 
-        filePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"        
+        projectRelativePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"        
         
         if not os.path.exists(absolutePath):
             ret = editors.MessageTabbedEditor(absolutePath,
                    "Couldn't find '%s' (project relative path: '%s'), please check that that your project's "
                    "base directory is set up correctly and that you hadn't deleted "
-                   "the file from your HDD. Consider removing the file from the project." % (absolutePath, filePath))
+                   "the file from your HDD. Consider removing the file from the project." % (absolutePath, projectRelativePath))
         else: 
             possibleFactories = []
             
@@ -246,7 +246,7 @@ class MainWindow(QMainWindow):
                 ret = editors.MessageTabbedEditor(absolutePath,
                        "No included tabbed editor was able to accept '%s' (project relative path: '%s'), please "
                        "check that it's a file CEED supports and that it has the correct extension "
-                       "(CEED enforces proper extensions)" % (absolutePath, filePath))
+                       "(CEED enforces proper extensions)" % (absolutePath, projectRelativePath))
                 
             else:
                 # one or more factories wants to accept the file
@@ -271,10 +271,10 @@ class MainWindow(QMainWindow):
         
                 if factory is None:
                     ret = editors.MessageTabbedEditor(absolutePath,
-                       "You failed to choose an editor to open '%s' with (project relative path: '%s')." % (absolutePath, filePath))
+                       "You failed to choose an editor to open '%s' with (project relative path: '%s')." % (absolutePath, projectRelativePath))
                 
                 else:
-                    ret = factory.create(filePath)
+                    ret = factory.create(absolutePath)
         
         if not self.project and ret.requiresProject:
             # the old editor will be destroyed automatically by python GC
