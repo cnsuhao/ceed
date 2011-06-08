@@ -95,7 +95,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         # (allowing the change propagation to do the code validating and other work for us)
         
         if codeMode:
-            self.code.propagateChangesToVisual()
+            self.code.propagateToVisual()
         
         currentRootWidget = self.visual.getCurrentRootWidget()
         
