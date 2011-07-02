@@ -355,6 +355,8 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.wheelZoomEnabled = True
         self.middleButtonDragScrollEnabled = True
         
+        self.lastMousePosition = None
+        
         scene = QGraphicsScene()
         self.setScene(scene)
         
@@ -587,6 +589,7 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.tabbedEditor.undoStack.push(cmd)
     
     def createImageAtCursor(self):
+        assert(self.lastMousePosition is not None)
         sceneCoordinates = self.mapToScene(self.lastMousePosition)
         
         self.createImage(int(sceneCoordinates.x()), int(sceneCoordinates.y()))
@@ -735,6 +738,11 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
             cmd = undo.GeometryChangeCommand(self, resizeImageNames, resizeImageOldPositions, resizeImageOldRects, resizeImageNewPositions, resizeImageNewRects)
             self.tabbedEditor.undoStack.push(cmd)
             
+    def mouseMoveEvent(self, event):
+        self.lastMousePosition = event.pos()
+        
+        super(VisualEditing, self).mouseMoveEvent(event)
+        
     def keyReleaseEvent(self, event):
         # TODO: offset keyboard handling
         
