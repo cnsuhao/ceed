@@ -21,6 +21,9 @@ class Entry(object):
     
     value = property(fset = lambda entry, value: entry._setValue(value),
                      fget = lambda entry: entry._value)
+    editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
+                           fget = lambda entry: entry._editedValue)
+    
     
     def __init__(self, section, name, defaultValue, label = None, help = "", typeHint = STRING, sortingWeight = 0):
         self.section = section
@@ -33,6 +36,7 @@ class Entry(object):
         self.help = help
         self.defaultValue = defaultValue
         self._value = defaultValue
+        self._editedValue = defaultValue
         self.hasChanges = False
         self.typeHint = typeHint
         
@@ -49,14 +53,27 @@ class Entry(object):
 
     def _setValue(self, value):
         self._value = value
+        self._editedValue = value
+        self.upload()
+
+    def _setEditedValue(self, value):
+        self._editedValue = value
         self.hasChanges = True
 
     def upload(self):
         self.getPersistenceProvider().upload(self, self._value)
+        self.hasChanges = False
     
     def download(self):
-        self._value = self.getPersistenceProvider().download(self)
+        persistedValue = self.getPersistenceProvider().download(self)
+        if persistedValue is not None:
+            self._value = persistedValue
+            
+        self.editedValue = self._value
         self.hasChanges = False
+        
+    def applyChanges(self):
+        self.value = self._editedValue
 
 class Section(object):
     def __init__(self, category, name, label = None, sortingWeight = 0):
@@ -85,6 +102,13 @@ class Section(object):
         self.entries.append(entry)
         
         return entry
+        
+    def getEntry(self, name):
+        for entry in self.entries:
+            if entry.name == name:
+                return entry
+            
+        raise RuntimeError("Entry of name '" + name + "' not found inside section '" + self.name + "' (path: '" + self.getPath() + "').")
         
     def upload(self):
         for entry in self.entries:
@@ -132,7 +156,7 @@ class Category(object):
             if section.name == name:
                 return section
             
-        return None
+        raise RuntimeError("Section '" + name + "' not found in category '" + self.name + "' of this settings")
         
     def addEntry(self, **kwargs):
         if self.getSection("") is None:
@@ -141,6 +165,14 @@ class Category(object):
             
         section = self.getSection("")
         return section.addEntry(**kwargs)
+        
+    def getEntry(self, path):
+        # FIXME: Needs better error handling
+        splitted = path.split("/", 1)
+        assert(len(splitted) == 2)
+        
+        section = self.getSection(splitted[0])
+        return section.getEntry(splitted[1])
         
     def upload(self):
         for section in self.sections:
@@ -160,10 +192,15 @@ class Category(object):
                 section.sort()
     
 class Settings(object):
-    def __init__(self, name):
-        self.categories = []
-        self.name = name
+    def __init__(self, name, label = None, help = ""):
+        if label is None:
+            label = name
         
+        self.name = name
+        self.label = label
+        self.help = help
+
+        self.categories = []        
         self.persistenceProvider = None
     
     def getPath(self):
@@ -182,6 +219,21 @@ class Settings(object):
         self.categories.append(category)
                 
         return category
+    
+    def getCategory(self, name):
+        for category in self.categories:
+            if category.name == name:
+                return category
+        
+        raise RuntimeError("Category '" + name + "' not found in this settings")
+    
+    def getEntry(self, path):
+        # FIXME: Needs better error handling
+        splitted = path.split("/", 1)
+        assert(len(splitted) == 2)
+        
+        category = self.getCategory(splitted[0])
+        return category.getEntry(splitted[1])
     
     def upload(self):
         for category in self.categories:

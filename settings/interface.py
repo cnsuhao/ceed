@@ -18,23 +18,45 @@
 
 class SettingsInterface(object):
     def __init__(self, settings):
-        self.qsettings = settings
+        self.settings = settings
 
 from PySide.QtCore import *
 from PySide.QtGui import *
     
-class QtSettingsInterface(SettingsInterface, QTabWidget):
+class QtSettingsInterface(SettingsInterface, QDialog):
     def __init__(self, settings):
-        super(QtSettingsInterface, self).__init__(settings)
+        SettingsInterface.__init__(self, settings)
+        QDialog.__init__(self)
         
-        self.setTabPosition(QTabWidget.West)
-        
+        self.setWindowTitle(self.settings.label)
+
         self.createUI()
         
     def createUI(self):
-        for category in self.qsettings.categories:
-            self.addTab(self.createUIForCategory(category), category.label)
+        # sort everything so that it comes at the right spot when iterating
+        self.settings.sort()
+        
+        # the basic UI
+        self.layout = QVBoxLayout()
+        
+        self.label = QLabel(self.settings.help)
+        self.label.setWordWrap(True)
+        self.layout.addWidget(self.label)
+        
+        self.tabs = QTabWidget()
+        self.tabs.setTabPosition(QTabWidget.West)
+        self.layout.addWidget(self.tabs)
+        
+        self.setLayout(self.layout)
+        
+        # for each category, add a tab on the left
+        for category in self.settings.categories:
+            self.tabs.addTab(self.createUIForCategory(category), category.label)
             
+        # apply, cancel, etc...
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Discard)
+        self.layout.addWidget(self.buttonBox)
+        
     def createUIForCategory(self, category):
         ret = QWidget()
         layout = QVBoxLayout()
@@ -47,25 +69,37 @@ class QtSettingsInterface(SettingsInterface, QTabWidget):
         return ret
     
     def createUIForSection(self, section):
-        ret = QWidget()
-        layout = QFormLayout()
+        ret = QGroupBox()
+        ret.setTitle(section.label)
+        
+        layout = QVBoxLayout()
+        
+        entries = QWidget()
+        entriesLayout = QFormLayout()
         
         for entry in section.entries:
-            layout.addRow(entry.label, self.createUIForEntry(entry))
+            entriesLayout.addRow(entry.label, self.createUIForEntry(entry))
             
+        entries.setLayout(entriesLayout)
+        layout.addWidget(entries)
         ret.setLayout(layout)
+        
         return ret
     
     def createUIForEntry(self, entry):
         if entry.typeHint == "string":
             ret = QLineEdit()
             ret.setText(entry.value)
+            ret.setToolTip(entry.help)
+            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
             
             return ret
             
         elif entry.typeHint == "colour":
             ret = QLineEdit()
             ret.setText(str(entry.value))
+            ret.setToolTip(entry.help)
+            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
             
             return ret
         

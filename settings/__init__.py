@@ -18,10 +18,13 @@
 
 import declaration
 import persistence
+import interface
 
 class Settings(declaration.Settings):
     def __init__(self, qsettings):
-        super(Settings, self).__init__("Settings")
+        super(Settings, self).__init__(name = "settings",
+                                       label = "CEGUI Unified Editor settings",
+                                       help = "Provides all persistent settings of CEGUI Unified Editor (CEED), everything is divided into categories (see the tab buttons on the left).")
         
         self.setPersistenceProvider(persistence.QSettingsPersistenceProvider(qsettings))
 

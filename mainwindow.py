@@ -54,8 +54,12 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         
         self.app = app
+        
         self.qsettings = QSettings("CEGUI", "CEED")
+        
         self.settings = settings.Settings(self.qsettings)
+        self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
+        #self.settingsInterface.show()
 
         # how many recent files should the editor remember
         self.maxRecentProjects = 5
