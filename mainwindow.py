@@ -163,6 +163,9 @@ class MainWindow(QMainWindow):
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
         
+        self.qtAction = self.findChild(QAction, "actionQt")
+        self.qtAction.triggered.connect(QApplication.aboutQt)
+        
         self.quitAction = self.findChild(QAction, "actionQuit")
         self.quitAction.triggered.connect(self.slot_quit)
         
