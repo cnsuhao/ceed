@@ -16,6 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 import ui.widgets.filelineedit
 
@@ -68,3 +69,32 @@ class FileLineEdit(QWidget):
         
         if path != "":    
             self.lineEdit.setText(path)
+
+class ColourButton(QPushButton):
+    colourChanged = Signal(QColor)
+    
+    colour = property(fset = lambda button, colour: button.setColour(colour),
+                      fget = lambda button: button._colour)
+    
+    def __init__(self, parent = None):
+        super(ColourButton, self).__init__(parent)
+        
+        self.setAutoFillBackground(True)
+        # seems to look better on most systems
+        self.setFlat(True)
+        self.colour = QColor(255, 255, 255, 255)
+        
+        self.clicked.connect(self.slot_clicked)
+        
+    def setColour(self, colour):
+        if not hasattr(self, "_colour") or colour != self._colour:
+            self._colour = colour
+            self.setStyleSheet("background-color: rgb(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
+            self.setText("R: %03i, G: %03i, B: %03i, A: %03i" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
+            self.colourChanged.emit(colour)
+        
+    def slot_clicked(self):
+        colour = QColorDialog.getColor(self.colour, self, "", QColorDialog.ColorDialogOption.ShowAlphaChannel)
+        
+        if colour.isValid():
+            self.colour = colour

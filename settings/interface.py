@@ -22,7 +22,9 @@ class SettingsInterface(object):
 
 from PySide.QtCore import *
 from PySide.QtGui import *
-    
+
+import qtwidgets
+
 class QtSettingsInterface(SettingsInterface, QDialog):
     def __init__(self, settings):
         SettingsInterface.__init__(self, settings)
@@ -96,10 +98,10 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             return ret
             
         elif entry.typeHint == "colour":
-            ret = QLineEdit()
-            ret.setText(str(entry.value))
+            ret = qtwidgets.ColourButton()
+            ret.colour = entry.value
             ret.setToolTip(entry.help)
-            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
+            ret.colourChanged.connect(lambda colour: setattr(entry, "editedValue", colour))
             
             return ret
         

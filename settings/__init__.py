@@ -21,6 +21,8 @@ import persistence
 import interface
 
 class Settings(declaration.Settings):
+    instance = None
+    
     def __init__(self, qsettings):
         super(Settings, self).__init__(name = "settings",
                                        label = "CEGUI Unified Editor settings",
@@ -28,12 +30,21 @@ class Settings(declaration.Settings):
         
         self.setPersistenceProvider(persistence.QSettingsPersistenceProvider(qsettings))
 
-        import editors.imageset.settings as imageset_settings
+        import editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)
         
-        import editors.layout.settings as layout_settings
+        import editors.layout.settings_decl as layout_settings
         layout_settings.declare(self)
         
         # download all values from the persistence store
         self.download()
         
+        assert(Settings.instance is None)
+        Settings.instance = self
+        
+def getEntry(path):
+    """This is a convenience method to make settings retrieval easier
+    """
+    
+    assert(Settings.instance is not None)
+    return Settings.instance.getEntry(path)

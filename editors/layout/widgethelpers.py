@@ -20,7 +20,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 import cegui.widgethelpers
-import undo 
+import undo
 
 class SerialisationData(cegui.widgethelpers.SerialisationData):
     def __init__(self, visual, widget = None, serialiseChildren = True):
@@ -42,6 +42,57 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         
         self.setAcceptDrops(True)      
     
+    def getNormalPen(self):
+        ret = QPen()
+        ret.setColor(settings.getEntry("layout/visual/normal_outline_colour").value)
+        ret.setStyle(Qt.DotLine)
+        
+        return ret
+    """
+    def getHoverPen(self):
+        ret = QPen()
+        ret.setColor(QColor(0, 255, 255, 255))
+        
+        return ret
+    
+    def getPenWhileResizing(self):
+        ret = QPen(QColor(255, 0, 255, 255))
+        
+        return ret
+    
+    def getPenWhileMoving(self):
+        ret = QPen(QColor(255, 0, 255, 255))
+        
+        return ret
+    
+    def getEdgeResizingHandleHoverPen(self):
+        ret = QPen()
+        ret.setColor(QColor(0, 255, 255, 255))
+        ret.setWidth(2)
+        ret.setCosmetic(True)
+        
+        return ret
+    
+    def getEdgeResizingHandleHiddenPen(self):
+        ret = QPen()
+        ret.setColor(Qt.transparent)
+        
+        return ret
+    
+    def getCornerResizingHandleHoverPen(self):
+        ret = QPen()
+        ret.setColor(QColor(0, 255, 255, 255))
+        ret.setWidth(2)
+        ret.setCosmetic(True)
+        
+        return ret    
+    
+    def getCornerResizingHandleHiddenPen(self):
+        ret = QPen()
+        ret.setColor(Qt.transparent)
+        
+        return ret
+    """
     def getDragAcceptableHintPen(self):
         ret = QPen()
         ret.setColor(QColor(255, 255, 0))
@@ -90,3 +141,4 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         else:
             event.ignore()
             
+import settings
