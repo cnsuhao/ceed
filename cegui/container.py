@@ -113,12 +113,14 @@ class ContainerWidget(QWidget):
     def makeGLContextCurrent(self):
         self.view.viewport().makeCurrent()
     
-    def setViewFeatures(self, wheelZoom, middleButtonScroll):
+    def setViewFeatures(self, wheelZoom = False, middleButtonScroll = False, continuousRendering = True):
         # always zoom to the original 100% when changing view features
         self.view.zoomOriginal()
         self.view.wheelZoomEnabled = wheelZoom
         
         self.view.middleButtonDragScrollEnabled = middleButtonScroll
+        
+        self.view.continuousRendering = continuousRendering
         
     def activate(self, parentWidget, resourceIdentifier, scene = None):
         """Activates the CEGUI Widget for the given parentWidget (QWidget derived class).
@@ -161,7 +163,7 @@ class ContainerWidget(QWidget):
             
         self.currentParentWidget.setUpdatesEnabled(False)
         # back to the defaults
-        self.setViewFeatures(False, False)
+        self.setViewFeatures()
         self.view.setScene(None)
         
         if self.currentParentWidget.layout():

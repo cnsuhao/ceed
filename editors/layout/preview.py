@@ -63,6 +63,8 @@ class LayoutPreviewer(QWidget, editors.mixed.EditMode):
         super(LayoutPreviewer, self).showEvent(event)
 
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath)
+        # we always want continuous rendering in live preview
+        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(continuousRendering = True)
         mainwindow.MainWindow.instance.ceguiContainerWidget.enableInput()
         
         if self.rootWidget:

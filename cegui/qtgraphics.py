@@ -156,19 +156,10 @@ class GraphicsScene(QGraphicsScene):
         
         # TODO: Fake time impulse for now
         system.injectTimePulse(1)
-        
-        # 10 msec after rendering is finished, we mark this as dirty to force a rerender
-        # this seems to be a good compromise
-        #QTimer.singleShot(10, self.update)
-        
-        # FIXME: We should switch to rerendering only when necessary but this breaks Live Preview in layout editing
-        #        at the moment...
-        self.update()
 
 class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     """This is a final class, not suitable for subclassing. This views given scene
     using QGLWidget. It's designed to work with cegui.GraphicsScene derived classes.
-    
     """
     
     def __init__(self, parent = None):
@@ -183,10 +174,39 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         self.setMouseTracking(True)
         # we might want key events
         self.setFocusPolicy(Qt.ClickFocus)
+        
+        # if True, we render always (possibly capped to some FPS) - suitable for live preview
+        # if False, we render only when update() is called - suitable for visual editing
+        self.continuousRendering = True
+        # only applies when we are rendering continuously, it's the max FPS that we will try to achieve
+        self.continuousRenderingTargetFPS = 60
 
     def makeGLContextCurrent(self):
         self.viewport().makeCurrent()
+
+    def drawBackground(self, painter, rect):
+        super(GraphicsView, self).drawBackground(painter, rect)
+        
+        if self.continuousRendering:
+            if self.continuousRenderingTargetFPS <= 0:
+                self.updateSelfAndScene()
+                
+            else:
+                # FIXME: this is actually wrong, we have to measure how long it takes us to render and count that in!
+                # * 1000 because QTimer thinks in milliseconds
+                QTimer.singleShot(1.0 / self.continuousRenderingTargetFPS * 1000, self.updateSelfAndScene)
+        
+        else:
+            # we don't mark ourselves as dirty if user didn't request continuous rendering
+            pass
     
+    def updateSelfAndScene(self):
+        self.update()
+        
+        scene = self.scene()
+        if scene:
+            scene.update()
+        
     def mouseMoveEvent(self, event):
         handled = False
         

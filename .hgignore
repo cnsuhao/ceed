@@ -1,6 +1,18 @@
-# use glob syntax.
 syntax: glob
-*.pyc
+.DS_Store
+*.tmp
 *~
+*.o
+*.obj
+*.orig
+*.rej
+*.dylib
+*.so
+*.dll
+dependencies/
+build/
+xcuserdata/
+*.xcworkspace/
+*.pyc
 .project
 .pydevproject
