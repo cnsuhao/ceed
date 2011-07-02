@@ -23,6 +23,8 @@ import ui.mainwindow
 
 import os
 
+import settings
+
 import commands
 import project
 import cegui
@@ -52,7 +54,8 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         
         self.app = app
-        self.settings = QSettings("CEGUI", "CEED")
+        self.qsettings = QSettings("CEGUI", "CEED")
+        self.settings = settings.Settings(self.qsettings)
 
         # how many recent files should the editor remember
         self.maxRecentProjects = 5
@@ -150,7 +153,7 @@ class MainWindow(QMainWindow):
         
         self.projectSettingsAction = self.findChild(QAction, "actionProjectSettings")
         self.projectSettingsAction.triggered.connect(self.slot_projectSettings)
-        # when this starts up, no project is opened, hence you can't view/edit settings of the current project
+        # when this starts up, no project is opened, hence you can't view/edit qsettings of the current project
         self.projectSettingsAction.setEnabled(False)
 
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
@@ -326,16 +329,16 @@ class MainWindow(QMainWindow):
         self.tabEditors.remove(editor)
     
     def saveSettings(self):
-        #self.settings.setValue("geometry", self.saveGeometry())
-        #self.settings.setValue("state", self.saveState())
+        #self.qsettings.setValue("geometry", self.saveGeometry())
+        #self.qsettings.setValue("state", self.saveState())
         pass
         
     def restoreSettings(self):
-        #if self.settings.contains("geometry"):
-        #    self.restoreGeometry(self.settings.value("geometry"))
-        #if self.settings.contains("state"):
-        #    self.restoreState(self.settings.value("state"))
-        if self.settings.contains("recentProjects"):
+        #if self.qsettings.contains("geometry"):
+        #    self.restoreGeometry(self.qsettings.value("geometry"))
+        #if self.qsettings.contains("state"):
+        #    self.restoreState(self.qsettings.value("state"))
+        if self.qsettings.contains("recentProjects"):
             self.updateRecentProjectsActions();
         
     def quit(self):
@@ -619,8 +622,8 @@ class MainWindow(QMainWindow):
         self.curFile = fileName
         
         files = []
-        if self.settings.contains("recentProjects"):
-            files = self.settings.value("recentProjects")
+        if self.qsettings.contains("recentProjects"):
+            files = self.qsettings.value("recentProjects")
             
             # if something went wrong before, just drop recent projects and start anew,
             # recent projects aren't that important
@@ -639,7 +642,7 @@ class MainWindow(QMainWindow):
         if not isInList:
             files.insert(0, fileName)
         
-        self.settings.setValue("recentProjects", files)
+        self.qsettings.setValue("recentProjects", files)
         
         # while because files could be in a bad state because of previously thrown exceptions
         # make sure we trim them correctly in all circumstances
@@ -649,7 +652,7 @@ class MainWindow(QMainWindow):
         self.updateRecentProjectsActions()
             
     def updateRecentProjectsActions(self):
-        files = self.settings.value("recentProjects")
+        files = self.qsettings.value("recentProjects")
         # if something went wrong before, just drop recent projects and start anew,
         # recent projects aren't that important
         if not isinstance(files, list):
