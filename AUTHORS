@@ -2,8 +2,11 @@ List of authors and contributors
 ================================
 
 Martin Preisler - main developer
-Paul D Turner - layout editor base code, compileuifiles
+Paul D Turner - CELE2 code (layout editing is inspired by it in CEED), compileuifiles
 Charles Mattei - splashscreen             
 Stefan Stammberger - recent projects
 Markus 'Cygon' Ewald - rectangle packing code
 Eniko - porting rectangle packing code to Python
+
+
+Special thanks to Martin Babka for advices and supervision of this project!
