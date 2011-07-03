@@ -349,7 +349,7 @@ class Manipulator(resizable.ResizableRectItem):
         if hAlignment == PyCEGUI.HorizontalAlignment.HA_LEFT:
             processedDeltaPos.d_x = deltaPos.d_x
         elif hAlignment == PyCEGUI.HorizontalAlignment.HA_CENTRE:
-            processedDeltaPos.d_x = deltaPos.d_x + 0.5 * deltaSize.d_width
+            processedDeltaPos.d_x = deltaPos.d_x + PyCEGUI.UDim(0.5, 0.5) * deltaSize.d_width
         elif hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT:
             processedDeltaPos.d_x = deltaPos.d_x + deltaSize.d_width
         else:
@@ -359,7 +359,7 @@ class Manipulator(resizable.ResizableRectItem):
         if vAlignment == PyCEGUI.VerticalAlignment.VA_TOP:
             processedDeltaPos.d_y = deltaPos.d_y
         elif vAlignment == PyCEGUI.VerticalAlignment.VA_CENTRE:
-            processedDeltaPos.d_y = deltaPos.d_y + 0.5 * deltaSize.d_width
+            processedDeltaPos.d_y = deltaPos.d_y + PyCEGUI.UDim(0.5, 0.5) * deltaSize.d_height
         elif vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM:
             processedDeltaPos.d_y = deltaPos.d_y + deltaSize.d_height
         else:
