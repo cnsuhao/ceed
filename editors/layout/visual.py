@@ -332,9 +332,10 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
                 widgetPath = item.widget.getNamePath()
                 widgetPaths.append(widgetPath)
                 oldAlignments[widgetPath] = item.widget.getHorizontalAlignment()
-                
-        cmd = undo.HorizontalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-        self.visual.tabbedEditor.undoStack.push(cmd)
+        
+        if len(widgetPaths) > 0:        
+            cmd = undo.HorizontalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
+            self.visual.tabbedEditor.undoStack.push(cmd)
         
     def alignSelectionVertically(self, alignment):
         widgetPaths = []
@@ -346,9 +347,10 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
                 widgetPath = item.widget.getNamePath()
                 widgetPaths.append(widgetPath)
                 oldAlignments[widgetPath] = item.widget.getVerticalAlignment()
-                
-        cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-        self.visual.tabbedEditor.undoStack.push(cmd)
+        
+        if len(widgetPaths) > 0:        
+            cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
+            self.visual.tabbedEditor.undoStack.push(cmd)
     
     def slot_selectionChanged(self):
         selection = self.selectedItems()
