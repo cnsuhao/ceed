@@ -321,6 +321,34 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
                 
         cmd = undo.DeleteCommand(self.visual, widgetPaths)
         self.visual.tabbedEditor.undoStack.push(cmd)
+        
+    def alignSelectionHorizontally(self, alignment):
+        widgetPaths = []
+        oldAlignments = {}
+        
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+                widgetPaths.append(widgetPath)
+                oldAlignments[widgetPath] = item.widget.getHorizontalAlignment()
+                
+        cmd = undo.HorizontalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
+        self.visual.tabbedEditor.undoStack.push(cmd)
+        
+    def alignSelectionVertically(self, alignment):
+        widgetPaths = []
+        oldAlignments = {}
+        
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+                widgetPaths.append(widgetPath)
+                oldAlignments[widgetPath] = item.widget.getVerticalAlignment()
+                
+        cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
+        self.visual.tabbedEditor.undoStack.push(cmd)
     
     def slot_selectionChanged(self):
         selection = self.selectedItems()
@@ -450,17 +478,19 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         
         # horizontal alignment actions
         self.alignHLeftAction = QAction(QIcon("icons/layout_editing/align_hleft.png"), "Align left (horizontal)", self)
-        
+        self.alignHLeftAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
         self.alignHCentreAction = QAction(QIcon("icons/layout_editing/align_hcentre.png"), "Align centre (horizontal)", self)
-        
+        self.alignHCentreAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
         self.alignHRightAction = QAction(QIcon("icons/layout_editing/align_hright.png"), "Align right (horizontal)", self)
+        self.alignHRightAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
         
         # vertical alignment actions
         self.alignVTopAction = QAction(QIcon("icons/layout_editing/align_vtop.png"), "Align top (vertical)", self)
-        
+        self.alignVTopAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
         self.alignVCentreAction = QAction(QIcon("icons/layout_editing/align_vcentre.png"), "Align centre (vertical)", self)
-        
-        self.alignVBottomAction = QAction(QIcon("icons/layout_editing/align_vbottom.png"), "Align right (vertical)", self)
+        self.alignVCentreAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
+        self.alignVBottomAction = QAction(QIcon("icons/layout_editing/align_vbottom.png"), "Align bottom (vertical)", self)
+        self.alignVBottomAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
         
     def setupToolBar(self):
         self.toolBar = QToolBar()

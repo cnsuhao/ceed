@@ -329,3 +329,119 @@ class PropertyEditCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             
         super(PropertyEditCommand, self).redo()
+
+class HorizontalAlignCommand(commands.UndoCommand):
+    """This command aligns selected widgets accordingly
+    """
+    
+    def __init__(self, visual, widgetPaths, oldAlignments, newAlignment):
+        super(HorizontalAlignCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.oldAlignments = oldAlignments
+        self.newAlignment = newAlignment
+    
+        self.refreshText()
+    
+    def refreshText(self):            
+        alignStr = ""
+        if self.newAlignment == PyCEGUI.HA_LEFT:
+            alignStr = "left"
+        elif self.newAlignment == PyCEGUI.HA_CENTRE:
+            alignStr = "centre"
+        elif self.newAlignment == PyCEGUI.HA_RIGHT:
+            alignStr = "right"
+        else:
+            raise RuntimeError("Unknown horizontal alignment")
+        
+        if len(self.widgetPaths) == 1:
+            self.setText("Horizontal align '%s' %s" % (self.widgetPaths[0], alignStr))
+        else:
+            self.setText("Horizontal align %i widgets %s" % (len(self.widgetPaths), alignStr))
+                
+    def id(self):
+        return idbase + 6
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(HorizontalAlignCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setHorizontalAlignment(self.oldAlignments[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setHorizontalAlignment(self.newAlignment)
+            widgetManipulator.updateFromWidget()
+            
+        super(HorizontalAlignCommand, self).redo()
+
+class VerticalAlignCommand(commands.UndoCommand):
+    """This command aligns selected widgets accordingly
+    """
+    
+    def __init__(self, visual, widgetPaths, oldAlignments, newAlignment):
+        super(VerticalAlignCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.oldAlignments = oldAlignments
+        self.newAlignment = newAlignment
+    
+        self.refreshText()
+    
+    def refreshText(self):            
+        alignStr = ""
+        if self.newAlignment == PyCEGUI.VA_TOP:
+            alignStr = "top"
+        elif self.newAlignment == PyCEGUI.VA_CENTRE:
+            alignStr = "centre"
+        elif self.newAlignment == PyCEGUI.VA_BOTTOM:
+            alignStr = "bottom"
+        else:
+            raise RuntimeError("Unknown vertical alignment")
+        
+        if len(self.widgetPaths) == 1:
+            self.setText("Vertical align '%s' %s" % (self.widgetPaths[0], alignStr))
+        else:
+            self.setText("Vertical align %i widgets %s" % (len(self.widgetPaths), alignStr))
+                
+    def id(self):
+        return idbase + 7
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(VerticalAlignCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setVerticalAlignment(self.oldAlignments[widgetPath])
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator.widget.setVerticalAlignment(self.newAlignment)
+            widgetManipulator.updateFromWidget()
+            
+        super(VerticalAlignCommand, self).redo()
