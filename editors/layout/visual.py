@@ -434,6 +434,27 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.setLayout(layout)
         
         self.scene = EditingScene(self)
+        
+        self.setupActions()
+        self.setupToolBar()
+
+    def setupActions(self):
+        self.zoomOriginalAction = QAction(QIcon("icons/layout_editing/zoom_original.png"), "Zoom original", self)
+        self.zoomOriginalAction.triggered.connect(lambda: self.scene.views()[0].zoomOriginal())
+        
+        self.zoomInAction = QAction(QIcon("icons/layout_editing/zoom_in.png"), "Zoom in (mouse wheel)", self)
+        self.zoomInAction.triggered.connect(lambda: self.scene.views()[0].zoomIn())
+        
+        self.zoomOutAction = QAction(QIcon("icons/layout_editing/zoom_out.png"), "Zoom out (mouse wheel)", self)
+        self.zoomOutAction.triggered.connect(lambda: self.scene.views()[0].zoomOut())
+        
+    def setupToolBar(self):
+        self.toolBar = QToolBar()
+        
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.zoomOriginalAction)
+        self.toolBar.addAction(self.zoomInAction)
+        self.toolBar.addAction(self.zoomOutAction)
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
@@ -483,6 +504,7 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.hierarchyDockWidget.setEnabled(True)
         self.propertiesDockWidget.setEnabled(True)
         self.createWidgetDockWidget.setEnabled(True)
+        self.toolBar.setEnabled(True)
 
         # make sure all the manipulators are in sync to matter what
         # this is there mainly for the situation when you switch to live preview, then change resolution, then switch
@@ -496,6 +518,7 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.hierarchyDockWidget.setEnabled(False)
         self.propertiesDockWidget.setEnabled(False)
         self.createWidgetDockWidget.setEnabled(False)
+        self.toolBar.setEnabled(False)
         
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
             
