@@ -22,8 +22,6 @@ import ui.widgets.filelineedit
 
 # Contains reusable widgets that I haven't found in Qt for some reason
 
-# TODO: ColourButton
-
 class FileLineEdit(QWidget):
     ExistingFileMode = 1
     NewFileMode = 2
@@ -89,7 +87,7 @@ class ColourButton(QPushButton):
     def setColour(self, colour):
         if not hasattr(self, "_colour") or colour != self._colour:
             self._colour = colour
-            self.setStyleSheet("background-color: rgb(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
+            self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
             self.setText("R: %03i, G: %03i, B: %03i, A: %03i" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
             self.colourChanged.emit(colour)
         
@@ -98,3 +96,73 @@ class ColourButton(QPushButton):
         
         if colour.isValid():
             self.colour = colour
+
+class PenButton(QPushButton):
+    # TODO: This is not implemented at all pretty much
+    penChanged = Signal(QPen)
+    
+    pen = property(fset = lambda button, pen: button.setPen(pen),
+                   fget = lambda button: button._pen)
+    
+    def __init__(self, parent = None):
+        super(PenButton, self).__init__(parent)
+        
+        self.setAutoFillBackground(True)
+        # seems to look better on most systems
+        self.setFlat(True)
+        self.pen = QPen()
+        
+        self.clicked.connect(self.slot_clicked)
+        
+    def setPen(self, pen):
+        if not hasattr(self, "_pen") or pen != self._pen:
+            self._pen = pen
+            
+            lineStyleStr = ""
+            if pen.style() == Qt.SolidLine:
+                lineStyleStr = "solid"
+            elif pen.style() == Qt.DashLine:
+                lineStyleStr = "dash"
+            elif pen.style() == Qt.DotLine:
+                lineStyleStr = "dot"
+            elif pen.style() == Qt.DashDotLine:
+                lineStyleStr = "dash dot"
+            elif pen.style() == Qt.DashDotDotLine:
+                lineStyleStr = "dash dot dot"
+            elif pen.style() == Qt.CustomDashLine:
+                lineStyleStr = "custom dash"
+            else:
+                raise RuntimeError("Unknown pen line style!")
+            
+            capStyleStr = ""
+            if pen.capStyle() == Qt.FlatCap:
+                capStyleStr = "flat"
+            elif pen.capStyle() == Qt.RoundCap:
+                capStyleStr = "round"
+            elif pen.capStyle() == Qt.SquareCap:
+                capStyleStr = "square"
+            else:
+                raise RuntimeError("Unknown pen cap style!")
+            
+            joinStyleStr = ""
+            if pen.joinStyle() == Qt.MiterJoin:
+                joinStyleStr = "miter"
+            elif pen.joinStyle() == Qt.BevelJoin:
+                joinStyleStr = "bevel"
+            elif pen.joinStyle() == Qt.RoundJoin:
+                joinStyleStr = "round"
+            elif pen.joinStyle() == Qt.SvgMiterJoin:
+                joinStyleStr = "svg miter"
+            else:
+                raise RuntimeError("Unknown pen join style!")
+                
+            self.setText("width: %i, line style: %s, cap style: %s, join style: %s" % (pen.width(), lineStyleStr, capStyleStr, joinStyleStr))
+            colour = pen.color()
+            self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
+            
+            self.penChanged.emit(pen)
+        
+    def slot_clicked(self):
+        # TODO
+        pass
+    

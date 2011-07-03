@@ -16,25 +16,25 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtGui import QColor
+from PySide.QtGui import *
 
 def declare(settings):
     category = settings.addCategory(name = "layout", label = "Layout editing")
     
     visual = category.addSection(name = "visual", label = "Visual editing")
     
-    visual.addEntry(name = "normal_outline_colour", label = "Normal outline colour",
-                    defaultValue = QColor(255, 255, 255, 150), typeHint = "colour",
+    visual.addEntry(name = "normal_outline", label = "Normal outline",
+                    defaultValue = QPen(QColor(255, 255, 255, 150)), typeHint = "pen",
                     sortingWeight = 1)
     
-    visual.addEntry(name = "hover_outline_colour", label = "Hover outline colour",
-                    defaultValue = QColor(0, 255, 255, 255), typeHint = "colour",
+    visual.addEntry(name = "hover_outline", label = "Hover outline",
+                    defaultValue = QPen(QColor(0, 255, 255, 255)), typeHint = "pen",
                     sortingWeight = 2)
     
-    visual.addEntry(name = "resizing_outline_colour", label = "Outline colour while resizing",
-                    defaultValue = QColor(255, 0, 255, 255), typeHint = "colour",
+    visual.addEntry(name = "resizing_outline", label = "Outline while resizing",
+                    defaultValue = QPen(QColor(255, 0, 255, 255)), typeHint = "pen",
                     sortingWeight = 3)
     
-    visual.addEntry(name = "moving_outline_colour", label = "Outline colour while moving",
-                    defaultValue = QColor(255, 0, 255, 255), typeHint = "colour",
+    visual.addEntry(name = "moving_outline", label = "Outline while moving",
+                    defaultValue = QPen(QColor(255, 0, 255, 255)), typeHint = "pen",
                     sortingWeight = 3)

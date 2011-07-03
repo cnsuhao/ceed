@@ -105,3 +105,11 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             
             return ret
         
+        elif entry.typeHint == "pen":
+            ret = qtwidgets.PenButton()
+            ret.pen = entry.value
+            ret.setToolTip(entry.help)
+            ret.penChanged.connect(lambda pen: setattr(entry, "editedValue", pen))
+            
+            return ret
+        

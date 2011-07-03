@@ -43,28 +43,18 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         self.setAcceptDrops(True)      
     
     def getNormalPen(self):
-        ret = QPen()
-        ret.setColor(settings.getEntry("layout/visual/normal_outline_colour").value)
-        ret.setStyle(Qt.DotLine)
+        return settings.getEntry("layout/visual/normal_outline").value
         
-        return ret
-    """
     def getHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
-        
-        return ret
+        return settings.getEntry("layout/visual/hover_outline").value
     
     def getPenWhileResizing(self):
-        ret = QPen(QColor(255, 0, 255, 255))
-        
-        return ret
+        return settings.getEntry("layout/visual/resizing_outline").value
     
     def getPenWhileMoving(self):
-        ret = QPen(QColor(255, 0, 255, 255))
-        
-        return ret
+        return settings.getEntry("layout/visual/moving_outline").value
     
+    """
     def getEdgeResizingHandleHoverPen(self):
         ret = QPen()
         ret.setColor(QColor(0, 255, 255, 255))
