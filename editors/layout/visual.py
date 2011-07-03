@@ -319,9 +319,10 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             if isinstance(item, widgethelpers.Manipulator):
                 widgetPaths.append(item.widget.getNamePath())
                 
-        cmd = undo.DeleteCommand(self.visual, widgetPaths)
-        self.visual.tabbedEditor.undoStack.push(cmd)
-        
+        if len(widgetPaths) > 0:
+            cmd = undo.DeleteCommand(self.visual, widgetPaths)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+            
     def alignSelectionHorizontally(self, alignment):
         widgetPaths = []
         oldAlignments = {}
@@ -494,6 +495,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.alignVBottomAction = QAction(QIcon("icons/layout_editing/align_vbottom.png"), "Align bottom (vertical)", self)
         self.alignVBottomAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
         
+        self.deleteAction = QAction(QIcon("icons/layout_editing/delete.png"), "Delete selection", self)
+        self.deleteAction.triggered.connect(lambda: self.scene.deleteSelectedWidgets())
+        
     def setupToolBar(self):
         self.toolBar = QToolBar()
         self.toolBar.setIconSize(QSize(32, 32))
@@ -511,6 +515,8 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.toolBar.addAction(self.alignVTopAction)
         self.toolBar.addAction(self.alignVCentreAction)
         self.toolBar.addAction(self.alignVBottomAction)
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.deleteAction)
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
