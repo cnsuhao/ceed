@@ -448,6 +448,20 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.zoomOutAction = QAction(QIcon("icons/layout_editing/zoom_out.png"), "Zoom out (mouse wheel)", self)
         self.zoomOutAction.triggered.connect(lambda: self.scene.views()[0].zoomOut())
         
+        # horizontal alignment actions
+        self.alignHLeftAction = QAction(QIcon("icons/layout_editing/align_hleft.png"), "Align left (horizontal)", self)
+        
+        self.alignHCentreAction = QAction(QIcon("icons/layout_editing/align_hcentre.png"), "Align centre (horizontal)", self)
+        
+        self.alignHRightAction = QAction(QIcon("icons/layout_editing/align_hright.png"), "Align right (horizontal)", self)
+        
+        # vertical alignment actions
+        self.alignVTopAction = QAction(QIcon("icons/layout_editing/align_vtop.png"), "Align top (vertical)", self)
+        
+        self.alignVCentreAction = QAction(QIcon("icons/layout_editing/align_vcentre.png"), "Align centre (vertical)", self)
+        
+        self.alignVBottomAction = QAction(QIcon("icons/layout_editing/align_vbottom.png"), "Align right (vertical)", self)
+        
     def setupToolBar(self):
         self.toolBar = QToolBar()
         
@@ -455,6 +469,15 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.toolBar.addAction(self.zoomOriginalAction)
         self.toolBar.addAction(self.zoomInAction)
         self.toolBar.addAction(self.zoomOutAction)
+        
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.alignHLeftAction)
+        self.toolBar.addAction(self.alignHCentreAction)
+        self.toolBar.addAction(self.alignHRightAction)
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.alignVTopAction)
+        self.toolBar.addAction(self.alignVCentreAction)
+        self.toolBar.addAction(self.alignVBottomAction)
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
