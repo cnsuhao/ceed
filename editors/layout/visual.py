@@ -141,6 +141,9 @@ class PropertiesDockWidget(QDockWidget):
         for set in self.inspector.propertySets:
             if set.isPropertyPresent(propertyName):
                 set.setProperty(propertyName, value)
+                
+        # make sure to redraw the scene to preview the property
+        self.visual.scene.update()
     
     def slot_propertyEditingEnded(self, propertyName, oldValues, value):
         widgetPaths = []
@@ -161,6 +164,9 @@ class PropertiesDockWidget(QDockWidget):
             cmd = undo.PropertyEditCommand(self.visual, propertyName, widgetPaths, undoOldValues, value)
             # FIXME: unreadable
             self.visual.tabbedEditor.undoStack.push(cmd)
+        
+        # make sure to redraw the scene so the changes are visible    
+        self.visual.scene.update()
 
 class WidgetTypeTreeWidget(QTreeWidget):
     def __init__(self, parent = None):
