@@ -81,6 +81,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
         self.visual.createWidgetDockWidget.setVisible(True)
         self.mainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
+        self.visual.toolBar.show()
         
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.hierarchyDockWidget)
