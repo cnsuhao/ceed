@@ -464,6 +464,7 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         
     def setupToolBar(self):
         self.toolBar = QToolBar()
+        self.toolBar.setIconSize(QSize(32, 32))
         
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.zoomOriginalAction)

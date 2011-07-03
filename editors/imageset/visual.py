@@ -408,6 +408,7 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         
     def setupToolBar(self):
         self.toolBar = QToolBar()
+        self.toolBar.setIconSize(QSize(32, 32))
         
         self.toolBar.addAction(self.editOffsetsAction)
         self.toolBar.addSeparator() # ---------------------------
