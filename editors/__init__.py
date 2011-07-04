@@ -344,10 +344,7 @@ class UndoStackTabbedEditor(TabbedEditor):
         
         self.undoStack = QUndoStack()
         
-        # by default we limit the undo stack to 100 undo commands, should be enough and should
-        # avoid memory drainage. keep in mind that every tabbed editor has it's own undo stack,
-        # so the overall command limit is number_of_tabs * 100!
-        self.undoStack.setUndoLimit(100)
+        self.undoStack.setUndoLimit(settings.getEntry("global/undo/limit").value)
         self.undoStack.setClean()
         
         self.undoStack.canUndoChanged.connect(self.slot_undoAvailable)
@@ -455,6 +452,8 @@ class MessageTabbedEditor(TabbedEditor):
         
     def hasChanges(self):
         return False
+
+import settings
 
 # make all the submodules visible
 import mixed

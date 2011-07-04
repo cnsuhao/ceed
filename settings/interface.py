@@ -56,7 +56,8 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             self.tabs.addTab(self.createUIForCategory(category), category.label)
             
         # apply, cancel, etc...
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Discard)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.clicked.connect(self.slot_buttonBoxClicked)
         self.layout.addWidget(self.buttonBox)
         
     def createUIForCategory(self, category):
@@ -89,15 +90,23 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         return ret
     
     def createUIForEntry(self, entry):
-        if entry.typeHint == "string":
+        if entry.widgetHint == "string":
             ret = QLineEdit()
             ret.setText(entry.value)
             ret.setToolTip(entry.help)
             ret.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
             
             return ret
+        
+        elif entry.widgetHint == "int":
+            ret = QLineEdit()
+            ret.setText(str(entry.value))
+            ret.setToolTip(entry.help)
+            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", int(text)))
             
-        elif entry.typeHint == "colour":
+            return ret
+            
+        elif entry.widgetHint == "colour":
             ret = qtwidgets.ColourButton()
             ret.colour = entry.value
             ret.setToolTip(entry.help)
@@ -105,11 +114,23 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             
             return ret
         
-        elif entry.typeHint == "pen":
+        elif entry.widgetHint == "pen":
             ret = qtwidgets.PenButton()
             ret.pen = entry.value
             ret.setToolTip(entry.help)
             ret.penChanged.connect(lambda pen: setattr(entry, "editedValue", pen))
             
             return ret
+        
+    def slot_buttonBoxClicked(self, button):
+        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+            self.settings.applyChanges()
+            
+        elif self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
+            self.settings.applyChanges()
+            self.accept()
+            
+        elif self.buttonBox.buttonRole(button) == QDialogButtonBox.RejectRole:
+            self.settings.discardChanges()
+            self.reject()
         

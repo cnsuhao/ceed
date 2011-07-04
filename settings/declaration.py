@@ -17,6 +17,14 @@
 ################################################################################
 
 class Entry(object):
+    """Is the value itself, inside a section. This is what's directly used when
+    accessing settings.
+    
+    value represents the current value to use
+    editedValue represents the value user directly edits
+    (it is applied - value = editedValue - when user applies the settings)
+    """
+    
     STRING = "string"
     
     value = property(fset = lambda entry, value: entry._setValue(value),
@@ -24,8 +32,7 @@ class Entry(object):
     editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
                            fget = lambda entry: entry._editedValue)
     
-    
-    def __init__(self, section, name, defaultValue, label = None, help = "", typeHint = STRING, sortingWeight = 0):
+    def __init__(self, section, name, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0):
         self.section = section
         
         if label is None:
@@ -38,7 +45,7 @@ class Entry(object):
         self._value = defaultValue
         self._editedValue = defaultValue
         self.hasChanges = False
-        self.typeHint = typeHint
+        self.widgetHint = widgetHint
         
         self.sortingWeight = sortingWeight
         
@@ -59,6 +66,12 @@ class Entry(object):
     def _setEditedValue(self, value):
         self._editedValue = value
         self.hasChanges = True
+        
+    def applyChanges(self):
+        self.value = self.editedValue
+
+    def discardChanges(self):
+        self.editedValue = self.value
 
     def upload(self):
         self.getPersistenceProvider().upload(self, self._value)
@@ -71,11 +84,11 @@ class Entry(object):
             
         self.editedValue = self._value
         self.hasChanges = False
-        
-    def applyChanges(self):
-        self.value = self._editedValue
 
 class Section(object):
+    """Groups entries, is usually represented by a group box in the interface
+    """
+    
     def __init__(self, category, name, label = None, sortingWeight = 0):
         self.category = category
         
@@ -110,6 +123,14 @@ class Section(object):
             
         raise RuntimeError("Entry of name '" + name + "' not found inside section '" + self.name + "' (path: '" + self.getPath() + "').")
         
+    def applyChanges(self):
+        for entry in self.entries:
+            entry.applyChanges()
+        
+    def discardChanges(self):
+        for entry in self.entries:
+            entry.discardChanges()   
+        
     def upload(self):
         for entry in self.entries:
             entry.upload()
@@ -124,6 +145,9 @@ class Section(object):
         self.entries = sorted(self.entries, key = lambda entry: entry.sortingWeight)
         
 class Category(object):
+    """Groups sections, is usually represented by a tab in the interface
+    """
+    
     def __init__(self, settings, name, label = None, sortingWeight = 0):
         self.qsettings = settings
         
@@ -174,6 +198,14 @@ class Category(object):
         section = self.getSection(splitted[0])
         return section.getEntry(splitted[1])
         
+    def applyChanges(self):
+        for section in self.sections:
+            section.applyChanges()
+        
+    def discardChanges(self):
+        for section in self.sections:
+            section.discardChanges()       
+
     def upload(self):
         for section in self.sections:
             section.upload()
@@ -234,6 +266,14 @@ class Settings(object):
         
         category = self.getCategory(splitted[0])
         return category.getEntry(splitted[1])
+    
+    def applyChanges(self):
+        for category in self.categories:
+            category.applyChanges()
+    
+    def discardChanges(self):
+        for category in self.categories:
+            category.discardChanges()
     
     def upload(self):
         for category in self.categories:
