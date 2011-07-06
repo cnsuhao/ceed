@@ -52,6 +52,8 @@ class GLContextProvider(object):
     """
     
     def makeGLContextCurrent(self):
+        """Activates the OpenGL context held by this provider"""
+        
         raise NotImplementedError("All classes inheriting GLContextProvider must override GLContextProvider.makeGLContextCurrent")
 
 class Instance(object):
@@ -67,12 +69,27 @@ class Instance(object):
         self.initialised = False
         
     def setGLContextProvider(self, contextProvider):
+        """CEGUI instance might need an OpenGL context provider to make sure the right context is active
+        (to load textures, render, ...)
+        
+        see GLContextProvider
+        """
+        
         self.contextProvider = contextProvider
         
     def makeGLContextCurrent(self):
+        """Activate the right OpenGL context.
+        
+        This is usually called internally and you don't need to worry about it, it generally needs to be called
+        before any rendering is done, textures are loaded, etc...
+        """
+        
         self.contextProvider.makeGLContextCurrent()
         
     def ensureIsInitialised(self):
+        """Ensures this CEGUI instance is properly initialised, if it's not it initialises it right away.
+        """
+        
         if not self.initialised:
             self.makeGLContextCurrent()
             
@@ -81,14 +98,22 @@ class Instance(object):
 
             self.setDefaultResourceGroups()
             
-    def setResourceGroupDirectory(self, resourceGroup, absolutePath):
+    def setResourceGroupDirectory(self, resourceGroup, absoluteDirPath):
+        """Sets given resourceGroup to look into given absoluteDirPath
+        """
+        
         self.ensureIsInitialised()
         
         rp = PyCEGUI.System.getSingleton().getResourceProvider()
  
-        rp.setResourceGroupDirectory(resourceGroup, absolutePath)
+        rp.setResourceGroupDirectory(resourceGroup, absoluteDirPath)
     
     def setDefaultResourceGroups(self):
+        """Puts the resource groups to a reasonable default value.
+        
+        ./datafiles followed by the respective folder, same as CEGUI stock datafiles
+        """
+        
         self.ensureIsInitialised()
         
         # reasonable default directories
@@ -117,6 +142,9 @@ class Instance(object):
             parser.setProperty("SchemaDefaultResourceGroup", "schemas")
         
     def syncToProject(self, project):
+        """Synchronises the instance with given project, respecting it's paths and resources
+        """
+        
         progress = QProgressDialog()
         progress.setWindowModality(Qt.WindowModal)
         progress.setWindowTitle("Synchronising embedded CEGUI with the project")
@@ -171,6 +199,12 @@ class Instance(object):
         progress.reset()
         
     def getAvailableSkins(self):
+        """Retrieves skins (as strings representing their names) that are available
+        from the set of schemes that were loaded.
+        
+        see syncToProject
+        """
+        
         skins = []
 
         i = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
@@ -187,6 +221,12 @@ class Instance(object):
         return skins
     
     def getAvailableFonts(self):
+        """Retrieves fonts (as strings representing their names) that are available
+        from the set of schemes that were loaded.
+        
+        see syncToProject
+        """
+        
         fonts = []
         font_iter = PyCEGUI.FontManager.getSingleton().getIterator()
         while not font_iter.isAtEnd():
@@ -198,6 +238,11 @@ class Instance(object):
         return fonts
     
     def getAvailableWidgetsBySkin(self):
+        """Retrieves all mappings (string names) of all widgets that can be created
+        
+        see syncToProject
+        """
+        
         ret = {}
         ret["__no_skin__"] = ["DefaultWindow", "DragDropContainer",
                              "VerticalLayoutContainer", "HorizontalLayoutContainer",
@@ -206,7 +251,9 @@ class Instance(object):
         i = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
         while not i.isAtEnd():
             #base = i.getCurrentValue().d_baseType
-            mapped_type = i.getCurrentValue().d_windowType.split('/')
+            mapped_type = i.getCurrentValue().d_windowType.split('/', 1)
+            assert(len(mapped_type) == 2)
+            
             look = mapped_type[0]
             widget = mapped_type[1]
 
@@ -226,6 +273,11 @@ class Instance(object):
         return ret
         
     def getWidgetPreviewImage(self, widgetType, previewWidth = 128, previewHeight = 64):
+        """Renders and retrieves a widget preview image (as QImage).
+        
+        This is useful for various widget selection lists as a preview.
+        """
+        
         self.ensureIsInitialised()
         self.makeGLContextCurrent()
 

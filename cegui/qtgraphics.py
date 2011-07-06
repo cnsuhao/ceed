@@ -61,15 +61,10 @@ class GraphicsScene(QGraphicsScene):
         self.fbo = None
 
     def drawBackground(self, painter, rect):
-        """We override this and draw CEGUI instead of the whole background.
+        """We override this and draw CEGUI instead of the whole background.    
+        This method uses a FBO to implement zooming, scrolling around, etc...
         
-        Things to keep in mind: CEGUI sets it's own matrices so the view and scene size
-        have to be exactly the same (in other words, QGraphicsView scrolling facilities
-        won't work).
-        
-        The best way to work this around is to have a QScrollView and QGraphicsView inside
-        it. This wraps the whole thing and scrolling works perfectly for the cost of some
-        slight flicker.
+        FBOs are therefore required by CEED and it won't run without a GPU that supports them.
         """
         
         # be robust, this is usually caused by recursive repainting
@@ -122,6 +117,10 @@ class GraphicsScene(QGraphicsScene):
         glActiveTexture(GL_TEXTURE0)
         glEnable(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, self.fbo.texture())
+
+        # TODO: I was told that this is the slowest method to draw with OpenGL, with which I certainly agree
+        #       no profiling has been done at all and I don't suspect this to be a painful performance problem.
+        #       However changing this to a less pathetic rendering method would be great.
 
         glBegin(GL_TRIANGLES)
         

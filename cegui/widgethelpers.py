@@ -49,6 +49,10 @@ class GraphicsScene(qtgraphics.GraphicsScene):
                     item.setAlternativeMode(False)
 
 class SerialisationData(object):
+    """Allows to "freeze" CEGUI widget to data that is easy to retain in python,
+    this is a helper class that can be used for copy/paste, undo commands, etc...
+    """
+    
     def __init__(self, widget = None, serialiseChildren = True):
         self.name = ""
         self.type = ""
@@ -127,13 +131,13 @@ class SerialisationData(object):
         return ret
 
 class Manipulator(resizable.ResizableRectItem):
-    """
-    This is a rectangle that is synchronised with given CEGUI widget,
+    """This is a rectangle that is synchronised with given CEGUI widget,
     it provides moving and resizing functionality
     """
     
     def __init__(self, parent, widget, recursive = True, skipAutoWidgets = True):
-        """
+        """Constructor
+        
         widget - CEGUI::Widget to wrap
         recursive - if true, even children of given widget are wrapped
         skipAutoWidgets - if true, auto widgets are skipped (only applicable if recursive is True)
@@ -174,6 +178,12 @@ class Manipulator(resizable.ResizableRectItem):
         self.lastMoveNewPos = None
     
     def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = True):
+        """Creates a child manipulator
+        
+        This is there to allow overriding (if user subclasses the Manipulator, child manipulators are
+        likely to be also subclassed
+        """
+        
         return Manipulator(self, childWidget, recursive, skipAutoWidgets)
     
     def detach(self, destroyWidget):

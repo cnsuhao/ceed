@@ -105,15 +105,35 @@ class ContainerWidget(QWidget):
         self.debugInfoButton.clicked.connect(self.slot_debugInfoButton)
     
     def enableInput(self):
+        """If you have already activated this container, you can call this to enable CEGUI input propagation
+        (The CEGUI instance associated will get mouse and keyboard events if the widget has focus)
+        """
+        
         self.view.injectInput = True
         
     def disableInput(self):
+        """Disables input propagation to CEGUI instance.
+        see enableInput
+        """
+        
         self.view.injectInput = False        
     
     def makeGLContextCurrent(self):
+        """Activates OpenGL context of the associated CEGUI instance"""
+        
         self.view.viewport().makeCurrent()
     
     def setViewFeatures(self, wheelZoom = False, middleButtonScroll = False, continuousRendering = True):
+        """The CEGUI view class has several enable/disable features that are very hard to achieve using
+        inheritance/composition so they are kept in the CEGUI view class and its base class.
+        
+        This method enables/disables various features, calling it with no parameters switches to default.
+        
+        wheelZoom - mouse wheel will zoom in and out
+        middleButtonScroll - pressing and dragging with the middle button will cause panning/scrolling
+        continuousRendering - CEGUI will render continuously (not just when you tell it to)
+        """
+        
         # always zoom to the original 100% when changing view features
         self.view.zoomOriginal()
         self.view.wheelZoomEnabled = wheelZoom
@@ -158,6 +178,14 @@ class ContainerWidget(QWidget):
         self.makeGLContextCurrent()
         
     def deactivate(self, parentWidget):
+        """Deactivates the widget from use in given parentWidget (QWidget derived class)
+        see activate
+        
+        Note: We strive to be very robust about various differences across platforms (the order in which hide/show events
+        are triggered, etc...), so we automatically deactivate if activating with a preexisting parentWidget. That's the
+        reason for the parentWidget parameter.
+        """
+        
         if self.currentParentWidget != parentWidget:
             return
             
