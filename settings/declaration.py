@@ -32,7 +32,7 @@ class Entry(object):
     editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
                            fget = lambda entry: entry._editedValue)
     
-    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0):
+    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0, changeRequiresRestart = False):
         self.section = section
         
         if label is None:
@@ -53,6 +53,8 @@ class Entry(object):
         
         self.sortingWeight = sortingWeight
         
+        self.changeRequiresRestart = changeRequiresRestart
+        
     def getPath(self):
         """Retrieves a unique path in the qsettings tree, this can be used by persistence providers for example
         """
@@ -62,6 +64,9 @@ class Entry(object):
     def getPersistenceProvider(self):
         return self.section.getPersistenceProvider()
 
+    def getSettings(self):
+        return self.section.getSettings()
+
     def sanitizeValue(self, value):
         if not isinstance(value, self.type):
             value = self.type(value)
@@ -69,7 +74,9 @@ class Entry(object):
         return value
 
     def _setValue(self, value):
-        value = self.sanitizeValue(value)
+        oldValue = self._value
+        
+        value = self.sanitizeValue(value)        
         
         self._value = value
         self._editedValue = value
@@ -82,7 +89,11 @@ class Entry(object):
         self.hasChanges = True
         
     def applyChanges(self):
-        self.value = self.editedValue
+        if self.value != self.editedValue:
+            self.value = self.editedValue
+            
+            if self.changeRequiresRestart:
+                self.getSettings().markRequiresRestart()
 
     def discardChanges(self):
         self.editedValue = self.value
@@ -125,6 +136,9 @@ class Section(object):
         
     def getPersistenceProvider(self):
         return self.category.getPersistenceProvider()
+    
+    def getSettings(self):
+        return self.category.getSettings()
         
     def addEntry(self, **kwargs):
         entry = Entry(section = self, **kwargs)
@@ -165,7 +179,7 @@ class Category(object):
     """
     
     def __init__(self, settings, name, label = None, sortingWeight = 0):
-        self.qsettings = settings
+        self.settings = settings
         
         if label is None:
             label = name
@@ -180,10 +194,13 @@ class Category(object):
         """Retrieves a unique path in the qsettings tree, this can be used by persistence providers for example
         """
         
-        return "%s/%s" % (self.qsettings.getPath(), self.name)
+        return "%s/%s" % (self.settings.getPath(), self.name)
         
     def getPersistenceProvider(self):
-        return self.qsettings.getPersistenceProvider()
+        return self.settings.getPersistenceProvider()
+               
+    def getSettings(self):
+        return self.settings
                 
     def addSection(self, **kwargs):
         section = Section(category = self, **kwargs)
@@ -250,6 +267,8 @@ class Settings(object):
 
         self.categories = []        
         self.persistenceProvider = None
+        
+        self.changesRequireRestart = False
     
     def getPath(self):
         return self.name
@@ -283,6 +302,9 @@ class Settings(object):
         category = self.getCategory(splitted[0])
         return category.getEntry(splitted[1])
     
+    def markRequiresRestart(self):
+        self.changesRequireRestart = True
+    
     def applyChanges(self):
         for category in self.categories:
             category.applyChanges()
@@ -298,6 +320,8 @@ class Settings(object):
     def download(self):
         for category in self.categories:
             category.download()
+            
+        self.changesRequireRestart = False
     
     def sort(self, recursive = True):
         # FIXME: This is obviously not the fastest approach

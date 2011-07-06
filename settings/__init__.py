@@ -39,7 +39,7 @@ class Settings(declaration.Settings):
         undoRedo.addEntry(name = "limit", type = int, label = "Limit (number of steps)",
                           help = "Puts a limit on every tabbed editor's undo stack. You can undo at most the number of times specified here.",
                           defaultValue = 500, widgetHint = "int",
-                          sortingWeight = 1)
+                          sortingWeight = 1, changeRequiresRestart = True)
 
         import editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)
