@@ -36,7 +36,7 @@ class Settings(declaration.Settings):
         # by default we limit the undo stack to 500 undo commands, should be enough and should
         # avoid memory drainage. keep in mind that every tabbed editor has it's own undo stack,
         # so the overall command limit is number_of_tabs * 500!
-        undoRedo.addEntry(name = "limit", label = "Limit (number of steps)",
+        undoRedo.addEntry(name = "limit", type = int, label = "Limit (number of steps)",
                           help = "Puts a limit on every tabbed editor's undo stack. You can undo at most the number of times specified here.",
                           defaultValue = 500, widgetHint = "int",
                           sortingWeight = 1)

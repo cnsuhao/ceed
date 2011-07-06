@@ -32,18 +32,22 @@ class Entry(object):
     editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
                            fget = lambda entry: entry._editedValue)
     
-    def __init__(self, section, name, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0):
+    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0):
         self.section = section
         
         if label is None:
             label = name
         
         self.name = name
-        self.label = label
-        self.help = help
+        self.type = type
+        
+        defaultValue = self.sanitizeValue(defaultValue)
         self.defaultValue = defaultValue
         self._value = defaultValue
         self._editedValue = defaultValue
+        
+        self.label = label
+        self.help = help
         self.hasChanges = False
         self.widgetHint = widgetHint
         
@@ -58,12 +62,22 @@ class Entry(object):
     def getPersistenceProvider(self):
         return self.section.getPersistenceProvider()
 
+    def sanitizeValue(self, value):
+        if not isinstance(value, self.type):
+            value = self.type(value)
+            
+        return value
+
     def _setValue(self, value):
+        value = self.sanitizeValue(value)
+        
         self._value = value
         self._editedValue = value
         self.upload()
 
     def _setEditedValue(self, value):
+        value = self.sanitizeValue(value)
+        
         self._editedValue = value
         self.hasChanges = True
         
@@ -80,6 +94,8 @@ class Entry(object):
     def download(self):
         persistedValue = self.getPersistenceProvider().download(self)
         if persistedValue is not None:
+            persistedValue = self.sanitizeValue(persistedValue)
+            
             self._value = persistedValue
             
         self.editedValue = self._value

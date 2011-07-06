@@ -23,18 +23,18 @@ def declare(settings):
     
     visual = category.addSection(name = "visual", label = "Visual editing")
     
-    visual.addEntry(name = "normal_outline", label = "Normal outline",
+    visual.addEntry(name = "normal_outline", type = QPen, label = "Normal outline",
                     defaultValue = QPen(QColor(255, 255, 255, 150)), widgetHint = "pen",
                     sortingWeight = 1)
     
-    visual.addEntry(name = "hover_outline", label = "Hover outline",
+    visual.addEntry(name = "hover_outline", type = QPen, label = "Hover outline",
                     defaultValue = QPen(QColor(0, 255, 255, 255)), widgetHint = "pen",
                     sortingWeight = 2)
     
-    visual.addEntry(name = "resizing_outline", label = "Outline while resizing",
+    visual.addEntry(name = "resizing_outline", type = QPen, label = "Outline while resizing",
                     defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
                     sortingWeight = 3)
     
-    visual.addEntry(name = "moving_outline", label = "Outline while moving",
+    visual.addEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
                     defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
                     sortingWeight = 3)

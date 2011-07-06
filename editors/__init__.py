@@ -344,7 +344,7 @@ class UndoStackTabbedEditor(TabbedEditor):
         
         self.undoStack = QUndoStack()
         
-        self.undoStack.setUndoLimit(100)
+        self.undoStack.setUndoLimit(settings.getEntry("global/undo/limit").value)
         self.undoStack.setClean()
         
         self.undoStack.canUndoChanged.connect(self.slot_undoAvailable)
