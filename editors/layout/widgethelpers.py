@@ -23,6 +23,11 @@ import cegui.widgethelpers
 import undo
 
 class SerialisationData(cegui.widgethelpers.SerialisationData):
+    """See cegui.widgethelpers.SerialisationData
+    
+    The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
+    """
+    
     def __init__(self, visual, widget = None, serialiseChildren = True):
         self.visual = visual
         
@@ -35,6 +40,8 @@ class SerialisationData(cegui.widgethelpers.SerialisationData):
         return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
         
 class Manipulator(cegui.widgethelpers.Manipulator):
+    """Layout editing specific widget manipulator"""
+    
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = True):
         self.visual = visual
         
@@ -118,6 +125,10 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         self.setPen(self.getNormalPen())
 
     def dropEvent(self, event):
+        """Takes care of creating new widgets when user drops the right mime type here
+        (dragging from the CreateWidgetDockWidget)
+        """
+        
         data = event.mimeData().data("application/x-cegui-widget-type")
 
         if data:

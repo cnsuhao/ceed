@@ -24,6 +24,10 @@ import editors.mixed
 import PyCEGUI
 
 class LayoutPreviewer(QWidget, editors.mixed.EditMode):
+    """Provides "Live Preview" which is basically interactive CEGUI rendering
+    without any other outlines or what not over it.
+    """
+    
     def __init__(self, tabbedEditor):
         super(LayoutPreviewer, self).__init__()
         

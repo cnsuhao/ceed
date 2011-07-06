@@ -24,7 +24,7 @@ import editors
 #
 # TODO: This could get replaced by QScintilla once PySide guys get it to work.
 #       Scintilla would probably be overkill though, I can't imagine anyone
-#       doing any serious editing in this application
+#       doing any serious text editing in this application
 class TextTabbedEditor(editors.TabbedEditor):
     def __init__(self, filePath):
         

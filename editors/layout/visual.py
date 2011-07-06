@@ -33,10 +33,18 @@ import resizable
 import ui.editors.layout.propertiesdockwidget
 
 class WidgetHierarchyTreeWidget(QTreeWidget):
+    """The actual widget hierarchy tree widget - what a horrible name
+    This is a Qt widget that does exactly the same as QTreeWidget for now,
+    it is a placeholder that will be put to use once the need arises - and it will.
+    """
+    
     def __init__(self, parent = None):
         super(WidgetHierarchyTreeWidget, self).__init__(parent)
 
 class HierarchyDockWidget(QDockWidget):
+    """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
+    """
+    
     def __init__(self, visual):
         super(HierarchyDockWidget, self).__init__()
         
@@ -51,7 +59,7 @@ class HierarchyDockWidget(QDockWidget):
         
         self.rootWidgetManipulator = None
         
-    def getTreeItemForManipulator(self, manipulator):
+    def getTreeItemForManipulator(self, manipulator, recursive = True):
         ret = QTreeWidgetItem([manipulator.widget.getName(), manipulator.widget.getType()])
         ret.setFlags(Qt.ItemIsEnabled |
                      Qt.ItemIsSelectable |
@@ -61,14 +69,19 @@ class HierarchyDockWidget(QDockWidget):
         ret.setData(0, Qt.UserRole, manipulator)
         manipulator.treeWidgetItem = ret
         
-        for item in manipulator.childItems():
-            if isinstance(item, widgethelpers.Manipulator):
-                childItem = self.getTreeItemForManipulator(item)
-                ret.addChild(childItem)
+        if recursive:
+            for item in manipulator.childItems():
+                if isinstance(item, widgethelpers.Manipulator):
+                    childItem = self.getTreeItemForManipulator(item)
+                    ret.addChild(childItem)
                 
         return ret
         
     def setRootWidgetManipulator(self, root):
+        """Sets the widget manipulator that is at the root of our observed hierarchy.
+        Uses getTreeItemForManipulator to recursively populate the tree.
+        """
+        
         self.rootWidgetManipulator = root
         
         self.tree.clear()
@@ -78,6 +91,8 @@ class HierarchyDockWidget(QDockWidget):
             self.tree.expandAll()
         
     def refresh(self):
+        """Refreshes the entire hierarchy completely from scratch"""
+        
         self.setRootWidgetManipulator(self.rootWidgetManipulator)
 
     def keyReleaseEvent(self, event):
@@ -90,12 +105,20 @@ class HierarchyDockWidget(QDockWidget):
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)  
 
     def slot_itemSelectionChanged(self):
+        """Synchronizes tree selection with scene selection.
+        """
         # todo: This method is really inefficient
+        
+        # we are running synchronization the other way, this prevents infinite loops and recursion
         if self.ignoreSelectionChanges:
             return
         
-        # AFAIK there is no better way to do this than this abomination
         def collectTreeWidgetItems(root):
+            """Recursively collects all tree items"""
+            
+            # AFAIK there is no better way to do this than this abomination, I would
+            # love to be proven wrong!
+            
             ret = []
             ret.append(root)
             
@@ -124,6 +147,9 @@ class HierarchyDockWidget(QDockWidget):
         self.visual.scene.ignoreSelectionChanges = False
 
 class PropertiesDockWidget(QDockWidget):
+    """Lists and allows editing of properties of the selected widget(s). Uses the PropertySetInspector machinery.
+    """
+    
     def __init__(self, visual):
         super(PropertiesDockWidget, self).__init__()
         
@@ -169,6 +195,12 @@ class PropertiesDockWidget(QDockWidget):
         self.visual.scene.update()
 
 class WidgetTypeTreeWidget(QTreeWidget):
+    """Represents a single available widget for creation (it has a mapping in the scheme or is
+    a stock special widget - like DefaultWindow).
+    
+    Also provides previews for the widgets
+    """
+    
     def __init__(self, parent = None):
         super(WidgetTypeTreeWidget, self).__init__(parent)
         
@@ -244,6 +276,9 @@ class WidgetTypeTreeWidget(QTreeWidget):
         return super(WidgetTypeTreeWidget, self).viewportEvent(event)
 
 class CreateWidgetDockWidget(QDockWidget):
+    """This lists available widgets you can create and allows their creation (by drag N drop)
+    """
+    
     def __init__(self, visual):
         super(CreateWidgetDockWidget, self).__init__()
         
@@ -278,6 +313,12 @@ class CreateWidgetDockWidget(QDockWidget):
                 skinItem.addChild(widgetItem)
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
+    """This scene contains all the manipulators users want to interact it. You can visualise it as the
+    visual editing centre screen where CEGUI is rendered.
+    
+    It renders CEGUI on it's background and outlines (via Manipulators) in front of it.
+    """
+    
     def __init__(self, visual):
         super(EditingScene, self).__init__(mainwindow.MainWindow.instance.ceguiInstance)
         
@@ -457,6 +498,11 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             event.accept()
 
 class VisualEditing(QWidget, editors.mixed.EditMode):
+    """This is the default visual editing mode
+    
+    see editors.mixed.EditMode
+    """
+    
     def __init__(self, tabbedEditor):
         super(VisualEditing, self).__init__()
         
@@ -549,6 +595,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         PyCEGUI.System.getSingleton().signalRedraw()
     
     def setRootWidget(self, widget):
+        """Sets the root widget we want to edit
+        """
+        
         if widget is None:
             self.setRootWidgetManipulator(None)
         
