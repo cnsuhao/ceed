@@ -59,7 +59,6 @@ class MainWindow(QMainWindow):
         
         self.settings = settings.Settings(self.qsettings)
         self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
-        #self.settingsInterface.show()
 
         # how many recent files should the editor remember
         self.maxRecentProjects = 5
@@ -159,6 +158,9 @@ class MainWindow(QMainWindow):
         self.projectSettingsAction.triggered.connect(self.slot_projectSettings)
         # when this starts up, no project is opened, hence you can't view/edit qsettings of the current project
         self.projectSettingsAction.setEnabled(False)
+        
+        self.applicationSettingsAction = self.findChild(QAction, "actionApplicationSettings")
+        self.applicationSettingsAction.triggered.connect(lambda: self.settingsInterface.show())
 
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         

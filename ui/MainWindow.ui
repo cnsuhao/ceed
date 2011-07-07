@@ -122,6 +122,7 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionProjectSettings"/>
+    <addaction name="actionApplicationSettings"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -344,6 +345,15 @@
   <action name="actionQt">
    <property name="text">
     <string>Qt</string>
+   </property>
+  </action>
+  <action name="actionApplicationSettings">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/actions/application_settings.png</normaloff>icons/actions/application_settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>Application Settings</string>
    </property>
   </action>
  </widget>
