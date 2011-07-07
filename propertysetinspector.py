@@ -372,7 +372,4 @@ class PropertySetInspector(QWidget):
                 self.view.setRowHidden(entry.index().row(), entry.index().parent(), True)
             
             i += 1
-            
-        # TODO: Qt doesn't redraw the items right (it leaves gray marks)
-        #       This is a Qt bug but perhaps we can find a workaround?
-        
+       
