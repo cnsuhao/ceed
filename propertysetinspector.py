@@ -372,4 +372,3 @@ class PropertySetInspector(QWidget):
                 self.view.setRowHidden(entry.index().row(), entry.index().parent(), True)
             
             i += 1
-       

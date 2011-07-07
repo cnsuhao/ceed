@@ -24,6 +24,7 @@ import ui.mainwindow
 import os
 
 import settings
+import action
 
 import commands
 import project
@@ -58,6 +59,8 @@ class MainWindow(QMainWindow):
         self.qsettings = QSettings("CEGUI", "CEED")
         
         self.settings = settings.Settings(self.qsettings)
+        # we have to construct ActionManager before settings interface (as it alters the settings declaration)!        
+        self.actionManager = action.ActionManager(self, self.settings)
         self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
 
         # how many recent files should the editor remember
