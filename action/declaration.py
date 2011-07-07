@@ -48,7 +48,7 @@ class Action(QAction):
     def declareSettingsEntry(self):
         section = self.category.settingsSection
         
-        self.settingsEntry = section.addEntry(name = "shortcut_%s" % (self.name), type = QKeySequence, label = "Shortcut for %s ('%s')" % (self.label, self.name),
+        self.settingsEntry = section.createEntry(name = "shortcut_%s" % (self.name), type = QKeySequence, label = "Shortcut for %s ('%s')" % (self.label, self.name),
                                               defaultValue = self.defaultShortcut, widgetHint = "keySequence")
 
 class ActionCategory(object):
@@ -83,7 +83,7 @@ class ActionCategory(object):
     def declareSettingsSection(self):
         category = self.getManager().settingsCategory
         
-        self.settingsSection = category.addSection(name = self.name, label = self.label)
+        self.settingsSection = category.createSection(name = self.name, label = self.label)
 
 class ActionManager(object):
     def __init__(self, mainWindow, settings):
@@ -100,5 +100,5 @@ class ActionManager(object):
         return category
     
     def declareSettingsCategory(self):
-        self.settingsCategory = self.settings.addCategory(name = "action_shortcuts", label = "Shortcuts", sortingWeight = 999)
+        self.settingsCategory = self.settings.createCategory(name = "action_shortcuts", label = "Shortcuts", sortingWeight = 999)
     

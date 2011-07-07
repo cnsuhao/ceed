@@ -17,7 +17,7 @@
 ################################################################################
 
 def declare(settings):
-    category = settings.addCategory(name = "imageset", label = "Imageset editing")
+    category = settings.createCategory(name = "imageset", label = "Imageset editing")
     
-    visual = category.addSection(name = "visual", label = "Visual editing")
+    visual = category.createSection(name = "visual", label = "Visual editing")
     

@@ -140,7 +140,7 @@ class Section(object):
     def getSettings(self):
         return self.category.getSettings()
         
-    def addEntry(self, **kwargs):
+    def createEntry(self, **kwargs):
         entry = Entry(section = self, **kwargs)
         self.entries.append(entry)
         
@@ -202,7 +202,7 @@ class Category(object):
     def getSettings(self):
         return self.settings
                 
-    def addSection(self, **kwargs):
+    def createSection(self, **kwargs):
         section = Section(category = self, **kwargs)
         self.sections.append(section)
         
@@ -215,13 +215,13 @@ class Category(object):
             
         raise RuntimeError("Section '" + name + "' not found in category '" + self.name + "' of this settings")
         
-    def addEntry(self, **kwargs):
+    def createEntry(self, **kwargs):
         if self.getSection("") is None:
-            section = self.addSection("")
+            section = self.createSection("")
             section.sortingWeight = -1
             
         section = self.getSection("")
-        return section.addEntry(**kwargs)
+        return section.createEntry(**kwargs)
         
     def getEntry(self, path):
         # FIXME: Needs better error handling
@@ -281,7 +281,7 @@ class Settings(object):
         
         return self.persistenceProvider
 
-    def addCategory(self, **kwargs):
+    def createCategory(self, **kwargs):
         category = Category(settings = self, **kwargs)
         self.categories.append(category)
                 

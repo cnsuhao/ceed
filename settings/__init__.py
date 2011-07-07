@@ -31,12 +31,12 @@ class Settings(declaration.Settings):
         self.setPersistenceProvider(persistence.QSettingsPersistenceProvider(qsettings))
 
         # General settings
-        global_ = self.addCategory(name = "global", label = "Global")
-        undoRedo = global_.addSection(name = "undo", label = "Undo and Redo")
+        global_ = self.createCategory(name = "global", label = "Global")
+        undoRedo = global_.createSection(name = "undo", label = "Undo and Redo")
         # by default we limit the undo stack to 500 undo commands, should be enough and should
         # avoid memory drainage. keep in mind that every tabbed editor has it's own undo stack,
         # so the overall command limit is number_of_tabs * 500!
-        undoRedo.addEntry(name = "limit", type = int, label = "Limit (number of steps)",
+        undoRedo.createEntry(name = "limit", type = int, label = "Limit (number of steps)",
                           help = "Puts a limit on every tabbed editor's undo stack. You can undo at most the number of times specified here.",
                           defaultValue = 500, widgetHint = "int",
                           sortingWeight = 1, changeRequiresRestart = True)

@@ -19,22 +19,22 @@
 from PySide.QtGui import *
 
 def declare(settings):
-    category = settings.addCategory(name = "layout", label = "Layout editing")
+    category = settings.createCategory(name = "layout", label = "Layout editing")
     
-    visual = category.addSection(name = "visual", label = "Visual editing")
+    visual = category.createSection(name = "visual", label = "Visual editing")
     
-    visual.addEntry(name = "normal_outline", type = QPen, label = "Normal outline",
+    visual.createEntry(name = "normal_outline", type = QPen, label = "Normal outline",
                     defaultValue = QPen(QColor(255, 255, 255, 150)), widgetHint = "pen",
                     sortingWeight = 1)
     
-    visual.addEntry(name = "hover_outline", type = QPen, label = "Hover outline",
+    visual.createEntry(name = "hover_outline", type = QPen, label = "Hover outline",
                     defaultValue = QPen(QColor(0, 255, 255, 255)), widgetHint = "pen",
                     sortingWeight = 2)
     
-    visual.addEntry(name = "resizing_outline", type = QPen, label = "Outline while resizing",
+    visual.createEntry(name = "resizing_outline", type = QPen, label = "Outline while resizing",
                     defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
                     sortingWeight = 3)
     
-    visual.addEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
+    visual.createEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
                     defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
                     sortingWeight = 3)
