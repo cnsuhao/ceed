@@ -61,6 +61,9 @@ class MainWindow(QMainWindow):
         self.settings = settings.Settings(self.qsettings)
         # we have to construct ActionManager before settings interface (as it alters the settings declaration)!        
         self.actionManager = action.ActionManager(self, self.settings)
+        # download all values from the persistence store
+        self.settings.download()
+        
         self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
 
         # how many recent files should the editor remember

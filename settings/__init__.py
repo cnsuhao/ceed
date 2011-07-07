@@ -46,10 +46,7 @@ class Settings(declaration.Settings):
         
         import editors.layout.settings_decl as layout_settings
         layout_settings.declare(self)
-        
-        # download all values from the persistence store
-        self.download()
-        
+                
         assert(Settings.instance is None)
         Settings.instance = self
         

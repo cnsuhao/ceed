@@ -173,16 +173,19 @@ class KeySequenceButton(QPushButton):
             super(KeySequenceButton.Dialog, self).__init__(parent)
             
             self.setFocusPolicy(Qt.StrongFocus)
-            self.grabKeyboard()
             
             self.ui = ui.widgets.keysequencebuttondialog.Ui_KeySequenceButtonDialog()
             self.ui.setupUi(self)
             
+            self.keySequence = QKeySequence()
             self.keyCombination = self.findChild(QLineEdit, "keyCombination")
             
-        def keyPressEvent(self, event):
-            self.keySequence = QKeySequence(event.modifiers() + event.key())
+        def setKeySequence(self, keySequence):
+            self.keySequence = keySequence
             self.keyCombination.setText(self.keySequence.toString())
+            
+        def keyPressEvent(self, event):
+            self.setKeySequence(QKeySequence(event.modifiers() + event.key()))
     
     keySequenceChanged = Signal(QKeySequence)
     
@@ -205,6 +208,7 @@ class KeySequenceButton(QPushButton):
         
     def slot_clicked(self):
         dialog = KeySequenceButton.Dialog(self)
+        dialog.setKeySequence(self.keySequence)
         
         if dialog.exec_() == QDialog.Accepted:
             self.keySequence = dialog.keySequence
