@@ -122,6 +122,14 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             
             return ret
         
+        elif entry.widgetHint == "keySequence":
+            ret = qtwidgets.KeySequenceButton()
+            ret.keySequence = entry.value
+            ret.setToolTip(entry.help)
+            ret.keySequenceChanged.connect(lambda keySequence: setattr(entry, "editedValue", keySequence))
+            
+            return ret
+        
     def slot_buttonBoxClicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.settings.applyChanges()

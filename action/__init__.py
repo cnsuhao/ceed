@@ -21,3 +21,6 @@ import declaration
 class ActionManager(declaration.ActionManager):
     def __init__(self, mainWindow, settings):
         super(ActionManager, self).__init__(mainWindow, settings)
+        
+        general = self.createCategory(name = "general", label = "General")
+        general.createAction(name = "quit", label = "Quit")

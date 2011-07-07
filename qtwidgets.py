@@ -19,6 +19,7 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 import ui.widgets.filelineedit
+import ui.widgets.keysequencebuttondialog
 
 # Contains reusable widgets that I haven't found in Qt for some reason
 
@@ -166,3 +167,44 @@ class PenButton(QPushButton):
         # TODO
         pass
     
+class KeySequenceButton(QPushButton):
+    class Dialog(QDialog):
+        def __init__(self, parent = None):
+            super(KeySequenceButton.Dialog, self).__init__(parent)
+            
+            self.setFocusPolicy(Qt.StrongFocus)
+            self.grabKeyboard()
+            
+            self.ui = ui.widgets.keysequencebuttondialog.Ui_KeySequenceButtonDialog()
+            self.ui.setupUi(self)
+            
+            self.keyCombination = self.findChild(QLineEdit, "keyCombination")
+            
+        def keyPressEvent(self, event):
+            self.keySequence = QKeySequence(event.modifiers() + event.key())
+            self.keyCombination.setText(self.keySequence.toString())
+    
+    keySequenceChanged = Signal(QKeySequence)
+    
+    keySequence = property(fset = lambda button, keySequence: button.setKeySequence(keySequence),
+                           fget = lambda button: button._keySequence)
+    
+    def __init__(self, parent = None):
+        super(KeySequenceButton, self).__init__(parent)
+        
+        self.setAutoFillBackground(True)
+        self.keySequence = QKeySequence()
+        
+        self.clicked.connect(self.slot_clicked)
+        
+    def setKeySequence(self, keySequence):
+        if not hasattr(self, "_keySequence") or keySequence != self._keySequence:
+            self._keySequence = keySequence
+            self.setText(keySequence.toString())
+            self.keySequenceChanged.emit(keySequence)
+        
+    def slot_clicked(self):
+        dialog = KeySequenceButton.Dialog(self)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            self.keySequence = dialog.keySequence
