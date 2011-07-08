@@ -117,11 +117,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
-    <addaction name="actionProjectSettings"/>
-    <addaction name="actionApplicationSettings"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -163,10 +158,6 @@
    <addaction name="actionSaveAll"/>
    <addaction name="separator"/>
    <addaction name="actionSaveProject"/>
-   <addaction name="actionProjectSettings"/>
-   <addaction name="separator"/>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
   </widget>
   <action name="actionCloseProject">
    <property name="icon">
@@ -228,30 +219,6 @@
     <string>Close</string>
    </property>
   </action>
-  <action name="actionUndo">
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/actions/undo.png</normaloff>icons/actions/undo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/actions/redo.png</normaloff>icons/actions/redo.png</iconset>
-   </property>
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Y</string>
-   </property>
-  </action>
   <action name="actionSaveProject">
    <property name="icon">
     <iconset>
@@ -259,18 +226,6 @@
    </property>
    <property name="text">
     <string>Save project</string>
-   </property>
-  </action>
-  <action name="actionProjectSettings">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/actions/project_settings.png</normaloff>icons/actions/project_settings.png</iconset>
-   </property>
-   <property name="text">
-    <string>Project Settings</string>
    </property>
   </action>
   <action name="actionLicense">
@@ -332,15 +287,6 @@
   <action name="actionQt">
    <property name="text">
     <string>Qt</string>
-   </property>
-  </action>
-  <action name="actionApplicationSettings">
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/actions/application_settings.png</normaloff>icons/actions/application_settings.png</iconset>
-   </property>
-   <property name="text">
-    <string>Application Settings</string>
    </property>
   </action>
  </widget>

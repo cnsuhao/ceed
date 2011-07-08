@@ -113,7 +113,27 @@ class ActionManager(declaration.ActionManager):
         super(ActionManager, self).__init__(mainWindow, settings)
         
         general = self.createCategory(name = "general", label = "General")
+        general.createAction(name = "application_settings", label = "Application settings",
+                             help = "Displays and allows changes of the application settings (persistent settings)",
+                             icon = QIcon("icons/actions/application_settings.png"),
+                             defaultShortcut = QKeySequence(QKeySequence.Preferences))
         general.createAction(name = "quit", label = "Quit",
                              help = "Exits the entire application safely with confirmation dialogs for all unsaved data.",
                              icon = QIcon("icons/actions/quit.png"),
                              defaultShortcut = QKeySequence(QKeySequence.Quit))
+
+        project_management = self.createCategory(name = "project_management", label = "Project Management")
+        project_management.createAction(name = "project_settings", label = "Project settings",
+                                        help = "Displays and allows changes of the project settings (of the currently opened project).",
+                                        icon = QIcon("icons/actions/project_settings.png"))
+
+        all_editors = self.createCategory(name = "all_editors", label = "All Editors")
+        all_editors.createAction(name = "undo", label = "Undo",
+                                 help = "Undoes the last operation (in the currently active tabbed editor)",
+                                 icon = QIcon("icons/actions/undo.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Undo))
+        all_editors.createAction(name = "redo", label = "Redo",
+                                 help = "Redoes the last undone operation (in the currently active tabbed editor)",
+                                 icon = QIcon("icons/actions/redo.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Redo))
+        

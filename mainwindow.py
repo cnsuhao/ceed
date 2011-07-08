@@ -124,7 +124,10 @@ class MainWindow(QMainWindow):
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(self.actionManager)
         
+        self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
+        
         self.fileMenu = self.findChild(QMenu, "menuFile")
+        self.editMenu = self.findChild(QMenu, "menuEdit")
         
         self.newFileAction = self.findChild(QAction, "actionNewFile")
         self.newFileAction.triggered.connect(self.slot_newFileDialog)
@@ -141,12 +144,25 @@ class MainWindow(QMainWindow):
         self.closeAction = self.findChild(QAction, "actionClose")
         self.closeAction.setEnabled(False)
         
-        self.undoAction = self.findChild(QAction, "actionUndo")
-        self.undoAction.triggered.connect(self.slot_undo)
+        self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
-        self.redoAction = self.findChild(QAction, "actionRedo")
-        self.redoAction.triggered.connect(self.slot_redo)
+        self.editMenu.addAction(self.undoAction)
+        self.connectionGroup.add(self.undoAction, receiver = self.slot_undo)
+
+        self.redoAction = self.actionManager.getAction("all_editors/redo")
         self.redoAction.setEnabled(False)
+        self.editMenu.addAction(self.redoAction)
+        self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
+        
+        self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
+        # when this starts up, no project is opened, hence you can't view/edit settings of the current project
+        self.projectSettingsAction.setEnabled(False)
+        self.editMenu.addAction(self.projectSettingsAction)
+        self.globalToolbar.addAction(self.projectSettingsAction)
+        self.connectionGroup.add(self.projectSettingsAction, receiver = self.slot_projectSettings)
+        
+        self.editMenu.addAction(self.actionManager.getAction("general/application_settings"))
+        self.connectionGroup.add("general/application_settings", receiver = lambda: self.settingsInterface.show())
         
         self.newProjectAction = self.findChild(QAction, "actionNewProject")
         self.newProjectAction.triggered.connect(self.slot_newProject)
@@ -163,14 +179,6 @@ class MainWindow(QMainWindow):
         self.closeProjectAction.triggered.connect(self.slot_closeProject)
         # when this starts up, no project is opened, hence you can't close the current project
         self.closeProjectAction.setEnabled(False)
-        
-        self.projectSettingsAction = self.findChild(QAction, "actionProjectSettings")
-        self.projectSettingsAction.triggered.connect(self.slot_projectSettings)
-        # when this starts up, no project is opened, hence you can't view/edit qsettings of the current project
-        self.projectSettingsAction.setEnabled(False)
-        
-        self.applicationSettingsAction = self.findChild(QAction, "actionApplicationSettings")
-        self.applicationSettingsAction.triggered.connect(lambda: self.settingsInterface.show())
 
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         
