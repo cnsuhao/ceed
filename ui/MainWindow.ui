@@ -112,7 +112,6 @@
     <addaction name="actionCloseProject"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
-    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -169,18 +168,6 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
   </widget>
-  <action name="actionQuit">
-   <property name="icon">
-    <iconset>
-     <normaloff>icons/actions/quit.png</normaloff>icons/actions/quit.png</iconset>
-   </property>
-   <property name="text">
-    <string>Quit</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Q</string>
-   </property>
-  </action>
   <action name="actionCloseProject">
    <property name="icon">
     <iconset>

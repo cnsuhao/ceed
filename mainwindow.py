@@ -116,12 +116,16 @@ class MainWindow(QMainWindow):
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
         
-        self.connectActions()
+        self.setupActions()
         self.connectSignals()
         
         self.restoreSettings()     
     
-    def connectActions(self):
+    def setupActions(self):
+        self.connectionGroup = action.ConnectionGroup(self.actionManager)
+        
+        self.fileMenu = self.findChild(QMenu, "menuFile")
+        
         self.newFileAction = self.findChild(QAction, "actionNewFile")
         self.newFileAction.triggered.connect(self.slot_newFileDialog)
         
@@ -171,9 +175,9 @@ class MainWindow(QMainWindow):
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         
         for i in range(self.maxRecentProjects):
-            action = QAction(self, visible = False, triggered = self.slot_openRecentProject)
-            self.recentProjectsActions.append(action)
-            self.recentProjectsMenu.addAction(action)
+            actionRP = QAction(self, visible = False, triggered = self.slot_openRecentProject)
+            self.recentProjectsActions.append(actionRP)
+            self.recentProjectsMenu.addAction(actionRP)
 
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
@@ -181,8 +185,8 @@ class MainWindow(QMainWindow):
         self.qtAction = self.findChild(QAction, "actionQt")
         self.qtAction.triggered.connect(QApplication.aboutQt)
         
-        self.quitAction = self.findChild(QAction, "actionQuit")
-        self.quitAction.triggered.connect(self.slot_quit)
+        self.connectionGroup.add("general/quit", receiver = self.slot_quit)
+        self.fileMenu.addAction(self.actionManager.getAction("general/quit"))
         
         # tab bar context menu
         self.closeTabAction = self.findChild(QAction, "actionCloseTab")
@@ -193,6 +197,8 @@ class MainWindow(QMainWindow):
         self.closeOtherTabsAction.triggered.connect(self.slot_closeOtherTabs)
         self.closeAllTabsAction = self.findChild(QAction, "actionCloseAllTabs")
         self.closeAllTabsAction.triggered.connect(self.slot_closeAllTabs)
+        
+        self.connectionGroup.connectAll()
         
     def connectSignals(self):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)

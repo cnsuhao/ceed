@@ -55,6 +55,8 @@ class Entry(object):
         
         self.changeRequiresRestart = changeRequiresRestart
         
+        self.subscribers = []
+        
     def getPath(self):
         """Retrieves a unique path in the qsettings tree, this can be used by persistence providers for example
         """
@@ -73,14 +75,26 @@ class Entry(object):
             
         return value
 
-    def _setValue(self, value):
-        oldValue = self._value
+    def subscribe(self, callable):
+        """Subscribes a callable that gets called when the value changes (the real value, not edited value!)
+        (with current value as the argument)
+        """
         
+        self.subscribers.append(callable)
+        
+    def unsubscribe(self, callable):
+        self.subscribers.remove(callable)
+
+    def _setValue(self, value, uploadImmediately = True):
         value = self.sanitizeValue(value)        
         
         self._value = value
         self._editedValue = value
-        self.upload()
+        if uploadImmediately:
+            self.upload()
+        
+        for callable in self.subscribers:
+            callable(value)
 
     def _setEditedValue(self, value):
         value = self.sanitizeValue(value)
@@ -104,12 +118,7 @@ class Entry(object):
     
     def download(self):
         persistedValue = self.getPersistenceProvider().download(self)
-        if persistedValue is not None:
-            persistedValue = self.sanitizeValue(persistedValue)
-            
-            self._value = persistedValue
-            
-        self.editedValue = self._value
+        self._setValue(persistedValue, False)
         self.hasChanges = False
 
 class Section(object):
