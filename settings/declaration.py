@@ -118,6 +118,9 @@ class Entry(object):
     
     def download(self):
         persistedValue = self.getPersistenceProvider().download(self)
+        if persistedValue is None:
+            persistedValue = self.defaultValue
+            
         self._setValue(persistedValue, False)
         self.hasChanges = False
 
