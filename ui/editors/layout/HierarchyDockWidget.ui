@@ -32,8 +32,14 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="WidgetHierarchyTreeWidget" name="tree">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::DragDrop</enum>
+      </property>
       <property name="defaultDropAction">
-       <enum>Qt::CopyAction</enum>
+       <enum>Qt::MoveAction</enum>
       </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::ExtendedSelection</enum>

@@ -63,10 +63,16 @@ class HierarchyDockWidget(QDockWidget):
         ret = QTreeWidgetItem([manipulator.widget.getName(), manipulator.widget.getType()])
         ret.setFlags(Qt.ItemIsEnabled |
                      Qt.ItemIsSelectable |
-                     Qt.ItemIsDropEnabled)
+                     Qt.ItemIsDropEnabled |
+                     Qt.ItemIsDragEnabled)
         
+        # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
+        #       I have had weird segfaults when storing manipulator directly here, perhaps they
+        #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
+        #ret.setData(0, Qt.UserRole, manipulator)
+                
         # interlink them so we can react on selection changes
-        ret.setData(0, Qt.UserRole, manipulator)
+        ret.setData(0, Qt.UserRole, manipulator.widget.getNamePath())
         manipulator.treeWidgetItem = ret
         
         if recursive:
@@ -136,7 +142,10 @@ class HierarchyDockWidget(QDockWidget):
         self.visual.scene.clearSelection()
         
         for item in allItems:
-            manipulator = item.data(0, Qt.UserRole)
+            manipulatorPath = item.data(0, Qt.UserRole)
+            manipulator = None
+            if manipulatorPath is not None:
+                manipulator = self.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
             
             if manipulator is not None:
                 for selected in selection:

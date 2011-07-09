@@ -17,7 +17,6 @@
 ################################################################################
 
 import commands
-import copy
 
 import widgethelpers
 import PyCEGUI
@@ -445,3 +444,77 @@ class VerticalAlignCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             
         super(VerticalAlignCommand, self).redo()
+
+class ReparentCommand(commands.UndoCommand):
+    """This command changes parent of given windows
+    """
+    
+    def __init__(self, visual, widgetPaths, oldParentPaths, newParentPath):
+        super(ReparentCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.widgetPaths = widgetPaths
+        self.oldParentPaths = oldParentPaths
+        self.newParentPath = newParentPath
+    
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Changed parent of '%s' to '%s'" % (self.widgetPaths[0], self.newParentPath))
+        else:
+            self.setText("Changed parent of %i widgets to '%s'" % (len(self.widgetPaths), self.newParentPath))
+                
+    def id(self):
+        return idbase + 8
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+        
+    def undo(self):
+        super(ReparentCommand, self).undo()
+        
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            oldParentManipulator = self.visual.scene.getWidgetManipulatorByPath(self.oldParentPaths[widgetPath])
+            
+            # remove it from the current CEGUI parent widget
+            ceguiParentWidget = widgetManipulator.widget.getParent()
+            if ceguiParentWidget is not None:
+                ceguiParentWidget.removeChild(widgetManipulator.widget)
+            # add it to the old CEGUI parent widget
+            ceguiOldParentWidget = oldParentManipulator.widget
+            ceguiOldParentWidget.addChild(widgetManipulator.widget)
+            
+            # and sort out the manipulators
+            widgetManipulator.setParentItem(oldParentManipulator)
+            
+            # update sizes since relative sizes can alter these when the parent's size changes
+            widgetManipulator.updateFromWidget()
+            
+    def redo(self):
+        for widgetPath in self.widgetPaths:
+            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            newParentManipulator = self.visual.scene.getWidgetManipulatorByPath(self.newParentPath)
+            
+            # remove it from the current CEGUI parent widget
+            ceguiParentWidget = widgetManipulator.widget.getParent()
+            if ceguiParentWidget is not None:
+                ceguiParentWidget.removeChild(widgetManipulator.widget)
+            # add it to the new CEGUI parent widget
+            ceguiNewParentWidget = newParentManipulator.widget
+            ceguiNewParentWidget.addChild(widgetManipulator.widget)
+            
+            # and sort out the manipulators
+            widgetManipulator.setParentItem(newParentManipulator)
+            
+            # update sizes since relative sizes can alter these when the parent's size changes
+            widgetManipulator.updateFromWidget()
+            
+        super(ReparentCommand, self).redo()
