@@ -32,6 +32,7 @@ import cegui
 import filesystembrowser
 
 import editors
+import help
 import about
 
 class MainWindow(QMainWindow):

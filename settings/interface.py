@@ -97,45 +97,55 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         return ret
     
     def createUIForEntry(self, entry):
+        widget = None
+        
         if entry.widgetHint == "string":
-            ret = QLineEdit()
-            ret.setText(entry.value)
-            ret.setToolTip(entry.help)
-            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
-            
-            return ret
+            widget = QLineEdit()
+            widget.setText(entry.value)
+            widget.setToolTip(entry.help)
+            widget.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
         
         elif entry.widgetHint == "int":
-            ret = QLineEdit()
-            ret.setText(str(entry.value))
-            ret.setToolTip(entry.help)
-            ret.textEdited.connect(lambda text: setattr(entry, "editedValue", int(text)))
-            
-            return ret
+            widget = QLineEdit()
+            widget.setText(str(entry.value))
+            widget.setToolTip(entry.help)
+            widget.textChanged.connect(lambda text: setattr(entry, "editedValue", int(text)))
+            widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
             
         elif entry.widgetHint == "colour":
-            ret = qtwidgets.ColourButton()
-            ret.colour = entry.value
-            ret.setToolTip(entry.help)
-            ret.colourChanged.connect(lambda colour: setattr(entry, "editedValue", colour))
-            
-            return ret
+            widget = qtwidgets.ColourButton()
+            widget.colour = entry.value
+            widget.setToolTip(entry.help)
+            widget.colourChanged.connect(lambda colour: setattr(entry, "editedValue", colour))
+            widget.slot_resetToDefault = lambda: setattr(widget, "colour", entry.defaultValue)
         
         elif entry.widgetHint == "pen":
-            ret = qtwidgets.PenButton()
-            ret.pen = entry.value
-            ret.setToolTip(entry.help)
-            ret.penChanged.connect(lambda pen: setattr(entry, "editedValue", pen))
-            
-            return ret
+            widget = qtwidgets.PenButton()
+            widget.pen = entry.value
+            widget.setToolTip(entry.help)
+            widget.penChanged.connect(lambda pen: setattr(entry, "editedValue", pen))
+            widget.slot_resetToDefault = lambda: setattr(widget, "pen", entry.defaultValue)
         
         elif entry.widgetHint == "keySequence":
-            ret = qtwidgets.KeySequenceButton()
-            ret.keySequence = entry.value
-            ret.setToolTip(entry.help)
-            ret.keySequenceChanged.connect(lambda keySequence: setattr(entry, "editedValue", keySequence))
-            
-            return ret
+            widget = qtwidgets.KeySequenceButton()
+            widget.keySequence = entry.value
+            widget.setToolTip(entry.help)
+            widget.keySequenceChanged.connect(lambda keySequence: setattr(entry, "editedValue", keySequence))
+            widget.slot_resetToDefault = lambda: setattr(widget, "keySequence", entry.defaultValue)
+
+        if widget is None:
+            raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
+
+        ret = QHBoxLayout()
+        ret.addWidget(widget)
+        
+        resetToDefault = QPushButton()
+        resetToDefault.setIcon(QIcon("icons/settings/reset_entry_to_default.png"))
+        resetToDefault.setToolTip("Reset this settings entry to the default value")
+        ret.addWidget(resetToDefault)
+        resetToDefault.clicked.connect(widget.slot_resetToDefault)
+        
+        return ret
         
     def slot_buttonBoxClicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
