@@ -148,12 +148,16 @@ class MainWindow(QMainWindow):
         self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
         self.editMenu.addAction(self.undoAction)
+        self.globalToolbar.addAction(self.undoAction)
         self.connectionGroup.add(self.undoAction, receiver = self.slot_undo)
 
         self.redoAction = self.actionManager.getAction("all_editors/redo")
         self.redoAction.setEnabled(False)
         self.editMenu.addAction(self.redoAction)
+        self.globalToolbar.addAction(self.redoAction)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
+        
+        self.globalToolbar.addSeparator()
         
         self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
         # when this starts up, no project is opened, hence you can't view/edit settings of the current project
