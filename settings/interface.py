@@ -61,13 +61,18 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.layout.addWidget(self.buttonBox)
         
     def createUIForCategory(self, category):
-        ret = QWidget()
-        layout = QVBoxLayout()
+        ret = QScrollArea()
+        outerLayout = QVBoxLayout()
+        inner = QWidget()
+        layout = QFormLayout()
         
         for section in category.sections:
             layout.addWidget(self.createUIForSection(section))
         
-        ret.setLayout(layout)
+        inner.setLayout(layout)
+        ret.setWidget(inner)
+        outerLayout.addWidget(inner)
+        ret.setLayout(outerLayout)
         
         return ret
     
@@ -87,6 +92,8 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         layout.addWidget(entries)
         ret.setLayout(layout)
         
+        # FIXME: The group box shrinks vertically for some reason
+        ret.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         return ret
     
     def createUIForEntry(self, entry):
