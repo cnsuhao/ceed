@@ -16,46 +16,44 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtWebKit import QWebView
+from PySide.QtCore import QUrl
+from PySide.QtWebKit import QWebView, QWebSettings
 
 import declaration
-import web
 
-class FlashWebView(QWebView):
-    def __init__(self, url):
-        super(FlashWebView, self).__init__()
-        
-        padding = 10
-        self.resize(1080 + 2 * padding, 720 + 2 * padding)
-        
-        html = """
-        <html>
-            <body>
-                <embed type="application/x-shockwave-flash" src="%s" width="1080" height="720"
-                       allowscriptaccess="always" allowfullscreen="true" bgcolor="#000000">
-                </embed>
-            </body>
-        </html>
-        """ % (url)
-        
-        self.setHtml(html)
+initialised = False
 
-class YoutubeVideoHelpSource(declaration.HelpSource):
+def ensureInitialised():
+    global initialised
+    
+    if not initialised:
+        # FIXME: Is this needed?
+        #QNetworkProxyFactory::setUseSystemConfiguration (true);
+        
+        # this definitely is needed
+        QWebSettings.globalSettings().setAttribute(QWebSettings.PluginsEnabled, True)
+        QWebSettings.globalSettings().setAttribute(QWebSettings.AutoLoadImages, True)
+        
+        initialised = True
+
+class WebHelpSource(declaration.HelpSource):
     """A help source consisting of a video (it plays a video and allows the user
     to move the window or even close it, it's not modal).
     """
     
-    def __init__(self, title, youtubeId):
+    def __init__(self, title, url):
         self.title = title
-        self.youtubeId = youtubeId
+        self.url = url
         
     def execute(self):
-        web.ensureInitialised()
+        ensureInitialised()
         
-        # this essentially makes sure that only one flash view of this help source is displayed at a time
+        # this essentially makes sure that only one view of this help source is displayed at a time
         # if this is executed for the second time the reference to the first viewer is lost, it's decrefed and destroyed
         # FIXME: We should not rely on garbage collection to do logic for us!
-        self.viewer = FlashWebView("http://www.youtube.com/v/%s" % (self.youtubeId))
+        self.viewer = QWebView()
+        self.viewer.load(QUrl(self.url))
         self.viewer.setWindowTitle(self.title)
+        self.viewer.resize(1080, 720)
         self.viewer.show()
         
