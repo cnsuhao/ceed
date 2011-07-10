@@ -34,25 +34,12 @@ import PyCEGUI
 
 from xml.etree import ElementTree
 
-class LayoutRegistryEntry(editors.shared.SharedRegistryEntry):
-    def __init__(self):
-        super(LayoutRegistryEntry, self).__init__()
-        
-        print "Registry created!"
-        
-    def activateFor(self, editor):
-        pass
-    
-    def deactivateFor(self, editor):
-        pass
-
-class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor, editors.shared.SharingMixin):
+class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """Binds all layout editing functionality together
     """
     
     def __init__(self, filePath):
-        editors.mixed.MixedTabbedEditor.__init__(self, compatibility.layout.Manager.instance, filePath)
-        editors.shared.SharingMixin.__init__(self)
+        super(LayoutTabbedEditor, self).__init__(compatibility.layout.Manager.instance, filePath)
         
         self.requiresProject = True
         
@@ -66,9 +53,6 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor, editors.shared.Sharing
         self.addTab(self.previewer, "Live Preview")
         
         self.tabWidget = self
-    
-    def createSharedRegistryEntry(self):
-        return LayoutRegistryEntry()
     
     def initialise(self, mainWindow):
         super(LayoutTabbedEditor, self).initialise(mainWindow)
@@ -89,7 +73,6 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor, editors.shared.Sharing
     
     def activate(self):
         super(LayoutTabbedEditor, self).activate()
-        self.activateSharedRegistryEntry()
         
         self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
         self.visual.hierarchyDockWidget.setVisible(True)
@@ -106,7 +89,6 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor, editors.shared.Sharing
         self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
         
-        self.deactivateSharedRegistryEntry()
         super(LayoutTabbedEditor, self).deactivate()
         
     def saveAs(self, targetPath, updateCurrentPath = True):

@@ -26,8 +26,8 @@
 # the interface) and have that persist when switching to another editor of the
 # same type or even when shutting CEED down and starting it up again
 
-# NOTE: This is just experimental code that is not used anywhere (it is used in layout
-#       editing but doesn't actually do anything)
+# NOTE: This is just experimental code that is not used anywhere and I am not 
+#       sure if it ever will be used anywhere (for it's original purpose)
 
 class SharedRegistryEntry(object):
     def __init__(self):
