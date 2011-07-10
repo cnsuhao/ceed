@@ -123,11 +123,43 @@ class ActionManager(declaration.ActionManager):
                              defaultShortcut = QKeySequence(QKeySequence.Quit))
 
         project_management = self.createCategory(name = "project_management", label = "Project Management")
+        project_management.createAction(name = "new_project", label = "New project",
+                                        help = "Creates a new project from scratch. Only one project can be opened at a time so you will be asked to close your current project if any.",
+                                        icon = QIcon("icons/actions/new_project.png"))
+        project_management.createAction(name = "open_project", label = "Open project",
+                                        help = "Opens a pre-existing project file. Only one project can be opened at a time so you will be asked to close your current project if any.",
+                                        icon = QIcon("icons/actions/open_project.png"))
+        project_management.createAction(name = "save_project", label = "Save project",
+                                        help = "Saves currently opened project file to the same location from where it was opened.",
+                                        icon = QIcon("icons/actions/save_project.png"))
+        project_management.createAction(name = "close_project", label = "Close project",
+                                        help = "Closes currently opened project file.",
+                                        icon = QIcon("icons/actions/close_project.png"))
         project_management.createAction(name = "project_settings", label = "Project settings",
                                         help = "Displays and allows changes of the project settings (of the currently opened project).",
                                         icon = QIcon("icons/actions/project_settings.png"))
 
         all_editors = self.createCategory(name = "all_editors", label = "All Editors")
+        all_editors.createAction(name = "new_file", label = "New file",
+                                 help = "Creates a new empty file of any type.",
+                                 icon = QIcon("icons/actions/new_file.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.New))
+        all_editors.createAction(name = "open_file", label = "Open file",
+                                 help = "Opens a pre-existing file from any location (if the file is already opened the tab with it will be switched to).",
+                                 icon = QIcon("icons/actions/open_file.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Open))
+        all_editors.createAction(name = "save_file", label = "Save file",
+                                 help = "Saves currently opened (and active - currently edited) file to its original location.",
+                                 icon = QIcon("icons/actions/save.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Save))
+        all_editors.createAction(name = "save_all_files", label = "Save all files",
+                                 help = "Saves all currently opened files to their original location.",
+                                 icon = QIcon("icons/actions/save_all.png"),
+                                 defaultShortcut = QKeySequence())
+        all_editors.createAction(name = "close_current_tab", label = "Close current tab",
+                                 help = "Closes currently active (and switched to) tab - asks for confirmation if there are unsaved changes.",
+                                 icon = QIcon("icons/actions/close.png"),
+                                 defaultShortcut = QKeySequence())
         all_editors.createAction(name = "undo", label = "Undo",
                                  help = "Undoes the last operation (in the currently active tabbed editor)",
                                  icon = QIcon("icons/actions/undo.png"),

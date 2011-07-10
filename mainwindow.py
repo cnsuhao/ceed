@@ -130,20 +130,35 @@ class MainWindow(QMainWindow):
         self.fileMenu = self.findChild(QMenu, "menuFile")
         self.editMenu = self.findChild(QMenu, "menuEdit")
         
-        self.newFileAction = self.findChild(QAction, "actionNewFile")
-        self.newFileAction.triggered.connect(self.slot_newFileDialog)
+        self.newFileAction = self.actionManager.getAction("all_editors/new_file")
+        self.fileMenu.addAction(self.newFileAction)
+        self.globalToolbar.addAction(self.newFileAction)
+        self.connectionGroup.add(self.newFileAction, receiver = self.slot_newFileDialog)
         
-        self.openFileAction = self.findChild(QAction, "actionOpenFile")
-        self.openFileAction.triggered.connect(self.slot_openFileDialog)
+        self.openFileAction = self.actionManager.getAction("all_editors/open_file")
+        self.fileMenu.addAction(self.openFileAction)
+        self.globalToolbar.addAction(self.openFileAction)
+        self.connectionGroup.add(self.openFileAction, receiver = self.slot_openFileDialog)
         
-        self.saveAction = self.findChild(QAction, "actionSave")
-        self.saveAction.triggered.connect(self.slot_save)
+        self.saveAction = self.actionManager.getAction("all_editors/save_file")
         self.saveAction.setEnabled(False)
-        self.saveAllAction = self.findChild(QAction, "actionSaveAll")
-        self.saveAllAction.triggered.connect(self.slot_saveAll)
+        self.fileMenu.addAction(self.saveAction)
+        self.globalToolbar.addAction(self.saveAction)
+        self.connectionGroup.add(self.saveAction, receiver = self.slot_save)
+        
+        self.saveAllAction = self.actionManager.getAction("all_editors/save_all_files")
         self.saveAllAction.setEnabled(False)
-        self.closeAction = self.findChild(QAction, "actionClose")
+        self.fileMenu.addAction(self.saveAllAction)
+        self.globalToolbar.addAction(self.saveAllAction)
+        self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
+        
+        self.closeAction = self.actionManager.getAction("all_editors/close_current_tab")
         self.closeAction.setEnabled(False)
+        self.fileMenu.addAction(self.closeAction)
+        self.connectionGroup.add(self.closeAction, receiver = self.slot_closeTab)
+
+        self.fileMenu.addSeparator()        
+        self.globalToolbar.addSeparator()
         
         self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
@@ -169,22 +184,27 @@ class MainWindow(QMainWindow):
         self.editMenu.addAction(self.actionManager.getAction("general/application_settings"))
         self.connectionGroup.add("general/application_settings", receiver = lambda: self.settingsInterface.show())
         
-        self.newProjectAction = self.findChild(QAction, "actionNewProject")
-        self.newProjectAction.triggered.connect(self.slot_newProject)
+        self.fileMenu.addAction(self.actionManager.getAction("project_management/new_project"))
+        self.connectionGroup.add("project_management/new_project", receiver = self.slot_newProject)
         
-        self.saveProjectAction = self.findChild(QAction, "actionSaveProject")
-        self.saveProjectAction.triggered.connect(self.slot_saveProject)
+        self.fileMenu.addAction(self.actionManager.getAction("project_management/open_project"))
+        self.connectionGroup.add("project_management/open_project", receiver = self.slot_openProject)
+        
+        self.saveProjectAction = self.actionManager.getAction("project_management/save_project")
         # when this starts up, no project is opened, hence you can't save the "no project"
         self.saveProjectAction.setEnabled(False)
+        self.fileMenu.addAction(self.saveProjectAction)
+        self.globalToolbar.addAction(self.saveProjectAction)
+        self.connectionGroup.add(self.saveProjectAction, receiver = self.slot_saveProject)
         
-        self.openProjectAction = self.findChild(QAction, "actionOpenProject")
-        self.openProjectAction.triggered.connect(self.slot_openProject)
-        
-        self.closeProjectAction = self.findChild(QAction, "actionCloseProject")
-        self.closeProjectAction.triggered.connect(self.slot_closeProject)
+        self.closeProjectAction = self.actionManager.getAction("project_management/close_project")
+        self.fileMenu.addAction(self.closeProjectAction)
+        self.connectionGroup.add(self.closeProjectAction, receiver = self.slot_closeProject)
         # when this starts up, no project is opened, hence you can't close the current project
         self.closeProjectAction.setEnabled(False)
 
+        self.fileMenu.addSeparator()
+    
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         
         for i in range(self.maxRecentProjects):
