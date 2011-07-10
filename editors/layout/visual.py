@@ -32,14 +32,91 @@ import resizable
 
 import ui.editors.layout.propertiesdockwidget
 
-class WidgetHierarchyTreeWidget(QTreeWidget):
+class WidgetHierarchyItem(QStandardItem):
+    def __init__(self, manipulator):
+        super(WidgetHierarchyItem, self).__init__(manipulator.widget.getName())
+        
+        self.setFlags(Qt.ItemIsEnabled |
+                      Qt.ItemIsSelectable |
+                      Qt.ItemIsDropEnabled |
+                      Qt.ItemIsDragEnabled)
+        
+        self.setToolTip("type: %s" % (manipulator.widget.getType()))
+        
+        # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
+        #       I have had weird segfaults when storing manipulator directly here, perhaps they
+        #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
+        #self.setData(0, Qt.UserRole, manipulator)
+        # interlink them so we can react on selection changes
+        self.setData(manipulator.widget.getNamePath(), Qt.UserRole)
+        manipulator.treeItem = self
+
+class WidgetHierarchyTreeModel(QStandardItemModel):
+    def __init__(self):
+        super(WidgetHierarchyTreeModel, self).__init__()
+        
+    def constructSubtree(self, manipulator):
+        ret = WidgetHierarchyItem(manipulator)
+        
+        for item in manipulator.childItems():
+            if isinstance(item, widgethelpers.Manipulator):
+                childSubtree = self.constructSubtree(item)
+                ret.appendRow(childSubtree)
+        
+        return ret
+        
+    def setRootManipulator(self, rootManipulator):
+        self.clear()
+        self.appendRow(self.constructSubtree(rootManipulator))
+
+class WidgetHierarchyTreeView(QTreeView):
     """The actual widget hierarchy tree widget - what a horrible name
     This is a Qt widget that does exactly the same as QTreeWidget for now,
     it is a placeholder that will be put to use once the need arises - and it will.
     """
     
     def __init__(self, parent = None):
-        super(WidgetHierarchyTreeWidget, self).__init__(parent)
+        super(WidgetHierarchyTreeView, self).__init__(parent)
+        
+        self.dockWidget = None
+    
+    def selectionChanged(self, selected, deselected):
+        """Synchronizes tree selection with scene selection.
+        """
+        
+        super(WidgetHierarchyTreeView, self).selectionChanged(selected, deselected)
+
+        # we are running synchronization the other way, this prevents infinite loops and recursion
+        if self.dockWidget.ignoreSelectionChanges:
+            return
+        
+        self.dockWidget.visual.scene.ignoreSelectionChanges = True
+        
+        for index in selected.indexes():
+            item = self.model().itemFromIndex(index)
+            
+            if isinstance(item, WidgetHierarchyItem):
+                manipulatorPath = item.data(Qt.UserRole)
+                manipulator = None
+                if manipulatorPath is not None:
+                    manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
+                
+                if manipulator is not None:
+                    manipulator.setSelected(True)
+                    
+        for index in deselected.indexes():
+            item = self.model().itemFromIndex(index)
+
+            if isinstance(item, WidgetHierarchyItem):
+                manipulatorPath = item.data(Qt.UserRole)
+                manipulator = None
+                if manipulatorPath is not None:
+                    manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
+                
+                if manipulator is not None:
+                    manipulator.setSelected(False)
+        
+        self.dockWidget.visual.scene.ignoreSelectionChanges = False
 
 class HierarchyDockWidget(QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
@@ -52,36 +129,15 @@ class HierarchyDockWidget(QDockWidget):
         
         self.ui = ui.editors.layout.hierarchydockwidget.Ui_HierarchyDockWidget()
         self.ui.setupUi(self)
-        
-        self.tree = self.findChild(WidgetHierarchyTreeWidget, "tree")
+                
         self.ignoreSelectionChanges = False
-        self.tree.itemSelectionChanged.connect(self.slot_itemSelectionChanged)
+
+        self.model = WidgetHierarchyTreeModel()
+        self.treeView = self.findChild(WidgetHierarchyTreeView, "treeView")
+        self.treeView.dockWidget = self
+        self.treeView.setModel(self.model)
         
         self.rootWidgetManipulator = None
-        
-    def getTreeItemForManipulator(self, manipulator, recursive = True):
-        ret = QTreeWidgetItem([manipulator.widget.getName(), manipulator.widget.getType()])
-        ret.setFlags(Qt.ItemIsEnabled |
-                     Qt.ItemIsSelectable |
-                     Qt.ItemIsDropEnabled |
-                     Qt.ItemIsDragEnabled)
-        
-        # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
-        #       I have had weird segfaults when storing manipulator directly here, perhaps they
-        #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
-        #ret.setData(0, Qt.UserRole, manipulator)
-                
-        # interlink them so we can react on selection changes
-        ret.setData(0, Qt.UserRole, manipulator.widget.getNamePath())
-        manipulator.treeWidgetItem = ret
-        
-        if recursive:
-            for item in manipulator.childItems():
-                if isinstance(item, widgethelpers.Manipulator):
-                    childItem = self.getTreeItemForManipulator(item)
-                    ret.addChild(childItem)
-                
-        return ret
         
     def setRootWidgetManipulator(self, root):
         """Sets the widget manipulator that is at the root of our observed hierarchy.
@@ -89,12 +145,8 @@ class HierarchyDockWidget(QDockWidget):
         """
         
         self.rootWidgetManipulator = root
-        
-        self.tree.clear()
-        if root is not None:
-            rootWidgetItem = self.getTreeItemForManipulator(root)
-            self.tree.addTopLevelItem(rootWidgetItem)
-            self.tree.expandAll()
+        self.model.setRootManipulator(root)
+        self.treeView.expandAll()
         
     def refresh(self):
         """Refreshes the entire hierarchy completely from scratch"""
@@ -109,51 +161,6 @@ class HierarchyDockWidget(QDockWidget):
                 return True
         
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)  
-
-    def slot_itemSelectionChanged(self):
-        """Synchronizes tree selection with scene selection.
-        """
-        # todo: This method is really inefficient
-        
-        # we are running synchronization the other way, this prevents infinite loops and recursion
-        if self.ignoreSelectionChanges:
-            return
-        
-        def collectTreeWidgetItems(root):
-            """Recursively collects all tree items"""
-            
-            # AFAIK there is no better way to do this than this abomination, I would
-            # love to be proven wrong!
-            
-            ret = []
-            ret.append(root)
-            
-            i = 0
-            while i < root.childCount():
-                ret.extend(collectTreeWidgetItems(root.child(i)))
-                i += 1
-            
-            return ret
-    
-        allItems = collectTreeWidgetItems(self.tree.invisibleRootItem())
-        selection = self.tree.selectedItems()
-        
-        self.visual.scene.ignoreSelectionChanges = True
-        self.visual.scene.clearSelection()
-        
-        for item in allItems:
-            manipulatorPath = item.data(0, Qt.UserRole)
-            manipulator = None
-            if manipulatorPath is not None:
-                manipulator = self.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
-            
-            if manipulator is not None:
-                for selected in selection:
-                    if item is selected:
-                        manipulator.setSelected(True)
-                        break
-        
-        self.visual.scene.ignoreSelectionChanges = False
 
 class PropertiesDockWidget(QDockWidget):
     """Lists and allows editing of properties of the selected widget(s). Uses the PropertySetInspector machinery.
@@ -418,26 +425,26 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             
             if isinstance(item, widgethelpers.Manipulator):
                 wdt = item.widget
-                
+            
             elif isinstance(item, resizable.ResizingHandle):
                 if isinstance(item.parentResizable, widgethelpers.Manipulator):
                     wdt = item.parentResizable.widget
-                    
+            
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
-            
+        
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
         
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
             
-            self.visual.hierarchyDockWidget.tree.clearSelection()
+            self.visual.hierarchyDockWidget.treeView.clearSelection()
             for item in selection:
                 if isinstance(item, widgethelpers.Manipulator):
-                    if hasattr(item, "treeWidgetItem") and item.treeWidgetItem is not None:
-                        item.treeWidgetItem.setSelected(True)
-        
+                    if hasattr(item, "treeItem") and item.treeItem is not None:
+                        self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QItemSelectionModel.Select)
+            
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
         
     def mouseReleaseEvent(self, event):
