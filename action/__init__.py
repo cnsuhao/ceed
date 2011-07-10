@@ -158,7 +158,15 @@ class ActionManager(declaration.ActionManager):
                                  defaultShortcut = QKeySequence())
         all_editors.createAction(name = "close_current_tab", label = "Close current tab",
                                  help = "Closes currently active (and switched to) tab - asks for confirmation if there are unsaved changes.",
-                                 icon = QIcon("icons/actions/close.png"),
+                                 icon = QIcon("icons/actions/close_tab.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Close))
+        all_editors.createAction(name = "close_other_tabs", label = "Close other tabs",
+                                 help = "Closes all tabs except the one that is currently active - asks for confirmation if there are unsaved changes.",
+                                 icon = QIcon("icons/actions/close_other_tabs.png"),
+                                 defaultShortcut = QKeySequence())
+        all_editors.createAction(name = "close_all_tabs", label = "Close all tabs",
+                                 help = "Closes all tabs - asks for confirmation if there are unsaved changes.",
+                                 icon = QIcon("icons/actions/close_all_tabs.png"),
                                  defaultShortcut = QKeySequence())
         all_editors.createAction(name = "undo", label = "Undo",
                                  help = "Undoes the last operation (in the currently active tabbed editor)",

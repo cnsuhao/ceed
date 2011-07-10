@@ -152,10 +152,24 @@ class MainWindow(QMainWindow):
         self.globalToolbar.addAction(self.saveAllAction)
         self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
         
-        self.closeAction = self.actionManager.getAction("all_editors/close_current_tab")
-        self.closeAction.setEnabled(False)
-        self.fileMenu.addAction(self.closeAction)
-        self.connectionGroup.add(self.closeAction, receiver = self.slot_closeTab)
+        self.fileMenu.addSeparator()
+        
+        # tab bar context menu (but also added to the file menu so it's easy to discover)
+        self.closeTabAction = self.actionManager.getAction("all_editors/close_current_tab")
+        self.closeTabAction.setEnabled(False)
+        self.fileMenu.addAction(self.closeTabAction)
+        self.connectionGroup.add(self.closeTabAction, receiver = self.slot_closeTab)
+
+        self.closeOtherTabsAction = self.actionManager.getAction("all_editors/close_other_tabs")
+        self.closeOtherTabsAction.setEnabled(False)
+        self.fileMenu.addAction(self.closeOtherTabsAction)
+        self.connectionGroup.add(self.closeOtherTabsAction, receiver = self.slot_closeOtherTabs)
+
+        self.closeAllTabsAction = self.actionManager.getAction("all_editors/close_all_tabs")
+        self.closeAllTabsAction.setEnabled(False)
+        self.fileMenu.addAction(self.closeAllTabsAction)
+        self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
+        # end of tab bar context menu
 
         self.fileMenu.addSeparator()        
         self.globalToolbar.addSeparator()
@@ -220,16 +234,6 @@ class MainWindow(QMainWindow):
         
         self.connectionGroup.add("general/quit", receiver = self.slot_quit)
         self.fileMenu.addAction(self.actionManager.getAction("general/quit"))
-        
-        # tab bar context menu
-        self.closeTabAction = self.findChild(QAction, "actionCloseTab")
-        self.closeTabAction.setEnabled(False)
-        self.closeTabAction.triggered.connect(self.slot_closeTab)
-        self.closeOtherTabsAction = self.findChild(QAction, "actionCloseOtherTabs")
-        self.closeOtherTabsAction.setEnabled(False)
-        self.closeOtherTabsAction.triggered.connect(self.slot_closeOtherTabs)
-        self.closeAllTabsAction = self.findChild(QAction, "actionCloseAllTabs")
-        self.closeAllTabsAction.triggered.connect(self.slot_closeAllTabs)
         
         self.connectionGroup.connectAll()
         
@@ -550,7 +554,6 @@ class MainWindow(QMainWindow):
         if wdt:
             self.saveAction.setEnabled(True)
             self.saveAllAction.setEnabled(True)
-            self.closeAction.setEnabled(True)
             
             self.closeTabAction.setEnabled(True)
             self.closeOtherTabsAction.setEnabled(True)
@@ -560,7 +563,6 @@ class MainWindow(QMainWindow):
             # None is selected right now, lets disable Save and Close actions
             self.saveAction.setEnabled(False)
             self.saveAllAction.setEnabled(False)
-            self.closeAction.setEnabled(False)
             
             self.closeTabAction.setEnabled(False)
             self.closeOtherTabsAction.setEnabled(False)
