@@ -10,9 +10,14 @@ syntax: glob
 *.so
 *.dll
 dependencies/
+datafiles/
 build/
 xcuserdata/
 *.xcworkspace/
 *.pyc
 .project
 .pydevproject
+*.directory
+*.kdev4
+CEGUI.log
+ui/**.py
