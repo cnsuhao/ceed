@@ -34,26 +34,54 @@ import ui.editors.layout.propertiesdockwidget
 
 class WidgetHierarchyItem(QStandardItem):
     def __init__(self, manipulator):
-        super(WidgetHierarchyItem, self).__init__(manipulator.widget.getName())
+        self.manipulator = manipulator
+        
+        if manipulator is not None:
+            super(WidgetHierarchyItem, self).__init__(manipulator.widget.getName())
+            
+            self.setToolTip("type: %s" % (manipulator.widget.getType()))
+            
+            # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
+            #       I have had weird segfaults when storing manipulator directly here, perhaps they
+            #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
+            #self.setData(0, Qt.UserRole, manipulator)
+            # interlink them so we can react on selection changes
+            self.setData(manipulator.widget.getNamePath(), Qt.UserRole)
+            manipulator.treeItem = self
+        
+        else:
+            super(WidgetHierarchyItem, self).__init__("<No widget>")
         
         self.setFlags(Qt.ItemIsEnabled |
                       Qt.ItemIsSelectable |
                       Qt.ItemIsDropEnabled |
                       Qt.ItemIsDragEnabled)
         
-        self.setToolTip("type: %s" % (manipulator.widget.getType()))
+    def clone(self):
+        ret = WidgetHierarchyItem(self.manipulator)
         
-        # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
-        #       I have had weird segfaults when storing manipulator directly here, perhaps they
-        #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
-        #self.setData(0, Qt.UserRole, manipulator)
-        # interlink them so we can react on selection changes
-        self.setData(manipulator.widget.getNamePath(), Qt.UserRole)
-        manipulator.treeItem = self
+        # PySide bug: PySide doesn't take ownership so we have to hack this around like this :-(
+        #             hopefully this gets fixed.
+        #
+        #             NASTY NASTY NASTY
+        #
+        # TODO: This means that whenever you move project items around, you create leaks that exist
+        #       for the entire time of execution of the app!
+        # UPDATE: This got fixed in 1.0.3
+        #         I will leave the workaround in place until that is the version in Ubuntu stable
+        
+        if hasattr(self, "returnedClones"):
+            self.returnedClones.append(ret)
+        else:
+            self.returnedClones = [ret]
+        
+        return ret
 
 class WidgetHierarchyTreeModel(QStandardItemModel):
     def __init__(self):
         super(WidgetHierarchyTreeModel, self).__init__()
+        
+        self.setItemPrototype(WidgetHierarchyItem(None))
         
     def constructSubtree(self, manipulator):
         ret = WidgetHierarchyItem(manipulator)
@@ -68,6 +96,17 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
     def setRootManipulator(self, rootManipulator):
         self.clear()
         self.appendRow(self.constructSubtree(rootManipulator))
+
+    def dropMimeData(self, data, action, row, column, parent):
+        """
+        itemData = data.data("application/x-qstandarditemmodeldatalist")
+        print "data: ", itemData
+        print "action: ", action
+        print "row: ", row
+        print "column: ", column
+        print "parent: ", parent
+        """
+        return super(WidgetHierarchyTreeModel, self).dropMimeData(data, action, row, column, parent)
 
 class WidgetHierarchyTreeView(QTreeView):
     """The actual widget hierarchy tree widget - what a horrible name

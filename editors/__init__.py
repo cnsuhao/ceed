@@ -457,6 +457,7 @@ import settings
 
 # make all the submodules visible
 import mixed
+import shared
 
 import bitmap
 import imageset

@@ -177,3 +177,7 @@ class ActionManager(declaration.ActionManager):
                                  icon = QIcon("icons/actions/redo.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Redo))
         
+        # Layout editor
+        import editors.layout.action_decl as layout_actions
+        layout_actions.declare(self)
+        

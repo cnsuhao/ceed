@@ -34,12 +34,25 @@ import PyCEGUI
 
 from xml.etree import ElementTree
 
-class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
+class LayoutRegistryEntry(editors.shared.SharedRegistryEntry):
+    def __init__(self):
+        super(LayoutRegistryEntry, self).__init__()
+        
+        print "Registry created!"
+        
+    def activateFor(self, editor):
+        pass
+    
+    def deactivateFor(self, editor):
+        pass
+
+class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor, editors.shared.SharingMixin):
     """Binds all layout editing functionality together
     """
     
     def __init__(self, filePath):
-        super(LayoutTabbedEditor, self).__init__(compatibility.layout.Manager.instance, filePath)
+        editors.mixed.MixedTabbedEditor.__init__(self, compatibility.layout.Manager.instance, filePath)
+        editors.shared.SharingMixin.__init__(self)
         
         self.requiresProject = True
         
@@ -53,6 +66,9 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.addTab(self.previewer, "Live Preview")
         
         self.tabWidget = self
+    
+    def createSharedRegistryEntry(self):
+        return LayoutRegistryEntry()
     
     def initialise(self, mainWindow):
         super(LayoutTabbedEditor, self).initialise(mainWindow)
@@ -73,6 +89,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     
     def activate(self):
         super(LayoutTabbedEditor, self).activate()
+        self.activateSharedRegistryEntry()
         
         self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
         self.visual.hierarchyDockWidget.setVisible(True)
@@ -89,6 +106,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
         
+        self.deactivateSharedRegistryEntry()
         super(LayoutTabbedEditor, self).deactivate()
         
     def saveAs(self, targetPath, updateCurrentPath = True):

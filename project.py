@@ -97,6 +97,8 @@ class Item(QStandardItem):
         #
         # TODO: This means that whenever you move project items around, you create leaks that exist
         #       for the entire time of execution of the app!
+        # UPDATE: This got fixed in 1.0.3
+        #         I will leave the workaround in place until that is the version in Ubuntu stable
         
         if hasattr(self, "returnedClones"):
             self.returnedClones.append(ret)
