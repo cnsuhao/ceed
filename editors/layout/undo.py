@@ -449,28 +449,27 @@ class ReparentCommand(commands.UndoCommand):
     """This command changes parent of given windows
     """
     
-    def __init__(self, visual, widgetPaths, oldParentPaths, newParentPath):
+    def __init__(self, visual, oldWidgetPaths, newWidgetPaths):
         super(ReparentCommand, self).__init__()
         
         self.visual = visual
         
-        self.widgetPaths = widgetPaths
-        self.oldParentPaths = oldParentPaths
-        self.newParentPath = newParentPath
-    
+        self.oldWidgetPaths = oldWidgetPaths
+        self.newWidgetPaths = newWidgetPaths
+            
         self.refreshText()
     
     def refreshText(self):            
-        if len(self.widgetPaths) == 1:
-            self.setText("Changed parent of '%s' to '%s'" % (self.widgetPaths[0], self.newParentPath))
+        if len(self.oldWidgetPaths) == 1:
+            self.setText("Reparented '%s' to '%s'" % (self.oldWidgetPaths[0], self.newWidgetPaths[0]))
         else:
-            self.setText("Changed parent of %i widgets to '%s'" % (len(self.widgetPaths), self.newParentPath))
-                
+            self.setText("Reparented %i widgets'" % (len(self.oldWidgetPaths)))
+    
     def id(self):
         return idbase + 8
         
     def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
+        if self.oldWidgetPaths == cmd.oldWidgetPaths:
             # TODO
         
             pass
@@ -480,9 +479,17 @@ class ReparentCommand(commands.UndoCommand):
     def undo(self):
         super(ReparentCommand, self).undo()
         
-        for widgetPath in self.widgetPaths:
+        self.visual.scene.clearSelection()
+        self.visual.hierarchyDockWidget.treeView.clearSelection()
+        
+        i = 0
+        while i < len(self.newWidgetPaths):
+            widgetPath = self.newWidgetPaths[i]
+            oldWidgetPath = self.oldWidgetPaths[i]
+
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
-            oldParentManipulator = self.visual.scene.getWidgetManipulatorByPath(self.oldParentPaths[widgetPath])
+            oldParentPath = oldWidgetPath[0:oldWidgetPath.rfind("/")]
+            oldParentManipulator = self.visual.scene.getWidgetManipulatorByPath(oldParentPath)
             
             # remove it from the current CEGUI parent widget
             ceguiParentWidget = widgetManipulator.widget.getParent()
@@ -498,10 +505,22 @@ class ReparentCommand(commands.UndoCommand):
             # update sizes since relative sizes can alter these when the parent's size changes
             widgetManipulator.updateFromWidget()
             
+            i += 1
+            
+        self.visual.hierarchyDockWidget.refresh()
+            
     def redo(self):
-        for widgetPath in self.widgetPaths:
+        self.visual.scene.clearSelection()
+        self.visual.hierarchyDockWidget.treeView.clearSelection()
+        
+        i = 0
+        while i < len(self.oldWidgetPaths):
+            widgetPath = self.oldWidgetPaths[i]
+            newWidgetPath = self.newWidgetPaths[i]
+
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
-            newParentManipulator = self.visual.scene.getWidgetManipulatorByPath(self.newParentPath)
+            newParentPath = newWidgetPath[0:newWidgetPath.rfind("/")]
+            newParentManipulator = self.visual.scene.getWidgetManipulatorByPath(newParentPath)
             
             # remove it from the current CEGUI parent widget
             ceguiParentWidget = widgetManipulator.widget.getParent()
@@ -517,4 +536,7 @@ class ReparentCommand(commands.UndoCommand):
             # update sizes since relative sizes can alter these when the parent's size changes
             widgetManipulator.updateFromWidget()
             
+            i += 1
+        
+        self.visual.hierarchyDockWidget.refresh()    
         super(ReparentCommand, self).redo()

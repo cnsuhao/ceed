@@ -31,6 +31,7 @@ import widgethelpers
 import resizable
 
 import ui.editors.layout.propertiesdockwidget
+import cPickle
 
 class WidgetHierarchyItem(QStandardItem):
     def __init__(self, manipulator):
@@ -78,9 +79,10 @@ class WidgetHierarchyItem(QStandardItem):
         return ret
 
 class WidgetHierarchyTreeModel(QStandardItemModel):
-    def __init__(self):
+    def __init__(self, dockWidget):
         super(WidgetHierarchyTreeModel, self).__init__()
         
+        self.dockWidget = dockWidget
         self.setItemPrototype(WidgetHierarchyItem(None))
         
     def constructSubtree(self, manipulator):
@@ -97,16 +99,88 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         self.clear()
         self.appendRow(self.constructSubtree(rootManipulator))
 
+    def mimeData(self, indexes):
+        # if the selection contains children of something that is also selected, we don't include that
+        # (it doesn't make sense to move it anyways, it will be moved with its parent)
+        
+        def isChild(parent, potentialChild):
+            i = 0
+            # DFS, Qt doesn't have helper methods for this it seems to me :-/
+            while i < parent.rowCount():
+                child = parent.child(i)
+                
+                if child is potentialChild:
+                    return True
+                
+                if isChild(child, potentialChild):
+                    return True
+                
+            return False
+        
+        topItems = []
+        
+        for index in indexes:
+            item = self.itemFromIndex(index)
+            hasParent = False
+            
+            for parentIndex in indexes:
+                if parentIndex is index:
+                    continue
+                
+                potentialParent = self.itemFromIndex(parentIndex)
+                
+                if isChild(item, potentialParent):
+                    hasParent = True
+                    break
+                
+            if not hasParent:
+                topItems.append(item)
+                
+        data = []
+        for item in topItems:
+            data.append(item.data(Qt.UserRole))
+            
+        ret = QMimeData()
+        ret.setData("application/x-ceed-widget-paths", cPickle.dumps(data))
+        
+        return ret
+
+    def mimeTypes(self):
+        return ["application/x-ceed-widget-paths", "application/x-ceed-widget-type"]
+
     def dropMimeData(self, data, action, row, column, parent):
-        """
-        itemData = data.data("application/x-qstandarditemmodeldatalist")
-        print "data: ", itemData
-        print "action: ", action
-        print "row: ", row
-        print "column: ", column
-        print "parent: ", parent
-        """
-        return super(WidgetHierarchyTreeModel, self).dropMimeData(data, action, row, column, parent)
+        if data.hasFormat("application/x-ceed-widget-paths"):
+            # data.data(..).data() looks weird but is the correct thing!
+            widgetPaths = cPickle.loads(data.data("application/x-ceed-widget-paths").data())
+            targetWidgetPaths = []
+            newParent = self.itemFromIndex(parent)
+            
+            for widgetPath in widgetPaths:
+                widgetName = widgetPath[widgetPath.rfind("/") + 1:]
+                targetWidgetPaths.append(newParent.data(Qt.UserRole) + "/" + widgetName)
+                
+            if action == Qt.MoveAction:
+                cmd = undo.ReparentCommand(self.dockWidget.visual, widgetPaths, targetWidgetPaths)
+                # FIXME: unreadable
+                self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
+        
+                return True
+            
+            elif action == Qt.CopyAction:
+                # FIXME: TODO
+                return False
+            
+        elif data.hasFormat("application/x-ceed-widget-type"):
+            widgetType = data.data("application/x-ceed-widget-type").data()
+            parentItem = self.itemFromIndex(parent)
+            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItem.data(Qt.UserRole))
+            
+            cmd = undo.CreateCommand(self.dockWidget.visual, parentItem.data(Qt.UserRole), widgetType, parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
+            self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
+            
+            return True
+        
+        return False
 
 class WidgetHierarchyTreeView(QTreeView):
     """The actual widget hierarchy tree widget - what a horrible name
@@ -171,7 +245,7 @@ class HierarchyDockWidget(QDockWidget):
                 
         self.ignoreSelectionChanges = False
 
-        self.model = WidgetHierarchyTreeModel()
+        self.model = WidgetHierarchyTreeModel(self)
         self.treeView = self.findChild(WidgetHierarchyTreeView, "treeView")
         self.treeView.dockWidget = self
         self.treeView.setModel(self.model)
@@ -199,7 +273,7 @@ class HierarchyDockWidget(QDockWidget):
             if handled:
                 return True
         
-        return super(HierarchyDockWidget, self).keyReleaseEvent(event)  
+        return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
 class PropertiesDockWidget(QDockWidget):
     """Lists and allows editing of properties of the selected widget(s). Uses the PropertySetInspector machinery.
