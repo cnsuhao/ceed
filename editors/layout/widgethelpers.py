@@ -113,7 +113,7 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         return Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
 
     def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat("application/x-cegui-widget-type"):
+        if event.mimeData().hasFormat("application/x-ceed-widget-type"):
             event.acceptProposedAction()
             
             self.setPen(self.getDragAcceptableHintPen())
@@ -129,7 +129,7 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         (dragging from the CreateWidgetDockWidget)
         """
         
-        data = event.mimeData().data("application/x-cegui-widget-type")
+        data = event.mimeData().data("application/x-ceed-widget-type")
 
         if data:
             widgetType = data.data()

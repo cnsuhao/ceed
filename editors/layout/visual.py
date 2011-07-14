@@ -277,7 +277,7 @@ class WidgetTypeTreeWidget(QTreeWidget):
 
         mimeData = QMimeData()
         
-        mimeData.setData("application/x-cegui-widget-type", QByteArray(str(look + "/" + widgetType if look else widgetType)))
+        mimeData.setData("application/x-ceed-widget-type", QByteArray(str(look + "/" + widgetType if look else widgetType)))
 
         pixmap = QPixmap(75,40)
         painter = QPainter(pixmap)
