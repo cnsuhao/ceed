@@ -334,6 +334,33 @@ class TabbedEditor(object):
         
         return None
 
+    def performCopy(self):
+        """Performs copy of the editor's selection to the clipboard.
+        
+        Default implementation doesn't do anything.
+        
+        Returns: True if the operation was successful
+        """
+        pass
+    
+    def performCut(self):
+        """Performs cut of the editor's selection to the clipboard.
+        
+        Default implementation doesn't do anything.
+        
+        Returns: True if the operation was successful
+        """
+        pass
+    
+    def performPaste(self):
+        """Performs paste from the clipboard to the editor.
+        
+        Default implementation doesn't do anything
+        
+        Returns: True if the operation was successful
+        """
+        pass
+
 class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself

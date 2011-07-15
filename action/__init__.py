@@ -176,6 +176,18 @@ class ActionManager(declaration.ActionManager):
                                  help = "Redoes the last undone operation (in the currently active tabbed editor)",
                                  icon = QIcon("icons/actions/redo.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Redo))
+        all_editors.createAction(name = "copy", label = "Copy",
+                                 help = "Performs a clipboard copy",
+                                 icon = QIcon("icons/actions/copy.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Copy))
+        all_editors.createAction(name = "cut", label = "Cut",
+                                 help = "Performs a clipboard cut",
+                                 icon = QIcon("icons/actions/cut.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Cut))
+        all_editors.createAction(name = "paste", label = "Paste",
+                                 help = "Performs a clipboard paste",
+                                 icon = QIcon("icons/actions/paste.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Paste))
         
         # Layout editor
         import editors.layout.action_decl as layout_actions

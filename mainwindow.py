@@ -186,6 +186,25 @@ class MainWindow(QMainWindow):
         self.globalToolbar.addAction(self.redoAction)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
         
+        self.editMenu.addSeparator()
+        self.globalToolbar.addSeparator()
+        
+        self.cutAction = self.actionManager.getAction("all_editors/cut")
+        self.editMenu.addAction(self.cutAction)
+        self.globalToolbar.addAction(self.cutAction)
+        self.connectionGroup.add(self.cutAction, receiver = self.slot_cut)
+        
+        self.copyAction = self.actionManager.getAction("all_editors/copy")
+        self.editMenu.addAction(self.copyAction)
+        self.globalToolbar.addAction(self.copyAction)
+        self.connectionGroup.add(self.copyAction, receiver = self.slot_copy)
+        
+        self.pasteAction = self.actionManager.getAction("all_editors/paste")
+        self.editMenu.addAction(self.pasteAction)
+        self.globalToolbar.addAction(self.pasteAction)
+        self.connectionGroup.add(self.pasteAction, receiver = self.slot_paste)
+        
+        self.editMenu.addSeparator()
         self.globalToolbar.addSeparator()
         
         self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
@@ -655,6 +674,18 @@ class MainWindow(QMainWindow):
         if self.activeEditor:
             self.activeEditor.redo()
             
+    def slot_cut(self):
+        if self.activeEditor:
+            self.activeEditor.performCut()
+    
+    def slot_copy(self):
+        if self.activeEditor:
+            self.activeEditor.performCopy()
+    
+    def slot_paste(self):
+        if self.activeEditor:
+            self.activeEditor.performPaste()
+    
     def slot_license(self):
         dialog = about.LicenseDialog()
         dialog.exec_()
