@@ -770,6 +770,68 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
             
         super(VisualEditing, self).hideEvent(event)
 
+    def performCut(self):
+        ret = self.performCopy()
+        self.scene.deleteSelectedWidgets()
+        
+        return ret
+    
+    def performCopy(self):
+        topMostSelected = []
+        
+        for item in self.scene.selectedItems():
+            if not isinstance(item, widgethelpers.Manipulator):
+                continue
+            
+            hasAncestorSelected = False
+            
+            for item2 in self.scene.selectedItems():
+                if not isinstance(item2, widgethelpers.Manipulator):
+                    continue
+                
+                if item is item2:
+                    continue
+                
+                if item2.isAncestorOf(item):
+                    hasAncestorSelected = True
+                    break
+    
+            if not hasAncestorSelected:
+                topMostSelected.append(item)
+                
+        if len(topMostSelected) == 0:
+            return False
+        
+        # now we serialise the top most selected widgets (and thus their entire hierarchies)
+        topMostSerialisationData = []
+        for wdt in topMostSelected:
+            serialisationData = widgethelpers.SerialisationData(self, wdt.widget)
+            # we set the visual to None because we can't pickle QWidgets (also it would prevent copying across editors)
+            # we will set it to the correct visual when we will be pasting it back
+            serialisationData.setVisual(None)
+            
+            topMostSerialisationData.append(serialisationData)
+            
+        data = QMimeData()
+        data.setData("application/x-ceed-widget-hierarchy-list", QByteArray(cPickle.dumps(topMostSerialisationData)))
+        QApplication.clipboard().setMimeData(data)
+    
+        return True
+    
+    def performPaste(self):
+        data = QApplication.clipboard().mimeData()
+        
+        if not data.hasFormat("application/x-ceed-widget-hierarchy-list"):
+            return False
+        
+        topMostSerialisationData = cPickle.loads(data.data("application/x-ceed-widget-hierarchy-list").data())
+        for serialisationData in topMostSerialisationData:
+            serialisationData.setVisual(self)
+            
+        print topMostSerialisationData
+        
+        return True
+
 # needs to be at the end to sort circular deps
 import ui.editors.layout.hierarchydockwidget
 import ui.editors.layout.createwidgetdockwidget

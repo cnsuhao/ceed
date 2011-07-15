@@ -111,6 +111,24 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
+    def performCut(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performCut()
+        
+        return False
+
+    def performCopy(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performCopy()
+        
+        return False
+    
+    def performPaste(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performPaste()
+        
+        return False
+
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = compatibility.layout.Manager.instance.getAllPossibleExtensions()

@@ -38,7 +38,13 @@ class SerialisationData(cegui.widgethelpers.SerialisationData):
         
     def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
         return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+    
+    def setVisual(self, visual):
+        self.visual = visual
         
+        for child in self.children:
+            child.setVisual(visual)
+            
 class Manipulator(cegui.widgethelpers.Manipulator):
     """Layout editing specific widget manipulator"""
     
