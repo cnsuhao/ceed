@@ -21,3 +21,7 @@ def declare(settings):
     
     visual = category.createSection(name = "visual", label = "Visual editing")
     
+    visual.createEntry(name = "overlay_image_labels", type = bool, label = "Show overlay labels of images",
+                    defaultValue = True, widgetHint = "checkbox",
+                    sortingWeight = 1)
+    

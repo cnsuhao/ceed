@@ -293,7 +293,8 @@ class ImageEntry(resizable.ResizableRectItem):
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value:
-                self.label.setVisible(True)
+                if settings.getEntry("imageset/visual/overlay_image_labels").value:
+                    self.label.setVisible(True)
                 
                 if self.imagesetEntry.showOffsets:
                     self.offset.setVisible(True)
@@ -349,7 +350,7 @@ class ImageEntry(resizable.ResizableRectItem):
     def notifyResizeFinished(self, newPos, newRect):
         super(ImageEntry, self).notifyResizeFinished(newPos, newRect)
         
-        if self.mouseOver:
+        if self.mouseOver and settings.getEntry("imageset/visual/overlay_image_labels").value:
             # if mouse is over we show the label again when resizing finishes
             self.label.setVisible(True)
             
@@ -361,7 +362,8 @@ class ImageEntry(resizable.ResizableRectItem):
         
         self.setZValue(self.zValue() + 1)
         
-        self.label.setVisible(True)
+        if settings.getEntry("imageset/visual/overlay_image_labels").value:
+            self.label.setVisible(True)
         
         mainwindow.MainWindow.instance.statusBar().showMessage("Image: '%s'\t\tXPos: %i, YPos: %i, Width: %i, Height: %i" %
                                                                (self.name, self.pos().x(), self.pos().y(), self.rect().width(), self.rect().height()))
@@ -501,3 +503,4 @@ class ImagesetEntry(QGraphicsPixmapItem):
 
 # needs to be at the end, import to get the singleton
 import mainwindow
+import settings

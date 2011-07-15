@@ -112,6 +112,13 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             widget.textChanged.connect(lambda text: setattr(entry, "editedValue", int(text)))
             widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
             
+        elif entry.widgetHint == "checkbox":
+            widget = QCheckBox()
+            widget.setChecked(entry.value)
+            widget.setToolTip(entry.help)
+            widget.stateChanged.connect(lambda state: setattr(entry, "editedValue", True if state else False))
+            widget.slot_resetToDefault = lambda: widget.setChecked(entry.defaultValue)
+            
         elif entry.widgetHint == "colour":
             widget = qtwidgets.ColourButton()
             widget.colour = entry.value
