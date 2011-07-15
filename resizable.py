@@ -791,8 +791,6 @@ class ResizableRectItem(QGraphicsRectItem):
         self.ensureHandlesUpdated()
         
     def itemChange(self, change, value):
-        ret = super(ResizableRectItem, self).itemChange(change, value)
-        
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value:
                 self.unselectAllHandles()
@@ -813,9 +811,9 @@ class ResizableRectItem(QGraphicsRectItem):
                 # value is the new position, self.pos() is the old position
                 # we use value to avoid the 1 pixel lag
                 self.notifyMoveProgress(value)
-        
-        return ret
-        
+
+        return super(ResizableRectItem, self).itemChange(change, value)
+    
     def hoverEnterEvent(self, event):
         super(ResizableRectItem, self).hoverEnterEvent(event)
         
