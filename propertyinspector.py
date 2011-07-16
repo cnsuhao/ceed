@@ -25,45 +25,6 @@ import math
 
 # TODO: I am not entirely happy with this module and will likely rewrite it a bit
 
-class PropertyInspectorMapping(object):
-    """Maps a CEGUI::Property (by origin and name) to a PropertyInspector to allow
-    its viewing and editing.
-    
-    If target inspector name is \"\" then this mapping means that the property should
-    be ignored in the property set inspector listing.
-    """
-    
-    def __init__(self, propertyOrigin = "", propertyName = "",
-                       targetInspectorName = "", targetInspectorSettings = {}):
-        self.propertyOrigin = propertyOrigin
-        self.propertyName = propertyName
-        self.targetInspectorName = targetInspectorName
-        self.targetInspectorSettings = targetInspectorSettings
-    
-    def loadFromElement(self, element):
-        self.propertyOrigin = element.get("propertyOrigin")
-        self.propertyName = element.get("propertyName")
-        self.targetInspectorName = element.get("targetInspectorName")
-        self.targetInspectorSettings = {}
-        
-        for setting in element.findall("setting"):
-            self.targetInspectorSettings[setting.get("name")] = setting.get("value")
-    
-    def saveToElement(self):
-        element = ElementTree.Element("mapping")
-        
-        element.set("propertyOrigin", self.propertyOrigin)
-        element.set("propertyName", self.propertyName)
-        element.set("targetInspectorName", self.targetInspectorName)
-        
-        for name, value in self.targetInspectorSettings:
-            setting = ElementTree.Element("setting")
-            setting.set("name", name)
-            setting.set("value", value)
-            element.append(setting)
-            
-        return element
-
 class PropertyInspector(object):
     """Interface class, derived classes implement the actual editing and viewing
     of properties
@@ -232,7 +193,126 @@ class SliderPropertyInspector(PropertyInspector):
         ret = float(widget.sliderPosition()) / denominator
         
         return str(ret)
+
+class PropertyInspectorMapping(QStandardItem):
+    """Maps a CEGUI::Property (by origin and name) to a PropertyInspector to allow
+    its viewing and editing.
     
+    If target inspector name is \"\" then this mapping means that the property should
+    be ignored in the property set inspector listing.
+    """
+    
+    def __init__(self, propertyOrigin = "", propertyName = "",
+                       targetInspectorName = "", targetInspectorSettings = {}):
+        super(PropertyInspectorMapping, self).__init__()
+
+        self.propertyOrigin = propertyOrigin
+        self.propertyName = propertyName
+        self.targetInspectorName = targetInspectorName
+        self.targetInspectorSettings = targetInspectorSettings
+        
+        self.setFlags(Qt.ItemIsSelectable |
+                      Qt.ItemIsDragEnabled |
+                      Qt.ItemIsEnabled |
+                      Qt.ItemIsEditable)
+        
+    def getColumnData(self, column, role):
+        if column == 0:
+            return self.propertyOrigin
+        elif column == 1:
+            return self.propertyName
+        elif column == 2:
+            return self.targetInspectorName
+        
+        assert(False)
+        
+    def setColumnData(self, column, value, role):
+        if column == 0:
+            self.propertyOrigin = value
+            return True
+        
+        elif column == 1:
+            self.propertyName = value
+            return True
+        
+        elif column == 2:
+            self.targetInspectorName = value
+            return True
+        
+        return False
+        
+    def clone(self):
+        return PropertyInspectorMapping(self.propertyOrigin, self.propertyName, self.targetInspectorName, self.targetInspectorSettings)
+        
+    def loadFromElement(self, element):
+        self.propertyOrigin = element.get("propertyOrigin")
+        self.propertyName = element.get("propertyName")
+        self.targetInspectorName = element.get("targetInspectorName")
+        self.targetInspectorSettings = {}
+        
+        for setting in element.findall("setting"):
+            self.targetInspectorSettings[setting.get("name")] = setting.get("value")
+    
+    def saveToElement(self):
+        element = ElementTree.Element("mapping")
+        
+        element.set("propertyOrigin", self.propertyOrigin)
+        element.set("propertyName", self.propertyName)
+        element.set("targetInspectorName", self.targetInspectorName)
+        
+        for name, value in self.targetInspectorSettings:
+            setting = ElementTree.Element("setting")
+            setting.set("name", name)
+            setting.set("value", value)
+            element.append(setting)
+            
+        return element
+
+class PropertyInspectorMappingList(QStandardItemModel):
+    def __init__(self):
+        super(PropertyInspectorMappingList, self).__init__()
+        
+        self.setHorizontalHeaderLabels(["Origin", "Property", "Inspector"])
+        self.setItemPrototype(PropertyInspectorMapping())
+    
+    def data(self, index, role = Qt.DisplayRole):
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            item = self.item(index.row(), 0)
+        
+            return item.getColumnData(index.column(), role)
+        
+        else:
+            return super(PropertyInspectorMappingList, self).data(index, role)
+    
+    def setData(self, index, value, role = Qt.EditRole):
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            item = self.item(index.row(), 0)
+        
+            return item.setColumnData(index.column(), value, role)
+        
+        else:
+            return super(PropertyInspectorMappingList, self).setData(index, value, role)
+    
+    def flags(self, index):
+        item = self.item(index.row(), 0)
+        
+        if item is None:
+            return super(PropertyInspectorMappingList, self).flags(index)
+        
+        return item.flags()
+    
+    def loadFromElement(self, element):
+        assert(element.get("version") == compatibility.property_mappings.Manager.instance.EditorNativeType)
+        
+        for mappingElement in element.findall("mapping"):
+            mapping = PropertyInspectorMapping()
+            mapping.loadFromElement(mappingElement)
+            
+            self.appendRow(mapping)
+            
+    def saveToElement(self):
+        assert(False)
+
 class PropertyInspectorManager(object):
     def __init__(self):
         self.inspectors = [
@@ -242,12 +322,12 @@ class PropertyInspectorManager(object):
             SliderPropertyInspector()
         ]
     
-        self.mappings = []
+        self.mappingLists = []
 
-    def clearMappings(self):
+    def clearAllMappings(self):
         """Clears mappings if any"""
         
-        self.mappings = []
+        self.mappingLists = []
     
     def loadMappingsFromString(self, string):
         """Appends mappings from given file.
@@ -256,14 +336,12 @@ class PropertyInspectorManager(object):
         you can see them in the settings screen in the future but are searched in reverse order.
         """
         
-        root = ElementTree.fromstring(string)
+        element = ElementTree.fromstring(string)
         
-        assert(root.get("version") == compatibility.property_mappings.Manager.instance.EditorNativeType)
+        mappings = PropertyInspectorMappingList()
+        mappings.loadFromElement(element)
         
-        for mappingElement in root.findall("mapping"):
-            mapping = PropertyInspectorMapping()
-            mapping.loadFromElement(mappingElement)
-            self.mappings.append(mapping)
+        self.mappingLists.append(mappings)
     
     def loadMappings(self, absolutePath):
         """Appends mappings from given file.
@@ -276,31 +354,42 @@ class PropertyInspectorManager(object):
     
     def getInspectorAndMapping(self, propertyOrigin, propertyName):
         # reversed because custom mappings loaded later override stock mappings loaded earlier
-        for mapping in reversed(self.mappings):
-            if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
-                if mapping.targetInspectorName == "":
-                    # this property is set to be ignored
-                    return None, None
+        for mappings in reversed(self.mappingLists):
+            i = mappings.rowCount() - 1
+            while i >= 0:
+                mapping = mappings.item(i, 0)
                 
-                for inspector in self.inspectors:
-                    if inspector.getName() == mapping.targetInspectorName:
-                        return inspector, mapping
-                
-                raise Exception("Found a mapping but it's target is invalid, can't find any "
-                                "inspector of name '%s'" % (mapping.targetInspectorName))
+                if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
+                    if mapping.targetInspectorName == "":
+                        # this property is set to be ignored
+                        return None, None
+                    
+                    for inspector in self.inspectors:
+                        if inspector.getName() == mapping.targetInspectorName:
+                            return inspector, mapping
+                    
+                    raise Exception("Found a mapping but it's target is invalid, can't find any "
+                                    "inspector of name '%s'" % (mapping.targetInspectorName))
+                    
+                i -= 1
         
         # mapping doesn't exist        
         return None, None
 
     def isPropertyIgnored(self, propertyOrigin, propertyName):
-        for mapping in reversed(self.mappings):
-            if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
-                if mapping.targetInspectorName == "":
-                    # this property is set to be ignored
-                    return True
-                
-                else:
-                    return False
+        for mappings in reversed(self.mappingLists):
+            i = mappings.rowCount() - 1
+            while i >= 0:
+                mapping = mappings.item(i, 0)
+                if mapping.propertyOrigin == propertyOrigin and mapping.propertyName == propertyName:
+                    if mapping.targetInspectorName == "":
+                        # this property is set to be ignored
+                        return True
+                    
+                    else:
+                        return False
+                    
+                i -= 1
 
         return False
     

@@ -17,8 +17,12 @@
 ################################################################################
 
 from PySide.QtGui import *
+
 import editors
+import propertyinspector
 import compatibility.property_mappings
+
+from xml.etree import ElementTree
 
 ##
 # Property mapping file editor
@@ -28,9 +32,21 @@ class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
         super(PropertyMappingsEditor, self).__init__(compatibility.property_mappings.Manager.instance, filePath)
         
         self.tabWidget = QTableView()
+        self.tabWidget.setDragDropMode(QAbstractItemView.InternalMove)
+        self.tabWidget.setDragDropOverwriteMode(False)
+        self.tabWidget.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        #self.tabWidget.setRootIsDecorated(False)
+        
+        self.propertyMappingList = None
     
     def initialise(self, mainWindow):
         super(PropertyMappingsEditor, self).initialise(mainWindow)
+        
+        if self.nativeData != "":
+            self.propertyMappingList = propertyinspector.PropertyInspectorMappingList()
+            self.propertyMappingList.loadFromElement(ElementTree.fromstring(self.nativeData))
+            
+            self.tabWidget.setModel(self.propertyMappingList)
             
     def finalise(self):
         super(PropertyMappingsEditor, self).finalise()
