@@ -249,6 +249,22 @@ class PropertyInspectorManager(object):
         
         self.mappings = []
     
+    def loadMappingsFromString(self, string):
+        """Appends mappings from given file.
+        
+        Mappings loaded later override mappings before them. All mappings are kept so that
+        you can see them in the settings screen in the future but are searched in reverse order.
+        """
+        
+        root = ElementTree.fromstring(string)
+        
+        assert(root.get("version") == compatibility.property_mappings.Manager.instance.EditorNativeType)
+        
+        for mappingElement in root.findall("mapping"):
+            mapping = PropertyInspectorMapping()
+            mapping.loadFromElement(mappingElement)
+            self.mappings.append(mapping)
+    
     def loadMappings(self, absolutePath):
         """Appends mappings from given file.
         
@@ -256,15 +272,7 @@ class PropertyInspectorManager(object):
         you can see them in the settings screen in the future but are searched in reverse order.
         """
         
-        tree = ElementTree.parse(absolutePath)
-        root = tree.getroot()
-        
-        assert(root.get("version") == "0.8")
-        
-        for mappingElement in root.findall("mapping"):
-            mapping = PropertyInspectorMapping()
-            mapping.loadFromElement(mappingElement)
-            self.mappings.append(mapping)
+        self.loadMappingsFromString(open(absolutePath, "r").read())
     
     def getInspectorAndMapping(self, propertyOrigin, propertyName):
         # reversed because custom mappings loaded later override stock mappings loaded earlier
@@ -296,3 +304,4 @@ class PropertyInspectorManager(object):
 
         return False
     
+import compatibility

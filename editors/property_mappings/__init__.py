@@ -21,22 +21,22 @@ import editors
 
 ##
 # Property mapping file editor
-class PropertyMappingEditor(editors.UndoStackTabbedEditor):
+class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
     def __init__(self, filePath):
         
-        super(PropertyMappingEditor, self).__init__(None, filePath)
+        super(PropertyMappingsEditor, self).__init__(None, filePath)
         
         self.tabWidget = QTableView()
     
     def initialise(self, mainWindow):
-        super(PropertyMappingEditor, self).initialise(mainWindow)
+        super(PropertyMappingsEditor, self).initialise(mainWindow)
             
     def finalise(self):
-        super(PropertyMappingEditor, self).finalise()
+        super(PropertyMappingsEditor, self).finalise()
         
         self.tabWidget = None
 
-class PropertyMappingEditorFactory(editors.TabbedEditorFactory):
+class PropertyMappingsEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = ["pmappings"]
         
@@ -47,4 +47,4 @@ class PropertyMappingEditorFactory(editors.TabbedEditorFactory):
         return False
 
     def create(self, filePath):
-        return PropertyMappingEditor(filePath)
+        return PropertyMappingsEditor(filePath)

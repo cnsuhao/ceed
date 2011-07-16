@@ -1,4 +1,4 @@
-<mappings version="0.8">
+<mappings version="CEED Property Mappings 1">
     <!-- CEGUI::Window -->
     <mapping propertyOrigin="Window" propertyName="Alpha" targetInspectorName="Slider">
         <setting name="minimum" value="0" />

@@ -19,21 +19,21 @@
 import compatibility
 from xml.etree import ElementTree
 
-Project1 = "CEED Project 1"
+PropertyMappings1 = "CEED Property Mappings 1"
 
-class Project1TypeDetector(compatibility.TypeDetector):
+class PropertyMappings1TypeDetector(compatibility.TypeDetector):
     def getType(self):
-        return Project1
+        return PropertyMappings1
     
     def matches(self, data, extension):
-        if extension not in ["", "project"]:
+        if extension not in ["", "pmappings"]:
             return False
         
         # should work as a pretty rigorous test for now, tests the root tag name and version
         try:
             root = ElementTree.fromstring(data)
             
-            if root.tag != "Project":
+            if root.tag != "mappings":
                 return False
             
             if root.get("version", "") != Manager.instance.EditorNativeType:
@@ -55,14 +55,14 @@ class Manager(compatibility.Manager):
         assert(Manager.instance is None)
         Manager.instance = self
         
-        self.EditorNativeType = Project1
+        self.EditorNativeType = PropertyMappings1
         # doesn't make much sense
         self.CEGUIVersionType = {
-            "0.6" : Project1,
-            "0.7" : Project1,
-            "0.8" : Project1
+            "0.6" : PropertyMappings1,
+            "0.7" : PropertyMappings1,
+            "0.8" : PropertyMappings1
         }
         
-        self.detectors.append(Project1TypeDetector())
+        self.detectors.append(PropertyMappings1TypeDetector())
 
 Manager()

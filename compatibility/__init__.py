@@ -202,3 +202,4 @@ EditorEmbeddedCEGUIVersion = "0.8"
 import imageset
 import layout
 import project
+import property_mappings

@@ -489,5 +489,5 @@ import shared
 import bitmap
 import imageset
 import layout
-import property_mapping
+import property_mappings
 import text

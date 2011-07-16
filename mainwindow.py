@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
             editors.bitmap.BitmapTabbedEditorFactory(),
             editors.imageset.ImagesetTabbedEditorFactory(),
             editors.layout.LayoutTabbedEditorFactory(),
-            editors.property_mapping.PropertyMappingEditorFactory(),
+            editors.property_mappings.PropertyMappingsEditorFactory(),
             editors.text.TextTabbedEditorFactory()
         ]
         
