@@ -238,6 +238,9 @@ class PropertySetInspectorDelegate(QItemDelegate):
         propertyInstance = propertyEntry.getPropertyInstance()
         inspector, mapping = self.setInspector.propertyInspectorManager.getInspectorAndMapping(propertyInstance.getOrigin(), propertyInstance.getName())
         
+        if inspector is None:
+            return None
+        
         ret = inspector.createEditWidget(parent, propertyEntry, mapping)
     
         return ret
