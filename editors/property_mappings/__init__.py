@@ -18,13 +18,14 @@
 
 from PySide.QtGui import *
 import editors
+import compatibility.property_mappings
 
 ##
 # Property mapping file editor
 class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
     def __init__(self, filePath):
         
-        super(PropertyMappingsEditor, self).__init__(None, filePath)
+        super(PropertyMappingsEditor, self).__init__(compatibility.property_mappings.Manager.instance, filePath)
         
         self.tabWidget = QTableView()
     
