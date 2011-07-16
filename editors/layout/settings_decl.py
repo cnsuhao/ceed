@@ -23,18 +23,23 @@ def declare(settings):
     
     visual = category.createSection(name = "visual", label = "Visual editing")
     
+    visual.createEntry(name = "continuous_rendering", type = bool, label = "Continuous rendering",
+                       help = "Check this if you are experiencing redraw issues (your skin contains an idle animation or such)",
+                       defaultValue = False, widgetHint = "checkbox",
+                       sortingWeight = 0)
+    
     visual.createEntry(name = "normal_outline", type = QPen, label = "Normal outline",
-                    defaultValue = QPen(QColor(255, 255, 255, 150)), widgetHint = "pen",
-                    sortingWeight = 1)
+                       defaultValue = QPen(QColor(255, 255, 255, 150)), widgetHint = "pen",
+                       sortingWeight = 1)
     
     visual.createEntry(name = "hover_outline", type = QPen, label = "Hover outline",
-                    defaultValue = QPen(QColor(0, 255, 255, 255)), widgetHint = "pen",
-                    sortingWeight = 2)
+                       defaultValue = QPen(QColor(0, 255, 255, 255)), widgetHint = "pen",
+                       sortingWeight = 2)
     
     visual.createEntry(name = "resizing_outline", type = QPen, label = "Outline while resizing",
-                    defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
-                    sortingWeight = 3)
+                       defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
+                       sortingWeight = 3)
     
     visual.createEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
-                    defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
-                    sortingWeight = 3)
+                       defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
+                       sortingWeight = 3)

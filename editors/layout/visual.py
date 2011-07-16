@@ -740,7 +740,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
     
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath, self.scene)
-        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True, middleButtonScroll = True, continuousRendering = False)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
+                                                                            middleButtonScroll = True,
+                                                                            continuousRendering = settings.getEntry("layout/visual/continuous_rendering").value)
         
         PyCEGUI.System.getSingleton().setGUISheet(self.getCurrentRootWidget())
 
@@ -854,3 +856,5 @@ import ui.editors.layout.createwidgetdockwidget
     
 # needs to be at the end, import to get the singleton
 import mainwindow
+import settings
+
