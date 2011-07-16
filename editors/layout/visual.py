@@ -840,6 +840,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
             
             targetManipulator = item
         
+        if targetManipulator is None:
+            return False
+
         for serialisationData in topMostSerialisationData:
             serialisationData.setVisual(self)
         
