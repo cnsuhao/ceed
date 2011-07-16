@@ -23,8 +23,9 @@ def declare(settings):
     
     visual = category.createSection(name = "visual", label = "Visual editing")
     
+    # FIXME: Only applies to newly switched to visual modes!
     visual.createEntry(name = "continuous_rendering", type = bool, label = "Continuous rendering",
-                       help = "Check this if you are experiencing redraw issues (your skin contains an idle animation or such)",
+                       help = "Check this if you are experiencing redraw issues (your skin contains an idle animation or such).\nOnly applies to newly switched to visual modes so switch to Code mode or back or restart the application for this to take effect.",
                        defaultValue = False, widgetHint = "checkbox",
                        sortingWeight = 0)
     
