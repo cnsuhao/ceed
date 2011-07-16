@@ -26,7 +26,7 @@ import ui.ceguidebuginfo
 import PyCEGUI
 import qtgraphics
 
-class DebugInfo(QDockWidget):
+class DebugInfo(QDialog):
     """A debugging/info widget about the embedded CEGUI instance"""
     
     # This will allow us to view logs in Qt in the future
