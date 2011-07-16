@@ -321,12 +321,18 @@ class PropertyEditCommand(commands.UndoCommand):
             widgetManipulator.widget.setProperty(self.propertyName, self.oldValues[widgetPath])
             widgetManipulator.updateFromWidget()
             
+        # make sure to redraw the scene so the changes are visible    
+        self.visual.scene.update()
+            
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.newValue)
             widgetManipulator.updateFromWidget()
             
+        # make sure to redraw the scene so the changes are visible    
+        self.visual.scene.update()
+        
         super(PropertyEditCommand, self).redo()
 
 class HorizontalAlignCommand(commands.UndoCommand):

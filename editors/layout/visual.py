@@ -319,9 +319,6 @@ class PropertiesDockWidget(QDockWidget):
             cmd = undo.PropertyEditCommand(self.visual, propertyName, widgetPaths, undoOldValues, value)
             # FIXME: unreadable
             self.visual.tabbedEditor.undoStack.push(cmd)
-        
-        # make sure to redraw the scene so the changes are visible    
-        self.visual.scene.update()
 
 class WidgetTypeTreeWidget(QTreeWidget):
     """Represents a single available widget for creation (it has a mapping in the scheme or is
