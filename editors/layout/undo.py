@@ -540,3 +540,63 @@ class ReparentCommand(commands.UndoCommand):
         
         self.visual.hierarchyDockWidget.refresh()    
         super(ReparentCommand, self).redo()
+
+class PasteCommand(commands.UndoCommand):
+    """This command pastes clipboard data to the given widget
+    """
+    
+    def __init__(self, visual, clipboardData, targetWidgetPath):
+        super(PasteCommand, self).__init__()
+        
+        self.visual = visual
+        
+        self.clipboardData = clipboardData
+        self.targetWidgetPath = targetWidgetPath
+        
+        self.refreshText()
+    
+    def refreshText(self):            
+        if len(self.clipboardData) == 1:
+            self.setText("Pasted '%s' hierarchy to '%s'" % (self.clipboardData[0].name, self.targetWidgetPath))
+        else:
+            self.setText("Pasted %i hierarchies to '%s'" % (len(self.clipboardData), self.targetWidgetPath))
+    
+    def id(self):
+        return idbase + 9
+        
+    def mergeWith(self, cmd):
+        # we never merge paste commands
+        return False
+        
+    def undo(self):
+        super(PasteCommand, self).undo()
+        
+        widgetPaths = []
+        for serialisationData in self.clipboardData:
+            widgetPath = serialisationData.parentPath + "/" + serialisationData.name
+            widgetPaths.append(widgetPath)
+            
+            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            wasRootWidget = manipulator.widget.getParent() is None
+            
+            manipulator.detach(destroyWidget = True)
+        
+            if wasRootWidget:
+                # this was a root widget being deleted, handle this accordingly
+                self.visual.setRootWidgetManipulator(None)
+                
+        self.visual.notifyWidgetManipulatorsRemoved(widgetPaths)
+        
+    def redo(self):
+        targetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.targetWidgetPath)
+        
+        for serialisationData in self.clipboardData:
+            # make sure the name is unique and we will be able to paste smoothly
+            serialisationData.name = targetManipulator.getUniqueChildWidgetName(serialisationData.name)
+            serialisationData.setParentPath(self.targetWidgetPath)
+            
+            serialisationData.reconstruct(self.visual.scene.rootManipulator)
+        
+        self.visual.hierarchyDockWidget.refresh()
+        
+        super(PasteCommand, self).redo()

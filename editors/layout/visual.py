@@ -825,10 +825,26 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
             return False
         
         topMostSerialisationData = cPickle.loads(data.data("application/x-ceed-widget-hierarchy-list").data())
+        
+        if len(topMostSerialisationData) == 0:
+            return False
+        
+        targetManipulator = None
+        for item in self.scene.selectedItems():
+            if not isinstance(item, widgethelpers.Manipulator):
+                continue
+            
+            # multiple targets, we can't decide!
+            if targetManipulator is not None:
+                return False
+            
+            targetManipulator = item
+        
         for serialisationData in topMostSerialisationData:
             serialisationData.setVisual(self)
-            
-        print topMostSerialisationData
+        
+        cmd = undo.PasteCommand(self, topMostSerialisationData, targetManipulator.widget.getNamePath())
+        self.tabbedEditor.undoStack.push(cmd)
         
         return True
 

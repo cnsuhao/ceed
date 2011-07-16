@@ -73,6 +73,14 @@ class SerialisationData(object):
             if serialiseChildren:
                 self.serialiseChildren(widget)   
     
+    def setParentPath(self, parentPath):
+        """Recursivelly changes the parent path"""
+        
+        self.parentPath = parentPath
+        
+        for child in self.children:
+            child.setParentPath(self.parentPath + "/" + self.name)
+    
     def createChildData(self, widget, serialiseChildren):
         return SerialisationData(widget, serialiseChildren)
         
