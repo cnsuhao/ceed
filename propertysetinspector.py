@@ -52,13 +52,16 @@ class PropertyValue(QStandardItem):
             
     def update(self):
         self.setText(self.propertyEntry.getCurrentValue())
+        palette = QApplication.palette()
+        
         if self.propertyEntry.isCurrentValueDefault():
             font = QFont()
             font.setItalic(True)
             
             self.setFont(font)
             
-            self.setForeground(QBrush(QColor(Qt.GlobalColor.gray)))
+            self.setForeground(QBrush(palette.color(QPalette.Disabled, QPalette.Text)))
+            self.setBackground(QBrush(palette.color(QPalette.Disabled, QPalette.Base)))
             
         else:
             font = QFont()
@@ -66,7 +69,8 @@ class PropertyValue(QStandardItem):
             
             self.setFont(font)
         
-            self.setForeground(QBrush(QColor(Qt.GlobalColor.black)))
+            self.setForeground(QBrush(palette.color(QPalette.Active, QPalette.Text)))
+            self.setBackground(QBrush(palette.color(QPalette.Active, QPalette.Base)))
         
 class PropertyEntry(QStandardItem):
     """Standard item displaying the name of a property
@@ -176,14 +180,24 @@ class PropertyCategory(QStandardItem):
         
         self.setEditable(False)
         
-        self.setData(QBrush(Qt.GlobalColor.lightGray), Qt.BackgroundRole)
+        palette = QApplication.palette()
+        
+        # we have to set both foreground and background role to prevent issues with various colour
+        # settings on the systems (dark desktop skins vs light desktop skins...)
+        self.setData(QBrush(palette.color(QPalette.HighlightedText)), Qt.ForegroundRole)
+        self.setData(QBrush(palette.color(QPalette.Highlight)), Qt.BackgroundRole)
+        
         font = QFont()
         font.setBold(True)
         font.setPixelSize(16)
         self.setData(font, Qt.FontRole)
         
         self.propertyCount = QStandardItem()
-        self.propertyCount.setData(QBrush(Qt.GlobalColor.lightGray), Qt.BackgroundRole)
+        
+        # see the comment above about foreground and background :-)
+        self.propertyCount.setData(QBrush(palette.color(QPalette.HighlightedText)), Qt.ForegroundRole)
+        self.propertyCount.setData(QBrush(palette.color(QPalette.Highlight)), Qt.BackgroundRole)
+        
         self.propertyCount.setEditable(False)
         
     def getPropertySets(self):
