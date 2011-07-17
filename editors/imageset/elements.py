@@ -21,7 +21,6 @@ from PySide.QtCore import *
 
 from xml.etree import ElementTree
 import os
-import math
 
 import resizable
 
