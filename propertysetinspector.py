@@ -184,8 +184,8 @@ class PropertyCategory(QStandardItem):
         
         # we have to set both foreground and background role to prevent issues with various colour
         # settings on the systems (dark desktop skins vs light desktop skins...)
-        self.setData(QBrush(palette.color(QPalette.HighlightedText)), Qt.ForegroundRole)
-        self.setData(QBrush(palette.color(QPalette.Highlight)), Qt.BackgroundRole)
+        self.setForeground(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)))
+        self.setBackground(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)))
         
         font = QFont()
         font.setBold(True)
@@ -204,10 +204,14 @@ class PropertyCategory(QStandardItem):
         return self.inspector.getPropertySets()
         
     def setFilterMatched(self, matched):
+        palette = QApplication.palette()
+        
         if matched:
-            self.setData(QBrush(Qt.GlobalColor.black), Qt.ForegroundRole)
+            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)), Qt.ForegroundRole)
+            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)), Qt.BackgroundRole)
         else:
-            self.setData(QBrush(Qt.GlobalColor.gray), Qt.ForegroundRole)
+            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.HighlightedText)), Qt.ForegroundRole)
+            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.Highlight)), Qt.BackgroundRole)
         
     def filterProperties(self, filter):
         toShow = []

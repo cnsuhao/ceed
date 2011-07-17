@@ -49,7 +49,9 @@ class ImageLabel(QGraphicsTextItem):
         self.setVisible(False)
         
     def paint(self, painter, option, widget):
-        painter.fillRect(self.boundingRect(), QColor(Qt.white))
+        palette = QApplication.palette()
+        
+        painter.fillRect(self.boundingRect(), palette.color(QPalette.Normal, QPalette.Base))
         painter.drawRect(self.boundingRect())
         
         super(ImageLabel, self).paint(painter, option, widget)
