@@ -59,8 +59,5 @@ class XMLEditWidget(QtGui.QTextEdit):
         self.setAcceptRichText(False)
         self.zoomIn()
         
-        # todo: we want dark background!! This doesn't entirely work the way I would want it to,
-        #       only areas that have text are with black background :-(
-        #self.setTextBackgroundColor(QtGui.QColor(0, 0, 0))
         self.highlighter = XMLSyntaxHighlighter(self.document())
         
