@@ -486,6 +486,7 @@ import settings
 import mixed
 import shared
 
+import animation_list
 import bitmap
 import imageset
 import layout

@@ -199,6 +199,7 @@ CEGUIVersions = ["0.6", "0.7", "0.8"]
 EditorEmbeddedCEGUIVersion = "0.8"
 
 # make these visible to the outside
+import animation_list
 import imageset
 import layout
 import project

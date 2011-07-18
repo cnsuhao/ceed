@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
         self.recentProjectsActions = []
         
         self.editorFactories = [
+            editors.animation_list.AnimationListEditorFactory(),
             editors.bitmap.BitmapTabbedEditorFactory(),
             editors.imageset.ImagesetTabbedEditorFactory(),
             editors.layout.LayoutTabbedEditorFactory(),

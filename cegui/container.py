@@ -197,7 +197,7 @@ class ContainerWidget(QWidget):
         if self.currentParentWidget.layout():
             self.currentParentWidget.layout().removeWidget(self)
         else:
-            self.setParentWidget(None)
+            self.setParent(None)
         self.currentParentWidget.setUpdatesEnabled(True)
             
         self.currentParentWidget = None
