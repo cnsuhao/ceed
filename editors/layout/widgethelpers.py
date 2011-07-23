@@ -244,8 +244,12 @@ class Manipulator(cegui.widgethelpers.Manipulator):
     def constrainMovePoint(self, point):
         if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
             parent = self.parentItem()
+            if parent is None:
+                # ad hoc snapping for root widget, it snaps to itself
+                parent = self
+                
             if isinstance(parent, Manipulator):
-                point = QPointF(self.snapXCoordToGrid(point.x()), self.snapYCoordToGrid(point.y()))
+                point = QPointF(parent.snapXCoordToGrid(point.x()), parent.snapYCoordToGrid(point.y()))
         
         point = super(Manipulator, self).constrainMovePoint(point)
         
@@ -255,6 +259,10 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         # we constrain all 4 "corners" to the snap grid if needed
         if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
             parent = self.parentItem()
+            if parent is None:
+                # ad hoc snapping for root widget, it snaps to itself
+                parent = self
+            
             if isinstance(parent, Manipulator):
                 # we only snap the coordinates that have changed
                 # because for example when you drag the left edge you don't want the right edge to snap!
@@ -263,14 +271,14 @@ class Manipulator(cegui.widgethelpers.Manipulator):
                 # it is subtracted later on because the rect is relative to the item position
                 
                 if rect.left() != oldRect.left():
-                    rect.setLeft(self.snapXCoordToGrid(self.pos().x() + rect.left()) - self.pos().x())
+                    rect.setLeft(parent.snapXCoordToGrid(self.pos().x() + rect.left()) - self.pos().x())
                 if rect.top() != oldRect.top():
-                    rect.setTop(self.snapYCoordToGrid(self.pos().y() + rect.top()) - self.pos().y())
+                    rect.setTop(parent.snapYCoordToGrid(self.pos().y() + rect.top()) - self.pos().y())
                     
                 if rect.right() != oldRect.right():
-                    rect.setRight(self.snapXCoordToGrid(self.pos().x() + rect.right()) - self.pos().x())
+                    rect.setRight(parent.snapXCoordToGrid(self.pos().x() + rect.right()) - self.pos().x())
                 if rect.bottom() != oldRect.bottom():
-                    rect.setBottom(self.snapYCoordToGrid(self.pos().y() + rect.bottom()) - self.pos().y())
+                    rect.setBottom(parent.snapYCoordToGrid(self.pos().y() + rect.bottom()) - self.pos().y())
                 
         rect = super(Manipulator, self).constrainResizeRect(rect, oldRect)
         
