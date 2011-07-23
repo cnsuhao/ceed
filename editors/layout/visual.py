@@ -97,7 +97,9 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         
     def setRootManipulator(self, rootManipulator):
         self.clear()
-        self.appendRow(self.constructSubtree(rootManipulator))
+        
+        if rootManipulator is not None:
+            self.appendRow(self.constructSubtree(rootManipulator))
 
     def mimeData(self, indexes):
         # if the selection contains children of something that is also selected, we don't include that
