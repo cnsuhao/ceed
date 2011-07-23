@@ -544,7 +544,7 @@ class ResizableRectItem(QGraphicsRectItem):
     def constrainMovePoint(self, point):
         return point
         
-    def constrainResizeRect(self, rect):
+    def constrainResizeRect(self, rect, oldRect):
         minSize = self.getMinSize()
         maxSize = self.getMaxSize()
         
@@ -565,7 +565,7 @@ class ResizableRectItem(QGraphicsRectItem):
         """
         
         newRect = self.rect().adjusted(delta_x1, delta_y1, delta_x2, delta_y2)
-        newRect = self.constrainResizeRect(newRect)
+        newRect = self.constrainResizeRect(newRect, self.rect())
         
         # TODO: the rect moves as a whole when it can't be sized any less
         #       this is probably not the behavior we want!

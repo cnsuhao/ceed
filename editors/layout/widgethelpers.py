@@ -231,41 +231,50 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         super(Manipulator, self).updateFromWidget()
         self.ignoreSnapGrid = False
     
-    def snapPointToGrid(self, point):
+    def snapXCoordToGrid(self, x):
         # point is in local space
         snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
+        return round(x / snapGridX) * snapGridX
+    
+    def snapYCoordToGrid(self, y):
+        # point is in local space
         snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
-        
-        snappedX = round(point.x() / snapGridX) * snapGridX
-        snappedY = round(point.y() / snapGridY) * snapGridY
-        
-        return QPointF(snappedX, snappedY)
+        return round(y / snapGridY) * snapGridY
     
     def constrainMovePoint(self, point):
         if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
             parent = self.parentItem()
             if isinstance(parent, Manipulator):
-                point = self.snapPointToGrid(point)
+                point = QPointF(self.snapXCoordToGrid(point.x()), self.snapYCoordToGrid(point.y()))
         
         point = super(Manipulator, self).constrainMovePoint(point)
         
         return point
     
-    def constrainResizeRect(self, rect):
+    def constrainResizeRect(self, rect, oldRect):
         # we constrain all 4 "corners" to the snap grid if needed
         if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
             parent = self.parentItem()
             if isinstance(parent, Manipulator):
-                # we save these now to avoid affecting the bottom right coord with top left snapping
-                oldTopLeft = rect.topLeft()
-                oldBottomRight = rect.bottomRight()
+                # we only snap the coordinates that have changed
+                # because for example when you drag the left edge you don't want the right edge to snap!
                 
-                rect.setTopLeft(parent.snapPointToGrid(oldTopLeft))
-                rect.setBottomRight(parent.snapPointToGrid(oldBottomRight))
+                # we have to add the position coordinate as well to ensure the snap is precisely at the guide point
+                # it is subtracted later on because the rect is relative to the item position
                 
-        rect = super(Manipulator, self).constrainResizeRect(rect)
+                if rect.left() != oldRect.left():
+                    rect.setLeft(self.snapXCoordToGrid(self.pos().x() + rect.left()) - self.pos().x())
+                if rect.top() != oldRect.top():
+                    rect.setTop(self.snapYCoordToGrid(self.pos().y() + rect.top()) - self.pos().y())
+                    
+                if rect.right() != oldRect.right():
+                    rect.setRight(self.snapXCoordToGrid(self.pos().x() + rect.right()) - self.pos().x())
+                if rect.bottom() != oldRect.bottom():
+                    rect.setBottom(self.snapYCoordToGrid(self.pos().y() + rect.bottom()) - self.pos().y())
+                
+        rect = super(Manipulator, self).constrainResizeRect(rect, oldRect)
         
         return rect
-            
+        
 import settings
 import action
