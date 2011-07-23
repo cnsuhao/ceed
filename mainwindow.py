@@ -695,15 +695,13 @@ class MainWindow(QMainWindow):
         else:
             event.accept()
             
-        
-
-        
+            
     def slot_openRecentProject(self):
-        action = self.sender()
-        if action:
+        temp = str(self.sender().data())
+        if self.sender():
             if self.project:
                 # give user a chance to save changes if needed
                 if not self.slot_closeProject():
                     return
             
-            self.openProject(action.data(), True)
+            self.openProject(temp, True)
