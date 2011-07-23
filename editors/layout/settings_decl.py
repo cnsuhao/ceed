@@ -43,4 +43,20 @@ def declare(settings):
     
     visual.createEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
                        defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
-                       sortingWeight = 3)
+                       sortingWeight = 4)
+    
+    visual.createEntry(name = "snap_grid_x", type = float, label = "Snap grid cell width (X)",
+                       defaultValue = 10, widgetHint = "float",
+                       sortingWeight = 5)
+    
+    visual.createEntry(name = "snap_grid_y", type = float, label = "Snap grid cell height (Y)",
+                       defaultValue = 10, widgetHint = "float",
+                       sortingWeight = 6)
+    
+    visual.createEntry(name = "snap_grid_point_colour", type = QColor, label = "Snap grid point colour",
+                       defaultValue = QColor(255, 255, 255, 192), widgetHint = "colour",
+                       sortingWeight = 7)
+    
+    visual.createEntry(name = "snap_grid_point_shadow_colour", type = QColor, label = "Snap grid point shadow colour",
+                       defaultValue = QColor(64, 64, 64, 192), widgetHint = "colour",
+                       sortingWeight = 8)

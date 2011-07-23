@@ -47,13 +47,35 @@ class SerialisationData(cegui.widgethelpers.SerialisationData):
             
 class Manipulator(cegui.widgethelpers.Manipulator):
     """Layout editing specific widget manipulator"""
+    snapGridBrush = None
+    
+    @classmethod
+    def getSnapGridBrush(cls):
+        if cls.snapGridBrush is None:
+            cls.snapGridBrush = QBrush()
+            texture = QPixmap(settings.getEntry("layout/visual/snap_grid_x").value, settings.getEntry("layout/visual/snap_grid_y").value)
+            texture.fill(QColor(Qt.transparent))
+            
+            painter = QPainter(texture)
+            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_colour").value))
+            painter.drawPoint(0, 0)
+            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_shadow_colour").value))
+            painter.drawPoint(1, 0)
+            painter.drawPoint(1, 1)
+            painter.drawPoint(0, 1)
+            painter.end()
+            
+            cls.snapGridBrush.setTexture(texture)
+            
+        return cls.snapGridBrush
     
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = True):
         self.visual = visual
         
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)  
         
-        self.setAcceptDrops(True)      
+        self.setAcceptDrops(True)
+        self.drawSnapGrid = False
     
     def getNormalPen(self):
         return settings.getEntry("layout/visual/normal_outline").value
@@ -147,5 +169,41 @@ class Manipulator(cegui.widgethelpers.Manipulator):
             
         else:
             event.ignore()
+    
+    def notifyResizeStarted(self):
+        super(Manipulator, self).notifyResizeStarted()
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = True
+            
+    def notifyResizeFinished(self, newPos, newRect):
+        super(Manipulator, self).notifyResizeFinished(newPos, newRect)
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = False
+            
+    def notifyMoveStarted(self):
+        super(Manipulator, self).notifyMoveStarted()
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = True
+            
+    def notifyMoveFinished(self, newPos):
+        super(Manipulator, self).notifyMoveFinished(newPos)
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = False
+    
+    def paint(self, painter, option, widget):
+        super(Manipulator, self).paint(painter, option, widget)
+        
+        if self.drawSnapGrid:
+            painter.save()
+            painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
+            painter.restore()
             
 import settings
