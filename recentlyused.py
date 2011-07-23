@@ -12,7 +12,9 @@ class RecentlyUsed(object):
     def addRecentlyUsed(self, fileName):        
         files = []
         if self.qsettings.contains(self.sectionIdentifier):
-            files = cPickle.loads(self.qsettings.value(self.sectionIdentifier))
+            val = str(self.qsettings.value(self.sectionIdentifier))
+            temp = cPickle.loads(val)
+            files = self.stringToStringList(temp)
             
         # if something went wrong before, just drop recent projects and start anew,
         # recent projects aren't that important
@@ -31,7 +33,7 @@ class RecentlyUsed(object):
         if not isInList:
             files.insert(0, fileName)
         
-        self.qsettings.setValue(self.sectionIdentifier, cPickle.dumps(files))
+        self.qsettings.setValue(self.sectionIdentifier, cPickle.dumps(self.stringListToString(files)))
         
         # while because files could be in a bad state because of previously thrown exceptions
         # make sure we trim them correctly in all circumstances
@@ -42,7 +44,9 @@ class RecentlyUsed(object):
     def getRecentlyUsed(self):
         files = []
         if self.qsettings.contains(self.sectionIdentifier):
-            files = cPickle.loads(self.qsettings.value(self.sectionIdentifier))
+            val = str(self.qsettings.value(self.sectionIdentifier))
+            temp = cPickle.loads(val)
+            files = self.stringToStringList(temp)
             
         return files
 
@@ -53,3 +57,24 @@ class RecentlyUsed(object):
             return trimedFileName
         else:
             return fileName
+        
+    def stringListToString(self, list):
+        temp = ""
+        
+        first = True
+        for s in list:
+            if first is True:
+                temp = s
+                first = False
+            else:
+                temp = temp + ";" + s
+        
+        return temp
+        
+    def stringToStringList(self, instr):
+        return instr.split(";")
+        
+        
+        
+        
+        
