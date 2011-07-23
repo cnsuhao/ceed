@@ -76,6 +76,7 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         
         self.setAcceptDrops(True)
         self.drawSnapGrid = False
+        self.snapGridAction = action.getAction("layout/snap_grid")
     
     def getNormalPen(self):
         return settings.getEntry("layout/visual/normal_outline").value
@@ -201,9 +202,10 @@ class Manipulator(cegui.widgethelpers.Manipulator):
     def paint(self, painter, option, widget):
         super(Manipulator, self).paint(painter, option, widget)
         
-        if self.drawSnapGrid:
+        if self.drawSnapGrid and self.snapGridAction.isChecked():
             painter.save()
             painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
             painter.restore()
             
 import settings
+import action

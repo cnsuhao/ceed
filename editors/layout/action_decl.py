@@ -16,8 +16,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 
 def declare(actionManager):
     cat = actionManager.createCategory(name = "layout", label = "Layout Editor")
     
+    cat.createAction(name = "snap_grid", label = "Snap widgets to parent's snap grid",
+                     help = "When resizing and moving widgets, if checked this makes sure they snap to a snap grid (see settings for snap grid related entries), also shows the snap grid if checked.",
+                     icon = QIcon("icons/layout_editing/snap_grid.png"),
+                     defaultShortcut = QKeySequence(Qt.Key_Space)).setCheckable(True)
