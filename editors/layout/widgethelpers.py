@@ -207,5 +207,31 @@ class Manipulator(cegui.widgethelpers.Manipulator):
             painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
             painter.restore()
             
+    def snapPointToGrid(self, point):
+        # point is in local space
+        snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
+        snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
+        
+        snappedX = round(point.x() / snapGridX) * snapGridX
+        snappedY = round(point.y() / snapGridY) * snapGridY
+        
+        return QPointF(snappedX, snappedY)
+    
+    def constrainResizeRect(self, rect):
+        # we constrain all 4 "corners" to the snap grid if needed
+        if self.snapGridAction.isChecked():
+            parent = self.parentItem()
+            if isinstance(parent, Manipulator):
+                # we save these now to avoid affecting the bottom right coord with top left snapping
+                oldTopLeft = rect.topLeft()
+                oldBottomRight = rect.bottomRight()
+                
+                rect.setTopLeft(parent.snapPointToGrid(oldTopLeft))
+                rect.setBottomRight(parent.snapPointToGrid(oldBottomRight))
+                
+        rect = super(Manipulator, self).constrainResizeRect(rect)
+        
+        return rect
+            
 import settings
 import action
