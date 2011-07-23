@@ -114,10 +114,10 @@ class SerialisationData(object):
         
         ret = None
             
-        if not rootManipulator:
+        if rootManipulator is None:
             #assert(self.parentPath == "")
             
-            ret = self.createManipulator(rootManipulator, widget)
+            ret = self.createManipulator(None, widget)
             rootManipulator = ret
             
         else:

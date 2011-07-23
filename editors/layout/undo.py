@@ -198,10 +198,6 @@ class DeleteCommand(commands.UndoCommand):
         for widgetPath in reversed(self.widgetPaths):
             data = self.widgetData[widgetPath]
             result = data.reconstruct(self.visual.scene.rootManipulator)
-            
-            if result.widget.getParent() is None:
-                # this is a root widget being reconstructed, handle this accordingly
-                self.visual.setRootWidgetManipulator(result)
         
             manipulators.append(result)
         
@@ -210,14 +206,8 @@ class DeleteCommand(commands.UndoCommand):
     def redo(self):
         for widgetPath in self.widgetPaths:
             manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
-            wasRootWidget = manipulator.widget.getParent() is None
-                            
             manipulator.detach(destroyWidget = True)
-        
-            if wasRootWidget:
-                # this was a root widget being deleted, handle this accordingly
-                self.visual.setRootWidgetManipulator(None)
-                
+            
         self.visual.notifyWidgetManipulatorsRemoved(self.widgetPaths)
         
         super(DeleteCommand, self).redo()
@@ -269,12 +259,6 @@ class CreateCommand(commands.UndoCommand):
         result.updateFromWidget()
         # ensure this isn't obscured by it's parent
         result.moveToFront()
-        
-        # the first created widget must be the root (every created widget must have a parent)
-        if self.visual.scene.rootManipulator is None:
-            self.visual.scene.rootManipulator = result
-                
-        self.visual.hierarchyDockWidget.setRootWidgetManipulator(self.visual.scene.rootManipulator)
         
         self.visual.hierarchyDockWidget.refresh()
         

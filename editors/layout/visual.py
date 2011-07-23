@@ -151,11 +151,14 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         return ["application/x-ceed-widget-paths", "application/x-ceed-widget-type"]
 
     def dropMimeData(self, data, action, row, column, parent):
-        if data.hasFormat("application/x-ceed-widget-paths"):
+        if data.hasFormat("application/x-ceed-widget-paths"):            
             # data.data(..).data() looks weird but is the correct thing!
             widgetPaths = cPickle.loads(data.data("application/x-ceed-widget-paths").data())
             targetWidgetPaths = []
+            
             newParent = self.itemFromIndex(parent)
+            if newParent is None:
+                return False
             
             for widgetPath in widgetPaths:
                 widgetName = widgetPath[widgetPath.rfind("/") + 1:]
@@ -175,9 +178,10 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         elif data.hasFormat("application/x-ceed-widget-type"):
             widgetType = data.data("application/x-ceed-widget-type").data()
             parentItem = self.itemFromIndex(parent)
-            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItem.data(Qt.UserRole))
+            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItem.data(Qt.UserRole)) if parentItem is not None else None
+            uniqueName = parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]) if parentManipulator is not None else widgetType.rsplit("/", 1)[-1]
             
-            cmd = undo.CreateCommand(self.dockWidget.visual, parentItem.data(Qt.UserRole), widgetType, parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
+            cmd = undo.CreateCommand(self.dockWidget.visual, parentItem.data(Qt.UserRole) if parentItem is not None else "", widgetType, uniqueName)
             self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
             
             return True
@@ -625,6 +629,57 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
         else:
             event.accept()
 
+    def dragEnterEvent(self, event):
+        # if the root manipulator is in place the QGraphicsScene machinery will take care of drag n drop
+        # the graphics items (manipulators in fact) have that implemented already
+        if self.rootManipulator is not None:
+            super(EditingScene, self).dragEnterEvent(event)
+            
+        else:
+            # otherwise we should accept a new root widget to the empty layout if it's a new widget
+            if event.mimeData().hasFormat("application/x-ceed-widget-type"):
+                event.acceptProposedAction()
+    
+    def dragMoveEvent(self, event):
+        # if the root manipulator is in place the QGraphicsScene machinery will take care of drag n drop
+        # the graphics items (manipulators in fact) have that implemented already
+        if self.rootManipulator is not None:
+            super(EditingScene, self).dragMoveEvent(event)
+            
+        else:
+            # otherwise we should accept a new root widget to the empty layout if it's a new widget
+            if event.mimeData().hasFormat("application/x-ceed-widget-type"):
+                event.acceptProposedAction()
+        
+    def dragLeaveEvent(self, event):
+        # if the root manipulator is in place the QGraphicsScene machinery will take care of drag n drop
+        # the graphics items (manipulators in fact) have that implemented already
+        if self.rootManipulator is not None:
+            super(EditingScene, self).dragEnterEvent(event)
+            
+        else:
+            pass
+        
+    def dropEvent(self, event):
+        # if the root manipulator is in place the QGraphicsScene machinery will take care of drag n drop
+        # the graphics items (manipulators in fact) have that implemented already
+        if self.rootManipulator is not None:
+            super(EditingScene, self).dropEvent(event)
+        
+        else:
+            data = event.mimeData().data("application/x-ceed-widget-type")
+
+            if data:
+                widgetType = data.data()
+    
+                cmd = undo.CreateCommand(self.visual, "", widgetType, widgetType.rsplit("/", 1)[-1])
+                self.visual.tabbedEditor.undoStack.push(cmd)
+    
+                event.acceptProposedAction()
+                
+            else:
+                event.ignore()
+        
 class VisualEditing(QWidget, editors.mixed.EditMode):
     """This is the default visual editing mode
     
