@@ -76,6 +76,7 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         
         self.setAcceptDrops(True)
         self.drawSnapGrid = False
+        self.ignoreSnapGrid = False
         self.snapGridAction = action.getAction("layout/snap_grid")
     
     def getNormalPen(self):
@@ -206,7 +207,13 @@ class Manipulator(cegui.widgethelpers.Manipulator):
             painter.save()
             painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
             painter.restore()
-            
+    
+    def updateFromWidget(self):
+        # we are updating the position and size from widget, we don't want any snapping
+        self.ignoreSnapGrid = True
+        super(Manipulator, self).updateFromWidget()
+        self.ignoreSnapGrid = False
+    
     def snapPointToGrid(self, point):
         # point is in local space
         snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
@@ -217,9 +224,19 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         
         return QPointF(snappedX, snappedY)
     
+    def constrainMovePoint(self, point):
+        if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
+            parent = self.parentItem()
+            if isinstance(parent, Manipulator):
+                point = self.snapPointToGrid(point)
+        
+        point = super(Manipulator, self).constrainMovePoint(point)
+        
+        return point
+    
     def constrainResizeRect(self, rect):
         # we constrain all 4 "corners" to the snap grid if needed
-        if self.snapGridAction.isChecked():
+        if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
             parent = self.parentItem()
             if isinstance(parent, Manipulator):
                 # we save these now to avoid affecting the bottom right coord with top left snapping
