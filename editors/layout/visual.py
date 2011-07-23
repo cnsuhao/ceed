@@ -695,6 +695,8 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.toolBar.addAction(self.alignVBottomAction)
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.deleteAction)
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(action.getAction("layout/snap_grid"))
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
@@ -857,4 +859,4 @@ import ui.editors.layout.createwidgetdockwidget
 # needs to be at the end, import to get the singleton
 import mainwindow
 import settings
-
+import action

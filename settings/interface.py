@@ -112,6 +112,13 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             widget.textChanged.connect(lambda text: setattr(entry, "editedValue", int(text)))
             widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
             
+        elif entry.widgetHint == "float":
+            widget = QLineEdit()
+            widget.setText(str(entry.value))
+            widget.setToolTip(entry.help)
+            widget.textChanged.connect(lambda text: setattr(entry, "editedValue", float(text)))
+            widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
+            
         elif entry.widgetHint == "checkbox":
             widget = QCheckBox()
             widget.setChecked(entry.value)

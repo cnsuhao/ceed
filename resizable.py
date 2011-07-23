@@ -541,6 +541,9 @@ class ResizableRectItem(QGraphicsRectItem):
         self.handlesDirty = True
         self.ensureHandlesUpdated()
         
+    def constrainMovePoint(self, point):
+        return point
+        
     def constrainResizeRect(self, rect):
         minSize = self.getMinSize()
         maxSize = self.getMaxSize()
@@ -798,6 +801,8 @@ class ResizableRectItem(QGraphicsRectItem):
                 self.hideAllHandles()
         
         elif change == QGraphicsItem.ItemPositionChange:
+            value = self.constrainMovePoint(value)
+            
             if not self.moveInProgress and not self.ignoreGeometryChanges:
                 self.moveInProgress = True
                 self.moveOldPos = self.pos()

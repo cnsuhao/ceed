@@ -47,13 +47,37 @@ class SerialisationData(cegui.widgethelpers.SerialisationData):
             
 class Manipulator(cegui.widgethelpers.Manipulator):
     """Layout editing specific widget manipulator"""
+    snapGridBrush = None
+    
+    @classmethod
+    def getSnapGridBrush(cls):
+        if cls.snapGridBrush is None:
+            cls.snapGridBrush = QBrush()
+            texture = QPixmap(settings.getEntry("layout/visual/snap_grid_x").value, settings.getEntry("layout/visual/snap_grid_y").value)
+            texture.fill(QColor(Qt.transparent))
+            
+            painter = QPainter(texture)
+            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_colour").value))
+            painter.drawPoint(0, 0)
+            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_shadow_colour").value))
+            painter.drawPoint(1, 0)
+            painter.drawPoint(1, 1)
+            painter.drawPoint(0, 1)
+            painter.end()
+            
+            cls.snapGridBrush.setTexture(texture)
+            
+        return cls.snapGridBrush
     
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = True):
         self.visual = visual
         
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)  
         
-        self.setAcceptDrops(True)      
+        self.setAcceptDrops(True)
+        self.drawSnapGrid = False
+        self.ignoreSnapGrid = False
+        self.snapGridAction = action.getAction("layout/snap_grid")
     
     def getNormalPen(self):
         return settings.getEntry("layout/visual/normal_outline").value
@@ -147,5 +171,84 @@ class Manipulator(cegui.widgethelpers.Manipulator):
             
         else:
             event.ignore()
+    
+    def notifyResizeStarted(self):
+        super(Manipulator, self).notifyResizeStarted()
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = True
+            
+    def notifyResizeFinished(self, newPos, newRect):
+        super(Manipulator, self).notifyResizeFinished(newPos, newRect)
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = False
+            
+    def notifyMoveStarted(self):
+        super(Manipulator, self).notifyMoveStarted()
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = True
+            
+    def notifyMoveFinished(self, newPos):
+        super(Manipulator, self).notifyMoveFinished(newPos)
+        
+        parent = self.parentItem()
+        if isinstance(parent, Manipulator):
+            parent.drawSnapGrid = False
+    
+    def paint(self, painter, option, widget):
+        super(Manipulator, self).paint(painter, option, widget)
+        
+        if self.drawSnapGrid and self.snapGridAction.isChecked():
+            painter.save()
+            painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
+            painter.restore()
+    
+    def updateFromWidget(self):
+        # we are updating the position and size from widget, we don't want any snapping
+        self.ignoreSnapGrid = True
+        super(Manipulator, self).updateFromWidget()
+        self.ignoreSnapGrid = False
+    
+    def snapPointToGrid(self, point):
+        # point is in local space
+        snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
+        snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
+        
+        snappedX = round(point.x() / snapGridX) * snapGridX
+        snappedY = round(point.y() / snapGridY) * snapGridY
+        
+        return QPointF(snappedX, snappedY)
+    
+    def constrainMovePoint(self, point):
+        if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
+            parent = self.parentItem()
+            if isinstance(parent, Manipulator):
+                point = self.snapPointToGrid(point)
+        
+        point = super(Manipulator, self).constrainMovePoint(point)
+        
+        return point
+    
+    def constrainResizeRect(self, rect):
+        # we constrain all 4 "corners" to the snap grid if needed
+        if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
+            parent = self.parentItem()
+            if isinstance(parent, Manipulator):
+                # we save these now to avoid affecting the bottom right coord with top left snapping
+                oldTopLeft = rect.topLeft()
+                oldBottomRight = rect.bottomRight()
+                
+                rect.setTopLeft(parent.snapPointToGrid(oldTopLeft))
+                rect.setBottomRight(parent.snapPointToGrid(oldBottomRight))
+                
+        rect = super(Manipulator, self).constrainResizeRect(rect)
+        
+        return rect
             
 import settings
+import action

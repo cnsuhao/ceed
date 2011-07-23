@@ -109,6 +109,8 @@ class ActionManager(declaration.ActionManager):
     See ConnectionGroup
     """
     
+    instance = None
+    
     def __init__(self, mainWindow, settings):
         super(ActionManager, self).__init__(mainWindow, settings)
         
@@ -193,3 +195,12 @@ class ActionManager(declaration.ActionManager):
         import editors.layout.action_decl as layout_actions
         layout_actions.declare(self)
         
+        assert(ActionManager.instance is None)
+        ActionManager.instance = self
+        
+def getAction(path):
+    """This is a convenience method to make action retrieval easier
+    """
+    
+    assert(ActionManager.instance is not None)
+    return ActionManager.instance.getAction(path)
