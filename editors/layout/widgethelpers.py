@@ -84,9 +84,13 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)  
         
         self.setAcceptDrops(True)
+        
         self.drawSnapGrid = False
+        self.snapGridNonClientArea = False
         self.ignoreSnapGrid = False
+        
         self.snapGridAction = action.getAction("layout/snap_grid")
+        
         self.absoluteModeAction = action.getAction("layout/absolute_mode")
         self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
     
@@ -242,8 +246,13 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         super(Manipulator, self).paint(painter, option, widget)
         
         if self.drawSnapGrid and self.snapGridAction.isChecked():
+            childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+            qChildRect = QRectF(childRect.d_min.d_x, childRect.d_min.d_y, childRect.getWidth(), childRect.getHeight())
+            qChildRect.translate(-self.scenePos())
+            
             painter.save()
-            painter.fillRect(self.boundingRect(), Manipulator.getSnapGridBrush())
+            painter.setBrushOrigin(qChildRect.topLeft())
+            painter.fillRect(qChildRect, Manipulator.getSnapGridBrush())
             painter.restore()
     
     def updateFromWidget(self):
@@ -253,14 +262,22 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         self.ignoreSnapGrid = False
     
     def snapXCoordToGrid(self, x):
+        # we have to take the child rect into account
+        childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+        xOffset = childRect.d_min.d_x - self.scenePos().x()
+        
         # point is in local space
         snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
-        return round(x / snapGridX) * snapGridX
+        return xOffset + round((x - xOffset) / snapGridX) * snapGridX
     
     def snapYCoordToGrid(self, y):
+        # we have to take the child rect into account
+        childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+        yOffset = childRect.d_min.d_y - self.scenePos().y()
+        
         # point is in local space
         snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
-        return round(y / snapGridY) * snapGridY
+        return yOffset + round((y - yOffset) / snapGridY) * snapGridY
     
     def constrainMovePoint(self, point):
         if not self.ignoreSnapGrid and hasattr(self, "snapGridAction") and self.snapGridAction.isChecked():
