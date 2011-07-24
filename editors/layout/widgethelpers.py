@@ -87,7 +87,22 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         self.drawSnapGrid = False
         self.ignoreSnapGrid = False
         self.snapGridAction = action.getAction("layout/snap_grid")
+        self.absoluteModeAction = action.getAction("layout/absolute_mode")
+        self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
     
+    def __del__(self):
+        self.absoluteModeAction.toggled.disconnect(self.slot_absoluteModeToggled)
+    
+    def slot_absoluteModeToggled(self, checked):
+        # immediately update if possible
+        if self.resizeInProgress:
+            self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
+            self.update()
+        
+        if self.moveInProgress:
+            self.notifyMoveProgress(self.lastMoveNewPos)
+            self.update()
+        
     def getNormalPen(self):
         return settings.getEntry("layout/visual/normal_outline").value
         
@@ -188,6 +203,12 @@ class Manipulator(cegui.widgethelpers.Manipulator):
             
         else:
             event.ignore()
+    
+    def useAbsoluteCoordsForMove(self):
+        return self.absoluteModeAction.isChecked()
+    
+    def useAbsoluteCoordsForResize(self):
+        return self.absoluteModeAction.isChecked()
     
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()

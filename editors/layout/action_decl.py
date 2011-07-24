@@ -26,3 +26,8 @@ def declare(actionManager):
                      help = "When resizing and moving widgets, if checked this makes sure they snap to a snap grid (see settings for snap grid related entries), also shows the snap grid if checked.",
                      icon = QIcon("icons/layout_editing/snap_grid.png"),
                      defaultShortcut = QKeySequence(Qt.Key_Space)).setCheckable(True)
+                     
+    cat.createAction(name = "absolute_mode", label = "Resize and move widgets in absolute mode",
+                     help = "When resizing and moving widgets, if checked this makes the delta absolute, it is relative if unchecked.",
+                     icon = QIcon("icons/layout_editing/absolute_mode.png"),
+                     defaultShortcut = QKeySequence(Qt.Key_A)).setCheckable(True)

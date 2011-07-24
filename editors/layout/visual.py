@@ -754,6 +754,7 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.toolBar.addAction(self.deleteAction)
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(action.getAction("layout/snap_grid"))
+        self.toolBar.addAction(action.getAction("layout/absolute_mode"))
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
