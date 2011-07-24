@@ -19,7 +19,6 @@
 import commands
 import elements
 
-import copy
 import math
 
 idbase = 1100
@@ -136,9 +135,9 @@ class GeometryChangeCommand(commands.UndoCommand):
     
     def refreshText(self):            
         if len(self.imageNames) == 1:
-            self.setText("Geometry change of '%s'" % (self.imageNames[0]))
+            self.setText("Change geometry of '%s'" % (self.imageNames[0]))
         else:
-            self.setText("Geometry change of %i images" % (len(self.imageNames)))
+            self.setText("Change geometry of %i images" % (len(self.imageNames)))
             
     def id(self):
         return idbase + 2
@@ -208,9 +207,9 @@ class OffsetMoveCommand(commands.UndoCommand):
                 
     def refreshText(self):
         if len(self.imageNames) == 1:
-            self.setText("Offset move of '%s'" % (self.imageNames[0]))
+            self.setText("Move offset of '%s'" % (self.imageNames[0]))
         else:
-            self.setText("Offset move of %i images" % (len(self.imageNames)))
+            self.setText("Move offset of %i images" % (len(self.imageNames)))
         
     def id(self):
         return idbase + 3
@@ -344,7 +343,7 @@ class CreateCommand(commands.UndoCommand):
         self.xoffset = xoffset
         self.yoffset = yoffset
         
-        self.setText("Create image '%s'" % (self.name))
+        self.setText("Create '%s'" % (self.name))
         
     def id(self):
         return idbase + 6
@@ -575,7 +574,7 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
         self.refreshText()
         
     def refreshText(self):
-        self.setText("%s imageset auto scale" % ("Enabled" if self.newAutoScaled else "Disabled"))
+        self.setText("%s imageset auto scale" % ("Enable" if self.newAutoScaled else "Disable"))
                 
     def id(self):
         return idbase + 11

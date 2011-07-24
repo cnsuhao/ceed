@@ -227,7 +227,7 @@ class CreateCommand(commands.UndoCommand):
         self.refreshText()
     
     def refreshText(self):
-        self.setText("create '%s' of type '%s'" % (self.widgetName, self.widgetType))
+        self.setText("Create '%s' of type '%s'" % (self.widgetName, self.widgetType))
         
     def id(self):
         return idbase + 4
@@ -346,9 +346,9 @@ class HorizontalAlignCommand(commands.UndoCommand):
             raise RuntimeError("Unknown horizontal alignment")
         
         if len(self.widgetPaths) == 1:
-            self.setText("Horizontal align '%s' %s" % (self.widgetPaths[0], alignStr))
+            self.setText("Horizontally align '%s' %s" % (self.widgetPaths[0], alignStr))
         else:
-            self.setText("Horizontal align %i widgets %s" % (len(self.widgetPaths), alignStr))
+            self.setText("Horizontally align %i widgets %s" % (len(self.widgetPaths), alignStr))
                 
     def id(self):
         return idbase + 6
@@ -404,9 +404,9 @@ class VerticalAlignCommand(commands.UndoCommand):
             raise RuntimeError("Unknown vertical alignment")
         
         if len(self.widgetPaths) == 1:
-            self.setText("Vertical align '%s' %s" % (self.widgetPaths[0], alignStr))
+            self.setText("Vertically align '%s' %s" % (self.widgetPaths[0], alignStr))
         else:
-            self.setText("Vertical align %i widgets %s" % (len(self.widgetPaths), alignStr))
+            self.setText("Vertically align %i widgets %s" % (len(self.widgetPaths), alignStr))
                 
     def id(self):
         return idbase + 7
@@ -451,9 +451,9 @@ class ReparentCommand(commands.UndoCommand):
     
     def refreshText(self):            
         if len(self.oldWidgetPaths) == 1:
-            self.setText("Reparented '%s' to '%s'" % (self.oldWidgetPaths[0], self.newWidgetPaths[0]))
+            self.setText("Reparent '%s' to '%s'" % (self.oldWidgetPaths[0], self.newWidgetPaths[0]))
         else:
-            self.setText("Reparented %i widgets'" % (len(self.oldWidgetPaths)))
+            self.setText("Reparent %i widgets'" % (len(self.oldWidgetPaths)))
     
     def id(self):
         return idbase + 8
@@ -547,9 +547,9 @@ class PasteCommand(commands.UndoCommand):
     
     def refreshText(self):            
         if len(self.clipboardData) == 1:
-            self.setText("Pasted '%s' hierarchy to '%s'" % (self.clipboardData[0].name, self.targetWidgetPath))
+            self.setText("Paste '%s' hierarchy to '%s'" % (self.clipboardData[0].name, self.targetWidgetPath))
         else:
-            self.setText("Pasted %i hierarchies to '%s'" % (len(self.clipboardData), self.targetWidgetPath))
+            self.setText("Paste %i hierarchies to '%s'" % (len(self.clipboardData), self.targetWidgetPath))
     
     def id(self):
         return idbase + 9
