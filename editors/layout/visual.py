@@ -60,22 +60,6 @@ class WidgetHierarchyItem(QStandardItem):
         
     def clone(self):
         ret = WidgetHierarchyItem(self.manipulator)
-        
-        # PySide bug: PySide doesn't take ownership so we have to hack this around like this :-(
-        #             hopefully this gets fixed.
-        #
-        #             NASTY NASTY NASTY
-        #
-        # TODO: This means that whenever you move project items around, you create leaks that exist
-        #       for the entire time of execution of the app!
-        # UPDATE: This got fixed in 1.0.3
-        #         I will leave the workaround in place until that is the version in Ubuntu stable
-        
-        if hasattr(self, "returnedClones"):
-            self.returnedClones.append(ret)
-        else:
-            self.returnedClones = [ret]
-        
         return ret
 
 class WidgetHierarchyTreeModel(QStandardItemModel):
