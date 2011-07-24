@@ -188,12 +188,16 @@ class ImageEntry(resizable.ResizableRectItem):
         # It is save to assume that this is None or a valid QListWidgetItem        
         self.listItem = None
         
-    def constrainResizeRect(self, rect):
+    def constrainResizeRect(self, rect, oldRect):
         # we simply round the rectangle because we only support "full" pixels
+        
+        # NOTE: Imageset as such might support floating point pixels but it's never what you
+        #       really want, image quality deteriorates a lot
+        
         rect = QRectF(QPointF(round(rect.topLeft().x()), round(rect.topLeft().y())),
                       QPointF(round(rect.bottomRight().x()), round(rect.bottomRight().y())))
         
-        return super(ImageEntry, self).constrainResizeRect(rect)
+        return super(ImageEntry, self).constrainResizeRect(rect, oldRect)
         
     def loadFromElement(self, element):
         self.name = element.get("Name", "Unknown")
