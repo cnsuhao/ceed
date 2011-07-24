@@ -32,22 +32,6 @@ class GraphicsScene(qtgraphics.GraphicsScene):
     def __init__(self, ceguiInstance):
         super(GraphicsScene, self).__init__(ceguiInstance)
 
-    def keyPressEvent(self, event):
-        super(GraphicsScene, self).keyPressEvent(event)
-        
-        if event.key() == Qt.Key_Control:
-            for item in self.items():
-                if isinstance(item, Manipulator):
-                    item.setAlternativeMode(True)
-        
-    def keyReleaseEvent(self, event):
-        super(GraphicsScene, self).keyReleaseEvent(event)
-        
-        if event.key() == Qt.Key_Control:
-            for item in self.items():
-                if isinstance(item, Manipulator):
-                    item.setAlternativeMode(False)
-
 class SerialisationData(object):
     """Allows to "freeze" CEGUI widget to data that is easy to retain in python,
     this is a helper class that can be used for copy/paste, undo commands, etc...
@@ -174,8 +158,6 @@ class Manipulator(resizable.ResizableRectItem):
                 # note: we don't have to assign child anywhere, we pass parent to the constructor
                 self.createChildManipulator(childWidget, True, skipAutoWidgets)
                 idx += 1
-                
-        self.alternativeMode = False
         
         self.preResizePos = None
         self.preResizeSize = None
@@ -243,18 +225,6 @@ class Manipulator(resizable.ResizableRectItem):
                 ret.extend(child.getAllDescendantManipulators())
                 
         return ret
-    
-    def setAlternativeMode(self, enabled):
-        if self.alternativeMode == enabled:
-            return
-        
-        self.alternativeMode = enabled
-        
-        # immediately update if possible
-        if self.resizeInProgress:
-            self.notifyResizeProgress(self.lastResizeNewPos, self.lastResizeNewRect)
-        if self.moveInProgress:
-            self.notifyMoveProgress(self.lastMoveNewPos)
 
     def updateFromWidget(self):
         assert(self.widget is not None)
@@ -328,6 +298,12 @@ class Manipulator(resizable.ResizableRectItem):
         
         else:
             return self.widget.getParentPixelSize()
+    
+    def useAbsoluteCoordsForMove(self):
+        return False
+    
+    def useAbsoluteCoordsForResize(self):
+        return False
 
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()
@@ -349,7 +325,7 @@ class Manipulator(resizable.ResizableRectItem):
         deltaPos = None
         deltaSize = None
         
-        if self.alternativeMode:
+        if self.useAbsoluteCoordsForResize():
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
             deltaSize = PyCEGUI.USize(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
         
@@ -422,7 +398,7 @@ class Manipulator(resizable.ResizableRectItem):
         pixelDeltaPos = newPos - self.moveOldPos
         
         deltaPos = None
-        if self.alternativeMode:
+        if self.useAbsoluteCoordsForMove():
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
             
         else:

@@ -18,36 +18,43 @@
 
 # MetaImageset compiler command line tool
 
-from PySide.QtGui import QApplication
-
-import argparse
-import metaimageset
-
-from xml.etree import ElementTree
-
 def main():
-    # we have to construct Qt application, otherwise all the pixmap functionality won't work
-    QApplication([])
+    import prerequisites
     
-    parser = argparse.ArgumentParser(description = "Compile given meta imageset")
+    if prerequisites.check():
+        from PySide.QtGui import QApplication
+        
+        import argparse
+        import metaimageset
+        
+        from xml.etree import ElementTree
+        
+        # we have to construct Qt application, otherwise all the pixmap functionality won't work
+        # FIXME: guiEnabled should be False when we move to PySide 1.0.5
+        QApplication([])
+        
+        parser = argparse.ArgumentParser(description = "Compile given meta imageset")
+        
+        parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5, help = "Number of pixels the size is increased as a step in the size determination.")
+        parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"), help = "Input file to be processed.")
+        
+        args = parser.parse_args()
+        
+        metaImageset = metaimageset.MetaImageset(args.input.name)
     
-    parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5, help = "Number of pixels the size is increased as a step in the size determination.")
-    parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"), help = "Input file to be processed.")
+        data = args.input.read()
+        element = ElementTree.fromstring(data)
+        metaImageset.loadFromElement(element)
+        
+        compiler = metaimageset.compiler.CompilerInstance(metaImageset)
+        compiler.sizeIncrement = args.sizeIncrement
+        compiler.compile()
     
-    args = parser.parse_args()
-    
-    metaImageset = metaimageset.MetaImageset(args.input.name)
-
-    data = args.input.read()
-    element = ElementTree.fromstring(data)
-    metaImageset.loadFromElement(element)
-    
-    compiler = metaimageset.compiler.CompilerInstance(metaImageset)
-    compiler.sizeIncrement = args.sizeIncrement
-    compiler.compile()
-
-    print("")
-    print("Performed compilation of '%s'..." % (args.input.name))
+        print("")
+        print("Performed compilation of '%s'..." % (args.input.name))
+        
+    else:
+        print("Your environment doesn't meet critical prerequisites! Can't start!")
 
 if __name__ == "__main__":
     main()
