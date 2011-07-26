@@ -27,6 +27,11 @@ def declare(settings):
     visual.createEntry(name = "continuous_rendering", type = bool, label = "Continuous rendering",
                        help = "Check this if you are experiencing redraw issues (your skin contains an idle animation or such).\nOnly applies to newly switched to visual modes so switch to Code mode or back or restart the application for this to take effect.",
                        defaultValue = False, widgetHint = "checkbox",
+                       sortingWeight = -1)
+    
+    visual.createEntry(name = "prevent_manipulator_overlap", type = bool, label = "Prevent manipulator overlap",
+                       help = "Only enable if you have a very fast computer and only edit small layouts. Very performance intensive!",
+                       defaultValue = False, widgetHint = "checkbox",
                        sortingWeight = 0)
     
     visual.createEntry(name = "normal_outline", type = QPen, label = "Normal outline",

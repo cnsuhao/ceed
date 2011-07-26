@@ -576,35 +576,47 @@ class Manipulator(resizable.ResizableRectItem):
         painter.setPen(pen)
         painter.drawLine(midHPoint + hOffset, endHPoint + hOffset)
 
+    def getPreventManipulatorOverlap(self):
+        """Returns whether the painting code should strive to prevent manipulator overlap (crossing outlines and possibly other things)
+        Override to change the behavior
+        """
+        
+        return False
+
     def paint(self, painter, option, widget):
         painter.save()
+
+        if self.getPreventManipulatorOverlap():
+            # NOTE: This is just an option because it's very performance intensive, most people editing big layouts will
+            #       want this disabled. But it makes editing nicer and fancier :-)
+            
+            # We are drawing the outlines after CEGUI has already been rendered so he have to clip overlapping parts
+            # we basically query all items colliding with ourselves and if that's a manipulator and is over us we subtract
+            # that from the clipped path.
+            clipPath = QPainterPath()
+            clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
+            # FIXME: I used self.collidingItems() but that seems way way slower than just going over everything on the scene
+            #        in reality we need siblings of ancestors recursively up to the top
+            #
+            #        this just begs for optimisation in the future
+            collidingItems = self.scene().items()
+            for item in collidingItems:
+                if item.isVisible() and item is not self and isinstance(item, Manipulator):
+                    if item.isAboveItem(self):
+                        clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
+            
+            # we clip using stencil buffers to prevent overlapping outlines appearing
+            # FIXME: This could potentially get very slow for huge layouts
+            painter.setClipPath(clipPath)
         
-        # TODO: The whole overlap avoiding code commented out because it's way too slow
-        
-        # We are drawing the outlines after CEGUI has already been rendered so he have to clip overlapping parts
-        # we basically query all items colliding with ourselves and if that's a manipulator and is over us we subtract
-        # that from the clipped path.
-        #clipPath = QPainterPath()
-        #clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
-        # FIXME: I used self.collidingItems() but that seems way way slower than just going over everything on the scene
-        #        in reality we need siblings of ancestors recursively up to the top
-        #
-        #        this just begs for optimisation in the future
-        #collidingItems = self.scene().items()
-        #for item in collidingItems:
-        #    if item is not self and isinstance(item, Manipulator):
-        #        if item.isAboveItem(self):
-        #            clipPath = clipPath.subtracted(item.boundingClipPath().translated(item.scenePos() - self.scenePos()))
-        
-        # we clip using stencil buffers to prevent overlapping outlines appearing
-        # FIXME: This could potentially get very slow for huge layouts
-        #painter.setClipPath(clipPath)
-        
+        self.impl_paint(painter, option, widget)
+
+        painter.restore()
+
+    def impl_paint(self, painter, option, widget):
         super(Manipulator, self).paint(painter, option, widget)
 
         if self.isSelected() or self.resizeInProgress or self.isAnyHandleSelected():
             baseSize = self.getBaseSize()
             self.paintHorizontalGuides(baseSize, painter, option, widget)
             self.paintVerticalGuides(baseSize, painter, option, widget)
-
-        painter.restore()
