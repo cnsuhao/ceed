@@ -517,7 +517,27 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             self.visual.tabbedEditor.undoStack.push(cmd)
     
     def normalisePositionOfSelectedWidgets(self):
-        pass
+        widgetPaths = []
+        oldPositions = {}
+        
+        # if there will be no non-zero offsets, we will normalise to absolute
+        undoCommand = undo.NormalisePositionToAbsoluteCommand
+        
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+                
+                widgetPaths.append(widgetPath)
+                oldPositions[widgetPath] = item.widget.getPosition()
+                
+                # if we find any non-zero offset, normalise to relative
+                if (item.widget.getPosition().d_x.d_offset != 0) or (item.widget.getPosition().d_y.d_offset != 0):
+                    undoCommand = undo.NormalisePositionToRelativeCommand
+                
+        if len(widgetPaths) > 0:
+            cmd = undoCommand(self.visual, widgetPaths, oldPositions)
+            self.visual.tabbedEditor.undoStack.push(cmd)
     
     def normaliseSizeOfSelectedWidgets(self):
         widgetPaths = []

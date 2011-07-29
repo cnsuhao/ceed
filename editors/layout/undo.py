@@ -62,12 +62,16 @@ class MoveCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.updateFromWidget()
+            # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
+            widgetManipulator.update()
             
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.updateFromWidget()
+            # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
+            widgetManipulator.update()
             
         super(MoveCommand, self).redo()
 
@@ -679,6 +683,99 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
                 
     def id(self):
         return idbase + 11
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+
+class NormalisePositionCommand(MoveCommand):
+    def __init__(self, visual, widgetPaths, oldPositions):
+        newPositions = {}
+        for widgetPath, oldPosition in oldPositions.iteritems():
+            newPositions[widgetPath] = self.normalisePosition(widgetPath, oldPosition)
+        
+        super(NormalisePositionCommand, self).__init__(visual, widgetPaths, oldPositions, newPositions)
+    
+        self.refreshText()
+    
+    def normalisePosition(self, widgetPath, size):
+        raise NotImplementedError("Each subclass of NormalisePositionCommand must implement the normalisePosition method")
+    
+    def refreshText(self):            
+        raise NotImplementedError("Each subclass of NormalisePositionCommand must implement the refreshText method")
+                
+    def id(self):
+        raise NotImplementedError("Each subclass of NormalisePositionCommand must implement the id method")
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+    
+class NormalisePositionToRelativeCommand(NormalisePositionCommand):
+    def __init__(self, visual, widgetPaths, oldPositions):
+        # even though this will be set again in the MoveCommand constructor we need to set it right now
+        # because otherwise the normalisePosition method will not work!
+        self.visual = visual
+        
+        super(NormalisePositionToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions)
+    
+    def normalisePosition(self, widgetPath, size):
+        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        position = manipulator.widget.getPosition()
+        baseSize = manipulator.getBaseSize()
+        
+        return PyCEGUI.UVector2(PyCEGUI.UDim((position.d_x.d_offset + position.d_x.d_scale * baseSize.d_width) / baseSize.d_width, 0),
+                                PyCEGUI.UDim((position.d_y.d_offset + position.d_y.d_scale * baseSize.d_height) / baseSize.d_height, 0))
+            
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Normalise position of '%s' to relative" % (self.widgetPaths[0]))
+        else:
+            self.setText("Normalise position of %i widgets to relative" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 12
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+
+class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
+    def __init__(self, visual, widgetPaths, oldPositions):
+        # even though this will be set again in the MoveCommand constructor we need to set it right now
+        # because otherwise the normalisePosition method will not work!
+        self.visual = visual
+        
+        super(NormalisePositionToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions)
+    
+    def normalisePosition(self, widgetPath, size):
+        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        position = manipulator.widget.getPosition()
+        baseSize = manipulator.getBaseSize()
+        
+        return PyCEGUI.UVector2(PyCEGUI.UDim(0, position.d_x.d_offset + position.d_x.d_scale * baseSize.d_width),
+                                PyCEGUI.UDim(0, position.d_y.d_offset + position.d_y.d_scale * baseSize.d_height))
+            
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Normalise position of '%s' to absolute" % (self.widgetPaths[0]))
+        else:
+            self.setText("Normalise position of %i widgets to absolute" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 13
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
