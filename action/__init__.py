@@ -91,12 +91,18 @@ class ConnectionGroup(object):
         if ensureDisconnected and connection.connected:
             connection.disconnect()
     
-    def connectAll(self):
+    def connectAll(self, skipConnected = True):
         for connection in self.connections:
+            if connection.connected and skipConnected:
+                continue
+            
             connection.connect()
     
-    def disconnectAll(self):
+    def disconnectAll(self, skipDisconnected = True):
         for connection in self.connections:
+            if not connection.connected and skipDisconnected:
+                continue
+            
             connection.disconnect()
     
 class ActionManager(declaration.ActionManager):

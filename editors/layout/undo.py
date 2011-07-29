@@ -113,6 +113,8 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.widget.setSize(self.oldSizes[widgetPath])
             widgetManipulator.updateFromWidget()
+            # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
+            widgetManipulator.update()
             
     def redo(self):
         for widgetPath in self.widgetPaths:
@@ -120,6 +122,8 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.widget.setSize(self.newSizes[widgetPath])
             widgetManipulator.updateFromWidget()
+            # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
+            widgetManipulator.update()
             
         super(ResizeCommand, self).redo()
 
@@ -590,3 +594,96 @@ class PasteCommand(commands.UndoCommand):
         self.visual.hierarchyDockWidget.refresh()
         
         super(PasteCommand, self).redo()
+
+class NormaliseSizeCommand(ResizeCommand):
+    def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
+        newSizes = {}
+        for widgetPath, oldSize in oldSizes.iteritems():
+            newSizes[widgetPath] = self.normaliseSize(widgetPath, oldSize)
+        
+        # we use oldPositions as newPositions because this command never changes positions of anything
+        super(NormaliseSizeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes, oldPositions, newSizes)
+    
+        self.refreshText()
+    
+    def normaliseSize(self, widgetPath, size):
+        raise NotImplementedError("Each subclass of NormaliseSizeCommand must implement the normaliseSize method")
+    
+    def refreshText(self):            
+        raise NotImplementedError("Each subclass of NormaliseSizeCommand must implement the refreshText method")
+                
+    def id(self):
+        raise NotImplementedError("Each subclass of NormaliseSizeCommand must implement the id method")
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+    
+class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
+    def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
+        # even though this will be set again in the ResizeCommand constructor we need to set it right now
+        # because otherwise the normaliseSize will not work!
+        self.visual = visual
+        
+        super(NormaliseSizeToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
+    
+    def normaliseSize(self, widgetPath, size):
+        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        pixelSize = manipulator.widget.getPixelSize()
+        baseSize = manipulator.getBaseSize()
+        
+        return PyCEGUI.USize(PyCEGUI.UDim(pixelSize.d_width / baseSize.d_width, 0),
+                             PyCEGUI.UDim(pixelSize.d_height / baseSize.d_height, 0))
+            
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Normalise size of '%s' to relative" % (self.widgetPaths[0]))
+        else:
+            self.setText("Normalise size of %i widgets to relative" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 10
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False
+
+class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
+    def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
+        # even though this will be set again in the ResizeCommand constructor we need to set it right now
+        # because otherwise the normaliseSize will not work!
+        self.visual = visual
+        
+        super(NormaliseSizeToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
+    
+    def normaliseSize(self, widgetPath, size):
+        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        pixelSize = manipulator.widget.getPixelSize()
+        
+        return PyCEGUI.USize(PyCEGUI.UDim(0, pixelSize.d_width),
+                             PyCEGUI.UDim(0, pixelSize.d_height))
+            
+    def refreshText(self):            
+        if len(self.widgetPaths) == 1:
+            self.setText("Normalise size of '%s' to absolute" % (self.widgetPaths[0]))
+        else:
+            self.setText("Normalise size of %i widgets to absolute" % (len(self.widgetPaths)))
+                
+    def id(self):
+        return idbase + 11
+        
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            # TODO
+        
+            pass
+        
+        return False

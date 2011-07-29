@@ -31,3 +31,13 @@ def declare(actionManager):
                      help = "When resizing and moving widgets, if checked this makes the delta absolute, it is relative if unchecked.",
                      icon = QIcon("icons/layout_editing/absolute_mode.png"),
                      defaultShortcut = QKeySequence(Qt.Key_A)).setCheckable(True)
+                     
+    cat.createAction(name = "normalise_position", label = "Normalise position (cycle)",
+                     help = "If the position is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
+                     icon = QIcon("icons/layout_editing/normalise_position.png"),
+                     defaultShortcut = QKeySequence(Qt.Key_Control + Qt.Key_D))
+                     
+    cat.createAction(name = "normalise_size", label = "Normalise size (cycle)",
+                     help = "If the size is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
+                     icon = QIcon("icons/layout_editing/normalise_size.png"),
+                     defaultShortcut = QKeySequence(Qt.Key_Control + Qt.Key_S))

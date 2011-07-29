@@ -516,6 +516,34 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
             cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
             self.visual.tabbedEditor.undoStack.push(cmd)
     
+    def normalisePositionOfSelectedWidgets(self):
+        pass
+    
+    def normaliseSizeOfSelectedWidgets(self):
+        widgetPaths = []
+        oldPositions = {}
+        oldSizes = {}
+        
+        # if there will be no non-zero offsets, we will normalise to absolute
+        undoCommand = undo.NormaliseSizeToAbsoluteCommand
+        
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+                
+                widgetPaths.append(widgetPath)
+                oldPositions[widgetPath] = item.widget.getPosition()
+                oldSizes[widgetPath] = item.widget.getSize()
+                
+                # if we find any non-zero offset, normalise to relative
+                if (item.widget.getSize().d_width.d_offset != 0) or (item.widget.getSize().d_height.d_offset != 0):
+                    undoCommand = undo.NormaliseSizeToRelativeCommand
+                
+        if len(widgetPaths) > 0:
+            cmd = undoCommand(self.visual, widgetPaths, oldPositions, oldSizes)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+    
     def slot_selectionChanged(self):
         selection = self.selectedItems()
         
@@ -689,6 +717,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.setupToolBar()
 
     def setupActions(self):
+        self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
+        
+        # TODO: Move these to the new action API
         self.zoomOriginalAction = QAction(QIcon("icons/layout_editing/zoom_original.png"), "Zoom original", self)
         self.zoomOriginalAction.triggered.connect(lambda: self.scene.views()[0].zoomOriginal())
         
@@ -717,6 +748,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.deleteAction = QAction(QIcon("icons/layout_editing/delete.png"), "Delete selection", self)
         self.deleteAction.triggered.connect(lambda: self.scene.deleteSelectedWidgets())
         
+        self.connectionGroup.add("layout/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
+        self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
+        
     def setupToolBar(self):
         self.toolBar = QToolBar()
         self.toolBar.setIconSize(QSize(32, 32))
@@ -739,6 +773,8 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(action.getAction("layout/snap_grid"))
         self.toolBar.addAction(action.getAction("layout/absolute_mode"))
+        self.toolBar.addAction(action.getAction("layout/normalise_position"))
+        self.toolBar.addAction(action.getAction("layout/normalise_size"))
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
@@ -801,9 +837,15 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         if self.scene.rootManipulator is not None:
             self.scene.rootManipulator.updateFromWidget()
 
+        # connect all our actions
+        self.connectionGroup.connectAll()
+
         super(VisualEditing, self).showEvent(event)
     
     def hideEvent(self, event):
+        # disconnected all our actions
+        self.connectionGroup.disconnectAll()
+        
         self.hierarchyDockWidget.setEnabled(False)
         self.propertiesDockWidget.setEnabled(False)
         self.createWidgetDockWidget.setEnabled(False)
