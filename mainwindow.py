@@ -18,6 +18,7 @@
 
 from PySide.QtCore import *
 from PySide.QtGui import *
+from recentlyused import RecentlyUsedMenuEntry
 
 import ui.mainwindow
 
@@ -34,6 +35,7 @@ import filesystembrowser
 import editors
 import help
 import about
+
 
 class MainWindow(QMainWindow):
     """The central window of the application.
@@ -66,13 +68,8 @@ class MainWindow(QMainWindow):
         self.settings.download()
         
         self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
-
-        # how many recent files should the editor remember
-        self.maxRecentProjects = 5
-        # to how many characters should the recent file names be trimmed to
-        self.recentProjectsNameTrimLength = 40
-        # recent files actions
-        self.recentProjectsActions = []
+        
+        self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.qsettings, "Projects")
         
         self.editorFactories = [
             editors.animation_list.AnimationListEditorFactory(),
@@ -241,12 +238,8 @@ class MainWindow(QMainWindow):
         self.fileMenu.addSeparator()
     
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
+        self.recentlyUsedProjects.setParentMenu(self.recentProjectsMenu, self.slot_openRecentProject)
         
-        for i in range(self.maxRecentProjects):
-            actionRP = QAction(self, visible = False, triggered = self.slot_openRecentProject)
-            self.recentProjectsActions.append(actionRP)
-            self.recentProjectsMenu.addAction(actionRP)
-
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
         
@@ -272,11 +265,7 @@ class MainWindow(QMainWindow):
         # sync up the cegui instance
         self.ceguiInstance.syncToProject(self.project)
         
-        # project has been opened
-        # enable the project management tree
-        #self.projectFiles.setEnabled(True)        
-        #if not fromRecentProject:
-        self.updateRecentProjects(path)
+        self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
             
         # and enable respective actions
         self.saveProjectAction.setEnabled(True)
@@ -285,6 +274,7 @@ class MainWindow(QMainWindow):
 
     def closeProject(self):
         self.projectManager.setProject(None)
+        self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
         self.project.unload()
         self.project = None
         
@@ -294,6 +284,8 @@ class MainWindow(QMainWindow):
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
         self.projectSettingsAction.setEnabled(False)
+        
+        
         
     def saveProject(self):
         self.project.save()
@@ -414,8 +406,7 @@ class MainWindow(QMainWindow):
         #    self.restoreGeometry(self.qsettings.value("geometry"))
         #if self.qsettings.contains("state"):
         #    self.restoreState(self.qsettings.value("state"))
-        if self.qsettings.contains("recentProjects"):
-            self.updateRecentProjectsActions();
+        return
         
     def quit(self):
         """Safely quits the editor, prompting user to save changes to files and the project."""
@@ -490,7 +481,7 @@ class MainWindow(QMainWindow):
             # user actually selected something ;-)
             
             self.openProject(file)
-    
+            
     def slot_saveProject(self):
         self.saveProject()
         
@@ -704,68 +695,13 @@ class MainWindow(QMainWindow):
         else:
             event.accept()
             
-    def updateRecentProjects(self,  fileName):
-        self.curFile = fileName
-        
-        files = []
-        if self.qsettings.contains("recentProjects"):
-            files = self.qsettings.value("recentProjects")
             
-            # if something went wrong before, just drop recent projects and start anew,
-            # recent projects aren't that important
-            if not isinstance(files, list):
-                files = []
-        
-        isInList = False
-        for f in files:
-            if f == fileName:
-                files.remove(f)
-                files.insert(0, f)
-                isInList = True
-                break
-        
-        #only insert the file if it is not already in list,
-        if not isInList:
-            files.insert(0, fileName)
-        
-        self.qsettings.setValue("recentProjects", files)
-        
-        # while because files could be in a bad state because of previously thrown exceptions
-        # make sure we trim them correctly in all circumstances
-        while len(files) > self.maxRecentProjects:
-            files.remove(files[self.maxRecentProjects])
-
-        self.updateRecentProjectsActions()
-            
-    def updateRecentProjectsActions(self):
-        files = self.qsettings.value("recentProjects")
-        # if something went wrong before, just drop recent projects and start anew,
-        # recent projects aren't that important
-        if not isinstance(files, list):
-            files = []
-
-        numRecentFiles = len(files)
-
-        for i in range(min(numRecentFiles, len(self.recentProjectsActions))):
-            fileName = files[i]
-            if (len(fileName) > self.recentProjectsNameTrimLength):
-                # + 3 because of the ...
-                fileName = "...%s" % (fileName[-self.recentProjectsNameTrimLength + 3:])
-        
-            text = "&%d %s" % (i + 1, fileName)
-            self.recentProjectsActions[i].setText(text)
-            self.recentProjectsActions[i].setData(files[i])
-            self.recentProjectsActions[i].setVisible(True)
-
-        for j in range(numRecentFiles, self.maxRecentProjects):
-            self.recentProjectsActions[j].setVisible(False)
-        
     def slot_openRecentProject(self):
-        action = self.sender()
-        if action:
+        temp = str(self.sender().data())
+        if self.sender():
             if self.project:
                 # give user a chance to save changes if needed
                 if not self.slot_closeProject():
                     return
             
-            self.openProject(action.data(), True)
+            self.openProject(temp, True)
