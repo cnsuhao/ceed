@@ -19,8 +19,6 @@
 from PySide.QtCore import Qt, QTimer, QPoint
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
-import compileuifiles
-
 class SplashScreen(QSplashScreen):
     """A fancy splashscreen that fades out when user moves mouse over it or clicks it.
     """
@@ -77,6 +75,8 @@ class Application(QApplication):
         super(Application, self).__init__(argv)
         
         # first recompile all UI files to ensure they are up to date
+        import compileuifiles
+        
         compileuifiles.compileUIFiles("./ui")
         compileuifiles.compileUIFiles("./ui/editors")
         compileuifiles.compileUIFiles("./ui/editors/imageset")

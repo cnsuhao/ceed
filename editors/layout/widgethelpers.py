@@ -242,8 +242,15 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         if isinstance(parent, Manipulator):
             parent.drawSnapGrid = False
     
-    def paint(self, painter, option, widget):
-        super(Manipulator, self).paint(painter, option, widget)
+    def getPreventManipulatorOverlap(self):
+        """Returns whether the painting code should strive to prevent manipulator overlap (crossing outlines and possibly other things)
+        Override to change the behavior
+        """
+        
+        return settings.getEntry("layout/visual/prevent_manipulator_overlap").value
+    
+    def impl_paint(self, painter, option, widget):
+        super(Manipulator, self).impl_paint(painter, option, widget)
         
         if self.drawSnapGrid and self.snapGridAction.isChecked():
             childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
