@@ -1,62 +1,71 @@
-import re
+from PySide.QtCore import *
+from PySide.QtGui import *
 
 class RecentlyUsed(object):
+    """
+    This class can be used to store pointers to Items like files and images for later reuse within the application.
+    
+    """
     def __init__(self, qsettings, sectionIdentifier):
         self.sectionIdentifier = "recentlyUsedIdentifier/" + sectionIdentifier
         self.qsettings = qsettings
-        # how many recent files should the editor remember
+        # how many recent items should the editor remember
         self.maxRecentlItems = 5
         # to how many characters should the recent file names be trimmed to
         self.recentlItemsNameTrimLength = 40
         
-    def addRecentlyUsed(self, fileName):        
-        files = []
+    def addRecentlyUsed(self, itemName):
+        """ Add an item to the list """        
+        items = []
         if self.qsettings.contains(self.sectionIdentifier):
             val = unicode(self.qsettings.value(self.sectionIdentifier))
-            files = self.stringToStringList(val)
+            items = self.stringToStringList(val)
             
         # if something went wrong before, just drop recent projects and start anew,
         # recent projects aren't that important
-        if not isinstance(files, list):
-            files = []
+        if not isinstance(items, list):
+            items = []
         
         isInList = False
-        for f in files:
-            if f == fileName:
-                files.remove(f)
-                files.insert(0, f)
+        for f in items:
+            if f == itemName:
+                items.remove(f)
+                items.insert(0, f)
                 isInList = True
                 break
         
         #only insert the file if it is not already in list,
         if not isInList:
-            files.insert(0, fileName)
+            items.insert(0, itemName)
         
-        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(files))
+        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(items))
         
-        # while because files could be in a bad state because of previously thrown exceptions
+        # while because items could be in a bad state because of previously thrown exceptions
         # make sure we trim them correctly in all circumstances
-        while len(files) > self.maxRecentlItems:
-            files.remove(files[self.maxRecentlItems])
+        while len(items) > self.maxRecentlItems:
+            items.remove(items[self.maxRecentlItems])
             
             
     def getRecentlyUsed(self):
-        files = []
+        """ Returns all items as a string list """
+        items = []
         if self.qsettings.contains(self.sectionIdentifier):
             val = unicode(self.qsettings.value(self.sectionIdentifier))
-            files = self.stringToStringList(val)
+            items = self.stringToStringList(val)
             
-        return files
+        return items
 
-    def trimFileName(self, fileName):
-        if (len(fileName) > self.recentlItemsNameTrimLength):
+    def trimItemName(self, itemName):
+        """ trim the itemName to the max. length and return it """ 
+        if (len(itemName) > self.recentlItemsNameTrimLength):
             # + 3 because of the ...
-            trimedFileName = "...%s" % (fileName[-self.recentlItemsNameTrimLength + 3:])
-            return trimedFileName
+            trimedItemName = "...%s" % (itemName[-self.recentlItemsNameTrimLength + 3:])
+            return trimedItemName
         else:
-            return fileName
+            return itemName
         
     def stringListToString(self, list):
+        """ converts a list into a string for storage in QSettings """
         temp = ""
         
         first = True
@@ -71,6 +80,7 @@ class RecentlyUsed(object):
         return temp
         
     def stringToStringList(self, instr):
+        """ converts a string to a string list """
         workStr = instr
         list = []
         
@@ -100,11 +110,41 @@ class RecentlyUsed(object):
             
                 
     def reconstructString(self, list):
+        """ reconstructs the string from a list and return it """
         reconst = ""
         for s in list:
             reconst = reconst + s
         return reconst
                 
         
+class RecentlyUsedMenuEntry(RecentlyUsed):
+    """
+    This class can be used to manage a Qt Menu entry to items.
+    """
+    def __init__(self, qsettings, sectionIdentifier):
+        super(RecentlyUsedMenuEntry, self).__init__(qsettings, sectionIdentifier)
         
+    def setParentMenu(self, menu, slot):
+        """ sets the parent menu and the slot that is called when clicked on an item """
+        self.menu = menu
+        self.slot = slot
+        self.updateMenu()
+    
+    def addRecentlyUsed(self, itemName):
+        """ adds an item to the list """
+        super(RecentlyUsedMenuEntry, self).addRecentlyUsed(itemName)
+        self.updateMenu()
+        
+    def updateMenu(self):
+        self.menu.clear()
+        items = self.getRecentlyUsed()
+                
+        for f in items:
+            actionRP = QAction(self.menu)
+            actionRP.setText(self.trimItemName(f))
+            actionRP.setData(f)
+            actionRP.setVisible(True)
+            actionRP.triggered.connect(self.slot)
+            self.menu.addAction(actionRP)
+                   
         

@@ -18,7 +18,7 @@
 
 from PySide.QtCore import *
 from PySide.QtGui import *
-from recentlyusedmenuentry import *
+from recentlyused import RecentlyUsedMenuEntry
 
 import ui.mainwindow
 
