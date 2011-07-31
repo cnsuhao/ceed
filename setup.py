@@ -37,11 +37,15 @@ buildOptions = dict(
     packages =
     [
         "OpenGL",
+        "OpenGL.GL",
+        "OpenGL.GLU",
         "OpenGL.platform",
         "OpenGL.arrays.formathandler",
         
         "encodings.ascii",
-        "encodings.utf_8"
+        "encodings.utf_8",
+
+        "PySide.QtNetwork"
     ],
     
     include_files =
