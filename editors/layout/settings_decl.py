@@ -51,11 +51,11 @@ def declare(settings):
                        sortingWeight = 4)
     
     visual.createEntry(name = "snap_grid_x", type = float, label = "Snap grid cell width (X)",
-                       defaultValue = 10, widgetHint = "float",
+                       defaultValue = 5, widgetHint = "float",
                        sortingWeight = 5)
     
     visual.createEntry(name = "snap_grid_y", type = float, label = "Snap grid cell height (Y)",
-                       defaultValue = 10, widgetHint = "float",
+                       defaultValue = 5, widgetHint = "float",
                        sortingWeight = 6)
     
     visual.createEntry(name = "snap_grid_point_colour", type = QColor, label = "Snap grid point colour",
