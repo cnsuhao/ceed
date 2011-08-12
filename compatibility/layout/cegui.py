@@ -43,6 +43,10 @@ class Layout2TypeDetector(compatibility.TypeDetector):
                 return False
             
             # Layout 2 has no version indication :-(
+            # However if there is a version attribute, we can be sure it's not Layout2
+            if root.get("version") is not None:
+                return False
+            
             return True
         
         except:
@@ -68,6 +72,10 @@ class Layout3TypeDetector(compatibility.TypeDetector):
                 return False
             
             # Layout 3 has no version indication :-(
+            # However if there is a version attribute, we can be sure it's not Layout3
+            if root.get("version") is not None:
+                return False
+            
             return True
         
         except:
@@ -92,7 +100,9 @@ class Layout4TypeDetector(compatibility.TypeDetector):
             if root.tag != "GUILayout":
                 return False
             
-            # TODO: Layout 4 has no version indication yet :-(
+            if root.get("version", "unknown") != "4":
+                return False
+            
             return True
         
         except:
