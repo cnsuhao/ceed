@@ -341,7 +341,7 @@ class TabbedEditor(object):
         
         Returns: True if the operation was successful
         """
-        pass
+        return False
     
     def performCut(self):
         """Performs cut of the editor's selection to the clipboard.
@@ -350,7 +350,7 @@ class TabbedEditor(object):
         
         Returns: True if the operation was successful
         """
-        pass
+        return False
     
     def performPaste(self):
         """Performs paste from the clipboard to the editor.
@@ -359,7 +359,7 @@ class TabbedEditor(object):
         
         Returns: True if the operation was successful
         """
-        pass
+        return False
 
 class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
