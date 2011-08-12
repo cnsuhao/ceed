@@ -206,3 +206,4 @@ import layout
 import looknfeel
 import project
 import property_mappings
+import scheme
