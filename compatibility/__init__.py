@@ -202,5 +202,6 @@ EditorEmbeddedCEGUIVersion = "0.8"
 import animation_list
 import imageset
 import layout
+import looknfeel
 import project
 import property_mappings
