@@ -20,10 +20,12 @@ import compatibility
 from xml.etree import ElementTree
 
 CEGUILookNFeel1 = "CEGUI LookNFeel 1"
-CEGUILookNFeel2 = "CEGUI LookNFeel 2"
+# superseded by LookNFeel 2 in 0.5b
+#CEGUILookNFeel2 = "CEGUI LookNFeel 2"
 CEGUILookNFeel3 = "CEGUI LookNFeel 3"
 CEGUILookNFeel4 = "CEGUI LookNFeel 4"
-CEGUILookNFeel5 = "CEGUI LookNFeel 5"
+# superseded by LookNFeel 6 in 0.7
+#CEGUILookNFeel5 = "CEGUI LookNFeel 5"
 CEGUILookNFeel6 = "CEGUI LookNFeel 6"
 CEGUILookNFeel7 = "CEGUI LookNFeel 7"
 

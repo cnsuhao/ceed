@@ -33,10 +33,12 @@ class Manager(compatibility.Manager):
         
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUILookNFeel1,
-            "0.5" : cegui.CEGUILookNFeel2,
-            "0.5b" : cegui.CEGUILookNFeel3,
+            # we only support non-obsolete major versions
+            #"0.5" : cegui.CEGUILookNFeel2,
+            "0.5" : cegui.CEGUILookNFeel3,
             "0.6" : cegui.CEGUILookNFeel4,
-            "0.7.0" : cegui.CEGUILookNFeel5,
+            # we only support non-obsolete major versions
+            #"0.7.0" : cegui.CEGUILookNFeel5,
             "0.7" : cegui.CEGUILookNFeel6, # because of animations, since 0.7.2
             "0.8" : cegui.CEGUILookNFeel7
         }
