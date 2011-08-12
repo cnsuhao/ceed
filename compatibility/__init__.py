@@ -200,6 +200,7 @@ EditorEmbeddedCEGUIVersion = "0.8"
 
 # make these visible to the outside
 import animation_list
+import font
 import imageset
 import layout
 import looknfeel
