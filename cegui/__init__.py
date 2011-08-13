@@ -167,7 +167,7 @@ class Instance(object):
             pass
 
         progress.setMinimum(0)
-        progress.setMaximum(3 + len(schemeFiles))
+        progress.setMaximum(3 + 9 * len(schemeFiles))
         
         progress.setLabelText("Purging all resources...")
         progress.setValue(0)
@@ -195,22 +195,32 @@ class Instance(object):
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
         
         for schemeFile in schemeFiles:
-            progress.setValue(progress.value() + 1)
-            progress.setLabelText("Recreating all schemes... (%s)" % (schemeFile))
+            def updateProgress(message):
+                progress.setValue(progress.value() + 1)
+                progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
             
+            updateProgress("Parsing the scheme file")
             scheme = PyCEGUI.SchemeManager.getSingleton().createFromFile(schemeFile, "schemes")
             
             # NOTE: This is very CEGUI implementation specific unfortunately!
             #       
             #       However I am not really sure how to do this any better.
             
+            updateProgress("Loading XML imagesets")
             scheme.loadXMLImagesets()
+            updateProgress("Loading image file imagesets")
             scheme.loadImageFileImagesets()
+            updateProgress("Loading fonts")
             scheme.loadFonts()
+            updateProgress("Loading looknfeels")
             scheme.loadLookNFeels()
+            updateProgress("Loading window renderer factory modules")
             scheme.loadWindowRendererFactories()
+            updateProgress("Loading window factories")
             scheme.loadWindowFactories()
+            updateProgress("Loading factory aliases")
             scheme.loadFactoryAliases()
+            updateProgress("Loading falagard mappings")
             scheme.loadFalagardMappings()
             
         # put SchemeManager into the default state again
