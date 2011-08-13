@@ -201,7 +201,8 @@ class Instance(object):
                 progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
             
             updateProgress("Parsing the scheme file")
-            scheme = PyCEGUI.SchemeManager.getSingleton().createFromFile(schemeFile, "schemes")
+            schemeSource = open(project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup()), "r").read()
+            scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(schemeSource)
             
             # NOTE: This is very CEGUI implementation specific unfortunately!
             #       

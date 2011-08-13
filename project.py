@@ -334,7 +334,25 @@ class Project(QStandardItemModel):
     
     def getRelativePathOf(self, path):
         return os.path.normpath(os.path.relpath(path, os.path.abspath(os.path.dirname(self.projectFilePath))))
-
+    
+    def getResourceFilePath(self, filename, resourceGroup):
+        # FIXME: The whole resource provider wrapping should be done proper, see http://www.cegui.org.uk/mantis/view.php?id=552
+        folder = ""
+        if resourceGroup == "imagesets":
+            folder = self.imagesetsPath
+        elif resourceGroup == "fonts":
+            folder = self.fontsPath
+        elif resourceGroup == "looknfeels":
+            folder = self.looknfeelsPath
+        elif resourceGroup == "schemes":
+            folder = self.schemesPath
+        elif resourceGroup == "layouts":
+            folder = self.layoutsPath
+        else:
+            raise RuntimeError("Unknown resource group '%s'" % (resourceGroup))
+        
+        return self.getAbsolutePathOf(os.path.join(folder, filename))
+        
 class ProjectManager(QDockWidget):
     """This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
