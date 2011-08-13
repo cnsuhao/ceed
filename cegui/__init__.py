@@ -178,6 +178,7 @@ class Instance(object):
         PyCEGUI.ImageManager.getSingleton().destroyAll()
         PyCEGUI.SchemeManager.getSingleton().destroyAll()
         PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
+        PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
         
         progress.setLabelText("Setting resource paths...")
         progress.setValue(1)
