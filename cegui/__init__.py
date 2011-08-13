@@ -167,7 +167,7 @@ class Instance(object):
             pass
 
         progress.setMinimum(0)
-        progress.setMaximum(3 + 9 * len(schemeFiles))
+        progress.setMaximum(2 + 9 * len(schemeFiles))
         
         progress.setLabelText("Purging all resources...")
         progress.setValue(0)
