@@ -208,13 +208,24 @@ class Instance(object):
             #       However I am not really sure how to do this any better.
             
             updateProgress("Loading XML imagesets")
-            scheme.loadXMLImagesets()
+            xmlImagesetIterator = scheme.getXMLImagesets()
+            while not xmlImagesetIterator.isAtEnd():
+                loadableUIElement = xmlImagesetIterator.getCurrentValue()
+                PyCEGUI.ImageManager.getSingleton().loadImageset(loadableUIElement.filename, loadableUIElement.resourceGroup)
+                xmlImagesetIterator.next()
+                
             updateProgress("Loading image file imagesets")
             scheme.loadImageFileImagesets()
             updateProgress("Loading fonts")
             scheme.loadFonts()
+            
             updateProgress("Loading looknfeels")
-            scheme.loadLookNFeels()
+            looknfeelIterator = scheme.getLookNFeels()
+            while not looknfeelIterator.isAtEnd():
+                loadableUIElement = looknfeelIterator.getCurrentValue()
+                PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecification(loadableUIElement.filename, loadableUIElement.resourceGroup)
+                looknfeelIterator.next()
+                
             updateProgress("Loading window renderer factory modules")
             scheme.loadWindowRendererFactories()
             updateProgress("Loading window factories")
