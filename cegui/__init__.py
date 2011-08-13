@@ -155,19 +155,19 @@ class Instance(object):
         self.ensureIsInitialised()
         self.makeGLContextCurrent()
         
-        schemes = []
+        schemeFiles = []
         absoluteSchemesPath = project.getAbsolutePathOf(project.schemesPath)
         if os.path.exists(absoluteSchemesPath):
             for file in os.listdir(absoluteSchemesPath):
                 if file.endswith(".scheme"):
-                    schemes.append(file)
+                    schemeFiles.append(file)
         else:
             # TODO: warning perhaps?
             #       with a dialog to let user immediately remedy the situation before loading continues
             pass
 
         progress.setMinimum(0)
-        progress.setMaximum(3 + len(schemes))
+        progress.setMaximum(3 + len(schemeFiles))
         
         progress.setLabelText("Purging all resources...")
         progress.setValue(0)
@@ -191,11 +191,31 @@ class Instance(object):
         progress.setLabelText("Recreating all schemes...")
         progress.setValue(2)
         
-        for scheme in schemes:
+        # we will load resources manually to be able to use the compatibility layer machinery
+        PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
+        
+        for schemeFile in schemeFiles:
             progress.setValue(progress.value() + 1)
-            progress.setLabelText("Recreating all schemes... (%s)" % (scheme))
-            PyCEGUI.SchemeManager.getSingleton().createFromFile(scheme, "schemes")
+            progress.setLabelText("Recreating all schemes... (%s)" % (schemeFile))
             
+            scheme = PyCEGUI.SchemeManager.getSingleton().createFromFile(schemeFile, "schemes")
+            
+            # NOTE: This is very CEGUI implementation specific unfortunately!
+            #       
+            #       However I am not really sure how to do this any better.
+            
+            scheme.loadXMLImagesets()
+            scheme.loadImageFileImagesets()
+            scheme.loadFonts()
+            scheme.loadLookNFeels()
+            scheme.loadWindowRendererFactories()
+            scheme.loadWindowFactories()
+            scheme.loadFactoryAliases()
+            scheme.loadFalagardMappings()
+            
+        # put SchemeManager into the default state again
+        PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
+        
         progress.reset()
         
     def getAvailableSkins(self):
