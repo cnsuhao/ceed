@@ -245,7 +245,11 @@ class Project(QStandardItemModel):
         
         self.name = "Unknown"
         self.projectFilePath = ""
+        
         self.baseDirectory = "./"
+        
+        # default to the best case, native version :-)
+        self.CEGUIVersion = compatibility.EditorEmbeddedCEGUIVersion
         
         self.imagesetsPath = "./imagesets"
         self.fontsPath = "./fonts"
@@ -272,7 +276,7 @@ class Project(QStandardItemModel):
         self.name = root.get("name", "Unknown")
             
         self.baseDirectory = root.get("baseDirectory", "./")
-        self.CEGUIVersion = root.get("CEGUIVersion")
+        self.CEGUIVersion = root.get("CEGUIVersion", compatibility.EditorEmbeddedCEGUIVersion)
         
         self.imagesetsPath = root.get("imagesetsPath", "./imagesets")            
         self.fontsPath = root.get("fontsPath", "./fonts")            
@@ -304,6 +308,8 @@ class Project(QStandardItemModel):
         root.set("name", self.name)
         
         root.set("baseDirectory", self.baseDirectory)
+        
+        root.set("CEGUIVersion", self.CEGUIVersion)
         
         root.set("imagesetsPath", self.imagesetsPath)
         root.set("fontsPath", self.fontsPath)
@@ -703,6 +709,12 @@ class ProjectSettingsDialog(QDialog):
         self.baseDirectory = self.findChild(qtwidgets.FileLineEdit, "baseDirectory")
         self.baseDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
     
+        self.CEGUIVersion = self.findChild(QComboBox, "CEGUIVersion")
+        for version in compatibility.CEGUIVersions:
+            self.CEGUIVersion.addItem(version)
+            
+        self.CEGUIVersion.setEditText(project.CEGUIVersion)
+    
         self.resourceDirectory = self.findChild(qtwidgets.FileLineEdit, "resourceDirectory")
         self.resourceDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
         self.resourceDirectoryApplyButton = self.findChild(QPushButton, "resourceDirectoryApplyButton")
@@ -734,6 +746,8 @@ class ProjectSettingsDialog(QDialog):
         project.name = self.projectName.text()
         absBaseDir = os.path.normpath(os.path.abspath(self.baseDirectory.text()))
         project.baseDirectory = os.path.relpath(absBaseDir, os.path.dirname(project.projectFilePath))
+        
+        project.CEGUIVersion = self.CEGUIVersion.currentText()
         
         project.imagesetsPath = os.path.relpath(self.imagesetsPath.text(), absBaseDir)
         project.fontsPath = os.path.relpath(self.fontsPath.text(), absBaseDir)

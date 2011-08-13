@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>686</width>
-    <height>356</height>
+    <width>709</width>
+    <height>668</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,12 @@
       </item>
       <item row="2" column="1">
        <widget class="QLabel" name="label_10">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Even though base directory is shown as absolute path here, it's stored relative to the directory where the project file is. Be very careful when changing this, all paths might be rendered invalid when changing this!</string>
         </property>
@@ -52,6 +58,42 @@
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="projectName"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Target CEGUI version</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="CEGUIVersion">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_13">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Warning: Target CEGUI version is what this editor will assume your assets are in when loading all the schemes found! Changing this for existing projects with potentially incompatible datafiles might be disastrous, you want to migrate your project to a newer version in that case.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -110,67 +152,83 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Imagesets</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="FileLineEdit" name="imagesetsPath" native="true"/>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Fonts</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="FileLineEdit" name="fontsPath" native="true"/>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>LookNFeels</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="FileLineEdit" name="looknfeelsPath" native="true"/>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Schemes</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="FileLineEdit" name="schemesPath" native="true"/>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
          <string>Layouts</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="FileLineEdit" name="layoutsPath" native="true"/>
       </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="2" column="1">
        <widget class="QLabel" name="label_9">
         <property name="text">
          <string>Use resource directory as a time saver only, it's not actually saved in the project file, it just sets the 5 paths according to CEGUI's standard scheme used in demos and stock datafiles.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLabel" name="label_12">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Even though these paths are shown as absolute paths here, they are saved as relative paths (relative to the resource directory). This way your project may be shared with other developers, for example with a version control system.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
