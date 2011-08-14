@@ -45,6 +45,10 @@ class Manager(compatibility.Manager):
 
         self.EditorNativeType = cegui.CEGUILookNFeel7
         
+        self.detectors.append(cegui.LookNFeel6TypeDetector())
         self.detectors.append(cegui.LookNFeel7TypeDetector())
+        
+        self.layers.append(cegui.LookNFeel6To7Layer())
+        self.layers.append(cegui.LookNFeel7To6Layer())
 
 Manager()

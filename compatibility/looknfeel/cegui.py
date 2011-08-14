@@ -29,6 +29,34 @@ CEGUILookNFeel4 = "CEGUI LookNFeel 4"
 CEGUILookNFeel6 = "CEGUI LookNFeel 6"
 CEGUILookNFeel7 = "CEGUI LookNFeel 7"
 
+class LookNFeel6TypeDetector(compatibility.TypeDetector):
+    def getType(self):
+        return CEGUILookNFeel6
+    
+    def getPossibleExtensions(self):
+        return ["looknfeel"]
+    
+    def matches(self, data, extension):
+        if extension not in ["", "looknfeel"]:
+            return False
+        
+        # todo: we should be at least a bit more precise
+        # (implement XSD based TypeDetector?)
+        
+        try:
+            root = ElementTree.fromstring(data)
+            if root.tag != "Falagard":
+                return False
+            
+            # version 6 doesn't have any version tag! so if there is a version tag (of any value) it can't be version 6
+            if root.get("version") is not None:
+                return False
+
+            return True
+        
+        except:
+            return False
+
 class LookNFeel7TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILookNFeel7
@@ -55,3 +83,44 @@ class LookNFeel7TypeDetector(compatibility.TypeDetector):
         
         except:
             return False
+
+class LookNFeel6To7Layer(compatibility.Layer):
+    def getSourceType(self):
+        return CEGUILookNFeel6
+    
+    def getTargetType(self):
+        return CEGUILookNFeel7
+    
+    def transform(self, data):
+        log = ""
+        
+        root = ElementTree.fromstring(data)
+        
+        # version 7 has a version attribute
+        root.set("version", "7")
+        
+        # TODO: set:Imageset image:Image -> Imageset/Image
+        # TODO: Carat -> Caret
+            
+        return ElementTree.tostring(root, "utf-8")
+
+
+class LookNFeel7To6Layer(compatibility.Layer):
+    def getSourceType(self):
+        return CEGUILookNFeel7
+    
+    def getTargetType(self):
+        return CEGUILookNFeel6
+    
+    def transform(self, data):
+        log = ""
+        
+        root = ElementTree.fromstring(data)
+        
+        # version 6 must not have a version attribute
+        del root.attrib["version"]
+        
+        # TODO: set:Imageset image:Image <- Imageset/Image
+        # TODO: Carat <- Caret
+            
+        return ElementTree.tostring(root, "utf-8")
