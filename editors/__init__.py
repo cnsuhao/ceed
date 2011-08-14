@@ -133,7 +133,11 @@ class TabbedEditor(object):
             if rawData == "":
                 # it's an empty new file, the derived classes deal with this separately
                 self.nativeData = rawData
-                self.desiredSavingDataType = self.compatibilityManager.EditorNativeType
+                
+                if mainWindow.project is None:
+                    self.desiredSavingDataType = self.compatibilityManager.EditorNativeType
+                else:
+                    self.desiredSavingDataType = self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion)
                 
             else:
                 try:
