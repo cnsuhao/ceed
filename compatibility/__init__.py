@@ -132,6 +132,21 @@ class Manager(object):
                 
         return ret
     
+    def getSuitableDataTypeForCEGUIVersion(self, ceguiVersion):
+        ret = []
+        
+        for version, dataType in self.CEGUIVersionTypes.iteritems():
+            if version == ceguiVersion:
+                ret.append(dataType)
+                
+        if len(ret) > 1:
+            raise RuntimeError("More than one data type is suitable for given CEGUI version '%s', this must be a mistake in the compatibility code in CEED!" % (ceguiVersion))
+
+        if len(ret) == 0:
+            raise RuntimeError("Can't find any suitable data type for given CEGUI version '%s'. It's possible that this version isn't supported for the editing you are about to do." % (ceguiVersion))
+        
+        return ret[0]
+    
     def transform(self, sourceType, targetType, data):
         """Performs transformation of given source code from sourceType to targetType.
         
