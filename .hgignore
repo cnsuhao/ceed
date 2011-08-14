@@ -10,7 +10,8 @@ syntax: glob
 *.so
 *.dll
 dependencies/
-datafiles/
+example_data/datafiles0_7/
+example_data/datafiles0_8/
 build/
 xcuserdata/
 *.xcworkspace/
