@@ -246,7 +246,29 @@ class Instance(object):
             looknfeelIterator = scheme.getLookNFeels()
             while not looknfeelIterator.isAtEnd():
                 loadableUIElement = looknfeelIterator.getCurrentValue()
-                PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecification(loadableUIElement.filename, loadableUIElement.resourceGroup)
+                looknfeelFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.WidgetLookManager.getDefaultResourceGroup())
+                looknfeelRawData = open(looknfeelFilePath, "r").read()
+                looknfeelRawDataType = compatibility.looknfeel.Manager.instance.EditorNativeType
+                try:
+                    looknfeelRawDataType = compatibility.looknfeel.Manager.instance.guessType(looknfeelRawData, looknfeelFilePath)
+                
+                except compatibility.NoPossibleTypesError:
+                    QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
+                    return
+                    
+                except compatibility.MultiplePossibleTypesError as e:
+                    suitableVersion = compatibility.looknfeel.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                    
+                    if suitableVersion not in e.possibleTypes:
+                        QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
+                        return
+                    
+                    looknfeelRawDataType = suitableVersion
+            
+                print looknfeelRawDataType
+                looknfeelNativeData = compatibility.looknfeel.Manager.instance.transform(looknfeelRawDataType, compatibility.looknfeel.Manager.instance.EditorNativeType, looknfeelRawData)
+            
+                PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(looknfeelNativeData)
                 looknfeelIterator.next()
                 
             updateProgress("Loading window renderer factory modules")

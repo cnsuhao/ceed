@@ -104,7 +104,6 @@ class LookNFeel6To7Layer(compatibility.Layer):
             
         return ElementTree.tostring(root, "utf-8")
 
-
 class LookNFeel7To6Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUILookNFeel7
