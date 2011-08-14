@@ -158,18 +158,24 @@ class TabbedEditor(object):
                             self.nativeData = None
                 
                 except compatibility.MultiplePossibleTypesError as e:
-                    dialog = MultipleTypesDetectedDialog(self.compatibilityManager, e.possibleTypes)
-                    result = dialog.exec_()
-                    
-                    rawDataType = self.compatibilityManager.EditorNativeType
-                    self.nativeData = ""
-                    
-                    if result == QDialog.Accepted:
-                        selection = dialog.typeChoice.selectedItems()
+                    # if no project is opened or if the opened file was detected as something not suitable for the target CEGUI version of the project
+                    if (mainWindow.project is None) or (self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion) not in e.possibleTypes):
+                        dialog = MultipleTypesDetectedDialog(self.compatibilityManager, e.possibleTypes)
+                        result = dialog.exec_()
                         
-                        if len(selection) == 1:
-                            rawDataType = selection[0].text()
-                            self.nativeData = None
+                        rawDataType = self.compatibilityManager.EditorNativeType
+                        self.nativeData = ""
+                        
+                        if result == QDialog.Accepted:
+                            selection = dialog.typeChoice.selectedItems()
+                            
+                            if len(selection) == 1:
+                                rawDataType = selection[0].text()
+                                self.nativeData = None
+                                
+                    else:
+                        rawDataType = self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion)
+                        self.nativeData = None
                 
                 # by default, save in the same format as we opened in
                 self.desiredSavingDataType = rawDataType
