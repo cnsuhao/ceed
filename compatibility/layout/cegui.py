@@ -193,6 +193,9 @@ class Layout3To4Layer(compatibility.Layer):
         
         root = ElementTree.fromstring(data)
         
+        # version 4 has a version attribute
+        root.set("version", "4")
+        
         for window in root.findall("Window"):
             # should be only one window
             
@@ -274,6 +277,9 @@ class Layout4To3Layer(compatibility.Layer):
         log = ""
         
         root = ElementTree.fromstring(data)
+        
+        # version 3 must not have a version attribute
+        del root.attrib["version"]
         
         for window in root.findall("Window"):
             # should be only one window
