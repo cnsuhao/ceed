@@ -28,7 +28,7 @@ class Imageset1TypeDetector(compatibility.TypeDetector):
         return ["imageset"]
     
     def matches(self, data, extension):
-        if extension != "imageset":
+        if extension not in ["", "imageset"]:
             return False
         
         # todo: we should be at least a bit more precise

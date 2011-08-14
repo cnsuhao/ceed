@@ -40,5 +40,7 @@ class Manager(compatibility.Manager):
         }
 
         self.EditorNativeType = cegui.CEGUIScheme4
+        
+        self.detectors.append(cegui.Scheme4TypeDetector())
 
 Manager()

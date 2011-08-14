@@ -23,3 +23,18 @@ CEGUIScheme1 = "CEGUI Scheme 1"
 CEGUIScheme2 = "CEGUI Scheme 2"
 CEGUIScheme3 = "CEGUI Scheme 3"
 CEGUIScheme4 = "CEGUI Scheme 4"
+
+class Scheme4TypeDetector(compatibility.TypeDetector):
+    def getType(self):
+        return CEGUIScheme4
+    
+    def getPossibleExtensions(self):
+        return ["scheme"]
+    
+    def matches(self, data, extension):
+        if extension not in ["", "scheme"]:
+            return False
+        
+        # todo: we should be at least a bit more precise
+        # (implement XSD based TypeDetector?)
+        return True

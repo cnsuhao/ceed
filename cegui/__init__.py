@@ -29,6 +29,8 @@ import math
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
+import compatibility
+
 #class CEGUIQtLogger(PyCEGUI.Logger):
 #    """Redirects CEGUI log info to CEGUIWidgetInfo"""
 #
@@ -201,8 +203,28 @@ class Instance(object):
                 progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
             
             updateProgress("Parsing the scheme file")
-            schemeSource = open(project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup()), "r").read()
-            scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(schemeSource)
+            schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
+            rawData = open(schemeFilePath, "r").read()
+            rawDataType = compatibility.scheme.Manager.instance.EditorNativeType
+            
+            try:
+                rawDataType = compatibility.scheme.Manager.instance.guessType(rawData, schemeFilePath)
+            
+            except compatibility.NoPossibleTypesError:
+                QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
+                return
+                
+            except compatibility.MultiplePossibleTypesError as e:
+                suitableVersion = compatibility.scheme.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                
+                if suitableVersion not in e.possibleTypes:
+                    QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
+                    return
+                
+                rawDataType = suitableVersion
+            
+            nativeData = compatibility.scheme.Manager.instance.transform(rawDataType, compatibility.scheme.Manager.instance.EditorNativeType, rawData)
+            scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(nativeData)
             
             # NOTE: This is very CEGUI implementation specific unfortunately!
             #       
