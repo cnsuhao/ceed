@@ -99,8 +99,29 @@ class LookNFeel6To7Layer(compatibility.Layer):
         # version 7 has a version attribute
         root.set("version", "7")
         
-        # TODO: set:Imageset image:Image -> Imageset/Image
-        # TODO: Carat -> Caret
+        # New image addressing: Imageset/Image
+        def convertImageElementToName(element):
+            imageset = element.get("imageset")
+            image = element.get("image")
+            
+            assert(imageset is not None and image is not None)
+            
+            del element.attrib["imageset"]
+            del element.attrib["image"]
+            
+            element.set("name", "%s/%s" % (imageset, image))
+            
+        for element in root.iter("Image"):
+            convertImageElementToName(element)
+        
+        for element in root.iter("ImageDim"):
+            convertImageElementToName(element)
+        
+        # Carat was rightfully renamed to Caret    
+        for element in root.iter("ImagerySection"):
+            if element.get("name") == "Carat":
+                # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
+                element.set("name", "Caret")
             
         return ElementTree.tostring(root, "utf-8")
 
@@ -119,7 +140,26 @@ class LookNFeel7To6Layer(compatibility.Layer):
         # version 6 must not have a version attribute
         del root.attrib["version"]
         
-        # TODO: set:Imageset image:Image <- Imageset/Image
-        # TODO: Carat <- Caret
+        # New image addressing: Imageset/Image
+        def convertImageElementToImagesetImage(element):
+            name = element.get("name")
+            split = name.split("/", 1)
+            assert(len(split) == 2)
+            
+            del element.attrib["name"]
+            element.set("imageset", split[0])
+            element.set("image", split[1])
+            
+        for element in root.iter("Image"):
+            convertImageElementToImagesetImage(element)
+        
+        for element in root.iter("ImageDim"):
+            convertImageElementToImagesetImage(element)
+                
+        # Carat was rightfully renamed to Caret    
+        for element in root.iter("ImagerySection"):
+            if element.get("name") == "Caret":
+                # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
+                element.set("name", "Carat")
             
         return ElementTree.tostring(root, "utf-8")
