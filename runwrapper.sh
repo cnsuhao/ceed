@@ -16,7 +16,7 @@ export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$PYTHONPATH"
 # on MacOSX we have to add Qt frameworks to the framework path
 if [[ "`uname`" == 'Darwin' ]]; then
     # FIXME: This is hardcoded for Qt 4.7.3 :-(
-    export DYLD_FRAMEWORK_PATH="~/QtSDK/Desktop/Qt/473/gcc/lib/:$DYLD_FRAMEWORK_PATH"
+    export DYLD_FRAMEWORK_PATH="$HOME/QtSDK/Desktop/Qt/473/gcc/lib/:$DYLD_FRAMEWORK_PATH"
 fi
 
 # fork a new shell to avoid polluting the environment
