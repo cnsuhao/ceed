@@ -264,8 +264,7 @@ class Instance(object):
                         return
                     
                     looknfeelRawDataType = suitableVersion
-            
-                print looknfeelRawDataType
+                
                 looknfeelNativeData = compatibility.looknfeel.Manager.instance.transform(looknfeelRawDataType, compatibility.looknfeel.Manager.instance.EditorNativeType, looknfeelRawData)
             
                 PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(looknfeelNativeData)
