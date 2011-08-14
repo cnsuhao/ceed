@@ -177,6 +177,26 @@ class Layout3To4Layer(compatibility.Layer):
             if name != "":
                 property.set("Name", name)
         
+            def convertImagePropertyToName(property):
+                value = property.get("Value")
+                split = value.split("image:", 1)
+                assert(len(split) == 2)
+                split[0] = split[0][4:] # get rid of "set:"
+                
+                # strip both of whitespaces left and right
+                split[0] = split[0].strip()
+                split[1] = split[1].strip()
+                
+                property.set("Value", "%s/%s" % (split[0], split[1]))
+        
+            if window.get("Type").endswith("StaticImage"):
+                if name == "Image":
+                    convertImagePropertyToName(property)
+                    
+            elif window.get("Type").endswith("ImageButton"):
+                if name in ["NormalImage", "HoverImage", "PushedImage"]:
+                    convertImagePropertyToName(property)
+        
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
             self.convertAutoWindowSuffix(autoWindow)
@@ -263,14 +283,28 @@ class Layout4To3Layer(compatibility.Layer):
             
             if name != "":
                 property.set("Name", name)
+                
+            def convertImagePropertyToImagesetImage(property):
+                value = property.get("Value")
+                split = value.split("/", 1)
+                assert(len(split) == 2)
+                property.set("Value", "set:%s image:%s" % (split[0], split[1]))
         
+            if window.get("Type").endswith("StaticImage"):
+                if name == "Image":
+                    convertImagePropertyToImagesetImage(property)
+                    
+            elif window.get("Type").endswith("ImageButton"):
+                if name in ["NormalImage", "HoverImage", "PushedImage"]:
+                    convertImagePropertyToImagesetImage(property)
+                
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
             self.convertAutoWindowSuffix(autoWindow)
         
         for childWindow in window.findall("Window"):
             self.applyChangesRecursively(childWindow)
-        
+
         return ret
     
     def transform(self, data):
