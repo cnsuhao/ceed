@@ -62,6 +62,13 @@ def check(supressMessagesIfNotFatal = True):
     try:
         import PyCEGUI
         
+        try:
+            import PyCEGUIOpenGLRenderer
+            
+        except ImportError:
+            messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it.")
+            ret = False
+        
     except ImportError:
         messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk")
         ret = False
