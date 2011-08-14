@@ -39,14 +39,15 @@ def check(supressMessagesIfNotFatal = True):
     try:
         import PySide
         
+        # we also check that PySide is at least version 1.0.3
+        if PySide.__version_info__ < (1, 0, 3):
+            messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (PySide.__version__))
+            ret = False
+        
     except ImportError:
         messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org")
         ret = False
         
-    # we also check that PySide is at least version 1.0.3
-    if PySide.__version_info__ < (1, 0, 3):
-        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (PySide.__version__))
-        ret = False
         
     # next on the line is PyOpenGL
     try:
