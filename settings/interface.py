@@ -47,10 +47,6 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.label.setWordWrap(True)
         self.layout.addWidget(self.label)
 
-        # - We can be notified via Qt when a new tab is selected; alas, we
-        #   would like to know where we are coming from, though.
-        self.oldTab = 0
-
         self.tabs = QTabWidget()
         self.tabs.setTabPosition(QTabWidget.North)
         self.layout.addWidget(self.tabs)
@@ -60,9 +56,6 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         # for each category, add a tab
         for category in self.settings.categories:
             self.tabs.addTab(InterfaceCategory(category, self.tabs), category.label)
-
-        # - Connect the tab widget to notify us when the index changes.
-        #self.tabs.currentChanged.connect(self.slot_tabClicked)
 
         # apply, cancel, etc...
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -88,3 +81,8 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         # - Regardless of the action above, all categories are now unchanged.
         for tabIndex in range(self.tabs.count()):
             self.tabs.widget(tabIndex).markAsUnchanged()
+
+        # FIXME: That is not entirely true; using the 'X' to close the Settings
+        # dialog is not handled here; although, this "bug as a feature" allows
+        # Settings to be modified, closed, and it will remember (but not apply)
+        # the previous changes.

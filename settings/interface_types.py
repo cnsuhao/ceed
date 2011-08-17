@@ -16,15 +16,21 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 
 import qtwidgets
 
+# Notes
+# - Changes propagate upwards from the InterfaceEntry types to the Categories;
+#   in contrast, apply/discard propagate downwards from the Categories to the
+#   InterfaceEntry types.
+# - The reason this is so is because the individual widgets used to drive when
+#   something has changed; alternatively, the QTabWidget could be used, but
+#   that puts a delay on recognizing when a changed has occured.
+
 # Wrappers for each Entry type
 # - Contain a `declaration.Entry` instance and a `QtGui` widget.
-# - At the moment, the style sheet effects propagate from parent to child, so
-#   we have to constantly reset the widgets style sheets; investigate turning
-#   this off (read: application side effects).
 class InterfaceEntry(QHBoxLayout):
     def __init__(self, entry, parent):
         super(InterfaceEntry, self).__init__()
@@ -364,6 +370,10 @@ class InterfaceCategory(QScrollArea):
         self.setWidget(self.inner)
         self.outerLayout.addWidget(self.inner)
         self.setLayout(self.outerLayout)
+
+        # - The viewport is resizable (otherwise, it will scale the widget it
+        #   is viewing).
+        self.setWidgetResizable(True)
         return
 
     def resetToOldValue(self):
