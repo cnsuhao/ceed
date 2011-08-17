@@ -8,40 +8,66 @@
         <setting name="lineEdit" value="False" />
     </mapping>
     <mapping propertyOrigin="Window" propertyName="AlwaysOnTop" targetInspectorName="CheckBox" />
+    <!-- TODO: Aspect mode -->
+    <!-- TODO: Aspect ratio (combobox + lineedit) -->
+    <mapping propertyOrigin="Window" propertyName="AutoRenderingSurface" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatDelay" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatRate" targetInspectorName="LineEdit" />
     <mapping propertyOrigin="Window" propertyName="ClippedByParent" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="Window" propertyName="DestroyedByParent" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="Window" propertyName="Disabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="DistributeCapturedInputs" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="DragDropTarget" targetInspectorName="CheckBox" />
+    <!-- TODO: Font (combobox) -->
+    <!-- TODO: Horizontal alignment -->
     <mapping propertyOrigin="Window" propertyName="ID" targetInspectorName="LineEdit" />
     <mapping propertyOrigin="Window" propertyName="InheritsAlpha" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="Visible" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="RestoreOldCapture" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="Text" targetInspectorName="TextEdit" />
-    <mapping propertyOrigin="Window" propertyName="ZOrderingEnabled" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="WantsMultiClickEvents" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="InheritsTooltipText" targetInspectorName="CheckBox" />
+    <!-- TODO: Margin (but that might get nuked from 0.8) -->
+    <!-- TODO: Max Size -->
+    <!-- TODO: Min Size -->
+    <!-- TODO: LookNFeel -->
     <mapping propertyOrigin="Window" propertyName="MouseAutoRepeatEnabled" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="AutoRepeatDelay" targetInspectorName="LineEdit" />
-    <mapping propertyOrigin="Window" propertyName="AutoRepeatRate" targetInspectorName="LineEdit" />
-    <mapping propertyOrigin="Window" propertyName="DistributeCapturedInputs" targetInspectorName="CheckBox" />
+    <!-- TODO: Mouse cursor image -->
+    <mapping propertyOrigin="Window" propertyName="MouseInputPropagationEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="MousePassThroughEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="NonClient" targetInspectorName="CheckBox" />
+    <!-- TODO: Position -->
+    <mapping propertyOrigin="Window" propertyName="RestoreOldCapture" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="RiseOnClickEnabled" targetInspectorName="CheckBox" />
+    <!-- TODO: Rotation -->
+    <!-- TODO: Size -->
+    <mapping propertyOrigin="Window" propertyName="Text" targetInspectorName="TextEdit" />
+    <mapping propertyOrigin="Window" propertyName="TextParsingEnabled" targetInspectorName="CheckBox" />
     <!-- TODO: This should be a combobox listing only available tooltip types -->
     <mapping propertyOrigin="Window" propertyName="TooltipType" targetInspectorName="LineEdit" />
     <mapping propertyOrigin="Window" propertyName="TooltipText" targetInspectorName="TextEdit" />
-    <mapping propertyOrigin="Window" propertyName="InheritsTooltipText" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="Window" propertyName="RiseOnClickEnabled" targetInspectorName="CheckBox" />
+    <!-- TODO: Update mode -->
+    <!-- TODO: Vertical alignment -->
+    <mapping propertyOrigin="Window" propertyName="Visible" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="Window" propertyName="WantsMultiClickEvents" targetInspectorName="CheckBox" />
+    <!-- TODO: Window Renderer -->
+    <mapping propertyOrigin="Window" propertyName="ZOrderingEnabled" targetInspectorName="CheckBox" />
+    
+    <!-- List of things hidden in property inspector of Window -->
     <mapping propertyOrigin="Window" propertyName="Area" targetInspectorName="" />
-    <!-- TODO: Position -->
     <mapping propertyOrigin="Window" propertyName="XPosition" targetInspectorName="" />
     <mapping propertyOrigin="Window" propertyName="YPosition" targetInspectorName="" />
-    <!-- TODO: Size -->
     <mapping propertyOrigin="Window" propertyName="Width" targetInspectorName="" />
     <mapping propertyOrigin="Window" propertyName="Height" targetInspectorName="" />
-    
+    <!-- End of CEGUI::Window -->
     
     <!-- CEGUI::FrameWindow -->
-    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingEnabled" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="FrameEnabled" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="TitlebarEnabled" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="CloseButtonEnabled" targetInspectorName="CheckBox" />
-    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="RollUpEnabled" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="DragMovingEnabled" targetInspectorName="CheckBox" />
+    <!-- TODO: EWSizingCursorImage -->
+    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="FrameEnabled" targetInspectorName="CheckBox" />
+    <!-- TODO: NESWSizingCursorImage -->
+    <!-- TODO: NSSizingCursorImage -->
+    <!-- TODO: NWSESizingCursorImage -->
+    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="RollUpEnabled" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingBorderThickness" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="TitlebarEnabled" targetInspectorName="CheckBox" />
+    <!-- End of CEGUI::FrameWindow -->
 </mappings>
