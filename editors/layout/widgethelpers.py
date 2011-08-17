@@ -60,15 +60,27 @@ class Manipulator(cegui.widgethelpers.Manipulator):
     
     @classmethod
     def getSnapGridBrush(cls):
-        if cls.snapGridBrush is None:
+        snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
+        snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
+        snapGridPointColour = settings.getEntry("layout/visual/snap_grid_point_colour").value
+        snapGridPointShadowColour = settings.getEntry("layout/visual/snap_grid_point_shadow_colour").value
+        
+        # if snap grid wasn't created yet or if it's parameters changed, create it anew!
+        if (cls.snapGridBrush is None) or (cls.snapGridX != snapGridX) or (cls.snapGridY != snapGridY) or (cls.snapGridPointColour != snapGridPointColour) or (cls.snapGridPointShadowColour != snapGridPointShadowColour):
             cls.snapGridBrush = QBrush()
-            texture = QPixmap(settings.getEntry("layout/visual/snap_grid_x").value, settings.getEntry("layout/visual/snap_grid_y").value)
+            
+            cls.snapGridX = snapGridX
+            cls.snapGridY = snapGridY
+            cls.snapGridPointColour = snapGridPointColour
+            cls.snapGridPointShadowColour = snapGridPointShadowColour
+            
+            texture = QPixmap(snapGridX, snapGridY)
             texture.fill(QColor(Qt.transparent))
             
             painter = QPainter(texture)
-            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_colour").value))
+            painter.setPen(QPen(snapGridPointColour))
             painter.drawPoint(0, 0)
-            painter.setPen(QPen(settings.getEntry("layout/visual/snap_grid_point_shadow_colour").value))
+            painter.setPen(QPen(snapGridPointShadowColour))
             painter.drawPoint(1, 0)
             painter.drawPoint(1, 1)
             painter.drawPoint(0, 1)
