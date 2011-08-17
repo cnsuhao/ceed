@@ -38,7 +38,7 @@ class SplashScreen(QSplashScreen):
         self.fadeTimer = QTimer(self)
         self.fadeTimer.timeout.connect(self.fadeTicker)
 
-        self.showMessage("(Only imageset editing implemented!) | Version: pre-release", Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
+        self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: snapshot4", Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
         
     def mouseMoveEvent(self, event):
         if not self.lastMousePosition:
