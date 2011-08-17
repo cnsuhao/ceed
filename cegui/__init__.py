@@ -143,6 +143,15 @@ class Instance(object):
         if parser.isPropertyPresent("SchemaDefaultResourceGroup"):
             parser.setProperty("SchemaDefaultResourceGroup", "schemas")
         
+    def cleanCEGUIResources(self):
+        # destroy all previous resources (if any)
+        PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
+        PyCEGUI.FontManager.getSingleton().destroyAll()
+        PyCEGUI.ImageManager.getSingleton().destroyAll()
+        PyCEGUI.SchemeManager.getSingleton().destroyAll()
+        PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
+        PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
+        
     def syncToProject(self, project):
         """Synchronises the instance with given project, respecting it's paths and resources
         """
@@ -158,15 +167,14 @@ class Instance(object):
         self.makeGLContextCurrent()
         
         schemeFiles = []
-        absoluteSchemesPath = project.getAbsolutePathOf(project.schemesPath)
+        absoluteSchemesPath = project.getAbsolutePathOf(project.schemesPath)            
         if os.path.exists(absoluteSchemesPath):
             for file in os.listdir(absoluteSchemesPath):
                 if file.endswith(".scheme"):
                     schemeFiles.append(file)
         else:
-            # TODO: warning perhaps?
-            #       with a dialog to let user immediately remedy the situation before loading continues
-            pass
+            progress.reset()
+            raise IOError("Can't list scheme path '%s'" % (absoluteSchemePath))
 
         progress.setMinimum(0)
         progress.setMaximum(2 + 9 * len(schemeFiles))
@@ -175,12 +183,7 @@ class Instance(object):
         progress.setValue(0)
         
         # destroy all previous resources (if any)
-        PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
-        PyCEGUI.FontManager.getSingleton().destroyAll()
-        PyCEGUI.ImageManager.getSingleton().destroyAll()
-        PyCEGUI.SchemeManager.getSingleton().destroyAll()
-        PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
-        PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
+        self.cleanCEGUIResources()
         
         progress.setLabelText("Setting resource paths...")
         progress.setValue(1)
@@ -197,88 +200,94 @@ class Instance(object):
         # we will load resources manually to be able to use the compatibility layer machinery
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
         
-        for schemeFile in schemeFiles:
-            def updateProgress(message):
-                progress.setValue(progress.value() + 1)
-                progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
-            
-            updateProgress("Parsing the scheme file")
-            schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
-            rawData = open(schemeFilePath, "r").read()
-            rawDataType = compatibility.scheme.Manager.instance.EditorNativeType
-            
-            try:
-                rawDataType = compatibility.scheme.Manager.instance.guessType(rawData, schemeFilePath)
-            
-            except compatibility.NoPossibleTypesError:
-                QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
-                return
+        try:
+            for schemeFile in schemeFiles:
+                def updateProgress(message):
+                    progress.setValue(progress.value() + 1)
+                    progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
                 
-            except compatibility.MultiplePossibleTypesError as e:
-                suitableVersion = compatibility.scheme.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                updateProgress("Parsing the scheme file")
+                schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
+                rawData = open(schemeFilePath, "r").read()
+                rawDataType = compatibility.scheme.Manager.instance.EditorNativeType
                 
-                if suitableVersion not in e.possibleTypes:
-                    QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
-                    return
-                
-                rawDataType = suitableVersion
-            
-            nativeData = compatibility.scheme.Manager.instance.transform(rawDataType, compatibility.scheme.Manager.instance.EditorNativeType, rawData)
-            scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(nativeData)
-            
-            # NOTE: This is very CEGUI implementation specific unfortunately!
-            #       
-            #       However I am not really sure how to do this any better.
-            
-            updateProgress("Loading XML imagesets")
-            xmlImagesetIterator = scheme.getXMLImagesets()
-            while not xmlImagesetIterator.isAtEnd():
-                loadableUIElement = xmlImagesetIterator.getCurrentValue()
-                PyCEGUI.ImageManager.getSingleton().loadImageset(loadableUIElement.filename, loadableUIElement.resourceGroup)
-                xmlImagesetIterator.next()
-                
-            updateProgress("Loading image file imagesets")
-            scheme.loadImageFileImagesets()
-            updateProgress("Loading fonts")
-            scheme.loadFonts()
-            
-            updateProgress("Loading looknfeels")
-            looknfeelIterator = scheme.getLookNFeels()
-            while not looknfeelIterator.isAtEnd():
-                loadableUIElement = looknfeelIterator.getCurrentValue()
-                looknfeelFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.WidgetLookManager.getDefaultResourceGroup())
-                looknfeelRawData = open(looknfeelFilePath, "r").read()
-                looknfeelRawDataType = compatibility.looknfeel.Manager.instance.EditorNativeType
                 try:
-                    looknfeelRawDataType = compatibility.looknfeel.Manager.instance.guessType(looknfeelRawData, looknfeelFilePath)
+                    rawDataType = compatibility.scheme.Manager.instance.guessType(rawData, schemeFilePath)
                 
                 except compatibility.NoPossibleTypesError:
-                    QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
+                    QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
                     return
                     
                 except compatibility.MultiplePossibleTypesError as e:
-                    suitableVersion = compatibility.looknfeel.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                    suitableVersion = compatibility.scheme.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
                     
                     if suitableVersion not in e.possibleTypes:
-                        QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
+                        QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
                         return
                     
-                    looknfeelRawDataType = suitableVersion
+                    rawDataType = suitableVersion
                 
-                looknfeelNativeData = compatibility.looknfeel.Manager.instance.transform(looknfeelRawDataType, compatibility.looknfeel.Manager.instance.EditorNativeType, looknfeelRawData)
-            
-                PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(looknfeelNativeData)
-                looknfeelIterator.next()
+                nativeData = compatibility.scheme.Manager.instance.transform(rawDataType, compatibility.scheme.Manager.instance.EditorNativeType, rawData)
+                scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(nativeData)
                 
-            updateProgress("Loading window renderer factory modules")
-            scheme.loadWindowRendererFactories()
-            updateProgress("Loading window factories")
-            scheme.loadWindowFactories()
-            updateProgress("Loading factory aliases")
-            scheme.loadFactoryAliases()
-            updateProgress("Loading falagard mappings")
-            scheme.loadFalagardMappings()
-            
+                # NOTE: This is very CEGUI implementation specific unfortunately!
+                #       
+                #       However I am not really sure how to do this any better.
+                
+                updateProgress("Loading XML imagesets")
+                xmlImagesetIterator = scheme.getXMLImagesets()
+                while not xmlImagesetIterator.isAtEnd():
+                    loadableUIElement = xmlImagesetIterator.getCurrentValue()
+                    PyCEGUI.ImageManager.getSingleton().loadImageset(loadableUIElement.filename, loadableUIElement.resourceGroup)
+                    xmlImagesetIterator.next()
+                    
+                updateProgress("Loading image file imagesets")
+                scheme.loadImageFileImagesets()
+                updateProgress("Loading fonts")
+                scheme.loadFonts()
+                
+                updateProgress("Loading looknfeels")
+                looknfeelIterator = scheme.getLookNFeels()
+                while not looknfeelIterator.isAtEnd():
+                    loadableUIElement = looknfeelIterator.getCurrentValue()
+                    looknfeelFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.WidgetLookManager.getDefaultResourceGroup())
+                    looknfeelRawData = open(looknfeelFilePath, "r").read()
+                    looknfeelRawDataType = compatibility.looknfeel.Manager.instance.EditorNativeType
+                    try:
+                        looknfeelRawDataType = compatibility.looknfeel.Manager.instance.guessType(looknfeelRawData, looknfeelFilePath)
+                    
+                    except compatibility.NoPossibleTypesError:
+                        QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
+                        return
+                        
+                    except compatibility.MultiplePossibleTypesError as e:
+                        suitableVersion = compatibility.looknfeel.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                        
+                        if suitableVersion not in e.possibleTypes:
+                            QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
+                            return
+                        
+                        looknfeelRawDataType = suitableVersion
+                    
+                    looknfeelNativeData = compatibility.looknfeel.Manager.instance.transform(looknfeelRawDataType, compatibility.looknfeel.Manager.instance.EditorNativeType, looknfeelRawData)
+                
+                    PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(looknfeelNativeData)
+                    looknfeelIterator.next()
+                    
+                updateProgress("Loading window renderer factory modules")
+                scheme.loadWindowRendererFactories()
+                updateProgress("Loading window factories")
+                scheme.loadWindowFactories()
+                updateProgress("Loading factory aliases")
+                scheme.loadFactoryAliases()
+                updateProgress("Loading falagard mappings")
+                scheme.loadFalagardMappings()
+                
+        except:
+            self.cleanCEGUIResources()
+            progress.reset()
+            raise
+                
         # put SchemeManager into the default state again
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
         

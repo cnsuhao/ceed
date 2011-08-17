@@ -270,8 +270,17 @@ class MainWindow(QMainWindow):
         self.projectManager.setProject(self.project)
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
         # sync up the cegui instance
-        self.ceguiInstance.syncToProject(self.project)
-        
+        try:
+            self.ceguiInstance.syncToProject(self.project)
+            
+        except Exception as e:
+            QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
+"""An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed!
+            
+This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets). You can try to remedy this problem by opening Edit->Project settings, even if you don't do any changes there, upon pressing pressing OK in that dialog the project will be reloaded.
+            
+Details of this error: %s""" % (e))
+       
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
             
         # and enable respective actions
