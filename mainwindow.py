@@ -293,15 +293,10 @@ Details of this error: %s""" % (e))
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
         self.project.unload()
         self.project = None
-        
-        # no project is opened anymore
-        #self.projectFiles.setEnabled(False)
-        
+
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
         self.projectSettingsAction.setEnabled(False)
-        
-        
         
     def saveProject(self):
         self.project.save()
@@ -710,8 +705,7 @@ Details of this error: %s""" % (e))
             
         else:
             event.accept()
-            
-            
+
     def slot_openRecentProject(self):
         temp = str(self.sender().data())
         if self.sender():
