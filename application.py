@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtCore import Qt, QTimer, QPoint
+from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
 class SplashScreen(QSplashScreen):
@@ -28,44 +28,8 @@ class SplashScreen(QSplashScreen):
     
     def __init__(self):
         super(SplashScreen, self).__init__(QPixmap("images/splashscreen.png"))
-        
-        self.lastMousePosition = None
-        
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.ApplicationModal)
-        self.setMouseTracking(True)
-        
-        self.fadeTimer = QTimer(self)
-        self.fadeTimer.timeout.connect(self.fadeTicker)
 
         self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: snapshot4", Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
-        
-    def mouseMoveEvent(self, event):
-        if not self.lastMousePosition:
-            self.lastMousePosition = event.pos()
-            
-        delta = event.pos() - self.lastMousePosition
-
-        if delta.manhattanLength() > 10:
-            self.fadeOut()
-        
-    def mousePressEvent(self, event):
-        self.fadeOut()
-
-    def fadeOut(self):
-        # 10 msec interval = 50 fps
-        self.fadeTimer.start(20)
-
-    def fadeTicker(self):
-        newOpacity = self.windowOpacity() - 0.003 * self.fadeTimer.interval()
-        if newOpacity < 0:
-            self.fadeTimer.stop()
-            self.close()
-            return
-        
-        self.setWindowOpacity(newOpacity)
-        self.move(self.pos() + QPoint(0, 1))
-        self.update()
 
 class Application(QApplication):
     """The central application class
@@ -73,6 +37,11 @@ class Application(QApplication):
     
     def __init__(self, argv):
         super(Application, self).__init__(argv)
+
+        self.splash = SplashScreen()
+        self.splash.show()
+        
+        self.processEvents()
         
         # first recompile all UI files to ensure they are up to date
         import compileuifiles
@@ -88,14 +57,12 @@ class Application(QApplication):
         self.setApplicationName("CEED - CEGUI editor")
         self.setApplicationVersion("0.1 - WIP")
         
-        self.splash = SplashScreen()
-        self.splash.show()
-        
         # import mainwindow after UI files have been recompiled
         import mainwindow
         
         self.mainWindow = mainwindow.MainWindow(self)
         self.mainWindow.showMaximized()
+        self.splash.finish(self.mainWindow)
         
         # import error after UI files have been recompiled
         import error
