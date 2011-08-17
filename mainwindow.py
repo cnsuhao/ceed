@@ -255,11 +255,18 @@ class MainWindow(QMainWindow):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
-    def openProject(self, path, fromRecentProject = False):
+    def openProject(self, path):
         assert(not self.project)
         
         self.project = project.Project()
-        self.project.load(path)
+        try:
+            self.project.load(path)
+        except IOError:
+            QMessageBox.critical(self, "Error when opening project", "It seems project at path '%s' doesn't exist or you don't have rights to open it." % (path))
+            
+            self.project = None
+            return
+            
         self.projectManager.setProject(self.project)
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
         # sync up the cegui instance
@@ -704,4 +711,4 @@ class MainWindow(QMainWindow):
                 if not self.slot_closeProject():
                     return
             
-            self.openProject(temp, True)
+            self.openProject(temp)
