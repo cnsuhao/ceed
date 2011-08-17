@@ -181,12 +181,14 @@ class Instance(object):
         
         progress.setLabelText("Purging all resources...")
         progress.setValue(0)
+        QApplication.instance().processEvents()
         
         # destroy all previous resources (if any)
         self.cleanCEGUIResources()
         
         progress.setLabelText("Setting resource paths...")
         progress.setValue(1)
+        QApplication.instance().processEvents()
         
         self.setResourceGroupDirectory("imagesets", project.getAbsolutePathOf(project.imagesetsPath))
         self.setResourceGroupDirectory("fonts", project.getAbsolutePathOf(project.fontsPath))
@@ -196,6 +198,7 @@ class Instance(object):
         
         progress.setLabelText("Recreating all schemes...")
         progress.setValue(2)
+        QApplication.instance().processEvents()
         
         # we will load resources manually to be able to use the compatibility layer machinery
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
@@ -205,6 +208,8 @@ class Instance(object):
                 def updateProgress(message):
                     progress.setValue(progress.value() + 1)
                     progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
+                
+                    QApplication.instance().processEvents()
                 
                 updateProgress("Parsing the scheme file")
                 schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
@@ -290,7 +295,9 @@ class Instance(object):
         finally:         
             # put SchemeManager into the default state again
             PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
+            
             progress.reset()
+            QApplication.instance().processEvents()
     
     def getAvailableSkins(self):
         """Retrieves skins (as strings representing their names) that are available
