@@ -102,15 +102,22 @@ class Entry(object):
         self._editedValue = value
         self.hasChanges = True
 
+    # pwr; 8/17/11
+    # - The actual name mangling performed shouldn't be a part of the
+    #   interface. At some point it may, if it does widget stuff (e.g.
+    #   border highlighting).
+    def markAsChanged(self):
+        if not self.label.startswith('* '):
+            self.label = ' '.join(['*', self.label])
+        return
+
+    def markAsUnchanged(self):
+        if self.label.startswith('* '):
+            self.label = self.label[2:]
+        return
+
     def applyChanges(self):
         if self.value != self.editedValue:
-            # pwr; 8/15/11
-            # BUG
-            # - The bug is triggered by this not being invoked, because the
-            #   conditional is not triggered.
-            # - To reproduce the bug: select 'Cancel' after changes have been
-            #   made; the next time a change is made, 'Apply' will not actually
-            #   register the change.
             self.value = self.editedValue
 
             if self.changeRequiresRestart:
@@ -119,9 +126,8 @@ class Entry(object):
     def discardChanges(self):
         self.editedValue = self.value
 
-        # pwr; 8/15/11
-        # - Override the flag; it is set via the property, but from this
-        #   context, we know they are not really changes.
+        # - This is set via the property, but from this context we know that
+        #   we really don't have any changes.
         self.hasChanges = False
 
     def upload(self):
@@ -176,6 +182,15 @@ class Section(object):
                 return entry
 
         raise RuntimeError("Entry of name '" + name + "' not found inside section '" + self.name + "' (path: '" + self.getPath() + "').")
+
+    # - Reserved for possible future use.
+    def markAsChanged(self):
+        pass
+        return
+
+    def markAsUnchanged(self):
+        pass
+        return
 
     def applyChanges(self):
         for entry in self.entries:
