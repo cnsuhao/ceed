@@ -285,14 +285,13 @@ class Instance(object):
                 
         except:
             self.cleanCEGUIResources()
-            progress.reset()
             raise
-                
-        # put SchemeManager into the default state again
-        PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
         
-        progress.reset()
-        
+        finally:         
+            # put SchemeManager into the default state again
+            PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
+            progress.reset()
+    
     def getAvailableSkins(self):
         """Retrieves skins (as strings representing their names) that are available
         from the set of schemes that were loaded.
