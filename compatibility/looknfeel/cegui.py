@@ -122,6 +122,13 @@ class LookNFeel6To7Layer(compatibility.Layer):
             if element.get("name") == "Carat":
                 # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
                 element.set("name", "Caret")
+        
+        # transform properties
+        for element in root.iter("WidgetLook"):
+            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            
+        for element in root.iter("AutoWindow"):
+            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
             
         return ElementTree.tostring(root, "utf-8")
 
@@ -161,5 +168,12 @@ class LookNFeel7To6Layer(compatibility.Layer):
             if element.get("name") == "Caret":
                 # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
                 element.set("name", "Carat")
+                
+        # transform properties
+        for element in root.iter("WidgetLook"):
+            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            
+        for element in root.iter("AutoWindow"):
+            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
             
         return ElementTree.tostring(root, "utf-8")

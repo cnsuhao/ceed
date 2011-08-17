@@ -149,12 +149,12 @@ class Layout3To4Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element):
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
         windowType = element.get("Type")
 
         # convert the properties that had 'Unified' prefix
-        for property in element.findall("Property"):
-            name = property.get("Name", "")
+        for property in element.findall(tag):
+            name = property.get(nameAttribute, "")
             
             if name == "UnifiedAreaRect":
                 name = "Area"
@@ -176,10 +176,10 @@ class Layout3To4Layer(compatibility.Layer):
                 name = "MaxSize"
             
             if name != "":
-                property.set("Name", name)
+                property.set(nameAttribute, name)
         
             def convertImagePropertyToName(property):
-                value = property.get("Value")
+                value = property.get(valueAttribute)
                 split = value.split("image:", 1)
                 assert(len(split) == 2)
                 split[0] = split[0][4:] # get rid of "set:"
@@ -188,8 +188,7 @@ class Layout3To4Layer(compatibility.Layer):
                 split[0] = split[0].strip()
                 split[1] = split[1].strip()
                 
-                property.set("Value", "%s/%s" % (split[0], split[1]))
-        
+                property.set(valueAttribute, "%s/%s" % (split[0], split[1]))
         
             if windowType is None or windowType.endswith("StaticImage"):
                 if name == "Image":
@@ -263,12 +262,12 @@ class Layout4To3Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element):
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
         windowType = element.get("Type")
         
         # convert the properties that had 'Unified' prefix in 0.7
-        for property in element.findall("Property"):
-            name = property.get("Name", "")
+        for property in element.findall(tag):
+            name = property.get(nameAttribute, "")
             
             if name == "Area":
                 name = "UnifiedAreaRect"
@@ -290,13 +289,13 @@ class Layout4To3Layer(compatibility.Layer):
                 name = "UnifiedMaxSize"
             
             if name != "":
-                property.set("Name", name)
+                property.set(nameAttribute, name)
                 
             def convertImagePropertyToImagesetImage(property):
-                value = property.get("Value")
+                value = property.get(valueAttribute)
                 split = value.split("/", 1)
                 assert(len(split) == 2)
-                property.set("Value", "set:%s image:%s" % (split[0], split[1]))
+                property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
         
             if windowType is None or windowType.endswith("StaticImage"):
                 if name == "Image":
