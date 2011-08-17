@@ -16,6 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# FIXME: Settings want to be uploaded (persist) as soon as they are applied;
+# make it so.
+
+# FIXME: Mouse wheel events inside the tab frames do not actually scroll; the
+# mouse has to be over the scroll bar for it to receive the event.
+
 class SettingsInterface(object):
     def __init__(self, settings):
         self.settings = settings
