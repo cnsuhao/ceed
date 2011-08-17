@@ -148,11 +148,12 @@ class Layout3To4Layer(compatibility.Layer):
         for childAutoWindow in autoWindow.findall("AutoWindow"):
             self.convertAutoWindowSuffix(childAutoWindow)
     
-    def applyChangesRecursively(self, window):
-        ret = ""
-        
+    @classmethod
+    def transformPropertiesOf(cls, element):
+        windowType = element.get("Type")
+
         # convert the properties that had 'Unified' prefix
-        for property in window.findall("Property"):
+        for property in element.findall("Property"):
             name = property.get("Name", "")
             
             if name == "UnifiedAreaRect":
@@ -189,13 +190,19 @@ class Layout3To4Layer(compatibility.Layer):
                 
                 property.set("Value", "%s/%s" % (split[0], split[1]))
         
-            if window.get("Type").endswith("StaticImage"):
+        
+            if windowType is None or windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToName(property)
                     
-            elif window.get("Type").endswith("ImageButton"):
+            elif windowType is None or windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
                     convertImagePropertyToName(property)
+    
+    def applyChangesRecursively(self, window):
+        ret = ""
+        
+        Layout3To4Layer.transformPropertiesOf(window)
         
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
@@ -255,11 +262,12 @@ class Layout4To3Layer(compatibility.Layer):
         for childAutoWindow in autoWindow.findall("AutoWindow"):
             self.convertAutoWindowSuffix(childAutoWindow)
     
-    def applyChangesRecursively(self, window):
-        ret = ""
+    @classmethod
+    def transformPropertiesOf(cls, element):
+        windowType = element.get("Type")
         
         # convert the properties that had 'Unified' prefix in 0.7
-        for property in window.findall("Property"):
+        for property in element.findall("Property"):
             name = property.get("Name", "")
             
             if name == "Area":
@@ -290,13 +298,18 @@ class Layout4To3Layer(compatibility.Layer):
                 assert(len(split) == 2)
                 property.set("Value", "set:%s image:%s" % (split[0], split[1]))
         
-            if window.get("Type").endswith("StaticImage"):
+            if windowType is None or windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToImagesetImage(property)
                     
-            elif window.get("Type").endswith("ImageButton"):
+            elif windowType is None or windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
                     convertImagePropertyToImagesetImage(property)
+    
+    def applyChangesRecursively(self, window):
+        ret = ""
+        
+        Layout4To3Layer.transformPropertiesOf(window)
                 
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
