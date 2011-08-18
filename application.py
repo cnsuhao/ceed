@@ -27,7 +27,9 @@ class SplashScreen(QSplashScreen):
     
     def __init__(self):
         super(SplashScreen, self).__init__(QPixmap("images/splashscreen.png"))
-
+        
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(Qt.SplashScreen | Qt.WindowStaysOnTopHint)
         self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: %s" % (version.getAsString()), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
 
 class Application(QApplication):
@@ -61,6 +63,7 @@ class Application(QApplication):
         
         self.mainWindow = mainwindow.MainWindow(self)
         self.mainWindow.showMaximized()
+        self.mainWindow.raise_()
         self.splash.finish(self.mainWindow)
         
         # import error after UI files have been recompiled
