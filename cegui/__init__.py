@@ -152,11 +152,11 @@ class Instance(object):
         PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
         PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
         
-    def syncToProject(self, project):
+    def syncToProject(self, project, mainWindow = None):
         """Synchronises the instance with given project, respecting it's paths and resources
         """
         
-        progress = QProgressDialog()
+        progress = QProgressDialog(mainWindow)
         progress.setWindowModality(Qt.WindowModal)
         progress.setWindowTitle("Synchronising embedded CEGUI with the project")
         progress.setCancelButton(None)

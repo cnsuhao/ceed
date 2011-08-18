@@ -271,7 +271,7 @@ class MainWindow(QMainWindow):
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
         # sync up the cegui instance
         try:
-            self.ceguiInstance.syncToProject(self.project)
+            self.ceguiInstance.syncToProject(self.project, self)
             
         except Exception as e:
             QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
