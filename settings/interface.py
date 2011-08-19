@@ -16,22 +16,6 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# TODO
-# - Try to improve the Pen button; see `slot_clicked` in the relevant class.
-
-# DONE
-# - Mouse wheel events inside the tab frames do not actually scroll; the
-#   mouse has to be over the scroll bar for it to receive the event.
-#
-# - Restart required.
-#
-# - Tooltips (Settings).
-#
-# - Should the settings interface allow things to happen within the application
-#   window while it is up? Currently, it does.
-#
-# - Shortcut labels (see `action/declaration`) need to be tailored.
-
 class SettingsInterface(object):
     def __init__(self, settings):
         self.settings = settings
