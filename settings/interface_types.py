@@ -25,9 +25,9 @@ import qtwidgets
 # - Changes propagate upwards from the InterfaceEntry types to the Categories;
 #   in contrast, apply/discard propagate downwards from the Categories to the
 #   InterfaceEntry types.
-# - The reason this is so is because the individual widgets used to drive when
-#   something has changed; alternatively, the QTabWidget could be used, but
-#   that puts a delay on recognizing when a changed has occured.
+# - The reason this is so is because the individual widgets are used to drive
+#   when something has changed; alternatively, the QTabWidget could be used,
+#   but that puts a delay on recognizing when a changed has occured.
 
 # Wrappers for each Entry type
 # - Contain a `declaration.Entry` instance and a `QtGui` widget.
@@ -375,6 +375,17 @@ class InterfaceCategory(QScrollArea):
         #   is viewing).
         self.setWidgetResizable(True)
         return
+
+    # - For scrollbars.
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Wheel:
+            delta = event.delta()
+            if delta < 0:
+                self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepAdd)
+            else:
+                self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepSub)
+            return True
+        return QObject.eventFilter(self, obj, event)
 
     def resetToOldValue(self):
         for section in self.modifiedSections:

@@ -16,11 +16,21 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# FIXME: Settings want to be uploaded (persist) as soon as they are applied;
-# make it so.
+# TODO
+# - Try to improve the Pen button; see `slot_clicked` in the relevant class.
 
-# FIXME: Mouse wheel events inside the tab frames do not actually scroll; the
-# mouse has to be over the scroll bar for it to receive the event.
+# DONE
+# - Mouse wheel events inside the tab frames do not actually scroll; the
+#   mouse has to be over the scroll bar for it to receive the event.
+#
+# - Restart required.
+#
+# - Tooltips (Settings).
+#
+# - Should the settings interface allow things to happen within the application
+#   window while it is up? Currently, it does.
+#
+# - Shortcut labels (see `action/declaration`) need to be tailored.
 
 class SettingsInterface(object):
     def __init__(self, settings):
@@ -39,6 +49,7 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         QDialog.__init__(self)
 
         self.setWindowTitle(self.settings.label)
+        self.setWindowModality(Qt.ApplicationModal)
 
         self.createUI()
 
@@ -68,13 +79,40 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.buttonBox.clicked.connect(self.slot_buttonBoxClicked)
         self.layout.addWidget(self.buttonBox)
 
+        # Restart required
+        self.needRestart = QMessageBox()
+        self.needRestart.setWindowTitle("CEED")
+        self.needRestart.setIcon(QMessageBox.Warning)
+        self.needRestart.setText("Restart is required for the changes to "
+                                 "take effect.")
+
+    # pwr; 8/19/11
+    # - Changes require restart.
+    def restartRequired(self):
+        self.needRestart.exec_()
+        # FIXME: Kill the app; then restart it.
+        #
+        # - This may or may not be the way to get rid of this, but for the
+        #   moment we use it as a "the user has been notified they must restart
+        #   the application" flag.
+        self.settings.changesRequireRestart = False
+        return
+
     def slot_buttonBoxClicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.settings.applyChanges()
 
+            # Check if restart required
+            if self.settings.changesRequireRestart:
+                self.restartRequired()
+
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
             self.settings.applyChanges()
             self.accept()
+
+            # Check if restart required
+            if self.settings.changesRequireRestart:
+                self.restartRequired()
 
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.RejectRole:
             self.settings.discardChanges()
