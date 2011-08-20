@@ -19,22 +19,21 @@
 class PersistenceProvider(object):
     def __init__(self):
         pass
-    
+
     def upload(self, entry, value):
         pass
-    
+
     def download(self, entry):
         pass
-    
+
 class QSettingsPersistenceProvider(PersistenceProvider):
     def __init__(self, qsettings):
         super(QSettingsPersistenceProvider, self).__init__()
-        
+
         self.qsettings = qsettings
-        
+
     def upload(self, entry, value):
         self.qsettings.setValue(entry.getPath(), value)
-    
+
     def download(self, entry):
         return self.qsettings.value(entry.getPath())
-    

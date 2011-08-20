@@ -25,151 +25,89 @@ from PySide.QtGui import *
 
 import qtwidgets
 
+from interface_types import *
+
 class QtSettingsInterface(SettingsInterface, QDialog):
     def __init__(self, settings):
         SettingsInterface.__init__(self, settings)
         QDialog.__init__(self)
-        
+
         self.setWindowTitle(self.settings.label)
+        self.setWindowModality(Qt.ApplicationModal)
 
         self.createUI()
-        
+
     def createUI(self):
         # sort everything so that it comes at the right spot when iterating
         self.settings.sort()
-        
+
         # the basic UI
         self.layout = QVBoxLayout()
-        
+
         self.label = QLabel(self.settings.help)
         self.label.setWordWrap(True)
         self.layout.addWidget(self.label)
-        
+
         self.tabs = QTabWidget()
-        self.tabs.setTabPosition(QTabWidget.West)
+        self.tabs.setTabPosition(QTabWidget.North)
         self.layout.addWidget(self.tabs)
-        
+
         self.setLayout(self.layout)
-        
-        # for each category, add a tab on the left
-        for category in self.settings.categories:
-            self.tabs.addTab(self.createUIForCategory(category), category.label)
-            
+
+        # for each category, add a tab
+        addTab = self.tabs.addTab
+        [addTab(InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
+
         # apply, cancel, etc...
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.buttonBox.clicked.connect(self.slot_buttonBoxClicked)
         self.layout.addWidget(self.buttonBox)
-        
-    def createUIForCategory(self, category):
-        ret = QScrollArea()
-        outerLayout = QVBoxLayout()
-        inner = QWidget()
-        layout = QFormLayout()
-        
-        for section in category.sections:
-            layout.addWidget(self.createUIForSection(section))
-        
-        inner.setLayout(layout)
-        ret.setWidget(inner)
-        outerLayout.addWidget(inner)
-        ret.setLayout(outerLayout)
-        
-        return ret
-    
-    def createUIForSection(self, section):
-        ret = QGroupBox()
-        ret.setTitle(section.label)
-        
-        layout = QVBoxLayout()
-        
-        entries = QWidget()
-        entriesLayout = QFormLayout()
-        
-        for entry in section.entries:
-            entriesLayout.addRow(entry.label, self.createUIForEntry(entry))
-            
-        entries.setLayout(entriesLayout)
-        layout.addWidget(entries)
-        ret.setLayout(layout)
-        
-        # FIXME: The group box shrinks vertically for some reason
-        ret.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        return ret
-    
-    def createUIForEntry(self, entry):
-        widget = None
-        
-        if entry.widgetHint == "string":
-            widget = QLineEdit()
-            widget.setText(entry.value)
-            widget.setToolTip(entry.help)
-            widget.textEdited.connect(lambda text: setattr(entry, "editedValue", text))
-        
-        elif entry.widgetHint == "int":
-            widget = QLineEdit()
-            widget.setText(str(entry.value))
-            widget.setToolTip(entry.help)
-            widget.textChanged.connect(lambda text: setattr(entry, "editedValue", int(text)))
-            widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
-            
-        elif entry.widgetHint == "float":
-            widget = QLineEdit()
-            widget.setText(str(entry.value))
-            widget.setToolTip(entry.help)
-            widget.textChanged.connect(lambda text: setattr(entry, "editedValue", float(text)))
-            widget.slot_resetToDefault = lambda: widget.setText(str(entry.defaultValue))
-            
-        elif entry.widgetHint == "checkbox":
-            widget = QCheckBox()
-            widget.setChecked(entry.value)
-            widget.setToolTip(entry.help)
-            widget.stateChanged.connect(lambda state: setattr(entry, "editedValue", True if state else False))
-            widget.slot_resetToDefault = lambda: widget.setChecked(entry.defaultValue)
-            
-        elif entry.widgetHint == "colour":
-            widget = qtwidgets.ColourButton()
-            widget.colour = entry.value
-            widget.setToolTip(entry.help)
-            widget.colourChanged.connect(lambda colour: setattr(entry, "editedValue", colour))
-            widget.slot_resetToDefault = lambda: setattr(widget, "colour", entry.defaultValue)
-        
-        elif entry.widgetHint == "pen":
-            widget = qtwidgets.PenButton()
-            widget.pen = entry.value
-            widget.setToolTip(entry.help)
-            widget.penChanged.connect(lambda pen: setattr(entry, "editedValue", pen))
-            widget.slot_resetToDefault = lambda: setattr(widget, "pen", entry.defaultValue)
-        
-        elif entry.widgetHint == "keySequence":
-            widget = qtwidgets.KeySequenceButton()
-            widget.keySequence = entry.value
-            widget.setToolTip(entry.help)
-            widget.keySequenceChanged.connect(lambda keySequence: setattr(entry, "editedValue", keySequence))
-            widget.slot_resetToDefault = lambda: setattr(widget, "keySequence", entry.defaultValue)
 
-        if widget is None:
-            raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
+        # Restart required
+        self.needRestart = QMessageBox()
+        self.needRestart.setWindowTitle("CEED")
+        self.needRestart.setIcon(QMessageBox.Warning)
+        self.needRestart.setText("Restart is required for the changes to "
+                                 "take effect.")
 
-        ret = QHBoxLayout()
-        ret.addWidget(widget)
-        
-        resetToDefault = QPushButton()
-        resetToDefault.setIcon(QIcon("icons/settings/reset_entry_to_default.png"))
-        resetToDefault.setToolTip("Reset this settings entry to the default value")
-        ret.addWidget(resetToDefault)
-        resetToDefault.clicked.connect(widget.slot_resetToDefault)
-        
-        return ret
-        
+    def restartRequired(self):
+        if self.settings.changesRequireRestart:
+            self.needRestart.exec_()
+            # FIXME: Kill the app; then restart it.
+            #
+            # - This may or may not be the way to get rid of this, but for the
+            #   moment we use it as a "the user has been notified they must restart
+            #   the application" flag.
+            self.settings.changesRequireRestart = False
+        return
+
     def slot_buttonBoxClicked(self, button):
         if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
             self.settings.applyChanges()
-            
+
+            # Check if restart required
+            self.restartRequired()
+
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
             self.settings.applyChanges()
             self.accept()
-            
+
+            # Check if restart required
+            self.restartRequired()
+
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.RejectRole:
             self.settings.discardChanges()
             self.reject()
-        
+
+            # - Reset any entries with changes to their stored value.
+            for tabIndex in range(self.tabs.count()):
+                self.tabs.widget(tabIndex).discardChanges()
+
+        # - Regardless of the action above, all categories are now unchanged.
+        for tabIndex in range(self.tabs.count()):
+            self.tabs.widget(tabIndex).markAsUnchanged()
+
+        # FIXME: That is not entirely true; using the 'X' to close the Settings
+        # dialog is not handled here; although, this "bug as a feature" allows
+        # Settings to be modified, closed, and it will remember (but not apply)
+        # the previous changes.
