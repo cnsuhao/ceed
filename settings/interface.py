@@ -55,8 +55,8 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.setLayout(self.layout)
 
         # for each category, add a tab
-        for category in self.settings.categories:
-            self.tabs.addTab(InterfaceCategory(category, self.tabs), category.label)
+        addTab = self.tabs.addTab
+        [addTab(InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
 
         # apply, cancel, etc...
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -70,16 +70,15 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.needRestart.setText("Restart is required for the changes to "
                                  "take effect.")
 
-    # pwr; 8/19/11
-    # - Changes require restart.
     def restartRequired(self):
-        self.needRestart.exec_()
-        # FIXME: Kill the app; then restart it.
-        #
-        # - This may or may not be the way to get rid of this, but for the
-        #   moment we use it as a "the user has been notified they must restart
-        #   the application" flag.
-        self.settings.changesRequireRestart = False
+        if self.settings.changesRequireRestart:
+            self.needRestart.exec_()
+            # FIXME: Kill the app; then restart it.
+            #
+            # - This may or may not be the way to get rid of this, but for the
+            #   moment we use it as a "the user has been notified they must restart
+            #   the application" flag.
+            self.settings.changesRequireRestart = False
         return
 
     def slot_buttonBoxClicked(self, button):
@@ -87,16 +86,14 @@ class QtSettingsInterface(SettingsInterface, QDialog):
             self.settings.applyChanges()
 
             # Check if restart required
-            if self.settings.changesRequireRestart:
-                self.restartRequired()
+            self.restartRequired()
 
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
             self.settings.applyChanges()
             self.accept()
 
             # Check if restart required
-            if self.settings.changesRequireRestart:
-                self.restartRequired()
+            self.restartRequired()
 
         elif self.buttonBox.buttonRole(button) == QDialogButtonBox.RejectRole:
             self.settings.discardChanges()
@@ -104,7 +101,7 @@ class QtSettingsInterface(SettingsInterface, QDialog):
 
             # - Reset any entries with changes to their stored value.
             for tabIndex in range(self.tabs.count()):
-                self.tabs.widget(tabIndex).resetToOldValue()
+                self.tabs.widget(tabIndex).discardChanges()
 
         # - Regardless of the action above, all categories are now unchanged.
         for tabIndex in range(self.tabs.count()):

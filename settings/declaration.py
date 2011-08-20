@@ -102,19 +102,13 @@ class Entry(object):
         self._editedValue = value
         self.hasChanges = True
 
-    # pwr; 8/17/11
-    # - The actual name mangling performed shouldn't be a part of the
-    #   interface. At some point it may, if it does widget stuff (e.g.
-    #   border highlighting).
     def markAsChanged(self):
         if not self.label.startswith('* '):
             self.label = ' '.join(['*', self.label])
-        return
 
     def markAsUnchanged(self):
         if self.label.startswith('* '):
             self.label = self.label[2:]
-        return
 
     def applyChanges(self):
         if self.value != self.editedValue:
@@ -138,6 +132,13 @@ class Entry(object):
         persistedValue = self.getPersistenceProvider().download(self)
         if persistedValue is None:
             persistedValue = self.defaultValue
+
+        # http://bugs.pyside.org/show_bug.cgi?id=345
+        if self.widgetHint == 'checkbox':
+            if persistedValue == 'false':
+                persistedValue = False
+            elif persistedValue == 'true':
+                persistedValue = True
 
         self._setValue(persistedValue, False)
         self.hasChanges = False
@@ -186,11 +187,9 @@ class Section(object):
     # - Reserved for possible future use.
     def markAsChanged(self):
         pass
-        return
 
     def markAsUnchanged(self):
         pass
-        return
 
     def applyChanges(self):
         for entry in self.entries:
@@ -270,18 +269,13 @@ class Category(object):
         section = self.getSection(splitted[0])
         return section.getEntry(splitted[1])
 
-    # pwr; 8/16/11
-    # - The actual name mangling performed shouldn't be a part of the
-    #   interface. At some point it may, if it does widget stuff.
     def markAsChanged(self):
         if not self.label.startswith('* '):
             self.label = ' '.join(['*', self.label])
-        return
 
     def markAsUnchanged(self):
         if self.label.startswith('* '):
             self.label = self.label[2:]
-        return
 
     def applyChanges(self):
         for section in self.sections:

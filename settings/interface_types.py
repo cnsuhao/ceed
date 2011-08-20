@@ -21,266 +21,215 @@ from PySide.QtGui import *
 
 import qtwidgets
 
-# Notes
-# - Changes propagate upwards from the InterfaceEntry types to the Categories;
-#   in contrast, apply/discard propagate downwards from the Categories to the
-#   InterfaceEntry types.
-# - The reason this is so is because the individual widgets are used to drive
-#   when something has changed; alternatively, the QTabWidget could be used,
-#   but that puts a delay on recognizing when a changed has occured.
+# Implementation notes
+# - The "change detection" scheme propagates upwards from the individual Entry
+#   types to their parents (currently terminated at the Category/Tab level).
+# - In contrast, when a user applies changes, this propagates downwards from
+#   the Category/Tab level to the individual (modified) entries.
+# - The reason is because the settings widgets (QLineEdit, QCheckBox, etc) are
+#   used to notify the application when a change happens; and once changes are
+#   applied, it is convenient to use an iterate/apply mechanism.
 
-# Wrappers for each Entry type
-# - Contain a `declaration.Entry` instance and a `QtGui` widget.
+# Wrapper: Entry types
+# - One for each 'widgetHint'.
 class InterfaceEntry(QHBoxLayout):
     def __init__(self, entry, parent):
         super(InterfaceEntry, self).__init__()
         self.entry = entry
         self.parent = parent
-        return
+
+    def _addBasicWidgets(self):
+        self.addWidget(self.entryWidget)
+        self.addWidget(self._buildResetButton())
 
     def _buildResetButton(self):
+        self.entryWidget.slot_resetToDefault = self.resetToDefaultValue
         ret = QPushButton()
         ret.setIcon(QIcon("icons/settings/reset_entry_to_default.png"))
         ret.setToolTip("Reset this settings entry to the default value")
-        ret.clicked.connect(self.widget_.slot_resetToDefault)
+        ret.clicked.connect(self.entryWidget.slot_resetToDefault)
         return ret
 
-    def resetToOldValue(self):
+    def discardChanges(self):
         self.entry.hasChanges = False
-        return
 
     def onChange(self):
         self.markAsChanged()
         self.parent.onChange(self)
-        return
 
     def markAsChanged(self):
         self.entry.markAsChanged()
-        return
 
     def markAsUnchanged(self):
         self.entry.markAsUnchanged()
-        return
 
 class InterfaceEntryString(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryString, self).__init__(entry, parent)
-        self.widget_ = QLineEdit()
-        self.widget_.setText(entry.value)
-        self.widget_.setToolTip(entry.help)
-        self.widget_.textEdited.connect(self.onChange)
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = QLineEdit()
+        self.entryWidget.setText(entry.value)
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.textEdited.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setText(str(self.entry.value))
-        super(InterfaceEntryString, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setText(str(self.entry.value))
+        super(InterfaceEntryString, self).discardChanges()
 
     def onChange(self, text):
         self.entry.editedValue = str(text)
-
         super(InterfaceEntryString, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryInt(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryInt, self).__init__(entry, parent)
-        self.widget_ = QLineEdit()
-        self.widget_.setText(str(entry.value))
-        self.widget_.setToolTip(entry.help)
-        self.widget_.textEdited.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = QLineEdit()
+        self.entryWidget.setText(str(entry.value))
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.textEdited.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setText(str(self.entry.value))
-        super(InterfaceEntryInt, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setText(str(self.entry.value))
+        super(InterfaceEntryInt, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.setText(str(self.entry.defaultValue))
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.setText(str(defValue))
 
     def onChange(self, text):
         try:
             self.entry.editedValue = int(text)
         except ValueError:
-            # Invalid key (e.g. letters).
-            # - Remove last character from the widget.
-            # - This could be safer (e.g. some use of 'isdigit').
-            self.widget_.setText(self.widget_.text()[:-1])
+            ew = self.entryWidget
+            ew.setText(ew.text()[:-1])
             return
-
         super(InterfaceEntryInt, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryFloat(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryFloat, self).__init__(entry, parent)
-        self.widget_ = QLineEdit()
-        self.widget_.setText(str(entry.value))
-        self.widget_.setToolTip(entry.help)
-        self.widget_.textEdited.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = QLineEdit()
+        self.entryWidget.setText(str(entry.value))
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.textEdited.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setText(str(self.entry.value))
-        super(InterfaceEntryFloat, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setText(str(self.entry.value))
+        super(InterfaceEntryFloat, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.setText(str(self.entry.defaultValue))
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.setText(str(defValue))
 
     def onChange(self, text):
         try:
             self.entry.editedValue = float(text)
         except ValueError:
-            # Invalid key (e.g. letters).
-            # - Remove last character from the widget.
-            # - This could be safer (e.g. some use of 'isdigit').
-            self.widget_.setText(self.widget_.text()[:-1])
-            return
-
+            ew = self.entryWidget
+            ew.setText(ew.text()[:-1])
         super(InterfaceEntryFloat, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryCheckbox(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryCheckbox, self).__init__(entry, parent)
-        self.widget_ = QCheckBox()
-        self.widget_.setChecked(entry.value)
-        self.widget_.setToolTip(entry.help)
-        self.widget_.stateChanged.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = QCheckBox()
+        self.entryWidget.setChecked(entry.value)
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.stateChanged.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setChecked(self.entry.value)
-        super(InterfaceEntryCheckbox, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setChecked(self.entry.value)
+        super(InterfaceEntryCheckbox, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.setChecked(self.entry.defaultValue)
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.setChecked(defValue)
 
     def onChange(self, state):
-        self.entry.editedValue = True if state else False
-
+        self.entry.editedValue = state
         super(InterfaceEntryCheckbox, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryColour(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryColour, self).__init__(entry, parent)
-        self.widget_ = qtwidgets.ColourButton()
-        self.widget_.colour = entry.value
-        self.widget_.setToolTip(entry.help)
-        self.widget_.colourChanged.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = qtwidgets.ColourButton()
+        self.entryWidget.colour = entry.value
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.colourChanged.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setColour(self.entry.value)
-        super(InterfaceEntryColour, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setColour(self.entry.value)
+        super(InterfaceEntryColour, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.colour = self.entry.defaultValue
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.colour = defValue
 
     def onChange(self, colour):
         self.entry.editedValue = colour
-
         super(InterfaceEntryColour, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryPen(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryPen, self).__init__(entry, parent)
-        self.widget_ = qtwidgets.PenButton()
-        self.widget_.pen = entry.value
-        self.widget_.setToolTip(entry.help)
-        self.widget_.penChanged.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = qtwidgets.PenButton()
+        self.entryWidget.pen = entry.value
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.penChanged.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setPen(self.entry.value)
-        super(InterfaceEntryPen, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setPen(self.entry.value)
+        super(InterfaceEntryPen, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.pen = self.entry.defaultValue
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.pen = defValue
 
     def onChange(self, pen):
         self.entry.editedValue = pen
-
         super(InterfaceEntryPen, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 class InterfaceEntryKeySequence(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryKeySequence, self).__init__(entry, parent)
-        self.widget_ = qtwidgets.KeySequenceButton()
-        self.widget_.keySequence = entry.value
-        self.widget_.setToolTip(entry.help)
-        self.widget_.keySequenceChanged.connect(self.onChange)
-        self.widget_.slot_resetToDefault = self.resetToDefaultValue
-        self.addWidget(self.widget_)
-        self.addWidget(self._buildResetButton())
-        return
+        self.entryWidget = qtwidgets.KeySequenceButton()
+        self.entryWidget.keySequence = entry.value
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.keySequenceChanged.connect(self.onChange)
+        self._addBasicWidgets()
 
-    def resetToOldValue(self):
-        self.widget_.setKeySequence(self.entry.value)
-        super(InterfaceEntryKeySequence, self).resetToOldValue()
-        return
+    def discardChanges(self):
+        self.entryWidget.setKeySequence(self.entry.value)
+        super(InterfaceEntryKeySequence, self).discardChanges()
 
     def resetToDefaultValue(self):
-        if self.entry.editedValue != self.entry.defaultValue:
-            self.onChange(self.entry.defaultValue)
-            self.widget_.keySequence = self.entry.defaultValue
-        return
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.entryWidget.keySequence = defValue
 
     def onChange(self, keySequence):
         self.entry.editedValue = keySequence
-
         super(InterfaceEntryKeySequence, self).onChange()
-        self.widget_.setStyleSheet('font: normal')
-        return
 
 # Factory: Return appropriate InterfaceEntry
 # - Not exported; restricted to use within this module.
+# - Could be replaced by a static mapping.
 def _InterfaceEntryFactory(entry, parent):
     if entry.widgetHint == 'string':
         return InterfaceEntryString(entry, parent)
@@ -314,8 +263,8 @@ class InterfaceSection(QGroupBox):
         self.entries = QWidget()
         self.entriesLayout = QFormLayout()
 
-        for entry in section.entries:
-            self.entriesLayout.addRow(entry.label, _InterfaceEntryFactory(entry, self))
+        addRow = self.entriesLayout.addRow
+        [addRow(entry.label, _InterfaceEntryFactory(entry, self)) for entry in section.entries]
 
         self.entries.setLayout(self.entriesLayout)
         self.layout.addWidget(self.entries)
@@ -323,35 +272,30 @@ class InterfaceSection(QGroupBox):
 
         # FIXME: The group box shrinks vertically for some reason
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        return
 
-    def resetToOldValue(self):
-        for entry in self.modifiedEntries:
-            entry.resetToOldValue()
-        return
+    def discardChanges(self):
+        [entry.discardChanges() for entry in self.modifiedEntries]
 
     def onChange(self, entry):
         self.modifiedEntries.append(entry)
         self.markAsChanged()
-        # FIXME: A pretty stinky indirect reference here.
+        # FIXME: This should be rolled into the InterfaceEntry types.
         self.entriesLayout.labelForField(entry).setText(entry.entry.label)
         self.parent.onChange(self)
-        return
 
     def markAsChanged(self):
         self.section.markAsChanged()
-        return
 
     def markAsUnchanged(self):
         self.section.markAsUnchanged()
+        labelForField = self.entriesLayout.labelForField
         for entry in self.modifiedEntries:
             entry.markAsUnchanged()
-            # FIXME: A pretty stinky indirect reference here.
-            self.entriesLayout.labelForField(entry).setText(entry.entry.label)
+            # FIXME: This should be rolled into the InterfaceEntry types.
+            labelForField(entry).setText(entry.entry.label)
         self.modifiedEntries = []
-        return
 
-# Wrappers: Category
+# Wrapper: Category
 class InterfaceCategory(QScrollArea):
     def __init__(self, category, parent):
         super(InterfaceCategory, self).__init__()
@@ -363,49 +307,43 @@ class InterfaceCategory(QScrollArea):
         self.inner = QWidget()
         self.layout = QFormLayout()
 
-        for section in category.sections:
-            self.layout.addWidget(InterfaceSection(section, self))
+        addWidget = self.layout.addWidget
+        [addWidget(InterfaceSection(section, self)) for section in category.sections]
 
         self.inner.setLayout(self.layout)
         self.setWidget(self.inner)
         self.outerLayout.addWidget(self.inner)
         self.setLayout(self.outerLayout)
 
-        # - The viewport is resizable (otherwise, it will scale the widget it
-        #   is viewing).
         self.setWidgetResizable(True)
-        return
 
-    # - For scrollbars.
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Wheel:
-            delta = event.delta()
-            if delta < 0:
+            if event.delta() < 0:
                 self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepAdd)
             else:
                 self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepSub)
             return True
         return QObject.eventFilter(self, obj, event)
 
-    def resetToOldValue(self):
-        for section in self.modifiedSections:
-            section.resetToOldValue()
-        return
+    def discardChanges(self):
+        [section.discardChanges() for section in self.modifiedSections]
 
     def onChange(self, section):
         self.modifiedSections.append(section)
         self.markAsChanged()
-        return
 
     def markAsChanged(self):
+        parent = self.parent
         self.category.markAsChanged()
-        self.parent.setTabText(self.parent.indexOf(self), self.category.label)
-        return
+        parent.setTabText(parent.indexOf(self), self.category.label)
 
     def markAsUnchanged(self):
+        parent = self.parent
         self.category.markAsUnchanged()
-        self.parent.setTabText(self.parent.indexOf(self), self.category.label)
-        for section in self.modifiedSections:
-            section.markAsUnchanged()
+        parent.setTabText(parent.indexOf(self), self.category.label)
+        [section.markAsUnchanged() for section in self.modifiedSections]
         self.modifiedSections = []
-        return
+
+# Wrapper: Tabs
+# TODO
