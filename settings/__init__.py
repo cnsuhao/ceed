@@ -22,12 +22,12 @@ import interface
 
 class Settings(declaration.Settings):
     instance = None
-    
+
     def __init__(self, qsettings):
         super(Settings, self).__init__(name = "settings",
                                        label = "CEGUI Unified Editor settings",
-                                       help = "Provides all persistent settings of CEGUI Unified Editor (CEED), everything is divided into categories (see the tab buttons on the left).")
-        
+                                       help = "Provides all persistent settings of CEGUI Unified Editor (CEED), everything is divided into categories (see the tab buttons).")
+
         self.setPersistenceProvider(persistence.QSettingsPersistenceProvider(qsettings))
 
         # General settings
@@ -43,16 +43,16 @@ class Settings(declaration.Settings):
 
         import editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)
-        
+
         import editors.layout.settings_decl as layout_settings
         layout_settings.declare(self)
-                
+
         assert(Settings.instance is None)
         Settings.instance = self
-        
+
 def getEntry(path):
     """This is a convenience method to make settings retrieval easier
     """
-    
+
     assert(Settings.instance is not None)
     return Settings.instance.getEntry(path)
