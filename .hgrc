@@ -1,10 +1,2 @@
 [extensions]
 eol =
-keyword =
-
-[keyword]
-# Change this later to only affect 'version/__init__.py'
-version/__init.py
-
-[keywordmaps]
-
