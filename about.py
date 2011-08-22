@@ -17,12 +17,28 @@
 ################################################################################
 
 from PySide.QtGui import *
-import ui.licensedialog
+from ui import licensedialog, aboutdialog
+from version import *
 
 class LicenseDialog(QDialog):
     def __init__(self):
         super(LicenseDialog, self).__init__()
-        
-        self.ui = ui.licensedialog.Ui_LicenseDialog()
+
+        self.ui = licensedialog.Ui_LicenseDialog()
         self.ui.setupUi(self)
-        
+
+class AboutDialog(QDialog):
+    def __init__(self):
+        super(AboutDialog, self).__init__()
+
+        self.ui = aboutdialog.Ui_AboutDialog()
+        self.ui.setupUi(self)
+
+        # FIXME: In the future, this will probably be a macro/constant/etc.
+        CEEDDescription = 'The CEGUI Unified Editor\n- Rejoice in the splendor -'
+
+        self.findChild(QLabel, 'CEEDDescription').setText('{0}'.format(CEEDDescription))
+        self.findChild(QLabel, 'CEEDVersion').setText('CEED: {0}'.format(CEEDVersion))
+        self.findChild(QLabel, 'PySideVersion').setText('PySide: {0}'.format(PySideVersion))
+        self.findChild(QLabel, 'QtVersion').setText('Qt: {0}'.format(QtVersion))
+        self.findChild(QLabel, 'PyCEGUIVersion').setText('PyCEGUI: {0}'.format(PyCEGUIVersion))

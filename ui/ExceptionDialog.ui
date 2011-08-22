@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Encountered unhanded exception!</string>
+   <string>Encountered unhandled exception!</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>

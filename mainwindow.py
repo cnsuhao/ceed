@@ -39,38 +39,38 @@ import about
 
 class MainWindow(QMainWindow):
     """The central window of the application.
-    
+
     This is a singleton class, it is assured to only be constructed once during runtime.
     """
-    
+
     # singleton pattern implementation
     # (usage: mainwindow.MainWindow.instance.doSomething() where mainwindow is the module)
     instance = None
-    
+
     # TODO: This class has grown too much, I think it has too many responsibilities
     #       and refactoring will be needed in the future.
-    
+
     def __init__(self, app):
         # make sure multiple instantiation won't happen
         assert(MainWindow.instance is None)
         MainWindow.instance = self
-        
+
         super(MainWindow, self).__init__()
-        
+
         self.app = app
-        
+
         self.qsettings = QSettings("CEGUI", "CEED")
-        
+
         self.settings = settings.Settings(self.qsettings)
-        # we have to construct ActionManager before settings interface (as it alters the settings declaration)!        
+        # we have to construct ActionManager before settings interface (as it alters the settings declaration)!
         self.actionManager = action.ActionManager(self, self.settings)
         # download all values from the persistence store
         self.settings.download()
-        
+
         self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
-        
+
         self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.qsettings, "Projects")
-        
+
         self.editorFactories = [
             editors.animation_list.AnimationListEditorFactory(),
             editors.bitmap.BitmapTabbedEditorFactory(),
@@ -79,17 +79,17 @@ class MainWindow(QMainWindow):
             editors.property_mappings.PropertyMappingsEditorFactory(),
             editors.text.TextTabbedEditorFactory()
         ]
-        
+
         self.activeEditor = None
         self.project = None
-        
+
         self.ui = ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
-        
+
         # we start CEGUI early and we always start it
         self.ceguiInstance = cegui.Instance()
         self.ceguiContainerWidget = cegui.container.ContainerWidget(self.ceguiInstance)
-        
+
         self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
         self.tabs.tabCloseRequested.connect(self.slot_tabCloseRequested)
@@ -97,62 +97,62 @@ class MainWindow(QMainWindow):
         self.tabBar = self.tabs.tabBar()
         self.tabBar.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tabBar.customContextMenuRequested.connect(self.slot_tabBarCustomContextMenuRequested)
-        
+
         self.tabEditors = []
-        
+
         self.projectManager = project.ProjectManager()
         self.addDockWidget(Qt.RightDockWidgetArea, self.projectManager)
-        
+
         self.fileSystemBrowser = filesystembrowser.FileSystemBrowser()
         self.fileSystemBrowser.setVisible(False)
         self.addDockWidget(Qt.RightDockWidgetArea, self.fileSystemBrowser)
-        
+
         self.undoViewer = commands.UndoViewer()
         self.undoViewer.setVisible(False)
         self.addDockWidget(Qt.RightDockWidgetArea, self.undoViewer)
-        
+
         self.menuPanels = self.findChild(QMenu, "menuPanels")
         self.menuPanels.addAction(self.projectManager.toggleViewAction())
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
-        
+
         self.setupActions()
         self.connectSignals()
-        
-        self.restoreSettings()     
-    
+
+        self.restoreSettings()
+
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(self.actionManager)
-        
+
         self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
-        
+
         self.fileMenu = self.findChild(QMenu, "menuFile")
         self.editMenu = self.findChild(QMenu, "menuEdit")
-        
+
         self.newFileAction = self.actionManager.getAction("all_editors/new_file")
         self.fileMenu.addAction(self.newFileAction)
         self.globalToolbar.addAction(self.newFileAction)
         self.connectionGroup.add(self.newFileAction, receiver = self.slot_newFileDialog)
-        
+
         self.openFileAction = self.actionManager.getAction("all_editors/open_file")
         self.fileMenu.addAction(self.openFileAction)
         self.globalToolbar.addAction(self.openFileAction)
         self.connectionGroup.add(self.openFileAction, receiver = self.slot_openFileDialog)
-        
+
         self.saveAction = self.actionManager.getAction("all_editors/save_file")
         self.saveAction.setEnabled(False)
         self.fileMenu.addAction(self.saveAction)
         self.globalToolbar.addAction(self.saveAction)
         self.connectionGroup.add(self.saveAction, receiver = self.slot_save)
-        
+
         self.saveAllAction = self.actionManager.getAction("all_editors/save_all_files")
         self.saveAllAction.setEnabled(False)
         self.fileMenu.addAction(self.saveAllAction)
         self.globalToolbar.addAction(self.saveAllAction)
         self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
-        
+
         self.fileMenu.addSeparator()
-        
+
         # tab bar context menu (but also added to the file menu so it's easy to discover)
         self.closeTabAction = self.actionManager.getAction("all_editors/close_current_tab")
         self.closeTabAction.setEnabled(False)
@@ -170,9 +170,9 @@ class MainWindow(QMainWindow):
         self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
         # end of tab bar context menu
 
-        self.fileMenu.addSeparator()        
+        self.fileMenu.addSeparator()
         self.globalToolbar.addSeparator()
-        
+
         self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
         self.editMenu.addAction(self.undoAction)
@@ -184,51 +184,51 @@ class MainWindow(QMainWindow):
         self.editMenu.addAction(self.redoAction)
         self.globalToolbar.addAction(self.redoAction)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
-        
+
         self.editMenu.addSeparator()
         self.globalToolbar.addSeparator()
-        
+
         self.cutAction = self.actionManager.getAction("all_editors/cut")
         self.editMenu.addAction(self.cutAction)
         self.globalToolbar.addAction(self.cutAction)
         self.connectionGroup.add(self.cutAction, receiver = self.slot_cut)
-        
+
         self.copyAction = self.actionManager.getAction("all_editors/copy")
         self.editMenu.addAction(self.copyAction)
         self.globalToolbar.addAction(self.copyAction)
         self.connectionGroup.add(self.copyAction, receiver = self.slot_copy)
-        
+
         self.pasteAction = self.actionManager.getAction("all_editors/paste")
         self.editMenu.addAction(self.pasteAction)
         self.globalToolbar.addAction(self.pasteAction)
         self.connectionGroup.add(self.pasteAction, receiver = self.slot_paste)
-        
+
         self.editMenu.addSeparator()
         self.globalToolbar.addSeparator()
-        
+
         self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
         # when this starts up, no project is opened, hence you can't view/edit settings of the current project
         self.projectSettingsAction.setEnabled(False)
         self.editMenu.addAction(self.projectSettingsAction)
         self.globalToolbar.addAction(self.projectSettingsAction)
         self.connectionGroup.add(self.projectSettingsAction, receiver = self.slot_projectSettings)
-        
+
         self.editMenu.addAction(self.actionManager.getAction("general/application_settings"))
         self.connectionGroup.add("general/application_settings", receiver = lambda: self.settingsInterface.show())
-        
+
         self.fileMenu.addAction(self.actionManager.getAction("project_management/new_project"))
         self.connectionGroup.add("project_management/new_project", receiver = self.slot_newProject)
-        
+
         self.fileMenu.addAction(self.actionManager.getAction("project_management/open_project"))
         self.connectionGroup.add("project_management/open_project", receiver = self.slot_openProject)
-        
+
         self.saveProjectAction = self.actionManager.getAction("project_management/save_project")
         # when this starts up, no project is opened, hence you can't save the "no project"
         self.saveProjectAction.setEnabled(False)
         self.fileMenu.addAction(self.saveProjectAction)
         self.globalToolbar.addAction(self.saveProjectAction)
         self.connectionGroup.add(self.saveProjectAction, receiver = self.slot_saveProject)
-        
+
         self.closeProjectAction = self.actionManager.getAction("project_management/close_project")
         self.fileMenu.addAction(self.closeProjectAction)
         self.connectionGroup.add(self.closeProjectAction, receiver = self.slot_closeProject)
@@ -236,53 +236,56 @@ class MainWindow(QMainWindow):
         self.closeProjectAction.setEnabled(False)
 
         self.fileMenu.addSeparator()
-    
+
         self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
         self.recentlyUsedProjects.setParentMenu(self.recentProjectsMenu, self.slot_openRecentProject)
-        
+
+        self.aboutAction = self.findChild(QAction, "actionAbout")
+        self.aboutAction.triggered.connect(self.slot_about)
+
         self.licenseAction = self.findChild(QAction, "actionLicense")
         self.licenseAction.triggered.connect(self.slot_license)
-        
+
         self.qtAction = self.findChild(QAction, "actionQt")
         self.qtAction.triggered.connect(QApplication.aboutQt)
-        
+
         self.connectionGroup.add("general/quit", receiver = self.slot_quit)
         self.fileMenu.addAction(self.actionManager.getAction("general/quit"))
-        
+
         self.connectionGroup.connectAll()
-        
+
     def connectSignals(self):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
     def openProject(self, path):
         assert(not self.project)
-        
+
         self.project = project.Project()
         try:
             self.project.load(path)
         except IOError:
             QMessageBox.critical(self, "Error when opening project", "It seems project at path '%s' doesn't exist or you don't have rights to open it." % (path))
-            
+
             self.project = None
             return
-            
+
         self.projectManager.setProject(self.project)
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
         # sync up the cegui instance
         try:
             self.ceguiInstance.syncToProject(self.project, self)
-            
+
         except Exception as e:
             QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
 """An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed!
-            
+
 This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets). You can try to remedy this problem by opening Edit->Project settings, even if you don't do any changes there, upon pressing pressing OK in that dialog the project will be reloaded.
-            
+
 Details of this error: %s""" % (e))
-       
+
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
-            
+
         # and enable respective actions
         self.saveProjectAction.setEnabled(True)
         self.closeProjectAction.setEnabled(True)
@@ -297,138 +300,138 @@ Details of this error: %s""" % (e))
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
         self.projectSettingsAction.setEnabled(False)
-        
+
     def saveProject(self):
         self.project.save()
-    
+
     def saveProjectAs(self, newPath):
         self.project.save(newPath)
-        
+
     def createEditorForFile(self, absolutePath):
         ret = None
-                
-        projectRelativePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"        
-        
+
+        projectRelativePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"
+
         if not os.path.exists(absolutePath):
             ret = editors.MessageTabbedEditor(absolutePath,
                    "Couldn't find '%s' (project relative path: '%s'), please check that that your project's "
                    "base directory is set up correctly and that you hadn't deleted "
                    "the file from your HDD. Consider removing the file from the project." % (absolutePath, projectRelativePath))
-        else: 
+        else:
             possibleFactories = []
-            
+
             for factory in self.editorFactories:
                 if factory.canEditFile(absolutePath):
                     possibleFactories.append(factory)
-                    
+
             # at this point if possibleFactories is [], no registered tabbed editor factory wanted
             # to accept the file, so we create MessageTabbedEditor that will simply
             # tell the user that given file can't be edited
             #
-            # IMO this is a reasonable compromise and plays well with the rest of 
+            # IMO this is a reasonable compromise and plays well with the rest of
             # the editor without introducing exceptions, etc...
             if len(possibleFactories) == 0:
                 ret = editors.MessageTabbedEditor(absolutePath,
                        "No included tabbed editor was able to accept '%s' (project relative path: '%s'), please "
                        "check that it's a file CEED supports and that it has the correct extension "
                        "(CEED enforces proper extensions)" % (absolutePath, projectRelativePath))
-                
+
             else:
                 # one or more factories wants to accept the file
                 factory = None
-                
+
                 if len(possibleFactories) == 1:
                     # it's decided, just one factory wants to accept the file
                     factory = possibleFactories[0]
-                    
+
                 else:
                     assert(len(possibleFactories) > 1)
-                    
+
                     # more than 1 factory wants to accept the file, offer a dialog and let user choose
                     dialog = editors.MultiplePossibleFactoriesDialog(possibleFactories)
                     result = dialog.exec_()
-                    
+
                     if result == QDialog.Accepted:
                         selection = dialog.factoryChoice.selectedItems()
-                        
+
                         if len(selection) == 1:
                             factory = selection[0].data(Qt.UserRole)
-        
+
                 if factory is None:
                     ret = editors.MessageTabbedEditor(absolutePath,
                        "You failed to choose an editor to open '%s' with (project relative path: '%s')." % (absolutePath, projectRelativePath))
-                
+
                 else:
                     ret = factory.create(absolutePath)
-        
+
         if not self.project and ret.requiresProject:
             # the old editor will be destroyed automatically by python GC
             ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
-        
+
         try:
             ret.initialise(self)
-        
+
         except Exception:
             # it may have been partly constructed at this point
             try:
                 ret.finalise()
-                
+
             except:
                 # catch all exception the finalisation raises (we can't deal with them anyways)
                 pass
-            
+
             raise
-            
+
         self.tabEditors.append(ret)
-        return ret    
+        return ret
 
     def openEditorTab(self, absolutePath):
         """Opens editor tab. Creates new editor if such file wasn't opened yet and if it was opened,
         it just makes the tab current.
         """
-        
+
         absolutePath = os.path.normpath(absolutePath)
-        
-        for tabEditor in self.tabEditors:            
+
+        for tabEditor in self.tabEditors:
             if tabEditor.filePath == absolutePath:
                 tabEditor.makeCurrent()
                 return
-                
+
         editor = self.createEditorForFile(absolutePath)
         editor.makeCurrent()
-        
+
     def closeEditorTab(self, editor):
         """Closes given editor tab.
-        
+
         note: No checks are made, make sure you pass proper existing editor!
         """
-        
+
         editor.finalise()
         self.tabEditors.remove(editor)
-    
+
     def saveSettings(self):
         #self.qsettings.setValue("geometry", self.saveGeometry())
         #self.qsettings.setValue("state", self.saveState())
         pass
-        
+
     def restoreSettings(self):
         #if self.qsettings.contains("geometry"):
         #    self.restoreGeometry(self.qsettings.value("geometry"))
         #if self.qsettings.contains("state"):
         #    self.restoreState(self.qsettings.value("state"))
         return
-        
+
     def quit(self):
         """Safely quits the editor, prompting user to save changes to files and the project."""
-        
+
         self.saveSettings()
-        
+
         if self.project:
             # if the slot returned False, user pressed Cancel
             if not self.slot_closeProject():
                 return False
-        
+
         lastTab = None
         while len(self.tabEditors) > 0:
             currentTab = self.tabs.widget(0)
@@ -437,11 +440,11 @@ Details of this error: %s""" % (e))
                 # cancel the whole quit operation!
                 return False
             lastTab = currentTab
-            
+
             self.slot_tabCloseRequested(0)
-            
+
         self.app.quit()
-        
+
     def slot_newProject(self):
         if self.project:
             # another project is already opened!
@@ -451,22 +454,22 @@ Details of this error: %s""" % (e))
                                           "Do you want to close currently opened project? (all unsaved changes will be lost!)",
                                           QMessageBox.Yes | QMessageBox.Cancel,
                                           QMessageBox.Cancel)
-            
+
             if result == QMessageBox.Yes:
                 self.closeProject()
             else:
                 # User selected cancel, NOOP
                 return
-        
+
         newProjectDialog = project.NewProjectDialog()
         result = newProjectDialog.exec_()
-        
+
         if result == QDialog.Accepted:
             newProject = newProjectDialog.createProject()
             newProject.save()
-            
+
             self.openProject(newProject.projectFilePath)
-    
+
     def slot_openProject(self):
         if self.project:
             # another project is already opened!
@@ -476,29 +479,29 @@ Details of this error: %s""" % (e))
                                           "Do you want to close currently opened project? (all unsaved changes will be lost!)",
                                           QMessageBox.Yes | QMessageBox.Cancel,
                                           QMessageBox.Cancel)
-            
+
             if result == QMessageBox.Yes:
                 self.closeProject()
             else:
                 # User selected cancel, NOOP
                 return
-        
+
         file, filter = QFileDialog.getOpenFileName(self,
                                            "Open existing project file",
                                            "",
                                            "Project files (*.project)")
-        
+
         if file != "":
             # user actually selected something ;-)
-            
+
             self.openProject(file)
-            
+
     def slot_saveProject(self):
         self.saveProject()
-        
+
     def slot_closeProject(self):
         assert(self.project)
-        
+
         if self.project.hasChanges():
             result = QMessageBox.question(self,
                                           "Project file has changes!",
@@ -507,56 +510,56 @@ Details of this error: %s""" % (e))
                                           "(Pressing Discard will discard the changes!)",
                                           QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
                                           QMessageBox.Save)
-            
+
             if result == QMessageBox.Save:
                 self.saveProject()
                 return True
-            
+
             elif result == QMessageBox.Cancel:
                 return False
-            
+
         self.closeProject()
         return True
-        
+
     def slot_projectSettings(self):
         dialog = project.ProjectSettingsDialog(self.project)
-        
+
         if dialog.exec_() == QDialog.Accepted:
             dialog.apply(self.project)
             self.ceguiInstance.syncToProject(self.project)
-    
+
     def slot_newFileDialog(self):
         dir = ""
         if self.project:
             dir = self.project.getAbsolutePathOf("")
-        
+
         file, filter = QFileDialog.getSaveFileName(self, "New File", dir)
-        
+
         if file:
             f = open(file, "w")
             f.close()
 
             self.openEditorTab(file)
-    
+
     def slot_openFile(self, absolutePath):
         self.openEditorTab(absolutePath)
-    
+
     def slot_openFileDialog(self):
         dir = ""
         if self.project:
             dir = self.project.getAbsolutePathOf("")
-        
+
         file, filter = QFileDialog.getOpenFileName(self, "Open File", dir)
-        
+
         if file:
             self.openEditorTab(file)
-    
+
     def slot_currentTabChanged(self, index):
         # to fight flicker
         self.tabs.setUpdatesEnabled(False)
-        
+
         wdt = self.tabs.widget(index)
-        
+
         if self.activeEditor:
             self.activeEditor.deactivate()
 
@@ -570,37 +573,37 @@ Details of this error: %s""" % (e))
         # set undo stack to None as we have no idea whether the previous tab editor
         # set it to something else
         self.undoViewer.setUndoStack(None)
-        
+
         # we also clear the status bar
         self.statusBar().clearMessage()
 
         if wdt:
             self.saveAction.setEnabled(True)
             self.saveAllAction.setEnabled(True)
-            
+
             self.closeTabAction.setEnabled(True)
             self.closeOtherTabsAction.setEnabled(True)
-            
+
             wdt.tabbedEditor.activate()
         else:
             # None is selected right now, lets disable Save and Close actions
             self.saveAction.setEnabled(False)
             self.saveAllAction.setEnabled(False)
-            
+
             self.closeTabAction.setEnabled(False)
             self.closeOtherTabsAction.setEnabled(False)
-            
+
         self.tabs.setUpdatesEnabled(True)
-    
+
     def slot_tabCloseRequested(self, index):
         wdt = self.tabs.widget(index)
         editor = wdt.tabbedEditor
-        
+
         if not editor.hasChanges():
             # we can close immediately
             self.closeEditorTab(editor)
             return True
-            
+
         else:
             # we have changes, lets ask the user whether we should dump them or save them
             result = QMessageBox.question(self,
@@ -610,20 +613,20 @@ Details of this error: %s""" % (e))
                                           "(Pressing Discard will discard the changes!)" % (editor.filePath),
                                           QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
                                           QMessageBox.Save)
-            
+
             if result == QMessageBox.Save:
                 # lets save changes and then kill the editor (This is the default action)
                 editor.save()
                 self.closeEditorTab(editor)
                 return True
-                
+
             elif result == QMessageBox.Discard:
                 # changes will be discarded
                 # note: we don't have to call editor.discardChanges here
-                
+
                 self.closeEditorTab(editor)
                 return True
-            
+
             # don't do anything if user selected 'Cancel'
             return False
 
@@ -633,7 +636,7 @@ Details of this error: %s""" % (e))
 
     def slot_closeOtherTabs(self):
         current = self.tabs.currentWidget()
-        
+
         i = 0
         while i < self.tabs.count():
             if self.tabs.widget(i) == current:
@@ -643,7 +646,7 @@ Details of this error: %s""" % (e))
                 if not self.slot_tabCloseRequested(i):
                     # user selected Cancel, we skip this widget
                     i += 1
-                    
+
     def slot_closeAllTabs(self):
         i = 0
         while i < self.tabs.count():
@@ -653,56 +656,60 @@ Details of this error: %s""" % (e))
 
     def slot_tabBarCustomContextMenuRequested(self, point):
         self.tabs.setCurrentIndex(self.tabBar.tabAt(point))
-        
+
         menu = QMenu(self)
         menu.addAction(self.closeTabAction)
         menu.addSeparator()
         menu.addAction(self.closeOtherTabsAction)
         menu.addAction(self.closeAllTabsAction)
-        
+
         menu.exec_(self.tabBar.mapToGlobal(point))
 
     def slot_save(self):
         if self.activeEditor:
             self.activeEditor.save()
-    
+
     def slot_saveAll(self):
         for editor in self.tabEditors:
             editor.save()
-        
+
     def slot_undo(self):
         if self.activeEditor:
             self.activeEditor.undo()
-            
+
     def slot_redo(self):
         if self.activeEditor:
             self.activeEditor.redo()
-            
+
     def slot_cut(self):
         if self.activeEditor:
             self.activeEditor.performCut()
-    
+
     def slot_copy(self):
         if self.activeEditor:
             self.activeEditor.performCopy()
-    
+
     def slot_paste(self):
         if self.activeEditor:
             self.activeEditor.performPaste()
-    
+
+    def slot_about(self):
+        dialog = about.AboutDialog()
+        dialog.exec_()
+
     def slot_license(self):
         dialog = about.LicenseDialog()
         dialog.exec_()
-    
+
     def slot_quit(self):
         return self.quit()
 
     def closeEvent(self, event):
         handled = self.slot_quit()
-        
+
         if not handled:
             event.ignore()
-            
+
         else:
             event.accept()
 
@@ -713,5 +720,5 @@ Details of this error: %s""" % (e))
                 # give user a chance to save changes if needed
                 if not self.slot_closeProject():
                     return
-            
+
             self.openProject(temp)

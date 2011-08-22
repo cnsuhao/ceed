@@ -111,6 +111,7 @@
     <property name="title">
      <string>About</string>
     </property>
+    <addaction name="actionAbout"/>
     <addaction name="actionLicense"/>
     <addaction name="actionQt"/>
    </widget>
@@ -142,6 +143,11 @@
     <bool>false</bool>
    </attribute>
   </widget>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
   <action name="actionLicense">
    <property name="text">
     <string>License</string>
