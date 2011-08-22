@@ -20,23 +20,25 @@ import sys
 
 from PySide.QtGui import QDialog, QTextBrowser
 
+from version import *
+
 import ui.exceptiondialog
 
 class ExceptionDialog(QDialog):
     """This is a dialog that gets shown whenever an exception is thrown and
     isn't caught. This is realised via duck overriding the sys.excepthook.
     """
-    
+
     # Long term TODO:
     # Add an option to pack all the relevant data and error messages to a zip
     # file for easier to reproduce bug reports.
-    
+
     def __init__(self, exc_type, exc_message, exc_traceback):
         super(ExceptionDialog, self).__init__()
-        
+
         self.ui = ui.exceptiondialog.Ui_ExceptionDialog()
         self.ui.setupUi(self)
-        
+
         self.details = self.findChild(QTextBrowser, "details")
 
         self.setWindowTitle("Exception %s" % (exc_type))
@@ -46,7 +48,35 @@ class ExceptionDialog(QDialog):
         tracebackStr = ""
         for line in formattedTraceback:
             tracebackStr += line + "\n"
-            
+
+        # - Operating under the principle that the immediately useful details
+        #   should come first, we put the versioning information at the end.
+        def _versionStamp():
+            # - If the versioning info was stored in an object, not a module,
+            #   we could iterate ... hint hint.
+            ret = ''
+            ret = '\n'.join([ret, 'Architecture: {0}'.format(SystemArch)])
+            ret = '\n'.join([ret, 'Type: {0}'.format(SystemType)])
+            ret = '\n'.join([ret, 'Processor: {0}'.format(SystemCore)])
+            ret = '\n'.join([ret, 'OS: {0}'.format(OSType)])
+            ret = '\n'.join([ret, 'Release: {0}'.format(OSRelease)])
+            ret = '\n'.join([ret, 'Version: {0}'.format(OSVersion)])
+            if OSType == 'Windows':
+                ret = '\n'.join([ret, 'Windows: {0}'.format(WindowsVersion)])
+            elif OSType == 'Linux':
+                ret = '\n'.join([ret, 'Linux: {0}'.format(LinuxVersion)])
+            elif OSType == 'Java':
+                ret = '\n'.join([ret, 'Java: {0}'.format(JavaVersion)])
+            elif OSType == 'Darwin':
+                ret = '\n'.join([ret, 'Darwin: {0}'.format(MacVersion)])
+            ret = '\n'.join([ret, 'Python: {0}'.format(PythonVersion)])
+            ret = '\n'.join([ret, 'PySide: {0}'.format(PySideVersion)])
+            ret = '\n'.join([ret, 'Qt: {0}'.format(QtVersion)])
+            ret = '\n'.join([ret, 'PyCEGUI: {0}'.format(PyCEGUIVersion)])
+            ret = '\n'.join([ret, 'CEED: {0}'.format(CEEDVersion)])
+            return ret
+        tracebackStr = '\n'.join([tracebackStr, _versionStamp()])
+
         self.details.setPlainText("Exception message: %s\n\n"
                                  "Traceback:\n"
                                  "%s"
@@ -55,29 +85,29 @@ class ExceptionDialog(QDialog):
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
     """
-    
+
     # TODO: handle stderr messages as soft errors
-    
+
     def __init__(self, mainWindow):
         self.mainWindow = mainWindow
-        
+
     def installExceptionHook(self):
         sys.excepthook = self.excepthook
-        
+
     def uninstallExceptionHook(self):
         sys.excepthook = sys.__excepthook__
-        
+
     def excepthook(self, exc_type, exc_message, exc_traceback):
         if not self.mainWindow:
             sys.__excepthook__(exc_type, exc_message, exc_traceback)
-            
+
         else:
             dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
             result = dialog.exec_()
-            
+
             # we also call the original excepthook which will just output things to stderr
             sys.__excepthook__(exc_type, exc_message, exc_traceback)
-            
+
             # if the dialog was reject, the user chose to quit the whole app immediately (coward...)
             if result == QDialog.Rejected:
                 # stop annoying the user
