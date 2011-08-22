@@ -19,7 +19,6 @@
 from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
-#from version import CEEDVersionAsString
 from version import *
 
 class SplashScreen(QSplashScreen):
