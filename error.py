@@ -51,20 +51,21 @@ class ExceptionDialog(QDialog):
 
         import traceback
         formattedTraceback = traceback.format_tb(exc_traceback)
-        tracebackStr = ""
+        self.tracebackStr = ""
         for line in formattedTraceback:
-            tracebackStr += line + "\n"
+            self.tracebackStr += line + "\n"
+
+        # Convenience
+        def _stamp(newLine, arg):
+            self.tracebackStr = '\n'.join([self.tracebackStr, newLine.format(arg)])
 
         # Mercurial information
         # - The mercurial API is still under development, and can change from
         #   release to release; this may or may not work in the future.
         def _mercurialStamp():
-            ret = ''
             repo = hg.repository(mercui.ui(), '.')
-            ret = '\n'.join([ret, 'Repo: {0}'.format(repo.ui.config('paths', 'default'))])
-            ret = '\n'.join([ret, 'Branch: {0}'.format(repo[None].branch())])
-            return ret
-        tracebackStr = ''.join([tracebackStr, _mercurialStamp()])
+            _stamp('Repo: {0}', repo.ui.config('paths', 'default'))
+            _stamp('Branch: {0}', repo[None].branch())
 
         # - Operating under the principle that the immediately useful details
         #   should come first, we put the Mercurial/versioning information at
@@ -72,34 +73,33 @@ class ExceptionDialog(QDialog):
         def _versionStamp():
             # - If the versioning info was stored in an object, not a module,
             #   we could iterate ... hint hint.
-            ret = ''
-            ret = '\n'.join([ret, 'Architecture: {0}'.format(SystemArch)])
-            ret = '\n'.join([ret, 'Type: {0}'.format(SystemType)])
-            ret = '\n'.join([ret, 'Processor: {0}'.format(SystemCore)])
-            ret = '\n'.join([ret, 'OS: {0}'.format(OSType)])
-            ret = '\n'.join([ret, 'Release: {0}'.format(OSRelease)])
-            ret = '\n'.join([ret, 'Version: {0}'.format(OSVersion)])
+            _stamp('Architecture: {0}', SystemArch)
+            _stamp('Type: {0}', SystemType)
+            _stamp('Processor: {0}', SystemCore)
+            _stamp('OS: {0}', OSType)
+            _stamp('Release: {0}', OSRelease)
+            _stamp('Version: {0}', OSVersion)
             if OSType == 'Windows':
-                ret = '\n'.join([ret, 'Windows: {0}'.format(WindowsVersion)])
+                _stamp('Windows: {0}', WindowsVersion)
             elif OSType == 'Linux':
-                ret = '\n'.join([ret, 'Linux: {0}'.format(LinuxVersion)])
+                _stamp('Linux: {0}', LinuxVersion)
             elif OSType == 'Java':
-                ret = '\n'.join([ret, 'Java: {0}'.format(JavaVersion)])
+                _stamp('Java: {0}', JavaVersion)
             elif OSType == 'Darwin':
-                ret = '\n'.join([ret, 'Darwin: {0}'.format(MacVersion)])
-            ret = '\n'.join([ret, 'Python: {0}'.format(PythonVersion)])
-            ret = '\n'.join([ret, 'PySide: {0}'.format(PySideVersion)])
-            ret = '\n'.join([ret, 'Qt: {0}'.format(QtVersion)])
-            ret = '\n'.join([ret, 'PyCEGUI: {0}'.format(PyCEGUIVersion)])
-            ret = '\n'.join([ret, 'CEED: {0}'.format(CEEDVersion)])
-            return ret
-        tracebackStr = '\n'.join([tracebackStr, _versionStamp()])
-        self.errorStr = tracebackStr
+                _stamp('Darwin: {0}', MacVersion)
+            _stamp('Python: {0}', PythonVersion)
+            _stamp('PySide: {0}', PySideVersion)
+            _stamp('Qt: {0}', QtVersion)
+            _stamp('OpenGL: {0}', OpenGLVersion)
+            _stamp('PyCEGUI: {0}', PyCEGUIVersion)
+            _stamp('CEED: {0}', CEEDVersion)
+        _mercurialStamp()
+        _versionStamp()
 
         self.details.setPlainText("Exception message: %s\n\n"
                                  "Traceback:\n"
                                  "%s"
-                                 % (exc_message, tracebackStr))
+                                 % (exc_message, self.tracebackStr))
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
@@ -127,7 +127,7 @@ class ErrorHandler(object):
             # Dump to file, to ease bug reporting (e-mail attachments, etc)
             # - In the future, this could be mailed as a bug report?
             with open('EXCEPTION.log', mode='w') as fp:
-                fp.write(dialog.errorStr)
+                fp.write(dialog.tracebackStr)
 
             # we also call the original excepthook which will just output things to stderr
             sys.__excepthook__(exc_type, exc_message, exc_traceback)

@@ -29,6 +29,7 @@ architecture - which are used in the event of errors/exceptions.
 
 import platform
 import sys
+from OpenGL.version import __version__ as _OpenGLVersion
 from PySide import __version__ as _PySideVersion
 from PySide import __version_info__ as _PySideVersion_Tuple
 from PySide.QtCore import __version__ as _QtVersion
@@ -66,6 +67,9 @@ PySideVersion_Tuple = _PySideVersion_Tuple
 
 # Qt
 QtVersion = _QtVersion
+
+# PyOpenGL
+OpenGLVersion = _OpenGLVersion
 
 # PyCEGUI
 PyCEGUIVersion = _PyCEGUIVersion
