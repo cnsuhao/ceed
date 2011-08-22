@@ -20,6 +20,12 @@ import sys
 
 from PySide.QtGui import QDialog, QTextBrowser
 
+# FIXME: There is a problem here - it is possible for a user to have retrieved
+# a copy of CEED from a place other than Mercurial; in such an event, they may
+# not have this module.
+from mercurial import hg
+from mercurial import ui as mercui
+
 from version import *
 
 import ui.exceptiondialog
@@ -49,8 +55,20 @@ class ExceptionDialog(QDialog):
         for line in formattedTraceback:
             tracebackStr += line + "\n"
 
+        # Mercurial information
+        # - The mercurial API is still under development, and can change from
+        #   release to release; this may or may not work in the future.
+        def _mercurialStamp():
+            ret = ''
+            repo = hg.repository(mercui.ui(), '.')
+            ret = '\n'.join([ret, 'Repo: {0}'.format(repo.ui.config('paths', 'default'))])
+            ret = '\n'.join([ret, 'Branch: {0}'.format(repo[None].branch())])
+            return ret
+        tracebackStr = ''.join([tracebackStr, _mercurialStamp()])
+
         # - Operating under the principle that the immediately useful details
-        #   should come first, we put the versioning information at the end.
+        #   should come first, we put the Mercurial/versioning information at
+        #   the end.
         def _versionStamp():
             # - If the versioning info was stored in an object, not a module,
             #   we could iterate ... hint hint.
@@ -76,6 +94,7 @@ class ExceptionDialog(QDialog):
             ret = '\n'.join([ret, 'CEED: {0}'.format(CEEDVersion)])
             return ret
         tracebackStr = '\n'.join([tracebackStr, _versionStamp()])
+        self.errorStr = tracebackStr
 
         self.details.setPlainText("Exception message: %s\n\n"
                                  "Traceback:\n"
@@ -104,6 +123,11 @@ class ErrorHandler(object):
         else:
             dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
             result = dialog.exec_()
+
+            # Dump to file, to ease bug reporting (e-mail attachments, etc)
+            # - In the future, this could be mailed as a bug report?
+            with open('EXCEPTION.log', mode='w') as fp:
+                fp.write(dialog.errorStr)
 
             # we also call the original excepthook which will just output things to stderr
             sys.__excepthook__(exc_type, exc_message, exc_traceback)
