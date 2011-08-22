@@ -19,61 +19,57 @@
 """
 This module is used to check dependencies of CEED, check their versions
 and provide helpful info when something goes wrong.
+
+We are also responsible for the initial import of the version module, which
+populates it.
 """
 
 def check(supressMessagesIfNotFatal = True):
     def messageBox(message):
         print message
-    
+
     ret = True
     messages = []
-    
-    # Require python 2.6 or higher
-    # NOTE: This is not necessarily required I think but I develop on 2.6 and 2.7
-    import sys
-    if sys.version_info < (2, 6):
-        messages.append("Python is version '%s', at least 2.6 required" % (sys.version_info))
-        ret = False
-    
-    # first we try PySide
+
+    # PySide
     try:
         import PySide
-        
-        # we also check that PySide is at least version 1.0.3
-        if PySide.__version_info__ < (1, 0, 3):
-            messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (PySide.__version__))
-            ret = False
-        
     except ImportError:
         messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org")
         ret = False
-        
-        
-    # next on the line is PyOpenGL
+
+    # PyOpenGL
     try:
         import OpenGL.GL
         import OpenGL.GLU
-        
     except ImportError:
         messages.append("PyOpenGL package is missing! PyOpenGL provides Python bindings for OpenGL, they can be found in the pypi repository.")
         ret = False
-        
-    # PyCEGUI is also required
+
+    # PyCEGUI
     try:
         import PyCEGUI
-        
         try:
             import PyCEGUIOpenGLRenderer
-            
         except ImportError:
             messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it.")
             ret = False
-        
     except ImportError:
         messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk")
         ret = False
-        
+
+    # Version module initialization
+    import version
+
+    # Version checking
+    if version.PythonVersion_Tuple < (2, 6):
+        messages.append("Python is version '%s', at least 2.6 required" % (version.PythonVersion))
+        ret = False
+    if version.PySideVersion_Tuple < (1, 0, 3):
+        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PySideVersion))
+        ret = False
+
+    # Finished
     if (not ret) or (not supressMessagesIfNotFatal and len(messages) > 0):
         messageBox("Following problems found: \n" + unicode("\n").join(messages))
-    
     return ret
