@@ -380,33 +380,29 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.dockWidget = ImagesetEditorDockWidget(self)
     
         self.setupActions()
-        self.setupToolBar()
-        self.setupContextMenu()
     
     def setupActions(self):
-        self.editOffsetsAction = QAction(QIcon("icons/imageset_editing/edit_offsets.png"), "Show and edit offsets", self)
-        self.editOffsetsAction.setCheckable(True)
-        self.editOffsetsAction.toggled.connect(self.slot_toggleEditOffsets)
+        self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
         
-        self.cycleOverlappingAction = QAction(QIcon("icons/imageset_editing/cycle_overlapping.png"), "Cycle overlapping images (Q)", self)
-        self.cycleOverlappingAction.triggered.connect(self.cycleOverlappingImages)
+        self.editOffsetsAction = action.getAction("imageset/edit_offsets")
+        self.connectionGroup.add(self.editOffsetsAction, receiver = self.slot_toggleEditOffsets, signalName = "toggled")
         
-        self.zoomOriginalAction = QAction(QIcon("icons/imageset_editing/zoom_original.png"), "Zoom original", self)
-        self.zoomOriginalAction.triggered.connect(self.zoomOriginal)
+        self.cycleOverlappingAction = action.getAction("imageset/cycle_overlapping")
+        self.connectionGroup.add(self.cycleOverlappingAction, receiver = self.cycleOverlappingImages)
         
-        self.zoomInAction = QAction(QIcon("icons/imageset_editing/zoom_in.png"), "Zoom in (mouse wheel)", self)
-        self.zoomInAction.triggered.connect(self.zoomIn)
+        self.zoomOriginalAction = action.getAction("imageset/zoom_original")
+        self.connectionGroup.add(self.zoomOriginalAction, receiver = self.zoomOriginal)
+        self.zoomInAction = action.getAction("imageset/zoom_in")
+        self.connectionGroup.add(self.zoomInAction, receiver = self.zoomIn)
+        self.zoomOutAction = action.getAction("imageset/zoom_out")
+        self.connectionGroup.add(self.zoomOutAction, receiver = self.zoomOut)
         
-        self.zoomOutAction = QAction(QIcon("icons/imageset_editing/zoom_out.png"), "Zoom out (mouse wheel)", self)
-        self.zoomOutAction.triggered.connect(self.zoomOut)
+        self.createImageAction = action.getAction("imageset/create_image")
+        self.connectionGroup.add(self.createImageAction, receiver = self.createImageAtCursor)
         
-        self.createImageAction = QAction(QIcon("icons/imageset_editing/create_image.png"), "Create image", self)
-        self.createImageAction.triggered.connect(self.createImageAtCursor)
+        self.deleteSelectedImagesAction = action.getAction("imageset/delete_image")
+        self.connectionGroup.add(self.deleteSelectedImagesAction, receiver = self.deleteSelectedImageEntries)
         
-        self.deleteSelectedImagesAction = QAction(QIcon("icons/imageset_editing/delete_image.png"), "Delete selected images", self)
-        self.deleteSelectedImagesAction.triggered.connect(self.deleteSelectedImageEntries)
-        
-    def setupToolBar(self):
         self.toolBar = QToolBar()
         self.toolBar.setIconSize(QSize(32, 32))
         
@@ -420,8 +416,7 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.createImageAction)
         self.toolBar.addAction(self.deleteSelectedImagesAction)
-    
-    def setupContextMenu(self):    
+ 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.contextMenu = QMenu(self)
@@ -629,13 +624,21 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         
         return self.deleteImageEntries(imageEntries)
     
-    def showEvent(self, event):
-        super(VisualEditing, self).showEvent(event)
-        
+    def showEvent(self, event):        
         self.dockWidget.setEnabled(True)
         self.toolBar.setEnabled(True)
+        
+        # connect all our actions
+        self.connectionGroup.connectAll()
+        # call this every time the visual editing is shown to sync all entries up
+        self.slot_toggleEditOffsets(self.editOffsetsAction.isChecked())
+        
+        super(VisualEditing, self).showEvent(event)
     
     def hideEvent(self, event):
+        # disconnected all our actions
+        self.connectionGroup.disconnectAll()
+        
         self.dockWidget.setEnabled(False)
         self.toolBar.setEnabled(False)
         
@@ -809,8 +812,10 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
     def slot_toggleEditOffsets(self, enabled):
         self.scene().clearSelection()
         
-        self.imagesetEntry.showOffsets = enabled
+        if self.imagesetEntry is not None:
+            self.imagesetEntry.showOffsets = enabled
         
     def slot_customContextMenu(self, point):
         self.contextMenu.exec_(self.mapToGlobal(point))
     
+import action
