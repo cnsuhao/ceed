@@ -19,10 +19,17 @@
 from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon
 
 class UndoCommand(QUndoCommand):
+    """The base class of all undo commands of CEED.
+    Internal: Currently serves no special purpose but might serve on in the future!
+    """
+    
     def __init__(self):
         super(UndoCommand, self).__init__()
     
 class UndoViewer(QDockWidget):
+    """A dockwidget able to view the entire undo history of given undo stack.
+    """
+    
     def __init__(self):
         super(UndoViewer, self).__init__()
         
@@ -34,9 +41,5 @@ class UndoViewer(QDockWidget):
         
     def setUndoStack(self, stack):
         self.view.setStack(stack)
-        
-        if stack:
-            self.setEnabled(True)
-        else:
-            self.setEnabled(False)
-        
+        # if stack is None this effectively disables the entire dock widget to improve UX
+        self.setEnabled(stack is not None)
