@@ -314,6 +314,12 @@ Details of this error: %s""" % (e))
         
         assert(self.project is not None)
         
+        # since we are effectively unloading the project and potentially nuking resources of it
+        # we should definitely unload all tabs that rely on it to prevent segfaults and other
+        # nasty phenomena
+        if not self.closeAllTabsRequiringProject():
+            return
+        
         self.projectManager.setProject(None)
         # TODO: Do we really want to call this there? This was already called when the project was being opened.
         #       It doesn't do anything harmful but maybe is unnecessary.
@@ -499,6 +505,29 @@ Details of this error: %s""" % (e))
             
         self.app.quit()
         
+    def closeAllTabsRequiringProject(self):
+        """Attempts to close all tabs that require a project opened.
+        
+        This is usually done when project settings are altered and CEGUI instance has to be reloaded
+        or when project is being closed and we can no longer rely on resource availability.
+        """
+        
+        i = 0
+        while i < self.tabs.count():
+            tabbedEditor = self.tabs.widget(i).tabbedEditor
+            
+            if tabbedEditor.requiresProject:
+                if not self.slot_tabCloseRequested(i):
+                    # if the method returns False user pressed Cancel so in that case
+                    # we cancel the entire operation
+                    return False
+                
+                continue
+            
+            i += 1
+            
+        return True      
+        
     def slot_newProject(self):
         if self.project:
             # another project is already opened!
@@ -576,6 +605,16 @@ Details of this error: %s""" % (e))
         return True
         
     def slot_projectSettings(self):
+        # since we are effectively unloading the project and potentially nuking resources of it
+        # we should definitely unload all tabs that rely on it to prevent segfaults and other
+        # nasty phenomena
+        if not self.closeAllTabsRequiringProject():
+            QMessageBox.information(self,
+                                    "Project dependent tabs still open!",
+                                    "You can't alter project's settings while having tabs that "
+                                    "depend on the project and its resources opened!")
+            return
+        
         dialog = project.ProjectSettingsDialog(self.project)
         
         if dialog.exec_() == QDialog.Accepted:
