@@ -363,6 +363,24 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.setFocusPolicy(Qt.ClickFocus)
         self.setFrameStyle(QFrame.NoFrame)
         
+        if settings.getEntry("imageset/visual/partial_updates").value:
+            # the commented lines are possible optimisation, I found out that they don't really
+            # speed it up in a noticeable way so I commented them out
+            
+            #self.setOptimizationFlag(QGraphicsView.DontSavePainterState, True)
+            #self.setOptimizationFlag(QGraphicsView.DontAdjustForAntialiasing, True)
+            #self.setCacheMode(QGraphicsView.CacheBackground)
+            self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+            #self.setRenderHint(QPainter.Antialiasing, False)
+            #self.setRenderHint(QPainter.TextAntialiasing, False)
+            #self.setRenderHint(QPainter.SmoothPixmapTransform, False)
+            
+        else:
+            # use OpenGL for view redrawing
+            # depending on the platform and hardware this may be faster or slower
+            self.setViewport(QGLWidget())
+            self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        
         self.scene().selectionChanged.connect(self.slot_selectionChanged)
         
         self.tabbedEditor = tabbedEditor
@@ -814,3 +832,4 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
         self.contextMenu.exec_(self.mapToGlobal(point))
     
 import action
+import settings
