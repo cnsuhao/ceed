@@ -49,50 +49,48 @@ class ExceptionDialog(QDialog):
         for line in formattedTraceback:
             self.tracebackStr += line + "\n"
 
-        # Convenience
-        def _stamp(newLine, arg):
-            self.tracebackStr = '\n'.join([self.tracebackStr, newLine.format(arg)])
-
-        # Mercurial information
-        # - The mercurial API is still under development, and can change from
-        #   release to release; this may or may not work in the future.
-        def _mercurialStamp():
-            _stamp('Revision: {0}', version.MercurialRevision)
-
-        # - Operating under the principle that the immediately useful details
-        #   should come first, we put the Mercurial/versioning information at
-        #   the end.
-        def _versionStamp():
-            # - If the versioning info was stored in an object, not a module,
-            #   we could iterate ... hint hint.
-            _stamp('Architecture: {0}', version.SystemArch)
-            _stamp('Type: {0}', version.SystemType)
-            _stamp('Processor: {0}', version.SystemCore)
-            _stamp('OS: {0}', version.OSType)
-            _stamp('Release: {0}', version.OSRelease)
-            _stamp('Version: {0}', version.OSVersion)
-            OSType = version.OSType
-            if OSType == 'Windows':
-                _stamp('Windows: {0}', version.Windows)
-            elif OSType == 'Linux':
-                _stamp('Linux: {0}', version.Linux)
-            elif OSType == 'Java':
-                _stamp('Java: {0}', version.Java)
-            elif OSType == 'Darwin':
-                _stamp('Darwin: {0}', version.Mac)
-            _stamp('Python: {0}', version.Python)
-            _stamp('PySide: {0}', version.PySide)
-            _stamp('Qt: {0}', version.Qt)
-            _stamp('OpenGL: {0}', version.OpenGL)
-            _stamp('PyCEGUI: {0}', version.PyCEGUI)
-            _stamp('CEED: {0}', version.CEED)
-        _mercurialStamp()
-        _versionStamp()
+        # Add some extra info.
+        self._stampMercurialInfo()
+        self._stampVersionInfo()
 
         self.details.setPlainText("Exception message: %s\n\n"
                                  "Traceback:\n"
                                  "%s"
                                  % (exc_message, self.tracebackStr))
+
+    # Convenience; internal use only
+    def _stamp(self, newLine, arg):
+        self.tracebackStr = "\n".join([self.tracebackStr, newLine.format(arg)])
+
+    # Appends Mercurial info to traceback string
+    def _stampMercurialInfo(self):
+        self._stamp("Revision: {0}", version.MercurialRevision)
+
+    # Appends version info to traceback string
+    def _stampVersionInfo(self):
+        # If the versioning info was stored in an object, not a module,
+        # we could iterate ... hint hint.
+        self._stamp("Architecture: {0}", version.SystemArch)
+        self._stamp("Type: {0}", version.SystemType)
+        self._stamp("Processor: {0}", version.SystemCore)
+        self._stamp("OS: {0}", version.OSType)
+        self._stamp("Release: {0}", version.OSRelease)
+        self._stamp("Version: {0}", version.OSVersion)
+        OSType = version.OSType
+        if OSType == "Windows":
+            self._stamp("Windows: {0}", version.Windows)
+        elif OSType == "Linux":
+            self._stamp("Linux: {0}", version.Linux)
+        elif OSType == "Java":
+            self._stamp("Java: {0}", version.Java)
+        elif OSType == "Darwin":
+            self._stamp("Darwin: {0}", version.Mac)
+        self._stamp("Python: {0}", version.Python)
+        self._stamp("PySide: {0}", version.PySide)
+        self._stamp("Qt: {0}", version.Qt)
+        self._stamp("OpenGL: {0}", version.OpenGL)
+        self._stamp("PyCEGUI: {0}", version.PyCEGUI)
+        self._stamp("CEED: {0}", version.CEED)
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
@@ -117,10 +115,11 @@ class ErrorHandler(object):
             dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
             result = dialog.exec_()
 
-            # Dump to file, to ease bug reporting (e-mail attachments, etc)
-            # - In the future, this could be mailed as a bug report?
-            with open('EXCEPTION.log', mode='a') as fp:
-                fp.write(dialog.tracebackStr)
+            # Dump to file, with a separator.
+            # - Add a timestamp?
+            SEPARATOR = "\n----------\n"
+            with open("EXCEPTION.log", mode="a") as fp:
+                fp.writelines([SEPARATOR, dialog.tracebackStr, SEPARATOR])
 
             # we also call the original excepthook which will just output things to stderr
             sys.__excepthook__(exc_type, exc_message, exc_traceback)

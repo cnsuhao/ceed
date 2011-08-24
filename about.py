@@ -39,10 +39,10 @@ class AboutDialog(QDialog):
         self.ui.aboutImage.setPixmap(QPixmap("images/splashscreen.png"))
 
         # FIXME: In the future, this will probably be a macro/constant/etc.
-        CEEDDescription = 'The CEGUI Unified Editor\n- Rejoice in the splendor -'
+        CEEDDescription = "The CEGUI Unified Editor\n- Rejoice in the splendor -"
 
-        self.findChild(QLabel, 'CEEDDescription').setText('{0}'.format(CEEDDescription))
-        self.findChild(QLabel, 'CEEDVersion').setText('CEED: {0}'.format(version.CEED))
-        self.findChild(QLabel, 'PySideVersion').setText('PySide: {0}'.format(version.PySide))
-        self.findChild(QLabel, 'QtVersion').setText('Qt: {0}'.format(version.Qt))
-        self.findChild(QLabel, 'PyCEGUIVersion').setText('PyCEGUI: {0}'.format(version.PyCEGUI))
+        self.findChild(QLabel, "CEEDDescription").setText("{0}".format(CEEDDescription))
+        self.findChild(QLabel, "CEEDVersion").setText("CEED: {0}".format(version.CEED))
+        self.findChild(QLabel, "PySideVersion").setText("PySide: {0}".format(version.PySide))
+        self.findChild(QLabel, "QtVersion").setText("Qt: {0}".format(version.Qt))
+        self.findChild(QLabel, "PyCEGUIVersion").setText("PyCEGUI: {0}".format(version.PyCEGUI))

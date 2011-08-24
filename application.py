@@ -69,7 +69,7 @@ class Application(QApplication):
         # import error after UI files have been recompiled
         # - Truncate exception log, if it exists.
         import error
-        with open('EXCEPTION.log', mode='w') as fp:
+        with open("EXCEPTION.log", mode="w") as fp:
             pass
         self.errorHandler = error.ErrorHandler(self.mainWindow)
         self.errorHandler.installExceptionHook()

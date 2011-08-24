@@ -44,14 +44,14 @@ OSRelease = platform.release()
 OSVersion = platform.version()
 
 # OS specific
-if OSType == 'Windows':
+if OSType == "Windows":
     Windows = platform.win32_ver()
     #sys.getwindowsversion()
-elif OSType == 'Linux':
+elif OSType == "Linux":
     Linux = platform.linux_distribution()
-elif OSType == 'Java': # Jython
+elif OSType == "Java": # Jython
     Java = platform.java_ver()
-elif OSType == 'Darwin': # OSX
+elif OSType == "Darwin": # OSX
     Mac = platform.mac_ver()
 
 # Python
@@ -72,7 +72,7 @@ OpenGL = _OpenGLVersion
 PyCEGUI = _PyCEGUIVersion
 
 # CEED
-CEED = 'snapshot4'
+CEED = "snapshot4"
 
 # Mercurial
-MercurialRevision = '$MERCURIAL_REVISION$'
+MercurialRevision = "$MERCURIAL_REVISION$"

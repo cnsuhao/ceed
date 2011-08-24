@@ -19,9 +19,6 @@
 """
 This module is used to check dependencies of CEED, check their versions
 and provide helpful info when something goes wrong.
-
-We are also responsible for the initial import of the version module, which
-populates it.
 """
 
 def check(supressMessagesIfNotFatal = True):
