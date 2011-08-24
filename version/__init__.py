@@ -25,6 +25,7 @@ architecture - which are used in the event of errors/exceptions.
 
 import platform
 import sys
+import subprocess
 
 from OpenGL.version import __version__ as _OpenGLVersion
 from PySide import __version__ as _PySideVersion
@@ -76,4 +77,11 @@ PyCEGUI = _PyCEGUIVersion
 CEED = "snapshot4"
 
 # Mercurial
-MercurialRevision = "$MERCURIAL_REVISION$"
+try:
+    MercurialRevision = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
+    if MercurialRevision.startswith("Revision:"):
+        MercurialRevision = MercurialRevision[9:]
+    else:
+        MercurialRevision = "Unknown"
+except:
+    MercurialRevision = "Can't execute \"hg\""

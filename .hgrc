@@ -1,9 +1,0 @@
-[extensions]
-eol =
-keyword =
-
-[keyword]
-version/__init__.py =
-
-[keywordmaps]
-MERCURIAL_REVISION = {node|short}
