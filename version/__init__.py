@@ -19,16 +19,13 @@
 """
 This module is used as a centrepoint to gather version info
 
-The 'prerequisites' module imports us the first time, which populates our
-attributes. There is an assumption that versions of dependencies will not
-change while CEED is running, which should not be that big of a deal.
-
 Beyond version information, we also store a few other details - e.g. system
 architecture - which are used in the event of errors/exceptions.
 """
 
 import platform
 import sys
+
 from OpenGL.version import __version__ as _OpenGLVersion
 from PySide import __version__ as _PySideVersion
 from PySide import __version_info__ as _PySideVersion_Tuple
@@ -48,31 +45,34 @@ OSVersion = platform.version()
 
 # OS specific
 if OSType == 'Windows':
-    WindowsVersion = platform.win32_ver()
+    Windows = platform.win32_ver()
     #sys.getwindowsversion()
 elif OSType == 'Linux':
-    LinuxVersion = platform.linux_distribution()
+    Linux = platform.linux_distribution()
 elif OSType == 'Java': # Jython
-    JavaVersion = platform.java_ver()
+    Java = platform.java_ver()
 elif OSType == 'Darwin': # OSX
-    MacVersion = platform.mac_ver()
+    Mac = platform.mac_ver()
 
 # Python
-PythonVersion = sys.version
-PythonVersion_Tuple = sys.version_info
+Python = sys.version
+Python_Tuple = sys.version_info
 
 # PySide
-PySideVersion = _PySideVersion
-PySideVersion_Tuple = _PySideVersion_Tuple
+PySide = _PySideVersion
+PySide_Tuple = _PySideVersion_Tuple
 
 # Qt
-QtVersion = _QtVersion
+Qt = _QtVersion
 
 # PyOpenGL
-OpenGLVersion = _OpenGLVersion
+OpenGL = _OpenGLVersion
 
 # PyCEGUI
-PyCEGUIVersion = _PyCEGUIVersion
+PyCEGUI = _PyCEGUIVersion
 
 # CEED
-CEEDVersion = 'snapshot4'
+CEED = 'snapshot4'
+
+# Mercurial
+MercurialRevision = '$MERCURIAL_REV$'

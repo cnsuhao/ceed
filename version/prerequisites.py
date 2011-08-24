@@ -58,15 +58,15 @@ def check(supressMessagesIfNotFatal = True):
         messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk")
         ret = False
 
-    # Version module initialization
+    # Version module
     import version
 
     # Version checking
-    if version.PythonVersion_Tuple < (2, 6):
-        messages.append("Python is version '%s', at least 2.6 required" % (version.PythonVersion))
+    if version.Python_Tuple < (2, 6):
+        messages.append("Python is version '%s', at least 2.6 required" % (version.Python))
         ret = False
-    if version.PySideVersion_Tuple < (1, 0, 3):
-        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PySideVersion))
+    if version.PySide_Tuple < (1, 0, 3):
+        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PySide))
         ret = False
 
     # Finished

@@ -19,7 +19,7 @@
 from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
-from version import *
+import version
 
 class SplashScreen(QSplashScreen):
     """A fancy splashscreen that fades out when user moves mouse over it or clicks it.
@@ -30,7 +30,7 @@ class SplashScreen(QSplashScreen):
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(Qt.SplashScreen | Qt.WindowStaysOnTopHint)
-        self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: %s" % (CEEDVersion), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
+        self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: %s" % (version.CEED), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
 
 class Application(QApplication):
     """The central application class
@@ -56,7 +56,7 @@ class Application(QApplication):
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")
         self.setApplicationName("CEED - CEGUI editor")
-        self.setApplicationVersion(CEEDVersion)
+        self.setApplicationVersion(version.CEED)
 
         # import mainwindow after UI files have been recompiled
         import mainwindow

@@ -20,13 +20,7 @@ import sys
 
 from PySide.QtGui import QDialog, QTextBrowser
 
-# FIXME: There is a problem here - it is possible for a user to have retrieved
-# a copy of CEED from a place other than Mercurial; in such an event, they may
-# not have this module.
-from mercurial import hg
-from mercurial import ui as mercui
-
-from version import *
+import version
 
 import ui.exceptiondialog
 
@@ -63,9 +57,7 @@ class ExceptionDialog(QDialog):
         # - The mercurial API is still under development, and can change from
         #   release to release; this may or may not work in the future.
         def _mercurialStamp():
-            repo = hg.repository(mercui.ui(), '.')
-            _stamp('Repo: {0}', repo.ui.config('paths', 'default'))
-            _stamp('Branch: {0}', repo[None].branch())
+            _stamp('Revision: {0}', version.MercurialRevision)
 
         # - Operating under the principle that the immediately useful details
         #   should come first, we put the Mercurial/versioning information at
@@ -73,26 +65,27 @@ class ExceptionDialog(QDialog):
         def _versionStamp():
             # - If the versioning info was stored in an object, not a module,
             #   we could iterate ... hint hint.
-            _stamp('Architecture: {0}', SystemArch)
-            _stamp('Type: {0}', SystemType)
-            _stamp('Processor: {0}', SystemCore)
-            _stamp('OS: {0}', OSType)
-            _stamp('Release: {0}', OSRelease)
-            _stamp('Version: {0}', OSVersion)
+            _stamp('Architecture: {0}', version.SystemArch)
+            _stamp('Type: {0}', version.SystemType)
+            _stamp('Processor: {0}', version.SystemCore)
+            _stamp('OS: {0}', version.OSType)
+            _stamp('Release: {0}', version.OSRelease)
+            _stamp('Version: {0}', version.OSVersion)
+            OSType = version.OSType
             if OSType == 'Windows':
-                _stamp('Windows: {0}', WindowsVersion)
+                _stamp('Windows: {0}', version.Windows)
             elif OSType == 'Linux':
-                _stamp('Linux: {0}', LinuxVersion)
+                _stamp('Linux: {0}', version.Linux)
             elif OSType == 'Java':
-                _stamp('Java: {0}', JavaVersion)
+                _stamp('Java: {0}', version.Java)
             elif OSType == 'Darwin':
-                _stamp('Darwin: {0}', MacVersion)
-            _stamp('Python: {0}', PythonVersion)
-            _stamp('PySide: {0}', PySideVersion)
-            _stamp('Qt: {0}', QtVersion)
-            _stamp('OpenGL: {0}', OpenGLVersion)
-            _stamp('PyCEGUI: {0}', PyCEGUIVersion)
-            _stamp('CEED: {0}', CEEDVersion)
+                _stamp('Darwin: {0}', version.Mac)
+            _stamp('Python: {0}', version.Python)
+            _stamp('PySide: {0}', version.PySide)
+            _stamp('Qt: {0}', version.Qt)
+            _stamp('OpenGL: {0}', version.OpenGL)
+            _stamp('PyCEGUI: {0}', version.PyCEGUI)
+            _stamp('CEED: {0}', version.CEED)
         _mercurialStamp()
         _versionStamp()
 
