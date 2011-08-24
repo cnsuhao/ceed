@@ -38,8 +38,8 @@ class AboutDialog(QDialog):
         # background
         self.ui.aboutImage.setPixmap(QPixmap("images/splashscreen.png"))
 
-        # FIXME: In the future, this will probably be a macro/constant/etc.
-        CEEDDescription = "The CEGUI Unified Editor\n- Rejoice in the splendor -"
+        # XXX: In the future, this may not be here.
+        CEEDDescription = "- Rejoice in the splendor -"
 
         self.findChild(QLabel, "CEEDDescription").setText("{0}".format(CEEDDescription))
         self.findChild(QLabel, "CEEDVersion").setText("CEED: {0}".format(version.CEED))

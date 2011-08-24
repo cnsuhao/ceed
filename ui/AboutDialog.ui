@@ -28,6 +28,9 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="aboutImage">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -42,6 +45,9 @@
       <widget class="QLabel" name="CEEDDescription">
        <property name="text">
         <string>This is a bug; fix me.</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
        <property name="textInteractionFlags">
         <set>Qt::NoTextInteraction</set>
