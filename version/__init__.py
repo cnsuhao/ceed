@@ -75,4 +75,4 @@ PyCEGUI = _PyCEGUIVersion
 CEED = 'snapshot4'
 
 # Mercurial
-MercurialRevision = '$MERCURIAL_REV$'
+MercurialRevision = '$MERCURIAL_REVISION$'
