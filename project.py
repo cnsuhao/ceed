@@ -49,7 +49,7 @@ class Item(QStandardItem):
     Folder = 3
 
     itemType = property(lambda self: self.data(Qt.UserRole + 1),
-                    lambda self, value: self.setItemType(value))
+                        lambda self, value: self.setItemType(value))
     
     label = property(lambda self: self.text(),
                      lambda self, value: self.setText(value))
@@ -96,14 +96,17 @@ class Item(QStandardItem):
         self.setData(value, Qt.UserRole + 1)
         
         if value == Item.File:
+            # we can drag files but we can't drop anything to them
             self.setDragEnabled(True)
             self.setDropEnabled(False)
             
         elif value == Item.Folder:
+            # we can drag folders and drop other items to them
             self.setDragEnabled(True)
             self.setDropEnabled(True)
         
         else:
+            # in the unknown case, lets disable both
             self.setDragEnabled(False)
             self.setDropEnabled(False)
     

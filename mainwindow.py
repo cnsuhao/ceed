@@ -94,10 +94,12 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
         self.tabs.tabCloseRequested.connect(self.slot_tabCloseRequested)
         # TODO: this is potentially nasty since the tabBar method is protected
+        # we need this to implement the context menu when you right click on the tab bar
         self.tabBar = self.tabs.tabBar()
         self.tabBar.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tabBar.customContextMenuRequested.connect(self.slot_tabBarCustomContextMenuRequested)
 
+        # stores all active tab editors
         self.tabEditors = []
 
         self.projectManager = project.ProjectManager()
@@ -111,17 +113,22 @@ class MainWindow(QMainWindow):
         self.undoViewer.setVisible(False)
         self.addDockWidget(Qt.RightDockWidgetArea, self.undoViewer)
 
+        # this menu contains checkable "actions" that hide and show the panels
+        # even though you can achieve the same thing by right clicking empty space in
+        # mainwindow I believe having this has a benefit, it is much easier to find this way
         self.menuPanels = self.findChild(QMenu, "menuPanels")
         self.menuPanels.addAction(self.projectManager.toggleViewAction())
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
 
         self.setupActions()
-        self.connectSignals()
 
         self.restoreSettings()
 
     def setupActions(self):
+        # usage of a connection group in mainwindow may be unnecessary,
+        # we never use disconnectAll and/or connectAll, it is just used as a convenient
+        # way to group connections
         self.connectionGroup = action.ConnectionGroup(self.actionManager)
 
         self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
@@ -254,12 +261,21 @@ class MainWindow(QMainWindow):
 
         self.connectionGroup.connectAll()
 
-    def connectSignals(self):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
     def openProject(self, path):
-        assert(not self.project)
+        """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
+        The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
+        being shown if there are changes to it)
+        
+        Errors aren't indicated by exceptions or return values, dialogs are shown in case of errors.
+        """
+        
+        assert(self.project is None)
+        
+        # reset project manager to a clean state just in case
+        self.projectManager.setProject(None)
 
         self.project = project.Project()
         try:
@@ -269,9 +285,13 @@ class MainWindow(QMainWindow):
 
             self.project = None
             return
-
+        
+        # view the newly opened project in the project manager
         self.projectManager.setProject(self.project)
+        # and set the filesystem browser path to the base folder of the project
+        # TODO: Maybe this could be configurable?
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
+        
         # sync up the cegui instance
         try:
             self.ceguiInstance.syncToProject(self.project, self)
@@ -292,22 +312,51 @@ Details of this error: %s""" % (e))
         self.projectSettingsAction.setEnabled(True)
 
     def closeProject(self):
+        """Closes currently opened project. Assumes one is opened at the point this is called.
+        """
+        
+        assert(self.project is not None)
+        
+        # since we are effectively unloading the project and potentially nuking resources of it
+        # we should definitely unload all tabs that rely on it to prevent segfaults and other
+        # nasty phenomena
+        if not self.closeAllTabsRequiringProject():
+            return
+        
         self.projectManager.setProject(None)
+        # TODO: Do we really want to call this there? This was already called when the project was being opened.
+        #       It doesn't do anything harmful but maybe is unnecessary.
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
         self.project.unload()
         self.project = None
 
+        # as the project was closed be will disable actions related to it
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
         self.projectSettingsAction.setEnabled(False)
 
     def saveProject(self):
+        """Saves currently opened project to the file it was opened from (or the last file it was saved to).
+        """
+        
+        assert(self.project is not None)
+        
         self.project.save()
 
     def saveProjectAs(self, newPath):
+        """Saves currently opened project to a custom path. For best reliability, use absolute file path as newPath
+        """
+        
         self.project.save(newPath)
+        # set the project's file path to newPath so that if you press save next time it will save to the new path
+        # (This is what is expected from applications in general I think)
+        self.project.projectFilePath = newPath
 
     def createEditorForFile(self, absolutePath):
+        """Creates a new editor for file at given absolutePath. This always creates a new editor,
+        it is not advised to use this method directly, use openEditorTab instead.
+        """
+        
         ret = None
 
         projectRelativePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"
@@ -364,7 +413,7 @@ Details of this error: %s""" % (e))
                 else:
                     ret = factory.create(absolutePath)
 
-        if not self.project and ret.requiresProject:
+        if self.project is None and ret.requiresProject:
             # the old editor will be destroyed automatically by python GC
             ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
@@ -404,18 +453,30 @@ Details of this error: %s""" % (e))
     def closeEditorTab(self, editor):
         """Closes given editor tab.
 
-        note: No checks are made, make sure you pass proper existing editor!
+        note: Make sure you pass proper existing editor!
         """
 
+        assert(editor in self.tabEditors)
+        
         editor.finalise()
         self.tabEditors.remove(editor)
 
     def saveSettings(self):
+        """Saves geometry and state of this window to QSettings.
+        
+        FIXME: This is not currently used for reasons I am not sure of!
+        """
+        
         #self.qsettings.setValue("geometry", self.saveGeometry())
         #self.qsettings.setValue("state", self.saveState())
         pass
 
     def restoreSettings(self):
+        """Restores geometry and state of this window from QSettings.
+        
+        FIXME: This is not currently used for reasons I am not sure of!
+        """
+        
         #if self.qsettings.contains("geometry"):
         #    self.restoreGeometry(self.qsettings.value("geometry"))
         #if self.qsettings.contains("state"):
@@ -427,11 +488,13 @@ Details of this error: %s""" % (e))
 
         self.saveSettings()
 
-        if self.project:
+        if self.project is not None:
             # if the slot returned False, user pressed Cancel
             if not self.slot_closeProject():
+                # in case user pressed cancel the entire quitting processed has to be terminated
                 return False
 
+        # we remember last tab we closed to check whether user pressed Cancel in any of the dialogs
         lastTab = None
         while len(self.tabEditors) > 0:
             currentTab = self.tabs.widget(0)
@@ -445,6 +508,29 @@ Details of this error: %s""" % (e))
 
         self.app.quit()
 
+    def closeAllTabsRequiringProject(self):
+        """Attempts to close all tabs that require a project opened.
+        
+        This is usually done when project settings are altered and CEGUI instance has to be reloaded
+        or when project is being closed and we can no longer rely on resource availability.
+        """
+        
+        i = 0
+        while i < self.tabs.count():
+            tabbedEditor = self.tabs.widget(i).tabbedEditor
+            
+            if tabbedEditor.requiresProject:
+                if not self.slot_tabCloseRequested(i):
+                    # if the method returns False user pressed Cancel so in that case
+                    # we cancel the entire operation
+                    return False
+                
+                continue
+            
+            i += 1
+            
+        return True      
+        
     def slot_newProject(self):
         if self.project:
             # another project is already opened!
@@ -522,6 +608,16 @@ Details of this error: %s""" % (e))
         return True
 
     def slot_projectSettings(self):
+        # since we are effectively unloading the project and potentially nuking resources of it
+        # we should definitely unload all tabs that rely on it to prevent segfaults and other
+        # nasty phenomena
+        if not self.closeAllTabsRequiringProject():
+            QMessageBox.information(self,
+                                    "Project dependent tabs still open!",
+                                    "You can't alter project's settings while having tabs that "
+                                    "depend on the project and its resources opened!")
+            return
+        
         dialog = project.ProjectSettingsDialog(self.project)
 
         if dialog.exec_() == QDialog.Accepted:

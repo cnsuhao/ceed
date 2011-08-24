@@ -196,6 +196,9 @@ class ActionManager(declaration.ActionManager):
                                  help = "Performs a clipboard paste",
                                  icon = QIcon("icons/actions/paste.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Paste))
+        # Imageset editor
+        import editors.imageset.action_decl as imageset_actions
+        imageset_actions.declare(self)
         
         # Layout editor
         import editors.layout.action_decl as layout_actions

@@ -49,6 +49,13 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.code = code.CodeEditing(self)
         self.addTab(self.code, "Code")
         
+        # Layout Previewer is not actually an edit mode, you can't edit the layout from it,
+        # however for everything to work smoothly we do push edit mode changes to it to the
+        # undo stack.
+        #
+        # TODO: This could be improved at least a little bit if 2 consecutive edit mode changes
+        #       looked like this: A->Preview, Preview->C.  We could simply turn this into A->C,
+        #       and if A = C it eat the undo command entirely.
         self.previewer = preview.LayoutPreviewer(self)
         self.addTab(self.previewer, "Live Preview")
         
