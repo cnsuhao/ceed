@@ -30,8 +30,8 @@ from OpenGL.version import __version__ as _OpenGLVersion
 from PySide import __version__ as _PySideVersion
 from PySide import __version_info__ as _PySideVersion_Tuple
 from PySide.QtCore import __version__ as _QtVersion
+from PySide.QtCore import __version_info__ as _QtVersion_Tuple
 from PyCEGUI import Version__ as _PyCEGUIVersion
-
 
 # Architecture
 SystemArch = platform.architecture()
@@ -64,6 +64,7 @@ PySide_Tuple = _PySideVersion_Tuple
 
 # Qt
 Qt = _QtVersion
+Qt_Tuple = _QtVersion_Tuple
 
 # PyOpenGL
 OpenGL = _OpenGLVersion

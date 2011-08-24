@@ -65,6 +65,9 @@ def check(supressMessagesIfNotFatal = True):
     if version.PySide_Tuple < (1, 0, 3):
         messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PySide))
         ret = False
+    if version.Qt_Tuple < (4, 7, 0):
+        messages.append("Qt is not the required version (found version: '%s')! At least version 4.7 is required!" % (version.Qt))
+        ret = False
 
     # Finished
     if (not ret) or (not supressMessagesIfNotFatal and len(messages) > 0):
