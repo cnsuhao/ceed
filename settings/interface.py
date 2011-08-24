@@ -25,7 +25,7 @@ from PySide.QtGui import *
 
 import qtwidgets
 
-from interface_types import *
+import interface_types
 
 class QtSettingsInterface(SettingsInterface, QDialog):
     def __init__(self, settings):
@@ -56,7 +56,7 @@ class QtSettingsInterface(SettingsInterface, QDialog):
 
         # for each category, add a tab
         addTab = self.tabs.addTab
-        [addTab(InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
+        [addTab(interface_types.InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
 
         # apply, cancel, etc...
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

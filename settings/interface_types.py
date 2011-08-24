@@ -231,19 +231,19 @@ class InterfaceEntryKeySequence(InterfaceEntry):
 # - Not exported; restricted to use within this module.
 # - Could be replaced by a static mapping.
 def _InterfaceEntryFactory(entry, parent):
-    if entry.widgetHint == 'string':
+    if entry.widgetHint == "string":
         return InterfaceEntryString(entry, parent)
-    elif entry.widgetHint == 'int':
+    elif entry.widgetHint == "int":
         return InterfaceEntryInt(entry, parent)
-    elif entry.widgetHint == 'float':
+    elif entry.widgetHint == "float":
         return InterfaceEntryFloat(entry, parent)
-    elif entry.widgetHint == 'checkbox':
+    elif entry.widgetHint == "checkbox":
         return InterfaceEntryCheckbox(entry, parent)
-    elif entry.widgetHint == 'colour':
+    elif entry.widgetHint == "colour":
         return InterfaceEntryColour(entry, parent)
-    elif entry.widgetHint == 'pen':
+    elif entry.widgetHint == "pen":
         return InterfaceEntryPen(entry, parent)
-    elif entry.widgetHint == 'keySequence':
+    elif entry.widgetHint == "keySequence":
         return InterfaceEntryKeySequence(entry, parent)
     else:
         raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))

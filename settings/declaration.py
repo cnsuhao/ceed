@@ -103,11 +103,11 @@ class Entry(object):
         self.hasChanges = True
 
     def markAsChanged(self):
-        if not self.label.startswith('* '):
-            self.label = ' '.join(['*', self.label])
+        if not self.label.startswith("* "):
+            self.label = " ".join(["*", self.label])
 
     def markAsUnchanged(self):
-        if self.label.startswith('* '):
+        if self.label.startswith("* "):
             self.label = self.label[2:]
 
     def applyChanges(self):
@@ -134,10 +134,10 @@ class Entry(object):
             persistedValue = self.defaultValue
 
         # http://bugs.pyside.org/show_bug.cgi?id=345
-        if self.widgetHint == 'checkbox':
-            if persistedValue == 'false':
+        if self.widgetHint == "checkbox":
+            if persistedValue == "false":
                 persistedValue = False
-            elif persistedValue == 'true':
+            elif persistedValue == "true":
                 persistedValue = True
 
         self._setValue(persistedValue, False)
@@ -270,11 +270,11 @@ class Category(object):
         return section.getEntry(splitted[1])
 
     def markAsChanged(self):
-        if not self.label.startswith('* '):
-            self.label = ' '.join(['*', self.label])
+        if not self.label.startswith("* "):
+            self.label = " ".join(["*", self.label])
 
     def markAsUnchanged(self):
-        if self.label.startswith('* '):
+        if self.label.startswith("* "):
             self.label = self.label[2:]
 
     def applyChanges(self):
