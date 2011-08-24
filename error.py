@@ -119,7 +119,7 @@ class ErrorHandler(object):
 
             # Dump to file, to ease bug reporting (e-mail attachments, etc)
             # - In the future, this could be mailed as a bug report?
-            with open('EXCEPTION.log', mode='w') as fp:
+            with open('EXCEPTION.log', mode='a') as fp:
                 fp.write(dialog.tracebackStr)
 
             # we also call the original excepthook which will just output things to stderr
