@@ -21,30 +21,11 @@ def main():
 
     if version.prerequisites.check():
         import sys
-        import os
 
         import application
+        import fixes
 
-        # FIXME: This should be moved somewhere to be reusable, as well as getInstallDir
-        def fixCwd():
-            """Sets CWD as the applications install directory"""
-
-            # this is necessary when starting the app via shortcuts
-
-            def getInstallDir():
-                import fake
-
-                dir = os.path.dirname(os.path.abspath(fake.__file__))
-
-                if dir.endswith("library.zip"):
-                    # if this is a frozen copy, we have to strip library.zip
-                    dir = os.path.dirname(dir)
-
-                return dir
-
-            os.chdir(getInstallDir())
-
-        fixCwd()
+        fixes.fixCwd()
 
         app = application.Application(sys.argv)
         sys.exit(app.exec_())
