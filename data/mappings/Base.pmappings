@@ -57,6 +57,17 @@
     <mapping propertyOrigin="Window" propertyName="Height" targetInspectorName="" />
     <!-- End of CEGUI::Window -->
     
+    <!-- CEGUI::Editbox -->
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="CaretIndex" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="MaskText" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="MaskCodepoint" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="MaxTextLength" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="ReadOnly" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="SelectionStart" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="SelectionLength" targetInspectorName="LineEdit" />
+    <mapping propertyOrigin="CEGUI/Editbox" propertyName="ValidationString" targetInspectorName="LineEdit" />
+    <!-- End of CEGUI::Editbox -->
+    
     <!-- CEGUI::FrameWindow -->
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="CloseButtonEnabled" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="DragMovingEnabled" targetInspectorName="CheckBox" />
@@ -66,6 +77,7 @@
     <!-- TODO: NSSizingCursorImage -->
     <!-- TODO: NWSESizingCursorImage -->
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="RollUpEnabled" targetInspectorName="CheckBox" />
+    <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="RollUpState" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingBorderThickness" targetInspectorName="LineEdit" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="SizingEnabled" targetInspectorName="CheckBox" />
     <mapping propertyOrigin="CEGUI/FrameWindow" propertyName="TitlebarEnabled" targetInspectorName="CheckBox" />
