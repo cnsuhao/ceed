@@ -342,7 +342,7 @@ class Project(QStandardItemModel):
         return os.path.normpath(os.path.join(absoluteBaseDirectory, path))
     
     def getRelativePathOf(self, path):
-        return os.path.normpath(os.path.relpath(path, os.path.abspath(os.path.dirname(self.projectFilePath))))
+        return os.path.normpath(os.path.relpath(path, os.path.join(os.path.abspath(os.path.dirname(self.projectFilePath)), self.baseDirectory)))
     
     def getResourceFilePath(self, filename, resourceGroup):
         # FIXME: The whole resource provider wrapping should be done proper, see http://www.cegui.org.uk/mantis/view.php?id=552
