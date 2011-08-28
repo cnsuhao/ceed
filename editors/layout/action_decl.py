@@ -21,6 +21,41 @@ from PySide.QtGui import *
 
 def declare(actionManager):
     cat = actionManager.createCategory(name = "layout", label = "Layout Editor")
+
+    cat.createAction(name = "zoom_original", label = "Zoom original",
+                     help = "Goes back to original 1:1 zoom.",
+                     icon = QIcon("icons/layout_editing/zoom_original.png"))
+    cat.createAction(name = "zoom_in", label = "Zoom in",
+                     help = "Zooms the whole layout view closer (magnifying it by a factor of 2 from its current state).",
+                     icon = QIcon("icons/layout_editing/zoom_in.png"))
+    cat.createAction(name = "zoom_out", label = "Zoom out",
+                     help = "Zooms the whole layout view further back (demagnifying it by a factor of 2 from its current state).",
+                     icon = QIcon("icons/layout_editing/zoom_out.png"))
+    
+    cat.createAction(name = "align_hleft", label = "Align left (horizontally)",
+                     help = "Sets horizontal alignment of all selected widgets to left.",
+                     icon = QIcon("icons/layout_editing/align_hleft.png"))
+    cat.createAction(name = "align_hcentre", label = "Align centre (horizontally)",
+                     help = "Sets horizontal alignment of all selected widgets to centre.",
+                     icon = QIcon("icons/layout_editing/align_hcentre.png"))
+    cat.createAction(name = "align_hright", label = "Align right (horizontally)",
+                     help = "Sets horizontal alignment of all selected widgets to right.",
+                     icon = QIcon("icons/layout_editing/align_hright.png"))
+    
+    cat.createAction(name = "align_vtop", label = "Align top (vertically)",
+                     help = "Sets vertical alignment of all selected widgets to top.",
+                     icon = QIcon("icons/layout_editing/align_vtop.png"))
+    cat.createAction(name = "align_vcentre", label = "Align centre (vertically)",
+                     help = "Sets vertical alignment of all selected widgets to centre.",
+                     icon = QIcon("icons/layout_editing/align_vcentre.png"))
+    cat.createAction(name = "align_vbottom", label = "Align bottom (vertically)",
+                     help = "Sets vertical alignment of all selected widgets to bottom.",
+                     icon = QIcon("icons/layout_editing/align_vbottom.png"))
+    
+    cat.createAction(name = "delete", label = "Delete selected widgets",
+                     help = "Deletes all selected widgets and their child widgets.",
+                     icon = QIcon("icons/layout_editing/delete.png"),
+                     defaultShortcut = QKeySequence(QKeySequence.Delete))
     
     cat.createAction(name = "snap_grid", label = "Snap widgets to parent's snap grid",
                      help = "When resizing and moving widgets, if checked this makes sure they snap to a snap grid (see settings for snap grid related entries), also shows the snap grid if checked.",

@@ -740,33 +740,33 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
         
         # TODO: Move these to the new action API
-        self.zoomOriginalAction = QAction(QIcon("icons/layout_editing/zoom_original.png"), "Zoom original", self)
-        self.zoomOriginalAction.triggered.connect(lambda: self.scene.views()[0].zoomOriginal())
+        self.zoomOriginalAction = action.getAction("layout/zoom_original")
+        self.connectionGroup.add(self.zoomOriginalAction, receiver = lambda: self.scene.views()[0].zoomOriginal())
         
-        self.zoomInAction = QAction(QIcon("icons/layout_editing/zoom_in.png"), "Zoom in (mouse wheel)", self)
-        self.zoomInAction.triggered.connect(lambda: self.scene.views()[0].zoomIn())
+        self.zoomInAction = action.getAction("layout/zoom_in")
+        self.connectionGroup.add(self.zoomInAction, receiver = lambda: self.scene.views()[0].zoomIn())
         
-        self.zoomOutAction = QAction(QIcon("icons/layout_editing/zoom_out.png"), "Zoom out (mouse wheel)", self)
-        self.zoomOutAction.triggered.connect(lambda: self.scene.views()[0].zoomOut())
+        self.zoomOutAction = action.getAction("layout/zoom_out")
+        self.connectionGroup.add(self.zoomOutAction, receiver = lambda: self.scene.views()[0].zoomOut())
         
         # horizontal alignment actions
-        self.alignHLeftAction = QAction(QIcon("icons/layout_editing/align_hleft.png"), "Align left (horizontal)", self)
-        self.alignHLeftAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
-        self.alignHCentreAction = QAction(QIcon("icons/layout_editing/align_hcentre.png"), "Align centre (horizontal)", self)
-        self.alignHCentreAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
-        self.alignHRightAction = QAction(QIcon("icons/layout_editing/align_hright.png"), "Align right (horizontal)", self)
-        self.alignHRightAction.triggered.connect(lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
+        self.alignHLeftAction = action.getAction("layout/align_hleft")
+        self.connectionGroup.add(self.alignHLeftAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
+        self.alignHCentreAction = action.getAction("layout/align_hcentre")
+        self.connectionGroup.add(self.alignHCentreAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
+        self.alignHRightAction = action.getAction("layout/align_hright")
+        self.connectionGroup.add(self.alignHRightAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
         
         # vertical alignment actions
-        self.alignVTopAction = QAction(QIcon("icons/layout_editing/align_vtop.png"), "Align top (vertical)", self)
-        self.alignVTopAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
-        self.alignVCentreAction = QAction(QIcon("icons/layout_editing/align_vcentre.png"), "Align centre (vertical)", self)
-        self.alignVCentreAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
-        self.alignVBottomAction = QAction(QIcon("icons/layout_editing/align_vbottom.png"), "Align bottom (vertical)", self)
-        self.alignVBottomAction.triggered.connect(lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
+        self.alignVTopAction = action.getAction("layout/align_vtop")
+        self.connectionGroup.add(self.alignVTopAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
+        self.alignVCentreAction = action.getAction("layout/align_vcentre")
+        self.connectionGroup.add(self.alignVCentreAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
+        self.alignVBottomAction = action.getAction("layout/align_vbottom")
+        self.connectionGroup.add(self.alignVBottomAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
         
-        self.deleteAction = QAction(QIcon("icons/layout_editing/delete.png"), "Delete selection", self)
-        self.deleteAction.triggered.connect(lambda: self.scene.deleteSelectedWidgets())
+        self.deleteAction = action.getAction("layout/delete")
+        self.connectionGroup.add(self.deleteAction, receiver = lambda: self.scene.deleteSelectedWidgets())
         
         self.connectionGroup.add("layout/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
         self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
