@@ -772,13 +772,21 @@ Details of this error: %s""" % (e))
                 i += 1
 
     def slot_tabBarCustomContextMenuRequested(self, point):
-        self.tabs.setCurrentIndex(self.tabBar.tabAt(point))
+        atIndex = self.tabBar.tabAt(point)
+        self.tabs.setCurrentIndex(atIndex)
 
         menu = QMenu(self)
         menu.addAction(self.closeTabAction)
         menu.addSeparator()
         menu.addAction(self.closeOtherTabsAction)
         menu.addAction(self.closeAllTabsAction)
+
+        if atIndex != -1:
+            tab = self.tabs.widget(atIndex)
+            menu.addSeparator()
+            dataTypeAction = QAction("Data type: %s" % (tab.getDesiredSavingDataType()), self)
+            dataTypeAction.setToolTip("Displays which data type this file will be saved to (the desired saving data type).")
+            menu.addAction(dataTypeAction)
 
         menu.exec_(self.tabBar.mapToGlobal(point))
 

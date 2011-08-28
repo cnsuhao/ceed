@@ -343,6 +343,12 @@ class TabbedEditor(object):
         """
         
         return None
+    
+    def getDesiredSavingDataType(self):
+        """Returns current desired saving data type. Data type that will be used when user requests to save this file
+        """
+        
+        return self.desiredSavingDataType if self.compatibilityManager is not None else None
 
     def performCopy(self):
         """Performs copy of the editor's selection to the clipboard.
