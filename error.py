@@ -18,7 +18,7 @@
 
 import sys
 
-from PySide.QtGui import QDialog, QTextBrowser
+from PySide.QtGui import QDialog, QTextBrowser, QLabel
 
 import version
 
@@ -40,6 +40,7 @@ class ExceptionDialog(QDialog):
         self.ui.setupUi(self)
 
         self.details = self.findChild(QTextBrowser, "details")
+        self.mantisLink = self.findChild(QLabel, "mantisLink")
 
         self.setWindowTitle("Exception %s" % (exc_type))
 
@@ -57,40 +58,41 @@ class ExceptionDialog(QDialog):
                                  "Traceback:\n"
                                  "%s"
                                  % (exc_message, self.tracebackStr))
-
+        
     # Convenience; internal use only
     def _stamp(self, newLine, arg):
         self.tracebackStr = "\n".join([self.tracebackStr, newLine.format(arg)])
 
     # Appends Mercurial info to traceback string
     def _stampMercurialInfo(self):
-        self._stamp("Revision: {0}", version.MercurialRevision)
+        self._stamp("CEED revision: {0}", version.MercurialRevision)
 
     # Appends version info to traceback string
     def _stampVersionInfo(self):
         # If the versioning info was stored in an object, not a module,
         # we could iterate ... hint hint.
-        self._stamp("Architecture: {0}", version.SystemArch)
-        self._stamp("Type: {0}", version.SystemType)
-        self._stamp("Processor: {0}", version.SystemCore)
-        self._stamp("OS: {0}", version.OSType)
-        self._stamp("Release: {0}", version.OSRelease)
-        self._stamp("Version: {0}", version.OSVersion)
+        self._stamp("CEED version: {0}", version.CEED)
+        
+        self._stamp("HW architecture: {0}", version.SystemArch)
+        self._stamp("HW type: {0}", version.SystemType)
+        self._stamp("HW processor: {0}", version.SystemCore)
+        self._stamp("OS type: {0}", version.OSType)
+        self._stamp("OS release: {0}", version.OSRelease)
+        self._stamp("OS version: {0}", version.OSVersion)
         OSType = version.OSType
         if OSType == "Windows":
-            self._stamp("Windows: {0}", version.Windows)
+            self._stamp("OS Windows: {0}", version.Windows)
         elif OSType == "Linux":
-            self._stamp("Linux: {0}", version.Linux)
+            self._stamp("OS Linux: {0}", version.Linux)
         elif OSType == "Java":
-            self._stamp("Java: {0}", version.Java)
+            self._stamp("OS Java: {0}", version.Java)
         elif OSType == "Darwin":
-            self._stamp("Darwin: {0}", version.Mac)
-        self._stamp("Python: {0}", version.Python)
-        self._stamp("PySide: {0}", version.PySide)
-        self._stamp("Qt: {0}", version.Qt)
-        self._stamp("OpenGL: {0}", version.OpenGL)
-        self._stamp("PyCEGUI: {0}", version.PyCEGUI)
-        self._stamp("CEED: {0}", version.CEED)
+            self._stamp("OS Darwin: {0}", version.Mac)
+        self._stamp("SW Python: {0}", version.Python)
+        self._stamp("SW PySide: {0}", version.PySide)
+        self._stamp("SW Qt: {0}", version.Qt)
+        self._stamp("SW OpenGL: {0}", version.OpenGL)
+        self._stamp("SW PyCEGUI: {0}", version.PyCEGUI)
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
