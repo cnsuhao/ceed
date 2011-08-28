@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>347</width>
+    <width>252</width>
     <height>567</height>
    </rect>
   </property>
@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>347</width>
-    <height>500</height>
+    <width>252</width>
+    <height>385</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -63,9 +63,6 @@
        <string>Imageset</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMinimumSize</enum>
-       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="nameLabel">
          <property name="text">
@@ -115,8 +112,11 @@
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="nativeResolutionLabel">
-         <property name="text">
+         <property name="toolTip">
           <string>Native resolution</string>
+         </property>
+         <property name="text">
+          <string>Native res.</string>
          </property>
         </widget>
        </item>
@@ -226,12 +226,6 @@
     </item>
     <item>
      <widget class="QGroupBox" name="propertiesGroupBox">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="title">
        <string>Selected image properties</string>
       </property>
