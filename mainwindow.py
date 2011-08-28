@@ -151,6 +151,12 @@ class MainWindow(QMainWindow):
         self.fileMenu.addAction(self.saveAction)
         self.globalToolbar.addAction(self.saveAction)
         self.connectionGroup.add(self.saveAction, receiver = self.slot_save)
+        
+        self.saveAsAction = self.actionManager.getAction("all_editors/save_file_as")
+        self.saveAsAction.setEnabled(False)
+        self.fileMenu.addAction(self.saveAsAction)
+        self.globalToolbar.addAction(self.saveAsAction)
+        self.connectionGroup.add(self.saveAsAction, receiver = self.slot_saveAs)
 
         self.saveAllAction = self.actionManager.getAction("all_editors/save_all_files")
         self.saveAllAction.setEnabled(False)
@@ -688,6 +694,7 @@ Details of this error: %s""" % (e))
 
         if wdt:
             self.saveAction.setEnabled(True)
+            self.saveAsAction.setEnabled(True)
             self.saveAllAction.setEnabled(True)
 
             self.closeTabAction.setEnabled(True)
@@ -697,6 +704,7 @@ Details of this error: %s""" % (e))
         else:
             # None is selected right now, lets disable Save and Close actions
             self.saveAction.setEnabled(False)
+            self.saveAsAction.setEnabled(False)
             self.saveAllAction.setEnabled(False)
 
             self.closeTabAction.setEnabled(False)
@@ -777,6 +785,11 @@ Details of this error: %s""" % (e))
     def slot_save(self):
         if self.activeEditor:
             self.activeEditor.save()
+
+    def slot_saveAs(self):
+        if self.activeEditor:
+            filePath, filter = QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
+            self.activeEditor.saveAs(filePath)
 
     def slot_saveAll(self):
         for editor in self.tabEditors:

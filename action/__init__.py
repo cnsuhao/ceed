@@ -160,6 +160,10 @@ class ActionManager(declaration.ActionManager):
                                  help = "Saves currently opened (and active - currently edited) file to its original location.",
                                  icon = QIcon("icons/actions/save.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Save))
+        all_editors.createAction(name = "save_file_as", label = "Save file as",
+                                 help = "Saves currently opened (and active - currently edited) file to a custom location.",
+                                 icon = QIcon("icons/actions/save_as.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.SaveAs))
         all_editors.createAction(name = "save_all_files", label = "Save all files",
                                  help = "Saves all currently opened files to their original location.",
                                  icon = QIcon("icons/actions/save_all.png"),
