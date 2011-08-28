@@ -654,6 +654,19 @@ Details of this error: %s""" % (e))
         # to fight flicker
         self.tabs.setUpdatesEnabled(False)
 
+        # FIXME: workaround for PySide 1.0.6, I suspect this is a bug in PySide! http://bugs.pyside.org/show_bug.cgi?id=988
+        if index is None:
+            index = -1
+            
+        elif isinstance(index, QWidget):
+            for i in range(0, self.tabs.count()):
+                if index is self.tabs.widget(i):
+                    index = i
+                    break
+                   
+            assert(not isinstance(index, QWidget)) 
+        # END OF FIXME
+
         wdt = self.tabs.widget(index)
 
         if self.activeEditor:

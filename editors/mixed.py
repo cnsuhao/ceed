@@ -22,7 +22,7 @@
 import editors
 import commands
 
-from PySide.QtGui import QTabWidget, QTextEdit, QMessageBox
+from PySide.QtGui import QTabWidget, QTextEdit, QMessageBox, QWidget
 
 class ModeSwitchCommand(commands.UndoCommand):
     """Undo command that is pushed to the undo stack whenever user switches edit modes.
@@ -286,6 +286,19 @@ class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
             return
         
         oldTab = self.widget(self.currentTabIndex)
+        # FIXME: workaround for PySide 1.0.6, I suspect this is a bug in PySide! http://bugs.pyside.org/show_bug.cgi?id=988
+        if newTabIndex is None:
+            newTabIndex = -1
+            
+        elif isinstance(newTabIndex, QWidget):
+            for i in range(0, self.count()):
+                if newTabIndex is self.widget(i):
+                    newTabIndex = i
+                    break
+                   
+            assert(not isinstance(newTabIndex, QWidget)) 
+        # END OF FIXME
+            
         newTab = self.widget(newTabIndex)
 
         if oldTab:
