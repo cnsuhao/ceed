@@ -85,6 +85,10 @@ class MainWindow(QMainWindow):
 
         self.ui = ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
+        
+        # for now we can't use unified title and toolbar, it doesn't have toolbar "ellipsis"
+        # and that makes the main window jump around when switching tabs
+        self.setUnifiedTitleAndToolBarOnMac(False)
 
         # we start CEGUI early and we always start it
         self.ceguiInstance = cegui.Instance()
