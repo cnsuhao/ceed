@@ -22,9 +22,6 @@ from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 import version
 
 class SplashScreen(QSplashScreen):
-    """A fancy splashscreen that fades out when user moves mouse over it or clicks it.
-    """
-
     def __init__(self):
         super(SplashScreen, self).__init__(QPixmap("images/splashscreen.png"))
 
@@ -42,23 +39,34 @@ class Application(QApplication):
         self.splash = SplashScreen()
         self.splash.show()
 
+        # this ensures that the splash screen is shown on all platforms
         self.processEvents()
 
-        # first recompile all UI files to ensure they are up to date
-        import compileuifiles
+        if version.CEED_developerMode:
+            # print info about developer's mode to possibly prevent it being
+            # forgotten about when releasing
+            print("Developer's mode enabled - recompiling all .ui files...")
+            
+            # in case we are in the developer's mode,
+            # lets compile all UI files to ensure they are up to date
+            import compileuifiles
+    
+            compileuifiles.compileUIFiles("./ui")
+            compileuifiles.compileUIFiles("./ui/editors")
+            compileuifiles.compileUIFiles("./ui/editors/imageset")
+            compileuifiles.compileUIFiles("./ui/editors/layout")
+            compileuifiles.compileUIFiles("./ui/widgets")
 
-        compileuifiles.compileUIFiles("./ui")
-        compileuifiles.compileUIFiles("./ui/editors")
-        compileuifiles.compileUIFiles("./ui/editors/imageset")
-        compileuifiles.compileUIFiles("./ui/editors/layout")
-        compileuifiles.compileUIFiles("./ui/widgets")
+            print("All .ui files recompiled!")
 
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")
         self.setApplicationName("CEED - CEGUI editor")
         self.setApplicationVersion(version.CEED)
 
-        # import mainwindow after UI files have been recompiled
+        # import mainwindow
+        # (we potentially have to compile all UI files first before this is imported,
+        # otherwise out of date compiled .py layouts might be used!)
         import mainwindow
 
         self.mainWindow = mainwindow.MainWindow(self)
@@ -69,7 +77,10 @@ class Application(QApplication):
         # import error after UI files have been recompiled
         # - Truncate exception log, if it exists.
         import error
+        
+        # FIXME: Shouldn't this be done somewhere else? in the error module perhaps?
         with open("EXCEPTION.log", mode="w") as fp:
             pass
+        
         self.errorHandler = error.ErrorHandler(self.mainWindow)
         self.errorHandler.installExceptionHook()

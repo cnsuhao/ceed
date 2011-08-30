@@ -75,6 +75,8 @@ PyCEGUI = _PyCEGUIVersion
 
 # CEED
 CEED = "snapshot4"
+# if this is True, all .ui files will be recompiled every time CEED.py is run
+CEED_developerMode = True
 
 # Mercurial
 try:
