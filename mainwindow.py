@@ -182,7 +182,6 @@ class MainWindow(QMainWindow):
         self.connectionGroup.add(self.closeOtherTabsAction, receiver = self.slot_closeOtherTabs)
 
         self.closeAllTabsAction = self.actionManager.getAction("all_editors/close_all_tabs")
-        self.closeAllTabsAction.setEnabled(False)
         self.fileMenu.addAction(self.closeAllTabsAction)
         self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
         # end of tab bar context menu
