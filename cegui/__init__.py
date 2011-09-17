@@ -174,7 +174,7 @@ class Instance(object):
                     schemeFiles.append(file)
         else:
             progress.reset()
-            raise IOError("Can't list scheme path '%s'" % (absoluteSchemePath))
+            raise IOError("Can't list scheme path '%s'" % (absoluteSchemesPath))
 
         progress.setMinimum(0)
         progress.setMaximum(2 + 9 * len(schemeFiles))
