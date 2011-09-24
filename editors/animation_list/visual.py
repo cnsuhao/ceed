@@ -53,9 +53,23 @@ class TimelineDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.view = self.findChild(QGraphicsView, "view")
+        self.view.scale(100, 1)
         self.scene = QGraphicsScene()
         self.timeline = timeline.AnimationTimeline()
         self.scene.addItem(self.timeline)
+        self.view.setScene(self.scene)
+        
+        ## TEMPORARY TEST CODE ##
+        import PyCEGUI
+        self.animation = PyCEGUI.AnimationManager.getSingleton().createAnimation("Test")
+        self.animation.setDuration(10)
+        affector = self.animation.createAffector("Alpha", "float")
+        affector.createKeyFrame(0, "1.0")
+        affector.createKeyFrame(5, "0.5")
+        affector.createKeyFrame(10, "1.0")
+        
+        self.timeline.setAnimation(self.animation)
+        ## END TEMPORARY CODE ##
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.

@@ -29,7 +29,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         # the parts between keyframes are z-value 0 so this makes key frames always "stand out"
         self.setZValue(1)
-        self.setRect(0, 0, 30, 30)
+        self.setRect(0, 0, 15, 20)
         
         self.setKeyFrame(keyFrame)
         
@@ -54,7 +54,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         # draw the circle representing the keyframe
         painter.setPen(QPen())
         painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
-        painter.drawEllipse(QPointF(15.5, 15.5), 7, 7)
+        painter.drawEllipse(QPointF(7.5, 12.5), 3, 3)
 
 class AffectorTimelineSection(QGraphicsRectItem):
     def __init__(self, parentItem = None, affector = None):
@@ -71,7 +71,7 @@ class AffectorTimelineSection(QGraphicsRectItem):
         self.refresh()
 
     def refresh(self):
-        self.setRect(0, 0, 0, 1)
+        self.setRect(0, 0, self.parentItem().animation.getDuration(), 20)
         
         for item in self.childItems():
             # refcount drops and python should destroy that item
@@ -115,7 +115,7 @@ class AnimationTimeline(QGraphicsRectItem):
             return
             
         i = 0
-        while i < self.animation:
+        while i < self.animation.getNumAffectors():
             affectorTimelineSection = AffectorTimelineSection(parentItem = self,
                                                               affector = self.animation.getAffectorAtIdx(i))
             
