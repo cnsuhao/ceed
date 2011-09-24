@@ -289,9 +289,9 @@ class MainWindow(QMainWindow):
         except Exception as e:
             if indicateErrorsWithDialogs:
                 QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
-"""An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed!
+"""An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed! The most likely reason is that the resource directories are wrong, this can be very easily remedied in the project settings.
 
-This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets). You can try to remedy this problem by opening Edit->Project settings, even if you don't do any changes there, upon pressing pressing OK in that dialog the project will be reloaded.
+This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets).
 
 Details of this error: %s""" % (e))
             
