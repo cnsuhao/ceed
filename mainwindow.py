@@ -273,12 +273,40 @@ class MainWindow(QMainWindow):
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
 
-    def openProject(self, path):
+    def syncProjectToCEGUIInstance(self, indicateErrorsWithDialogs = True):
+        """Synchronises current project to the CEGUI instance.
+        
+        indicateErrorsWithDialogs - if True a dialog is opened in case of errors
+        
+        Returns True if the procedure was successful
+        """
+
+        try:
+            self.ceguiInstance.syncToProject(self.project, self)
+            
+            return True
+
+        except Exception as e:
+            if indicateErrorsWithDialogs:
+                QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
+"""An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed!
+
+This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets). You can try to remedy this problem by opening Edit->Project settings, even if you don't do any changes there, upon pressing pressing OK in that dialog the project will be reloaded.
+
+Details of this error: %s""" % (e))
+            
+            return False
+
+    def openProject(self, path, openSettings = False):
         """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
         The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
         being shown if there are changes to it)
         
         Errors aren't indicated by exceptions or return values, dialogs are shown in case of errors.
+        
+        path - Absolute path of the project file
+        openSettings - if True, the settings dialog is opened instead of just loading the resources,
+                       this is desirable when creating a new project
         """
         
         assert(self.project is None)
@@ -300,18 +328,6 @@ class MainWindow(QMainWindow):
         # and set the filesystem browser path to the base folder of the project
         # TODO: Maybe this could be configurable?
         self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
-        
-        # sync up the cegui instance
-        try:
-            self.ceguiInstance.syncToProject(self.project, self)
-
-        except Exception as e:
-            QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
-"""An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed!
-
-This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets). You can try to remedy this problem by opening Edit->Project settings, even if you don't do any changes there, upon pressing pressing OK in that dialog the project will be reloaded.
-
-Details of this error: %s""" % (e))
 
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
 
@@ -319,6 +335,12 @@ Details of this error: %s""" % (e))
         self.saveProjectAction.setEnabled(True)
         self.closeProjectAction.setEnabled(True)
         self.projectSettingsAction.setEnabled(True)
+
+        if openSettings:
+            self.slot_projectSettings()
+            
+        else:
+            self.syncProjectToCEGUIInstance()
 
     def closeProject(self):
         """Closes currently opened project. Assumes one is opened at the point this is called.
@@ -563,7 +585,10 @@ Details of this error: %s""" % (e))
             newProject = newProjectDialog.createProject()
             newProject.save()
 
-            self.openProject(newProject.projectFilePath)
+            # since this is a new project we do want to open project settings immediately
+            self.openProject(path = newProject.projectFilePath, openSettings = True)
+            # save the project with the settings that were potentially set in the project settings dialog
+            self.saveProject()
 
     def slot_openProject(self):
         if self.project:
@@ -631,8 +656,8 @@ Details of this error: %s""" % (e))
 
         if dialog.exec_() == QDialog.Accepted:
             dialog.apply(self.project)
-            self.ceguiInstance.syncToProject(self.project)
-
+            self.syncProjectToCEGUIInstance()
+            
     def slot_newFileDialog(self):
         dir = ""
         if self.project:
