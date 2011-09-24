@@ -21,6 +21,41 @@ from PySide.QtCore import *
 
 import editors.mixed
 import cegui
+import timeline
+
+import ui.editors.animation_list.animationlistdockwidget
+import ui.editors.animation_list.timelinedockwidget
+
+class AnimationListDockWidget(QDockWidget):
+    """Lists animations in the currently opened animation list XML
+    """
+    
+    def __init__(self, visual):
+        super(AnimationListDockWidget, self).__init__()
+        
+        self.visual = visual
+        
+        self.ui = ui.editors.animation_list.animationlistdockwidget.Ui_AnimationListDockWidget()
+        self.ui.setupUi(self)
+        
+        self.list = self.findChild(QListWidget, "list")
+        
+class TimelineDockWidget(QDockWidget):
+    """Shows a timeline of currently selected animation (from the animation list dock widget)
+    """
+    
+    def __init__(self, visual):
+        super(TimelineDockWidget, self).__init__()
+        
+        self.visual = visual
+        
+        self.ui = ui.editors.animation_list.timelinedockwidget.Ui_TimelineDockWidget()
+        self.ui.setupUi(self)
+        
+        self.view = self.findChild(QGraphicsView, "view")
+        self.scene = QGraphicsScene()
+        self.timeline = timeline.AnimationTimeline()
+        self.scene.addItem(self.timeline)
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.
@@ -42,6 +77,9 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
         
         self.tabbedEditor = tabbedEditor
         
+        self.animationListDockWidget = AnimationListDockWidget(self)
+        self.timelineDockWidget = TimelineDockWidget(self)
+        
         self.scene = EditingScene(self)
 
     def showEvent(self, event):
@@ -50,11 +88,17 @@ class VisualEditing(QWidget, editors.mixed.EditMode):
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)
         
+        self.animationListDockWidget.setEnabled(True)
+        self.timelineDockWidget.setEnabled(True)
+        
         super(VisualEditing, self).showEvent(event)
     
     def hideEvent(self, event):
+        self.animationListDockWidget.setEnabled(False)
+        self.timelineDockWidget.setEnabled(False)
+        
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
-            
+        
         super(VisualEditing, self).hideEvent(event)
 
 import mainwindow

@@ -72,11 +72,11 @@ class MainWindow(QMainWindow):
         self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.qsettings, "Projects")
 
         self.editorFactories = [
-            editors.animation_list.AnimationListEditorFactory(),
+            editors.animation_list.AnimationListTabbedEditorFactory(),
             editors.bitmap.BitmapTabbedEditorFactory(),
             editors.imageset.ImagesetTabbedEditorFactory(),
             editors.layout.LayoutTabbedEditorFactory(),
-            editors.property_mappings.PropertyMappingsEditorFactory(),
+            editors.property_mappings.PropertyMappingsTabbedEditorFactory(),
             editors.text.TextTabbedEditorFactory()
         ]
 

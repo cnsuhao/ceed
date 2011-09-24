@@ -90,7 +90,7 @@ class AffectorTimelineSection(QGraphicsRectItem):
             
             i += 1
 
-class AnimationTimeline(QGraphicsItem):
+class AnimationTimeline(QGraphicsRectItem):
     """A timeline widget for just one CEGUI animation"""
     
     def __init__(self, parentItem = None, animation = None):
@@ -109,7 +109,7 @@ class AnimationTimeline(QGraphicsItem):
     def refresh(self):
         for item in self.childItems():
             # refcount drops and python should destroy that item
-            self.scene().removeItem(item)
+            item.setParentItem(None)
             
         if self.animation is None:
             return

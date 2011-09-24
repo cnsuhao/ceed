@@ -53,6 +53,7 @@ class Application(QApplication):
     
             compileuifiles.compileUIFiles("./ui")
             compileuifiles.compileUIFiles("./ui/editors")
+            compileuifiles.compileUIFiles("./ui/editors/animation_list")
             compileuifiles.compileUIFiles("./ui/editors/imageset")
             compileuifiles.compileUIFiles("./ui/editors/layout")
             compileuifiles.compileUIFiles("./ui/widgets")
