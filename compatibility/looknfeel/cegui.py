@@ -95,6 +95,9 @@ class LookNFeel6To7Layer(compatibility.Layer):
         log = ""
         
         root = ElementTree.fromstring(data)
+        # Fix for Python < 2.7.
+        if not hasattr(root, "iter"):
+            root.iter = root.getiterator
         
         # version 7 has a version attribute
         root.set("version", "7")
