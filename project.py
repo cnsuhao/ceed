@@ -361,6 +361,20 @@ class Project(QStandardItemModel):
             raise RuntimeError("Unknown resource group '%s'" % (resourceGroup))
         
         return self.getAbsolutePathOf(os.path.join(folder, filename))
+    
+    def checkAllDirectories(self):
+        """Performs base directory and resource directories sanity check,
+        raises IOError in case of a failure
+        """
+        
+        # check the base directory
+        if not os.path.isdir(self.getAbsolutePathOf("")):
+            raise IOError("Base directory '%s' isn't a directory or isn't accessible." % (self.getAbsolutePathOf("")))
+        
+        for resourceCategory in ["imagesets", "fonts", "looknfeels", "schemes", "layouts"]:
+            directoryPath = self.getResourceFilePath("", resourceCategory)
+            if not os.path.isdir(directoryPath):
+                raise IOError("Resource directory '%s' for resources of type '%s' isn't a directory or isn't accessible" % (directoryPath, resourceCategory))
         
 class ProjectManager(QDockWidget):
     """This is basically a view of the Project model class,

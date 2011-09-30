@@ -297,6 +297,21 @@ Details of this error: %s""" % (e))
             
             return False
 
+    def performProjectDirectoriesSanityCheck(self, indicateErrorsWithDialogs = True):
+        try:
+            self.project.checkAllDirectories()
+            
+            return True
+        
+        except IOError as e:
+            if indicateErrorsWithDialogs:
+                QMessageBox.warning(self, "At least one of project's resource directories is invalid",
+"""Project's resource directory paths didn't pass the sanity check, please check projects settings.
+
+Details of this error: %s""" % (e))
+        
+            return False
+        
     def openProject(self, path, openSettings = False):
         """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
         The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
@@ -323,12 +338,16 @@ Details of this error: %s""" % (e))
             self.project = None
             return
         
+        self.performProjectDirectoriesSanityCheck()
+        
         # view the newly opened project in the project manager
         self.projectManager.setProject(self.project)
         # and set the filesystem browser path to the base folder of the project
         # TODO: Maybe this could be configurable?
-        self.fileSystemBrowser.setDirectory(self.project.getAbsolutePathOf(""))
-
+        projectBaseDirectory = self.project.getAbsolutePathOf("")
+        if os.path.isdir(projectBaseDirectory):
+            self.fileSystemBrowser.setDirectory(projectBaseDirectory)
+        
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
 
         # and enable respective actions
@@ -656,6 +675,7 @@ Details of this error: %s""" % (e))
 
         if dialog.exec_() == QDialog.Accepted:
             dialog.apply(self.project)
+            self.performProjectDirectoriesSanityCheck()
             self.syncProjectToCEGUIInstance()
             
     def slot_newFileDialog(self):
