@@ -164,8 +164,8 @@ class ActionManager(declaration.ActionManager):
                                  help = "Saves currently opened (and active - currently edited) file to a custom location.",
                                  icon = QIcon("icons/actions/save_as.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.SaveAs))
-        all_editors.createAction(name = "save_all_files", label = "Save all files",
-                                 help = "Saves all currently opened files to their original location.",
+        all_editors.createAction(name = "save_all", label = "Save all",
+                                 help = "Saves currently opened project file (if any) and all currently opened files to their original location.",
                                  icon = QIcon("icons/actions/save_all.png"),
                                  defaultShortcut = QKeySequence())
         all_editors.createAction(name = "close_current_tab", label = "Close current tab",

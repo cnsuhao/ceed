@@ -162,8 +162,7 @@ class MainWindow(QMainWindow):
         self.globalToolbar.addAction(self.saveAsAction)
         self.connectionGroup.add(self.saveAsAction, receiver = self.slot_saveAs)
 
-        self.saveAllAction = self.actionManager.getAction("all_editors/save_all_files")
-        self.saveAllAction.setEnabled(False)
+        self.saveAllAction = self.actionManager.getAction("all_editors/save_all")
         self.fileMenu.addAction(self.saveAllAction)
         self.globalToolbar.addAction(self.saveAllAction)
         self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
@@ -743,7 +742,6 @@ Details of this error: %s""" % (e))
         if wdt:
             self.saveAction.setEnabled(True)
             self.saveAsAction.setEnabled(True)
-            self.saveAllAction.setEnabled(True)
 
             self.closeTabAction.setEnabled(True)
             self.closeOtherTabsAction.setEnabled(True)
@@ -753,7 +751,6 @@ Details of this error: %s""" % (e))
             # None is selected right now, lets disable Save and Close actions
             self.saveAction.setEnabled(False)
             self.saveAsAction.setEnabled(False)
-            self.saveAllAction.setEnabled(False)
 
             self.closeTabAction.setEnabled(False)
             self.closeOtherTabsAction.setEnabled(False)
@@ -848,6 +845,12 @@ Details of this error: %s""" % (e))
             self.activeEditor.saveAs(filePath)
 
     def slot_saveAll(self):
+        """Saves all opened tabbed editors and opened project (if any)
+        """
+        
+        if self.project is not None:
+            self.project.save()
+        
         for editor in self.tabEditors:
             editor.save()
 
