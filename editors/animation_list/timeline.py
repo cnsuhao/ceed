@@ -25,11 +25,15 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIgnoresTransformations)
+                      QGraphicsItem.ItemIgnoresTransformations |
+                      QGraphicsItem.ItemSendsGeometryChanges)
         
         # the parts between keyframes are z-value 0 so this makes key frames always "stand out"
         self.setZValue(1)
         self.setRect(0, 0, 15, 20)
+        
+        palette = QApplication.palette()
+        self.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.Background)))
         
         self.setKeyFrame(keyFrame)
         
@@ -39,12 +43,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         self.refresh()
         
     def refresh(self):
-        self.setPos(0, 0)
-        
-        if self.keyFrame is None:
-            return
-        
-        self.setPos(self.keyFrame.getPosition(), 0)
+        self.setPos(self.keyFrame.getPosition() if self.keyFrame is not None else 0, 0)
     
     def paint(self, painter, option, widget = None):
         super(AffectorTimelineKeyFrame, self).paint(painter, option, widget)
@@ -55,6 +54,18 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         painter.setPen(QPen())
         painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
         painter.drawEllipse(QPointF(7.5, 12.5), 3, 3)
+        
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemPositionChange:
+            newPosition = value
+            
+            newPosition.setX(value.x())
+            # keep the Y constant, don't allow any vertical changes to keyframes!
+            newPosition.setY(self.pos().y())
+
+            return newPosition
+        
+        return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
 
 class AffectorTimelineSection(QGraphicsRectItem):
     def __init__(self, parentItem = None, affector = None):
@@ -120,7 +131,7 @@ class AnimationTimeline(QGraphicsRectItem):
                                                               affector = self.animation.getAffectorAtIdx(i))
             
             # FIXME: Make the height of affector timeline a setting entry
-            affectorTimelineSection.setPos(0, i)
+            affectorTimelineSection.setPos(0, i * 22)
             
             i += 1
             

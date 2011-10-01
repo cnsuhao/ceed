@@ -68,6 +68,11 @@ class TimelineDockWidget(QDockWidget):
         affector.createKeyFrame(5, "0.5")
         affector.createKeyFrame(10, "1.0")
         
+        affector = self.animation.createAffector("Text", "String")
+        affector.createKeyFrame(0, "1.0")
+        affector.createKeyFrame(8, "0.5")
+        affector.createKeyFrame(9, "1.0")
+        
         self.timeline.setAnimation(self.animation)
         ## END TEMPORARY CODE ##
 
