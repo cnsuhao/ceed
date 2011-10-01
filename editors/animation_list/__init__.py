@@ -16,6 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 
 import editors
@@ -26,12 +27,13 @@ from xml.etree import ElementTree
 import visual
 import code
 
-##
-# Animation list file editor (XML file containing list of animations)
-class AnimationListEditor(editors.mixed.MixedTabbedEditor):
+class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
+    """Animation list file editor (XML file containing list of animations)
+    """
+    
     def __init__(self, filePath):
         
-        super(AnimationListEditor, self).__init__(compatibility.animation_list.Manager.instance, filePath)
+        super(AnimationListTabbedEditor, self).__init__(compatibility.animation_list.Manager.instance, filePath)
         
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
@@ -42,17 +44,31 @@ class AnimationListEditor(editors.mixed.MixedTabbedEditor):
         self.tabWidget = self
     
     def initialise(self, mainWindow):
-        super(AnimationListEditor, self).initialise(mainWindow)
+        super(AnimationListTabbedEditor, self).initialise(mainWindow)
         
         if self.nativeData != "":
             pass
             
     def finalise(self):
-        super(AnimationListEditor, self).finalise()
+        super(AnimationListTabbedEditor, self).finalise()
         
         self.tabWidget = None
+        
+    def activate(self):
+        super(AnimationListTabbedEditor, self).activate()
+        
+        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.animationListDockWidget)
+        self.visual.animationListDockWidget.setVisible(True)
+        self.mainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.visual.timelineDockWidget)
+        self.visual.timelineDockWidget.setVisible(True)
+        
+    def deactivate(self):
+        self.mainWindow.removeDockWidget(self.visual.animationListDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.timelineDockWidget)
+        
+        super(AnimationListTabbedEditor, self).deactivate()
 
-class AnimationListEditorFactory(editors.TabbedEditorFactory):
+class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = ["anims"]
         
@@ -63,4 +79,4 @@ class AnimationListEditorFactory(editors.TabbedEditorFactory):
         return False
 
     def create(self, filePath):
-        return AnimationListEditor(filePath)
+        return AnimationListTabbedEditor(filePath)

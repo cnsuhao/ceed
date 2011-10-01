@@ -26,10 +26,10 @@ from xml.etree import ElementTree
 
 ##
 # Property mapping file editor
-class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
+class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
     def __init__(self, filePath):
         
-        super(PropertyMappingsEditor, self).__init__(compatibility.property_mappings.Manager.instance, filePath)
+        super(PropertyMappingsTabbedEditor, self).__init__(compatibility.property_mappings.Manager.instance, filePath)
         
         self.tabWidget = QTableView()
         self.tabWidget.setDragDropMode(QAbstractItemView.InternalMove)
@@ -40,7 +40,7 @@ class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
         self.propertyMappingList = None
     
     def initialise(self, mainWindow):
-        super(PropertyMappingsEditor, self).initialise(mainWindow)
+        super(PropertyMappingsTabbedEditor, self).initialise(mainWindow)
         
         if self.nativeData != "":
             self.propertyMappingList = propertyinspector.PropertyInspectorMappingList()
@@ -49,11 +49,11 @@ class PropertyMappingsEditor(editors.UndoStackTabbedEditor):
             self.tabWidget.setModel(self.propertyMappingList)
             
     def finalise(self):
-        super(PropertyMappingsEditor, self).finalise()
+        super(PropertyMappingsTabbedEditor, self).finalise()
         
         self.tabWidget = None
 
-class PropertyMappingsEditorFactory(editors.TabbedEditorFactory):
+class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = ["pmappings"]
         
@@ -64,4 +64,4 @@ class PropertyMappingsEditorFactory(editors.TabbedEditorFactory):
         return False
 
     def create(self, filePath):
-        return PropertyMappingsEditor(filePath)
+        return PropertyMappingsTabbedEditor(filePath)
