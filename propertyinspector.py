@@ -81,7 +81,7 @@ class PropertyInspector(object):
         propertySetInspector.propertyEditingEnded.emit(propertyEntry.propertyName, oldValues, value) 
 
 class LineEditPropertyInspector(PropertyInspector):
-    def canEdit(self):
+    def canEdit(self, property):
         dataTypes = ["String"]
         return property.getDataType() in dataTypes
     
@@ -108,7 +108,7 @@ class LineEditPropertyInspector(PropertyInspector):
         return widget.text()
     
 class TextEditPropertyInspector(PropertyInspector):
-    def canEdit(self):
+    def canEdit(self, property):
         dataTypes = ["String"]
         return property.getDataType() in dataTypes
     
@@ -162,7 +162,7 @@ class CheckBoxPropertyInspector(PropertyInspector):
             return "False"
 
 class SliderPropertyInspector(PropertyInspector):
-    def canEdit(self):
+    def canEdit(self, property):
         dataTypes = ["int", "float"]
         return property.getDataType() in dataTypes
     
@@ -173,6 +173,14 @@ class SliderPropertyInspector(PropertyInspector):
         slider = QSlider(parent)
         slider.setAutoFillBackground(True)
         slider.setOrientation(Qt.Horizontal)
+        
+        minimum = int(mapping.targetInspectorSettings["minimum"])
+        maximum = int(mapping.targetInspectorSettings["maximum"])
+        steps = int(mapping.targetInspectorSettings["steps"])
+        
+        slider.setMinimum(minimum)
+        slider.setMaximum(maximum)
+        slider.setSingleStep((maximum - minimum) / steps)
         
         def slot_sliderValueChanged(newValue):
             self.notifyEditingProgress(slider, propertyEntry, mapping)
