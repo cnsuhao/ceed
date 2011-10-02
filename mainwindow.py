@@ -651,7 +651,6 @@ Details of this error: %s""" % (e))
 
             if result == QMessageBox.Save:
                 self.saveProject()
-                return True
 
             elif result == QMessageBox.Cancel:
                 return False
