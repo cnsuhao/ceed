@@ -21,6 +21,7 @@ from PySide.QtGui import *
 
 import os
 import sys
+import logging
 
 import compatibility.project
 import propertyinspector
@@ -688,7 +689,7 @@ class ProjectManager(QDockWidget):
                     removeCount += 1
             
             if len(selectedIndices) - removeCount > 0:        
-                print "%i selected project items are unknown and can't be deleted" % (len(selectedIndices))
+                logging.error("%i selected project items are unknown and can't be deleted" % (len(selectedIndices)))
                 
             if removeCount > 0:
                 self.project.changed = True

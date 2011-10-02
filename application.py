@@ -19,6 +19,8 @@
 from PySide.QtCore import Qt
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
+import logging
+
 import version
 
 class SplashScreen(QSplashScreen):
@@ -36,6 +38,8 @@ class Application(QApplication):
     def __init__(self, argv):
         super(Application, self).__init__(argv)
 
+        logging.basicConfig()
+
         self.splash = SplashScreen()
         self.splash.show()
 
@@ -45,7 +49,7 @@ class Application(QApplication):
         if version.CEED_developerMode:
             # print info about developer's mode to possibly prevent it being
             # forgotten about when releasing
-            print("Developer's mode enabled - recompiling all .ui files...")
+            logging.info("Developer's mode enabled - recompiling all .ui files...")
             
             # in case we are in the developer's mode,
             # lets compile all UI files to ensure they are up to date
@@ -58,7 +62,7 @@ class Application(QApplication):
             compileuifiles.compileUIFiles("./ui/editors/layout")
             compileuifiles.compileUIFiles("./ui/widgets")
 
-            print("All .ui files recompiled!")
+            logging.debug("All .ui files recompiled!")
 
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")

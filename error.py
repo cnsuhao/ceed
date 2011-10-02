@@ -19,9 +19,9 @@
 import sys
 
 from PySide.QtGui import QDialog, QTextBrowser, QLabel
+import logging
 
 import version
-
 import ui.exceptiondialog
 
 class ExceptionDialog(QDialog):
@@ -115,16 +115,13 @@ class ErrorHandler(object):
 
         else:
             dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
-            result = dialog.exec_()
-
-            # Dump to file, with a separator.
-            # - Add a timestamp?
-            SEPARATOR = "\n----------\n"
-            with open("EXCEPTION.log", mode="a") as fp:
-                fp.writelines([SEPARATOR, dialog.tracebackStr, SEPARATOR])
-
+            # we shouldn't use logging.exception here since we are not in an "except" block
+            logging.error("Uncaught exception '%s', message: '%s'\n%s'" % (exc_type, exc_message, dialog.tracebackStr))
+            # We don't call the standard excepthook anymore since we output to stderr with the logging module
             # we also call the original excepthook which will just output things to stderr
-            sys.__excepthook__(exc_type, exc_message, exc_traceback)
+            #sys.__excepthook__(exc_type, exc_message, exc_traceback)
+            
+            result = dialog.exec_()
 
             # if the dialog was reject, the user chose to quit the whole app immediately (coward...)
             if result == QDialog.Rejected:
