@@ -611,6 +611,7 @@ class ProjectManager(QDockWidget):
                 try:
                     os.rename(self.project.getAbsolutePathOf(item.path), self.project.getAbsolutePathOf(newPath))
                     item.path = newPath
+                    self.project.changed = True
                     
                 except OSError:
                     QMessageBox.question(self,
@@ -627,6 +628,7 @@ class ProjectManager(QDockWidget):
             
             if ok and text != item.name:
                 item.name = text
+                self.project.changed = True
             
     def slot_removeAction(self):
         if not self.isEnabled():
@@ -687,6 +689,9 @@ class ProjectManager(QDockWidget):
             
             if len(selectedIndices) - removeCount > 0:        
                 print "%i selected project items are unknown and can't be deleted" % (len(selectedIndices))
+                
+            if removeCount > 0:
+                self.project.changed = True
         
 class NewProjectDialog(QDialog):
     """Dialog responsible for creation of entirely new projects.
