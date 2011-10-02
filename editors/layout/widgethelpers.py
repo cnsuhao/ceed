@@ -232,7 +232,12 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         parent = self.parentItem()
         if isinstance(parent, Manipulator):
             parent.drawSnapGrid = True
-            
+    
+    def notifyResizeProgress(self, newPos, newRect):
+        super(Manipulator, self).notifyResizeProgress(newPos, newRect)
+        
+        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
+    
     def notifyResizeFinished(self, newPos, newRect):
         super(Manipulator, self).notifyResizeFinished(newPos, newRect)
         
@@ -247,6 +252,11 @@ class Manipulator(cegui.widgethelpers.Manipulator):
         if isinstance(parent, Manipulator):
             parent.drawSnapGrid = True
             
+    def notifyMoveProgress(self, newPos):
+        super(Manipulator, self).notifyMoveProgress(newPos)
+        
+        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
+
     def notifyMoveFinished(self, newPos):
         super(Manipulator, self).notifyMoveFinished(newPos)
         

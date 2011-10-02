@@ -377,6 +377,21 @@ class PropertySetInspector(QWidget):
     def getPropertySets(self):
         return self.propertySets
                 
+    def refresh(self, onlyValues = False):
+        if onlyValues:
+            for i in range(self.model.rowCount()):
+                category = self.model.item(i)
+                assert(isinstance(category, PropertyCategory))
+                
+                for j in range(category.rowCount()):
+                    propertyEntry = category.child(j)
+                    assert(isinstance(propertyEntry, PropertyEntry))
+                    
+                    propertyEntry.update()
+                
+        else:
+            self.setPropertySets(self.propertySets)
+    
     def filterChanged(self, filter):
         # we append star at the end by default (makes property filtering much more practical)
         filter = filter + "*"
