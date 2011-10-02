@@ -43,6 +43,8 @@ class FileLineEdit(QWidget):
         
         self.mode = FileLineEdit.ExistingFileMode
         self.directoryMode = False
+        
+        self.startDirectory = lambda: ""
     
     def setText(self, text):
         self.lineEdit.setText(text)
@@ -52,19 +54,23 @@ class FileLineEdit(QWidget):
     
     def slot_browse(self):
         path = None
+        
         if self.mode == FileLineEdit.ExistingFileMode:
             path, filter = QFileDialog.getOpenFileName(self,
                                "Choose a path",
-                               "",
+                               self.startDirectory(),
                                self.filter)
             
         elif self.mode == FileLineEdit.NewFileMode:
             path, filter = QFileDialog.getSaveFileName(self,
                                "Choose a path",
-                               "",
+                               self.startDirectory(),
                                self.filter)
+            
         elif self.mode == FileLineEdit.ExistingDirectoryMode:
-            path = QFileDialog.getExistingDirectory(self, "Choose a directory")
+            path = QFileDialog.getExistingDirectory(self,
+                                                    "Choose a directory",
+                                                    self.startDirectory())
         
         if path != "":    
             self.lineEdit.setText(path)

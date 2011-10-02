@@ -67,6 +67,9 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.name = self.findChild(QLineEdit, "name")
         self.name.textEdited.connect(self.slot_nameEdited)
         self.image = self.findChild(qtwidgets.FileLineEdit, "image")
+        # nasty, but at this point tabbedEditor.mainWindow isn't set yet
+        project = mainwindow.MainWindow.instance.project
+        self.image.startDirectory = lambda: project.getResourceFilePath("", "imagesets") if project is not None else ""
         self.imageLoad = self.findChild(QPushButton, "imageLoad")
         self.imageLoad.clicked.connect(self.slot_imageLoadClicked)
         self.autoScaled = self.findChild(QCheckBox, "autoScaled")
@@ -833,3 +836,4 @@ class VisualEditing(resizable.GraphicsView, editors.mixed.EditMode):
     
 import action
 import settings
+import mainwindow
