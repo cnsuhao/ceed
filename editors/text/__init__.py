@@ -73,6 +73,9 @@ class TextTabbedEditor(editors.TabbedEditor):
 class TextTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = ["py", "lua", "txt", "xml"]
+        # this is just temporary, will go away when scheme, looknfeel and font editors are in place
+        temporaryExtensions = ["scheme", "looknfeel", "font"]
+        extensions.extend(temporaryExtensions)
         
         for extension in extensions:
             if filePath.endswith("." + extension):
