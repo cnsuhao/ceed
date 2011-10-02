@@ -150,6 +150,7 @@ class Instance(object):
         PyCEGUI.ImageManager.getSingleton().destroyAll()
         PyCEGUI.SchemeManager.getSingleton().destroyAll()
         PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
+        PyCEGUI.AnimationManager.getSingleton().destroyAllAnimations()
         PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
 
     def syncToProject(self, project, mainWindow = None):
