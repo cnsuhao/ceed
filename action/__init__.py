@@ -146,6 +146,9 @@ class ActionManager(declaration.ActionManager):
         project_management.createAction(name = "project_settings", label = "Project settings",
                                         help = "Displays and allows changes of the project settings (of the currently opened project).",
                                         icon = QIcon("icons/actions/project_settings.png"))
+        project_management.createAction(name = "reload_resources", label = "Reload resources",
+                                        help = "Reloads all CEGUI resources associated with currently opened project.",
+                                        icon = QIcon("icons/project_management/reload_resources.png"))
 
         all_editors = self.createCategory(name = "all_editors", label = "All Editors")
         all_editors.createAction(name = "new_file", label = "New file",

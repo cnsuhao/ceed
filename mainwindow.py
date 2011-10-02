@@ -227,6 +227,13 @@ class MainWindow(QMainWindow):
         self.editMenu.addAction(self.projectSettingsAction)
         self.globalToolbar.addAction(self.projectSettingsAction)
         self.connectionGroup.add(self.projectSettingsAction, receiver = self.slot_projectSettings)
+        
+        self.projectReloadResourcesAction = self.actionManager.getAction("project_management/reload_resources")
+        # when this starts up, no project is opened, hence you can't reload resources of the current project
+        self.projectReloadResourcesAction.setEnabled(False)
+        self.editMenu.addAction(self.projectReloadResourcesAction)
+        self.globalToolbar.addAction(self.projectReloadResourcesAction)
+        self.connectionGroup.add(self.projectReloadResourcesAction, receiver = self.slot_projectReloadResources)
 
         self.editMenu.addAction(self.actionManager.getAction("general/application_settings"))
         self.connectionGroup.add("general/application_settings", receiver = lambda: self.settingsInterface.show())
@@ -353,6 +360,7 @@ Details of this error: %s""" % (e))
         self.saveProjectAction.setEnabled(True)
         self.closeProjectAction.setEnabled(True)
         self.projectSettingsAction.setEnabled(True)
+        self.projectReloadResourcesAction.setEnabled(True)
 
         if openSettings:
             self.slot_projectSettings()
@@ -382,7 +390,7 @@ Details of this error: %s""" % (e))
         # as the project was closed be will disable actions related to it
         self.saveProjectAction.setEnabled(False)
         self.closeProjectAction.setEnabled(False)
-        self.projectSettingsAction.setEnabled(False)
+        self.projectReloadResourcesAction.setEnabled(False)
 
     def saveProject(self):
         """Saves currently opened project to the file it was opened from (or the last file it was saved to).
@@ -676,6 +684,20 @@ Details of this error: %s""" % (e))
             self.performProjectDirectoriesSanityCheck()
             self.syncProjectToCEGUIInstance()
             
+    def slot_projectReloadResources(self):
+        # since we are effectively unloading the project and potentially nuking resources of it
+        # we should definitely unload all tabs that rely on it to prevent segfaults and other
+        # nasty phenomena
+        if not self.closeAllTabsRequiringProject():
+            QMessageBox.information(self,
+                                    "Project dependent tabs still open!",
+                                    "You can't reload project's resources while having tabs that "
+                                    "depend on the project and its resources opened!")
+            return
+        
+        self.performProjectDirectoriesSanityCheck()
+        self.syncProjectToCEGUIInstance()
+        
     def slot_newFileDialog(self):
         dir = ""
         if self.project:
