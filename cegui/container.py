@@ -210,18 +210,14 @@ class ContainerWidget(QWidget):
             res = text.split("x", 1)
             if len(res) == 2:
                 try:
-                    width = int(res[0])
-                    height = int(res[1])
-                    
-                    if width < 1:
-                        width = 1
-                    if height < 1:
-                        height = 1
+                    # clamp both to 1 - 4096, should suit 99% of all cases
+                    width = max(1, min(4096, int(res[0])))
+                    height = max(1, min(4096, int(res[1])))
                     
                     self.ceguiInstance.makeGLContextCurrent()
                     self.view.scene().setCEGUIDisplaySize(width, height, lazyUpdate = False)
                     
-                except AttributeError:
+                except ValueError:
                     # ignore invalid literals
                     pass
 
