@@ -419,6 +419,8 @@ class CreateWidgetDockWidget(QDockWidget):
             else:
                 skinItem = QTreeWidgetItem()
                 skinItem.setText(0, skin)
+                # this makes sure the skin item isn't draggable
+                skinItem.setFlags(Qt.ItemIsEnabled)
                 self.tree.addTopLevelItem(skinItem)
                 
             # skinItem now represents the skin node, we add all widgets in that skin to it
