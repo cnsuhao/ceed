@@ -401,4 +401,4 @@ class PropertyInspectorManager(object):
 
         return False
     
-import compatibility
+from ceed import compatibility

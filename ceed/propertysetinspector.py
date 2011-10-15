@@ -19,12 +19,10 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 
-import propertyinspector
-
-import ui.propertysetinspector
-
 # Unix like wildcard matching for property filtering
 import fnmatch
+
+import ceed.ui.propertysetinspector
 
 # TODO: I am not entirely happy with this module and will likely rewrite it a bit
 
@@ -290,7 +288,7 @@ class PropertySetInspector(QWidget):
         
         self.propertyInspectorManager = None
         
-        self.ui = ui.propertysetinspector.Ui_PropertySetInspector()
+        self.ui = ceed.ui.propertysetinspector.Ui_PropertySetInspector()
         self.ui.setupUi(self)
         
         self.filterBox = self.findChild(QLineEdit, "filterBox")

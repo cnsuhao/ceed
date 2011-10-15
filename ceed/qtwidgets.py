@@ -18,8 +18,8 @@
 
 from PySide.QtCore import *
 from PySide.QtGui import *
-import ui.widgets.filelineedit
-import ui.widgets.keysequencebuttondialog
+import ceed.ui.widgets.filelineedit
+import ceed.ui.widgets.keysequencebuttondialog
 
 # Contains reusable widgets that I haven't found in Qt for some reason
 
@@ -31,7 +31,7 @@ class FileLineEdit(QWidget):
     def __init__(self, parent = None):
         super(FileLineEdit, self).__init__(parent)
         
-        self.ui = ui.widgets.filelineedit.Ui_FileLineEdit()
+        self.ui = ceed.ui.widgets.filelineedit.Ui_FileLineEdit()
         self.ui.setupUi(self)
         
         self.filter = "Any file (*.*)"
@@ -180,7 +180,7 @@ class KeySequenceButton(QPushButton):
             
             self.setFocusPolicy(Qt.StrongFocus)
             
-            self.ui = ui.widgets.keysequencebuttondialog.Ui_KeySequenceButtonDialog()
+            self.ui = ceed.ui.widgets.keysequencebuttondialog.Ui_KeySequenceButtonDialog()
             self.ui.setupUi(self)
             
             self.keySequence = QKeySequence()
