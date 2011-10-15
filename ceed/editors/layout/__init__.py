@@ -23,8 +23,9 @@ import os
 import sys
 
 from ceed import editors
-from ceed import compatibility
 from ceed import xmledit
+
+import ceed.compatibility.layout as layout_compatibility
 
 import visual
 import code
@@ -39,7 +40,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(LayoutTabbedEditor, self).__init__(compatibility.layout.Manager.instance, filePath)
+        super(LayoutTabbedEditor, self).__init__(layout_compatibility.Manager.instance, filePath)
         
         self.requiresProject = True
         
@@ -138,7 +139,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = compatibility.layout.Manager.instance.getAllPossibleExtensions()
+        extensions = layout_compatibility.Manager.instance.getAllPossibleExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

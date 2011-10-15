@@ -22,19 +22,25 @@ This module contains fixes for the host environment.
 
 import os
 
-def getInstallDir():
+def getPackageDir():
     import fake
 
-    dir = os.path.dirname(os.path.abspath(fake.__file__))
-    if dir.endswith("library.zip"):
+    dir_ = os.path.dirname(os.path.abspath(fake.__file__))
+    if dir_.endswith("library.zip"):
         # if this is a frozen copy, we have to strip library.zip
-        dir = os.path.dirname(dir)
+        dir_ = os.path.dirname(dir_)
 
-    return dir
+    return dir_
+
+def getDataDir():
+    return os.path.join(os.path.dirname(getPackageDir()), "data")
+
+def getUiDir():
+    return os.path.join(getPackageDir(), "ui")
 
 def fixCwd():
-    """Sets CWD as the applications install directory.
+    """Sets CWD as the data directory in applications install directory.
 
     This is necessary when starting the app via shortcuts.
     """
-    os.chdir(getInstallDir())
+    os.chdir(os.path.join(os.path.dirname(getPackageDir()), "data"))

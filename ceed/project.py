@@ -264,7 +264,7 @@ class Project(QStandardItemModel):
         self.changed = True
         
         self.propertyInspectorManager = propertyinspector.PropertyInspectorManager()
-        self.propertyInspectorManager.loadMappings(os.path.abspath("data/mappings/Base.pmappings"))
+        self.propertyInspectorManager.loadMappings(os.path.abspath("mappings/Base.pmappings"))
 
     def getSupportedDropActions(self):
         return Qt.MoveAction

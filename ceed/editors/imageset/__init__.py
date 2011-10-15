@@ -24,7 +24,7 @@ import sys
 
 from ceed import editors
 from ceed import xmledit
-from ceed import compatibility
+import ceed.compatibility.imageset as imageset_compatibility
 
 import undo
 import visual
@@ -46,7 +46,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(ImagesetTabbedEditor, self).__init__(compatibility.imageset.Manager.instance, filePath)
+        super(ImagesetTabbedEditor, self).__init__(imageset_compatibility.Manager.instance, filePath)
         
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
@@ -129,7 +129,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
-        extensions = compatibility.imageset.Manager.instance.getAllPossibleExtensions()
+        extensions = imageset_compatibility.Manager.instance.getAllPossibleExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):
