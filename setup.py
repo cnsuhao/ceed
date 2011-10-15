@@ -20,7 +20,9 @@
 
 import platform
 
-VERSION = "0.1"
+from ceed import version
+
+VERSION = version.CEED
 # TODO: these should branch depending on the platform
 GUI_BASE_APP = "Console"
 CONSOLE_BASE_APP = "Console"
