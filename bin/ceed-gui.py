@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ################################################################################
 #   CEED - A unified CEGUI editor
 #   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
