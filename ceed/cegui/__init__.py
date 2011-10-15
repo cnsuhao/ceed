@@ -202,6 +202,7 @@ class Instance(object):
         # we will load resources manually to be able to use the compatibility layer machinery
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
 
+        from ceed import compatibility
         import ceed.compatibility.scheme as scheme_compatibility
         import ceed.compatibility.looknfeel as looknfeel_compatibility
 
