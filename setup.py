@@ -45,14 +45,14 @@ buildOptions = dict(
         "encodings.ascii",
         "encodings.utf_8",
 
-        "PySide.QtNetwork"
+        "PySide.QtNetwork",
+        
+        "PyCEGUI",
+        "PyCEGUIOpenGLRenderer"
     ],
     
     include_files =
     [
-        ["icons", "icons"],
-        ["images", "images"],
-        ["ui", "ui"], # FIXME: because we always rebuild those upon starting
         ["data", "data"]
     ]
 )
@@ -65,23 +65,23 @@ setup(
     executables = [
         # this starts the GUI editor main application
         Executable(
-            "CEED.py",
+            "bin/ceed-gui.py",
             base = GUI_BASE_APP,
-            targetName = "CEED" + EXECUTABLE_EXTENSION,
-            icon = "icons/application_icon.ico"
+            targetName = "ceed-gui" + EXECUTABLE_EXTENSION,
+            icon = "data/icons/application_icon.ico"
         ),
         
         # this starts the MetaImageset compiler
         Executable(
-            "mic.py",
+            "bin/ceed-mic.py",
             base = CONSOLE_BASE_APP,
-            targetName = "mic" + EXECUTABLE_EXTENSION
+            targetName = "ceed-mic" + EXECUTABLE_EXTENSION
         ),
         # this starts the Asset Migration tool
         Executable(
-            "migrate.py",
+            "bin/ceed-migrate.py",
             base = CONSOLE_BASE_APP,
-            targetName = "migrate" + EXECUTABLE_EXTENSION
+            targetName = "ceed-migrate" + EXECUTABLE_EXTENSION
         )
     ] 
 )
