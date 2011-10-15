@@ -384,6 +384,9 @@ Details of this error: %s""" % (e))
         # TODO: Do we really want to call this there? This was already called when the project was being opened.
         #       It doesn't do anything harmful but maybe is unnecessary.
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
+        # clean resources that were potentially used with this project
+        self.ceguiInstance.cleanCEGUIResources()
+        
         self.project.unload()
         self.project = None
 
