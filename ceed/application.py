@@ -54,16 +54,14 @@ class Application(QApplication):
             # in case we are in the developer's mode,
             # lets compile all UI files to ensure they are up to date
             import compileuifiles
-            import fixes
+            import paths
     
-            uiDir = fixes.getUiDir()
-    
-            compileuifiles.compileUIFiles(uiDir)
-            compileuifiles.compileUIFiles(uiDir + "/editors")
-            compileuifiles.compileUIFiles(uiDir + "/editors/animation_list")
-            compileuifiles.compileUIFiles(uiDir + "/editors/imageset")
-            compileuifiles.compileUIFiles(uiDir + "/editors/layout")
-            compileuifiles.compileUIFiles(uiDir + "/widgets")
+            compileuifiles.compileUIFiles(paths.ui_dir)
+            compileuifiles.compileUIFiles(paths.ui_dir + "/editors")
+            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/animation_list")
+            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/imageset")
+            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/layout")
+            compileuifiles.compileUIFiles(paths.ui_dir + "/widgets")
 
             logging.debug("All .ui files recompiled!")
 

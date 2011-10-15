@@ -21,11 +21,13 @@ def main():
 
     if prerequisites.check():
         import sys
+        import os
 
         from ceed import application
-        from ceed import fixes
+        from ceed import paths
 
-        fixes.fixCwd()
+        # cwd has to be data dir for Qt to load the icons correctly
+        os.chdir(paths.data_dir)
 
         app = application.Application(sys.argv)
         sys.exit(app.exec_())
