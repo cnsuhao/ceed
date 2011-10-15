@@ -23,16 +23,16 @@ import os
 import sys
 import logging
 
-import compatibility.project
-import propertyinspector
-
 from xml.etree import ElementTree
 
-import qtwidgets
+from ceed import compatibility
+from ceed import propertyinspector
+from ceed import qtwidgets
+import ceed.compatibility.project as project_compatibility
 
-import ui.projectmanager
-import ui.newprojectdialog
-import ui.projectsettingsdialog
+import ceed.ui.projectmanager
+import ceed.ui.newprojectdialog
+import ceed.ui.projectsettingsdialog
 
 class Item(QStandardItem):
     """One item in the project
@@ -273,7 +273,7 @@ class Project(QStandardItemModel):
         """Loads XML project file from given path (preferably absolute path)"""
         
         rawData = open(path, "r").read()
-        nativeData = compatibility.project.Manager.instance.transformTo(compatibility.project.Manager.instance.EditorNativeType, rawData, path)
+        nativeData = project_compatibility.Manager.instance.transformTo(project_compatibility.Manager.instance.EditorNativeType, rawData, path)
         
         root = ElementTree.fromstring(nativeData)
 
@@ -307,7 +307,7 @@ class Project(QStandardItemModel):
         
         root = ElementTree.Element("Project")
 
-        root.set("version", compatibility.project.Manager.instance.EditorNativeType)
+        root.set("version", project_compatibility.Manager.instance.EditorNativeType)
 
         root.set("name", self.name)
         
@@ -390,7 +390,7 @@ class ProjectManager(QDockWidget):
     def __init__(self):
         super(ProjectManager, self).__init__()
         
-        self.ui = ui.projectmanager.Ui_ProjectManager()
+        self.ui = ceed.ui.projectmanager.Ui_ProjectManager()
         self.ui.setupUi(self)
         
         self.view = self.findChild(QTreeView, "view")
@@ -701,7 +701,7 @@ class NewProjectDialog(QDialog):
     def __init__(self):
         super(NewProjectDialog, self).__init__()
         
-        self.ui = ui.newprojectdialog.Ui_NewProjectDialog()
+        self.ui = ceed.ui.newprojectdialog.Ui_NewProjectDialog()
         self.ui.setupUi(self)
         
         self.projectName = self.findChild(QLineEdit, "projectName")
@@ -725,7 +725,7 @@ class ProjectSettingsDialog(QDialog):
     def __init__(self, project):
         super(ProjectSettingsDialog, self).__init__()
         
-        self.ui = ui.projectsettingsdialog.Ui_ProjectSettingsDialog()
+        self.ui = ceed.ui.projectsettingsdialog.Ui_ProjectSettingsDialog()
         self.ui.setupUi(self)
         
         self.projectName = self.findChild(QLineEdit, "projectName")

@@ -26,7 +26,7 @@ import os
 """Whether the application is frozen using cx_Freeze"""
 frozen = False
 
-import fake
+from ceed import fake
 """What's the absolute path to the package directory"""
 package_dir = os.path.dirname(os.path.abspath(fake.__file__))
 

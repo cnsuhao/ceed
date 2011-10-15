@@ -21,8 +21,8 @@ import sys
 from PySide.QtGui import QDialog, QTextBrowser, QLabel
 import logging
 
-import version
-import ui.exceptiondialog
+from ceed import version
+import ceed.ui.exceptiondialog
 
 class ExceptionDialog(QDialog):
     """This is a dialog that gets shown whenever an exception is thrown and
@@ -36,7 +36,7 @@ class ExceptionDialog(QDialog):
     def __init__(self, exc_type, exc_message, exc_traceback):
         super(ExceptionDialog, self).__init__()
 
-        self.ui = ui.exceptiondialog.Ui_ExceptionDialog()
+        self.ui = ceed.ui.exceptiondialog.Ui_ExceptionDialog()
         self.ui.setupUi(self)
 
         self.details = self.findChild(QTextBrowser, "details")

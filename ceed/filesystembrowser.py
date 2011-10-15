@@ -19,9 +19,9 @@
 from PySide import QtCore
 from PySide.QtGui import QDockWidget, QLabel, QPushButton, QListView, QFileSystemModel
 
-import ui.filesystembrowser
-
 import os
+
+import ceed.ui.filesystembrowser
 
 class FileSystemBrowser(QDockWidget):
     """This class represents the file system browser dock widget, usually located right bottom
@@ -34,7 +34,7 @@ class FileSystemBrowser(QDockWidget):
     def __init__(self):
         super(FileSystemBrowser, self).__init__()
 
-        self.ui = ui.filesystembrowser.Ui_FileSystemBrowser()
+        self.ui = ceed.ui.filesystembrowser.Ui_FileSystemBrowser()
         self.ui.setupUi(self)
 
         self.view = self.findChild(QListView, "view")
