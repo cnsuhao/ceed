@@ -21,7 +21,7 @@ from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
 import logging
 
-import version
+from ceed import version
 
 class SplashScreen(QSplashScreen):
     def __init__(self):
@@ -53,9 +53,9 @@ class Application(QApplication):
             
             # in case we are in the developer's mode,
             # lets compile all UI files to ensure they are up to date
-            import compileuifiles
-            import paths
-    
+            from ceed import compileuifiles
+            from ceed import paths
+            
             compileuifiles.compileUIFiles(paths.ui_dir)
             compileuifiles.compileUIFiles(paths.ui_dir + "/editors")
             compileuifiles.compileUIFiles(paths.ui_dir + "/editors/animation_list")
@@ -70,10 +70,9 @@ class Application(QApplication):
         self.setApplicationName("CEED - CEGUI editor")
         self.setApplicationVersion(version.CEED)
 
-        # import mainwindow
         # (we potentially have to compile all UI files first before this is imported,
         # otherwise out of date compiled .py layouts might be used!)
-        import mainwindow
+        from ceed import mainwindow
 
         self.mainWindow = mainwindow.MainWindow(self)
         self.mainWindow.showMaximized()
@@ -82,11 +81,7 @@ class Application(QApplication):
 
         # import error after UI files have been recompiled
         # - Truncate exception log, if it exists.
-        import error
-        
-        # FIXME: Shouldn't this be done somewhere else? in the error module perhaps?
-        with open("EXCEPTION.log", mode="w") as fp:
-            pass
+        from ceed import error
         
         self.errorHandler = error.ErrorHandler(self.mainWindow)
         self.errorHandler.installExceptionHook()

@@ -20,21 +20,21 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 from recentlyused import RecentlyUsedMenuEntry
 
-import ui.mainwindow
+import ceed.ui.mainwindow
 
 import os
 
-import settings
-import action
+from ceed import settings
+from ceed import action
 
-import commands
-import project
-import cegui
-import cegui.container
-import filesystembrowser
+from ceed import commands
+from ceed import project
+from ceed import cegui
+from ceed import filesystembrowser
+import ceed.cegui.container as cegui_container
 
-import help
-import about
+from ceed import help
+from ceed import about
 
 class MainWindow(QMainWindow):
     """The central window of the application.
@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.activeEditor = None
         self.project = None
 
-        self.ui = ui.mainwindow.Ui_MainWindow()
+        self.ui = ceed.ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
         
         # for now we can't use unified title and toolbar, it doesn't have toolbar "ellipsis"
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
 
         # we start CEGUI early and we always start it
         self.ceguiInstance = cegui.Instance()
-        self.ceguiContainerWidget = cegui.container.ContainerWidget(self.ceguiInstance)
+        self.ceguiContainerWidget = cegui_container.ContainerWidget(self.ceguiInstance)
 
         self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
