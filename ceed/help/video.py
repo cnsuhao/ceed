@@ -18,8 +18,8 @@
 
 from PySide.QtWebKit import QWebView
 
-import declaration
-import web
+from ceed.help import declaration
+from ceed.help import web
 
 class FlashWebView(QWebView):
     def __init__(self, url):

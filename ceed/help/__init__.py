@@ -16,6 +16,4 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import declaration
-import video
-import web
+# package stub file

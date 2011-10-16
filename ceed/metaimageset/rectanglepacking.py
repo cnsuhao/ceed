@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #       GPL-compatible
 #
 # We use this for imageset optimisation and meta-imageset 
-# generating code (TODO: not yet but that's the plan).
+# generating code.
 
 from bisect import bisect_left
  

@@ -19,7 +19,7 @@
 from PySide.QtCore import QUrl
 from PySide.QtWebKit import QWebView, QWebSettings
 
-import declaration
+from ceed.help import declaration
 
 initialised = False
 

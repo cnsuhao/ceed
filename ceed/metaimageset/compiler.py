@@ -19,7 +19,7 @@
 import math
 import os.path
 
-import rectanglepacking
+from ceed.metaimageset import rectanglepacking
 import ceed.compatibility.imageset as imageset_compatibility
 
 from PySide.QtCore import *

@@ -245,6 +245,3 @@ class MetaImageset(object):
         for input in self.inputs:
             element = input.saveToElement()
             ret.append(element)
-        
-# make compiler visible to the outside
-import compiler
