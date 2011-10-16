@@ -257,11 +257,24 @@ class RenameCommand(commands.UndoCommand):
         self.oldName = oldName
         self.newName = newName
         
-        # we never merge renames so no need for separate refreshText method
+        self.refreshText()
+    
+    def refreshText(self):
         self.setText("Rename '%s' to '%s'" % (self.oldName, self.newName))
                 
     def id(self):
         return idbase + 4
+    
+    def mergeWith(self, cmd):
+        if self.newName == cmd.oldName:
+            # if our old newName is the same as oldName of the command that
+            # comes after this command, we can merge them
+            self.newName = cmd.newName
+            self.refreshText()
+            
+            return True
+            
+        return False
     
     def undo(self):
         super(RenameCommand, self).undo()
