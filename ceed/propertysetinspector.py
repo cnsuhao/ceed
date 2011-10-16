@@ -87,8 +87,10 @@ class PropertyEntry(QStandardItem):
         self.setEditable(False)
         
         font = QFont()
-        font.setPixelSize(14)
+        font.setPixelSize(13)
         self.setFont(font)
+        
+        self.setSizeHint(QSize(-1, 30))
         
         self.value = PropertyValue(self)
         
