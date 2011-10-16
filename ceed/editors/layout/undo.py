@@ -49,9 +49,16 @@ class MoveCommand(commands.UndoCommand):
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
+            # it is nearly impossible to do the delta guesswork right, the parent might get resized
+            # etc, it might be possible in this exact scenario (no resizes) but in the generic
+            # one it's a pain and can't be done consistently, so I don't even try and just merge if
+            # the paths match
+            self.newPositions = cmd.newPositions
+            
+            return True
+            
+            #for widgetPath in self.widgetPaths:
+            #    delta = self.newPositions[widgetPath] - self.oldPositions[widgetPath]
         
         return False
         
@@ -103,9 +110,12 @@ class ResizeCommand(commands.UndoCommand):
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
+            # it is nearly impossible to do the delta guesswork right, the parent might get resized
+            # etc, so I don't even try and just merge if the paths match
+            self.newPositions = cmd.newPositions
+            self.newSizes = cmd.newSizes
+            
+            return True
         
         return False
         

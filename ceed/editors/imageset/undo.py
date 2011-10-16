@@ -602,10 +602,13 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
         return idbase + 11
     
     def mergeWith(self, cmd):
-        self.newAutoScaled = cmd.newAutoScaled
-        self.refreshText()
+        if self.newAutoScaled == cmd.oldAutoScaled:
+            self.newAutoScaled = cmd.newAutoScaled
+            self.refreshText()
+            
+            return True
         
-        return True
+        return False
     
     def undo(self):
         super(ImagesetChangeAutoScaledCommand, self).undo()
