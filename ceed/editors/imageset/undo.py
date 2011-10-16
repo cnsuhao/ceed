@@ -553,12 +553,15 @@ class ImagesetChangeNativeResolutionCommand(commands.UndoCommand):
         return idbase + 10
     
     def mergeWith(self, cmd):
-        self.newHorzRes = cmd.newHorzRes
-        self.newVertRes = cmd.newVertRes
+        if self.newHorzRes == cmd.oldHorzRes and self.newVertRes == cmd.oldVertRes:
+            self.newHorzRes = cmd.newHorzRes
+            self.newVertRes = cmd.newVertRes
+            
+            self.refreshText()
+            
+            return True
         
-        self.refreshText()
-        
-        return True
+        return False
     
     def undo(self):
         super(ImagesetChangeNativeResolutionCommand, self).undo()
