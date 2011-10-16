@@ -100,6 +100,8 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
                 if isChild(child, potentialChild):
                     return True
                 
+                i += 1
+                
             return False
         
         topItems = []
