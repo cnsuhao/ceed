@@ -479,10 +479,11 @@ class ReparentCommand(commands.UndoCommand):
         return idbase + 8
         
     def mergeWith(self, cmd):
-        if self.oldWidgetPaths == cmd.oldWidgetPaths:
-            # TODO
-        
-            pass
+        if self.newWidgetPaths == cmd.oldWidgetPaths:
+            self.newWidgetPaths = cmd.newWidgetPaths
+            self.refreshText()
+            
+            return True
         
         return False
         
