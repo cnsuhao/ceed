@@ -17,8 +17,7 @@
 ################################################################################
 
 from ceed import compatibility
-
-import cegui
+from ceed.compatibility.looknfeel import cegui
 
 class Manager(compatibility.Manager):
     """Manager of looknfeel compatibility layers"""

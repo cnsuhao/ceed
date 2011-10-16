@@ -18,8 +18,8 @@
 
 from ceed import compatibility
 
-import cegui
-import gorilla
+from ceed.compatibility.imageset import cegui
+from ceed.compatibility.imageset import gorilla
 
 class Manager(compatibility.Manager):
     """Manager of imageset compatibility layers"""

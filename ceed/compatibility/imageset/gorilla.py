@@ -19,7 +19,7 @@
 from xml.etree import ElementTree
 
 from ceed import compatibility
-import cegui
+from ceed.compatibility.imageset import cegui
 
 GorillaFile = "Gorilla file"
 

@@ -17,8 +17,7 @@
 ################################################################################
 
 from ceed import compatibility
-
-import cegui
+from ceed.compatibility.font import cegui
 
 class Manager(compatibility.Manager):
     """Manager of font compatibility layers"""
