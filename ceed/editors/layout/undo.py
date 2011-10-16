@@ -373,9 +373,10 @@ class HorizontalAlignCommand(commands.UndoCommand):
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
+            self.newAlignment = cmd.newAlignment
+            self.refreshText()
+            
+            return True
         
         return False
         
@@ -431,9 +432,10 @@ class VerticalAlignCommand(commands.UndoCommand):
         
     def mergeWith(self, cmd):
         if self.widgetPaths == cmd.widgetPaths:
-            # TODO
+            self.newAlignment = cmd.newAlignment
+            self.refreshText()
         
-            pass
+            return True
         
         return False
         
