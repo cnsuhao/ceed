@@ -283,33 +283,27 @@ class PropertiesDockWidget(QDockWidget):
         self.inspector.propertyEditingEnded.connect(self.slot_propertyEditingEnded)
         
     def slot_propertyEditingProgress(self, propertyName, value):
-        # instant preview
-        for set in self.inspector.propertySets:
-            if set.isPropertyPresent(propertyName):
-                set.setProperty(propertyName, value)
-                
-        # make sure to redraw the scene to preview the property
-        self.visual.scene.update()
-    
-    def slot_propertyEditingEnded(self, propertyName, oldValues, value):
         widgetPaths = []
         undoOldValues = {}
         
         # set the properties where applicable
         for set in self.inspector.propertySets:
             if set.isPropertyPresent(propertyName):
-                # the undo command will do this again anyways
-                #set.setProperty(propertyName, value)
-                
-                if oldValues[set] != value:
-                    widgetPath = set.getNamePath()
-                    widgetPaths.append(widgetPath)
-                    undoOldValues[widgetPath] = oldValues[set]
+                widgetPath = set.getNamePath()
+                widgetPaths.append(widgetPath)
+                undoOldValues[widgetPath] = set.getProperty(propertyName)
         
-        if len(widgetPaths) > 0:        
+        if len(widgetPaths) > 0:
             cmd = undo.PropertyEditCommand(self.visual, propertyName, widgetPaths, undoOldValues, value)
             # FIXME: unreadable
             self.visual.tabbedEditor.undoStack.push(cmd)
+            
+        # make sure to redraw the scene to preview the property
+        self.visual.scene.update()
+    
+    def slot_propertyEditingEnded(self, propertyName, oldValues, value):
+        # we create the undo command immediately in propertyEditingProgress
+        pass
 
 class WidgetTypeTreeWidget(QTreeWidget):
     """Represents a single available widget for creation (it has a mapping in the scheme or is
