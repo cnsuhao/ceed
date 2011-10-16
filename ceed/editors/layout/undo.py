@@ -631,13 +631,9 @@ class NormaliseSizeCommand(ResizeCommand):
                 
     def id(self):
         raise NotImplementedError("Each subclass of NormaliseSizeCommand must implement the id method")
-        
+    
     def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
+        # we never merge size normalising commands
         return False
     
 class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
@@ -664,14 +660,6 @@ class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
                 
     def id(self):
         return idbase + 10
-        
-    def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
-        return False
 
 class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
@@ -696,14 +684,6 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
                 
     def id(self):
         return idbase + 11
-        
-    def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
-        return False
 
 class NormalisePositionCommand(MoveCommand):
     def __init__(self, visual, widgetPaths, oldPositions):
@@ -725,11 +705,7 @@ class NormalisePositionCommand(MoveCommand):
         raise NotImplementedError("Each subclass of NormalisePositionCommand must implement the id method")
         
     def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
+        # we never merge position normalising commands
         return False
     
 class NormalisePositionToRelativeCommand(NormalisePositionCommand):
@@ -756,14 +732,6 @@ class NormalisePositionToRelativeCommand(NormalisePositionCommand):
                 
     def id(self):
         return idbase + 12
-        
-    def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
-        return False
 
 class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
     def __init__(self, visual, widgetPaths, oldPositions):
@@ -789,11 +757,3 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
                 
     def id(self):
         return idbase + 13
-        
-    def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
-        
-            pass
-        
-        return False
