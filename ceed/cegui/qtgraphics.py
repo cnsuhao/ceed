@@ -23,8 +23,8 @@ from PySide.QtOpenGL import *
 from OpenGL.GL import *
 
 import math
-
 import PyCEGUI
+
 from ceed import resizable
 from ceed import cegui
 

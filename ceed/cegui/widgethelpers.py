@@ -20,7 +20,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 from ceed import resizable
-import qtgraphics
+from ceed.cegui import qtgraphics
 import PyCEGUI
 
 # This module contains helping classes for CEGUI widget handling

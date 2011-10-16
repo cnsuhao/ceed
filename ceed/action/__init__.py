@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import declaration
+from ceed.action import declaration
 
 from PySide.QtCore import Qt
 from PySide.QtGui import QIcon, QKeySequence

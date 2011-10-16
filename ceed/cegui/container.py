@@ -22,9 +22,10 @@ from PySide.QtOpenGL import *
 
 from OpenGL.GL import *
 
+from ceed.cegui import qtgraphics
+
 import ceed.ui.ceguidebuginfo
 import PyCEGUI
-import qtgraphics
 
 class DebugInfo(QDialog):
     """A debugging/info widget about the embedded CEGUI instance"""
