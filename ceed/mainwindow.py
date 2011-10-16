@@ -32,6 +32,7 @@ from ceed import project
 from ceed import cegui
 from ceed import filesystembrowser
 import ceed.cegui.container as cegui_container
+from ceed import editors
 
 from ceed import help
 from ceed import about
