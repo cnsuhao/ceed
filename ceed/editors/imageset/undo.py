@@ -508,10 +508,13 @@ class ImagesetChangeImageCommand(commands.UndoCommand):
         return idbase + 9
     
     def mergeWith(self, cmd):
-        self.newImageFile = cmd.newImageFile
-        self.refreshText()
+        if self.newImageFile == cmd.oldImageFile:
+            self.newImageFile = cmd.newImageFile
+            self.refreshText()
+            
+            return True
         
-        return True
+        return False
     
     def undo(self):
         super(ImagesetChangeImageCommand, self).undo()
