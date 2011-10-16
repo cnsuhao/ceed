@@ -465,10 +465,13 @@ class ImagesetRenameCommand(commands.UndoCommand):
         return idbase + 8
     
     def mergeWith(self, cmd):
-        self.newName = cmd.newName
-        self.refreshText()
+        if self.newName == cmd.oldName:
+            self.newName = cmd.newName
+            self.refreshText()
         
-        return True
+            return True
+    
+        return False
     
     def undo(self):
         super(ImagesetRenameCommand, self).undo()
