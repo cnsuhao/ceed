@@ -23,9 +23,7 @@ class SettingsInterface(object):
 from PySide.QtCore import *
 from PySide.QtGui import *
 
-from ceed import qtwidgets
-
-import interface_types
+from ceed.settings import interface_types
 
 class QtSettingsInterface(SettingsInterface, QDialog):
     def __init__(self, settings):
