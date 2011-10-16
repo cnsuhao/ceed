@@ -251,7 +251,7 @@ class CreateCommand(commands.UndoCommand):
         return idbase + 4
         
     def mergeWith(self, cmd):
-        # we never merge deletes
+        # we never merge creates
         return False
         
     def undo(self):
@@ -308,10 +308,10 @@ class PropertyEditCommand(commands.UndoCommand):
         return idbase + 5
         
     def mergeWith(self, cmd):
-        if self.widgetPaths == cmd.widgetPaths:
-            # TODO
+        if self.widgetPaths == cmd.widgetPaths and self.propertyName == cmd.propertyName:
+            self.newValue = cmd.newValue
         
-            pass
+            return True
         
         return False
         
