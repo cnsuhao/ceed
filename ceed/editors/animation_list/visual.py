@@ -21,7 +21,7 @@ from PySide.QtCore import *
 
 from ceed.editors import mixed
 from ceed import cegui
-import timeline
+from ceed.editors.animation_list import timeline
 
 import ceed.ui.editors.animation_list.animationlistdockwidget
 import ceed.ui.editors.animation_list.timelinedockwidget

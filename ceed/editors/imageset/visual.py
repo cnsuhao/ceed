@@ -26,8 +26,8 @@ from ceed.editors import mixed
 from ceed import qtwidgets
 from ceed import resizable
 
-import elements
-import undo
+from ceed.editors.imageset import elements
+from ceed.editors.imageset import undo
 
 import ceed.ui.editors.imageset.dockwidget
 

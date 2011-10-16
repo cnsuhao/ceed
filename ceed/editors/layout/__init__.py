@@ -27,9 +27,9 @@ from ceed import xmledit
 
 import ceed.compatibility.layout as layout_compatibility
 
-import visual
-import code
-import preview
+from ceed.editors.layout import visual
+from ceed.editors.layout import code
+from ceed.editors.layout import preview
 
 import PyCEGUI
 

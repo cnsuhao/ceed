@@ -18,7 +18,7 @@
 
 from ceed import commands
 
-import widgethelpers
+from ceed.editors.layout import widgethelpers
 import PyCEGUI
 
 idbase = 1200

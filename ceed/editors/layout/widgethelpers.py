@@ -20,7 +20,6 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
-import undo
 
 class SerialisationData(cegui_widgethelpers.SerialisationData):
     """See cegui.widgethelpers.SerialisationData
@@ -212,6 +211,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         if data:
             widgetType = data.data()
 
+            from ceed.editors.layout import undo
             cmd = undo.CreateCommand(self.visual, self.widget.getNamePath(), widgetType, self.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
             self.visual.tabbedEditor.undoStack.push(cmd)
 

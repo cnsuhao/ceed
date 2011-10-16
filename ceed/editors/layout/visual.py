@@ -26,9 +26,8 @@ from ceed.cegui import widgethelpers as cegui_widgethelpers
 from ceed import resizable
 import PyCEGUI
 
-import undo
-import widgethelpers
-
+from ceed.editors.layout import undo
+from ceed.editors.layout import widgethelpers
 
 import ceed.ui.editors.layout.propertiesdockwidget
 import cPickle

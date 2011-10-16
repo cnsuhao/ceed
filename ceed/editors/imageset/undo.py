@@ -17,7 +17,7 @@
 ################################################################################
 
 from ceed import commands
-import elements
+from ceed.editors.imageset import elements
 
 import math
 

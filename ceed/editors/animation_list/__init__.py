@@ -20,12 +20,11 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 from ceed import editors
-from ceed.compatibility import animation_list as animation_list_compatibility
+import ceed.compatibility.animation_list as animation_list_compatibility
+from ceed.editors.animation_list import visual
+from ceed.editors.animation_list import code
 
 from xml.etree import ElementTree
-
-import visual
-import code
 
 class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
     """Animation list file editor (XML file containing list of animations)
