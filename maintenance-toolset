@@ -83,11 +83,19 @@ def fetch_datafiles():
         os.chdir(old_cwd)
 
 def archive():
+    raise NotImplementedError("Not yet, not yet!")
+
     # make sure we have to proper datafiles fetched
     fetch_sample_data()
     
-    raise NotImplementedError("Not yet, not yet!")
-
+    old_cwd = os.getcwd()
+    
+    try:
+        temp_directory_path = get_temporary_directory_path()
+        
+    finally:
+        os.chdir(old_cwd)
+    
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
     
