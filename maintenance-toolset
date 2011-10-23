@@ -51,30 +51,30 @@ def fetch_datafiles():
         
         os.chdir(temp_directory_path)
         
-        print("Making sure the cegui_mk2 working copy is up to date...")
+        print("*** Making sure the cegui_mk2 working copy is up to date...")
         if os.path.exists("cegui_mk2"):
             os.chdir("cegui_mk2")
             subprocess.call(["hg", "pull", "-u"])
             os.chdir(temp_directory_path)
         else:
             subprocess.call(["hg", "clone", "http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/cegui_mk2", "cegui_mk2"])
-        print("cegui_mk2 is up to date now!")
+        print("*** cegui_mk2 is up to date now!")
             
         os.chdir("cegui_mk2")
 
         def copy_datafiles(branch, target_path):
-            print("Preparing to copy datafiles from the '%s' branch to '%s'" % (branch, target_path))
+            print("*** Preparing to copy datafiles from the '%s' branch to '%s'" % (branch, target_path))
             import shutil
             
             subprocess.call(["hg", "update", "-C", branch])
             
             if os.path.exists(target_path):
-                print("The path already exists, deleting the whole tree ('%s')..." % (target_path))
+                print("*** The path already exists, deleting the whole tree ('%s')..." % (target_path))
                 shutil.rmtree(target_path)
             
-            print("Copying datafiles to '%s'" % (target_path))
+            print("*** Copying datafiles to '%s'" % (target_path))
             shutil.copytree("datafiles", target_path, symlinks = False, ignore = shutil.ignore_patterns(".hg"))
-            print("Datafiles from branch '%s' are up to date in CEED working copy!" % (branch))
+            print("*** Datafiles from branch '%s' are up to date in CEED working copy!" % (branch))
         
         copy_datafiles(v0_7_branch, v0_7_sample_datafiles_path)
         copy_datafiles(v0_8_branch, v0_8_sample_datafiles_path)
@@ -98,11 +98,11 @@ def main():
     if args.task == "fetch-datafiles":
         fetch_datafiles()
     
-    elif args.task == "layout":
+    elif args.task == "archive":
         archive()
     
     else:    
-        print("Y U NO PROVIDE VALID TASK!!!!")
+        print("*** Y U NO PROVIDE VALID TASK!!!!")
         sys.exit(1)
     
 if __name__ == "__main__":
