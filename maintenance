@@ -30,7 +30,7 @@ import argparse
 import subprocess
 
 def get_temporary_directory_path():
-    temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.join("maintenance-toolset-temp")))
+    temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.join("maintenance-temp")))
     
     if not os.path.exists(temp_directory_path):
         os.mkdir(temp_directory_path)

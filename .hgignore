@@ -21,4 +21,4 @@ xcuserdata/
 *.kdev4
 CEGUI.log
 ui/**.py
-maintenance-toolset-temp/
+maintenance-temp/
