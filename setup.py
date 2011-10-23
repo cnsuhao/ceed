@@ -67,7 +67,7 @@ setup(
     executables = [
         # this starts the GUI editor main application
         Executable(
-            "bin/ceed-gui.py",
+            "bin/ceed-gui",
             base = GUI_BASE_APP,
             targetName = "ceed-gui" + EXECUTABLE_EXTENSION,
             icon = "data/icons/application_icon.ico"
@@ -75,13 +75,13 @@ setup(
         
         # this starts the MetaImageset compiler
         Executable(
-            "bin/ceed-mic.py",
+            "bin/ceed-mic",
             base = CONSOLE_BASE_APP,
             targetName = "ceed-mic" + EXECUTABLE_EXTENSION
         ),
         # this starts the Asset Migration tool
         Executable(
-            "bin/ceed-migrate.py",
+            "bin/ceed-migrate",
             base = CONSOLE_BASE_APP,
             targetName = "ceed-migrate" + EXECUTABLE_EXTENSION
         )
