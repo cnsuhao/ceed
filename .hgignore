@@ -9,9 +9,8 @@ syntax: glob
 *.dylib
 *.so
 *.dll
-dependencies/
-example_data/datafiles0_7/
-example_data/datafiles0_8/
+data/samples/datafiles0_7/
+data/samples/datafiles0_8/
 build/
 xcuserdata/
 *.xcworkspace/
@@ -22,3 +21,4 @@ xcuserdata/
 *.kdev4
 CEGUI.log
 ui/**.py
+maintenance-toolset-temp/
