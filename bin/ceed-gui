@@ -18,7 +18,7 @@
 ################################################################################
 
 def main():
-    from ceed.version import prerequisites
+    from ceed import prerequisites
 
     if prerequisites.check():
         import sys

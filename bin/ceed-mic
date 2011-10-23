@@ -20,7 +20,7 @@
 # MetaImageset compiler command line tool
 
 def main():
-    from ceed.version import prerequisites
+    from ceed import prerequisites
     
     if prerequisites.check():
         from PySide.QtGui import QApplication
