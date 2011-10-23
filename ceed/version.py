@@ -23,56 +23,6 @@ Beyond version information, we also store a few other details - e.g. system
 architecture - which are used in the event of errors/exceptions.
 """
 
-import platform
-import sys
-import subprocess
-
-from OpenGL.version import __version__ as _OpenGLVersion
-from PySide import __version__ as _PySideVersion
-from PySide import __version_info__ as _PySideVersion_Tuple
-from PySide.QtCore import __version__ as _QtVersion
-from PySide.QtCore import __version_info__ as _QtVersion_Tuple
-from PyCEGUI import Version__ as _PyCEGUIVersion
-
-# Architecture
-SystemArch = platform.architecture()
-SystemType = platform.machine()
-SystemCore = platform.processor()
-
-# OS agnostic
-OSType = platform.system()
-OSRelease = platform.release()
-OSVersion = platform.version()
-
-# OS specific
-if OSType == "Windows":
-    Windows = platform.win32_ver()
-    #sys.getwindowsversion()
-elif OSType == "Linux":
-    Linux = platform.linux_distribution()
-elif OSType == "Java": # Jython
-    Java = platform.java_ver()
-elif OSType == "Darwin": # OSX
-    Mac = platform.mac_ver()
-
-# Python
-Python = sys.version
-Python_Tuple = sys.version_info
-
-# PySide
-PySide = _PySideVersion
-PySide_Tuple = _PySideVersion_Tuple
-
-# Qt
-Qt = _QtVersion
-Qt_Tuple = _QtVersion_Tuple
-
-# PyOpenGL
-OpenGL = _OpenGLVersion
-
-# PyCEGUI
-PyCEGUI = _PyCEGUIVersion
-
 # CEED
 CEED = "snapshot4"
 # if this is True, all .ui files will be recompiled every time CEED.py is run
@@ -87,3 +37,59 @@ try:
         MercurialRevision = "Unknown"
 except:
     MercurialRevision = "Can't execute \"hg\""
+
+try:
+    import platform
+    import sys
+    import subprocess
+    
+    from OpenGL.version import __version__ as _OpenGLVersion
+    from PySide import __version__ as _PySideVersion
+    from PySide import __version_info__ as _PySideVersion_Tuple
+    from PySide.QtCore import __version__ as _QtVersion
+    from PySide.QtCore import __version_info__ as _QtVersion_Tuple
+    from PyCEGUI import Version__ as _PyCEGUIVersion
+    
+    # Architecture
+    SystemArch = platform.architecture()
+    SystemType = platform.machine()
+    SystemCore = platform.processor()
+    
+    # OS agnostic
+    OSType = platform.system()
+    OSRelease = platform.release()
+    OSVersion = platform.version()
+    
+    # OS specific
+    if OSType == "Windows":
+        Windows = platform.win32_ver()
+        #sys.getwindowsversion()
+    elif OSType == "Linux":
+        Linux = platform.linux_distribution()
+    elif OSType == "Java": # Jython
+        Java = platform.java_ver()
+    elif OSType == "Darwin": # OSX
+        Mac = platform.mac_ver()
+    
+    # Python
+    Python = sys.version
+    Python_Tuple = sys.version_info
+    
+    # PySide
+    PySide = _PySideVersion
+    PySide_Tuple = _PySideVersion_Tuple
+    
+    # Qt
+    Qt = _QtVersion
+    Qt_Tuple = _QtVersion_Tuple
+    
+    # PyOpenGL
+    OpenGL = _OpenGLVersion
+    
+    # PyCEGUI
+    PyCEGUI = _PyCEGUIVersion
+    
+except:
+    # all of the other versions are just optional, what we always need and will always get
+    # is the CEED versoin
+    pass
