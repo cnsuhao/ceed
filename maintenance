@@ -116,6 +116,14 @@ def archive():
     
     print("*** The resulting archive is ready at '%s'" % (target_archive_path))
     
+def clean():
+    import shutil
+    
+    temp_directory_path = get_temporary_directory_path()
+    shutil.rmtree(temp_directory_path)
+    
+    print("*** No maintenance temporary directory present now!")
+    
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
     
@@ -128,6 +136,9 @@ def main():
     
     elif args.task == "archive":
         archive()
+        
+    elif args.task == "clean":
+        clean()
     
     else:    
         print("*** Y U NO PROVIDE VALID TASK!!!!")
