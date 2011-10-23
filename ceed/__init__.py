@@ -17,3 +17,14 @@
 ################################################################################
 
 # package stub file
+
+from ceed import version
+
+__author__ = "Martin Preisler <preisler.m@gmail.com>"
+__version__ = version.CEED
+__copyright__ = "Martin Preisler <preisler.m@gmail.com>"
+__email__ = "preisler.m@gmail.com"
+__license__ = "GPLv3+"
+
+# __credits__ are hard to maintain, please see the AUTHORS file in the top directory
+# of a fresh mercurial clone
