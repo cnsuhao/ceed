@@ -73,7 +73,7 @@ def fetch_datafiles():
                 shutil.rmtree(target_path)
             
             print("*** Copying datafiles to '%s'" % (target_path))
-            shutil.copytree("datafiles", target_path, symlinks = False, ignore = shutil.ignore_patterns(".hg"))
+            shutil.copytree("datafiles", target_path, ignore = shutil.ignore_patterns(".hg"))
             print("*** Datafiles from branch '%s' are up to date in CEED working copy!" % (branch))
         
         copy_datafiles(v0_7_branch, v0_7_sample_datafiles_path)
@@ -83,18 +83,38 @@ def fetch_datafiles():
         os.chdir(old_cwd)
 
 def archive():
-    raise NotImplementedError("Not yet, not yet!")
-
     # make sure we have to proper datafiles fetched
-    fetch_sample_data()
+    print("*** Making sure fresh datafiles are in place...")
+    fetch_datafiles()
     
-    old_cwd = os.getcwd()
+    temp_directory_path = get_temporary_directory_path()
+    from ceed import version
+    target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
     
-    try:
-        temp_directory_path = get_temporary_directory_path()
+    import shutil
+    import glob
+    
+    if os.path.exists(target_temp_directory_path):
+        print("Target temporary directory '%s' already existed, removing it..." % (target_temp_directory_path))
+        shutil.rmtree(target_temp_directory_path)
         
-    finally:
-        os.chdir(old_cwd)
+    os.mkdir(target_temp_directory_path)
+    
+    shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"), ignore = shutil.ignore_patterns("*~", "runwrapper.sh"))
+    shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"), ignore = shutil.ignore_patterns("*~", "*.pyc", "*.pyo"))
+    shutil.copytree("data", os.path.join(target_temp_directory_path, "data"), ignore = shutil.ignore_patterns("*~"))
+    # we don't copy doc for now, there is almost nothing there
+    shutil.copy("AUTHORS", target_temp_directory_path)
+    shutil.copy("LICENSE", target_temp_directory_path)
+    for file in glob.glob("*-COPYING"):
+        shutil.copy(file, target_temp_directory_path)
+        
+    import tarfile
+    target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
+    with tarfile.open(target_archive_path, "w") as tar:
+        tar.add(target_temp_directory_path, os.path.basename(target_temp_directory_path))
+    
+    print("*** The resulting archive is ready at '%s'" % (target_archive_path))
     
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
