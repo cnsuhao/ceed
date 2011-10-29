@@ -30,6 +30,8 @@ CEED_developerMode = True
 
 # Mercurial
 try:
+    import subprocess
+        
     MercurialRevision = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
     if MercurialRevision.startswith("Revision:"):
         MercurialRevision = MercurialRevision[9:]
@@ -38,58 +40,67 @@ try:
 except:
     MercurialRevision = "Can't execute \"hg\""
 
-try:
-    import platform
-    import sys
-    import subprocess
-    
-    from OpenGL.version import __version__ as _OpenGLVersion
+import platform
+import sys
+
+# Architecture
+SystemArch = platform.architecture()
+SystemType = platform.machine()
+SystemCore = platform.processor()
+
+# OS agnostic
+OSType = platform.system()
+OSRelease = platform.release()
+OSVersion = platform.version()
+
+# OS specific
+if OSType == "Windows":
+    Windows = platform.win32_ver()
+    #sys.getwindowsversion()
+elif OSType == "Linux":
+    Linux = platform.linux_distribution()
+elif OSType == "Java": # Jython
+    Java = platform.java_ver()
+elif OSType == "Darwin": # OSX
+    Mac = platform.mac_ver()
+
+# Python
+Python = sys.version
+Python_Tuple = sys.version_info
+
+# in case the try block fails, set all the tuples and values to something
+PySide = "N/A"
+PySide_Tuple = ("N", "/", "A")
+
+Qt = "N/A"
+Qt_Tuple = ("N", "/", "A")
+
+OpenGL = "N/A"
+
+PyCEGUI = "N/A"
+
+try:    
+    # PySide
     from PySide import __version__ as _PySideVersion
     from PySide import __version_info__ as _PySideVersion_Tuple
-    from PySide.QtCore import __version__ as _QtVersion
-    from PySide.QtCore import __version_info__ as _QtVersion_Tuple
-    from PyCEGUI import Version__ as _PyCEGUIVersion
-    
-    # Architecture
-    SystemArch = platform.architecture()
-    SystemType = platform.machine()
-    SystemCore = platform.processor()
-    
-    # OS agnostic
-    OSType = platform.system()
-    OSRelease = platform.release()
-    OSVersion = platform.version()
-    
-    # OS specific
-    if OSType == "Windows":
-        Windows = platform.win32_ver()
-        #sys.getwindowsversion()
-    elif OSType == "Linux":
-        Linux = platform.linux_distribution()
-    elif OSType == "Java": # Jython
-        Java = platform.java_ver()
-    elif OSType == "Darwin": # OSX
-        Mac = platform.mac_ver()
-    
-    # Python
-    Python = sys.version
-    Python_Tuple = sys.version_info
-    
-    # PySide
     PySide = _PySideVersion
     PySide_Tuple = _PySideVersion_Tuple
     
     # Qt
+    from PySide.QtCore import __version__ as _QtVersion
+    from PySide.QtCore import __version_info__ as _QtVersion_Tuple
     Qt = _QtVersion
     Qt_Tuple = _QtVersion_Tuple
     
     # PyOpenGL
+    from OpenGL.version import __version__ as _OpenGLVersion
     OpenGL = _OpenGLVersion
     
     # PyCEGUI
+    from PyCEGUI import Version__ as _PyCEGUIVersion
     PyCEGUI = _PyCEGUIVersion
     
 except:
     # all of the other versions are just optional, what we always need and will always get
-    # is the CEED versoin
+    # is the CEED version
     pass
