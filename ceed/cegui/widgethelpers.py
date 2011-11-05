@@ -229,13 +229,13 @@ class Manipulator(resizable.ResizableRectItem):
     def updateFromWidget(self):
         assert(self.widget is not None)
         
-        unclippedOuterRect = self.widget.getUnclippedOuterRect()
+        unclippedOuterRect = self.widget.getUnclippedOuterRect().getFresh(True)
         pos = unclippedOuterRect.getPosition()
         size = unclippedOuterRect.getSize()
         
         parentWidget = self.widget.getParent()
         if parentWidget:
-            parentUnclippedOuterRect = parentWidget.getUnclippedOuterRect()
+            parentUnclippedOuterRect = parentWidget.getUnclippedOuterRect().get()
             pos -= parentUnclippedOuterRect.getPosition()
         
         self.ignoreGeometryChanges = True
@@ -293,8 +293,8 @@ class Manipulator(resizable.ResizableRectItem):
             return QSizeF(maxPixelSize.d_width, maxPixelSize.d_height)
     
     def getBaseSize(self):
-        if self.widget.getParent() is not None and not self.widget.isNonClientWindow():
-            return self.widget.getParent().getUnclippedInnerRect().getSize()
+        if self.widget.getParent() is not None and not self.widget.isNonClient():
+            return self.widget.getParent().getUnclippedInnerRect().get().getSize()
         
         else:
             return self.widget.getParentPixelSize()
