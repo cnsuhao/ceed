@@ -239,7 +239,7 @@ class Manipulator(resizable.ResizableRectItem):
             pos -= parentUnclippedOuterRect.getPosition()
         
         self.ignoreGeometryChanges = True
-        self.setPos(QPoint(pos.d_x, pos.d_y))
+        self.setPos(QPointF(pos.d_x, pos.d_y))
         self.setRect(QRectF(0, 0, size.d_width, size.d_height))
         self.ignoreGeometryChanges = False
         
