@@ -275,7 +275,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         super(Manipulator, self).impl_paint(painter, option, widget)
         
         if self.drawSnapGrid and self.snapGridAction.isChecked():
-            childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+            childRect = self.widget.getChildContentArea(self.snapGridNonClientArea).get()
             qChildRect = QRectF(childRect.d_min.d_x, childRect.d_min.d_y, childRect.getWidth(), childRect.getHeight())
             qChildRect.translate(-self.scenePos())
             
@@ -292,7 +292,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     
     def snapXCoordToGrid(self, x):
         # we have to take the child rect into account
-        childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+        childRect = self.widget.getChildContentArea(self.snapGridNonClientArea).get()
         xOffset = childRect.d_min.d_x - self.scenePos().x()
         
         # point is in local space
@@ -301,7 +301,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     
     def snapYCoordToGrid(self, y):
         # we have to take the child rect into account
-        childRect = self.widget.getChildWindowContentArea(self.snapGridNonClientArea)
+        childRect = self.widget.getChildContentArea(self.snapGridNonClientArea).get()
         yOffset = childRect.d_min.d_y - self.scenePos().y()
         
         # point is in local space

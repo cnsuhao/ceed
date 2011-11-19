@@ -325,6 +325,8 @@ class PropertyEditCommand(commands.UndoCommand):
             
         # make sure to redraw the scene so the changes are visible    
         self.visual.scene.update()
+        # update properties dock widget
+        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
             
     def redo(self):
         for widgetPath in self.widgetPaths:
@@ -334,6 +336,8 @@ class PropertyEditCommand(commands.UndoCommand):
             
         # make sure to redraw the scene so the changes are visible    
         self.visual.scene.update()
+        # update properties dock widget
+        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
         
         super(PropertyEditCommand, self).redo()
 
