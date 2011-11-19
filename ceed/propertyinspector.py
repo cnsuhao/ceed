@@ -381,8 +381,16 @@ class PropertyInspectorManager(object):
                     
                 i -= 1
         
+        # FIXME XXX TODO
+        # workaround suggested by kornerr (edit with QLineEdit if no mapping is provided)
+        # this will be removed when convenient property mapping facilities are in place
+        for inspector in self.inspectors:
+            if inspector.getName() == "LineEdit":
+                return inspector, PropertyInspectorMapping()
+
+        # valid code below
         # mapping doesn't exist        
-        return None, None
+        #return None, None
 
     def isPropertyIgnored(self, propertyOrigin, propertyName):
         for mappings in reversed(self.mappingLists):
