@@ -76,7 +76,7 @@ class SerialisationData(object):
         while not it.isAtEnd():
             propertyName = it.getCurrentKey()
 
-            if not widget.isPropertyDefault(propertyName):
+            if not widget.isPropertyBannedFromXML(propertyName) and not widget.isPropertyDefault(propertyName):
                 self.properties[propertyName] = widget.getProperty(propertyName)
 
             it.next()
