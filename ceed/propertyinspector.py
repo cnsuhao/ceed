@@ -102,7 +102,9 @@ class LineEditPropertyInspector(PropertyInspector):
     def impl_populateEditWidget(self, widget, propertyEntry, mapping):
         value = propertyEntry.getCurrentValue()
         
-        widget.setText(value)
+        # if the widget has focus it is currently being edited
+        if not widget.hasFocus() and widget.text() != value:
+            widget.setText(value)
         
     def getCurrentValueForProperty(self, widget, propertyEntry, mapping):
         return widget.text()
@@ -129,7 +131,9 @@ class TextEditPropertyInspector(PropertyInspector):
     def impl_populateEditWidget(self, widget, propertyEntry, mapping):
         value = propertyEntry.getCurrentValue()
         
-        widget.setText(value)
+        # if the widget has focus it is currently being edited
+        if not widget.hasFocus() and widget.text() != value:
+            widget.setText(value)
         
     def getCurrentValueForProperty(self, widget, propertyEntry, mapping):
         return widget.toPlainText()

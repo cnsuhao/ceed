@@ -49,26 +49,31 @@ class PropertyValue(QStandardItem):
         self.update()
             
     def update(self):
-        self.setText(self.propertyEntry.getCurrentValue())
-        palette = QApplication.palette()
+        oldText = self.text()
+        newText = self.propertyEntry.getCurrentValue()
         
-        if self.propertyEntry.isCurrentValueDefault():
-            font = QFont()
-            font.setItalic(True)
+        if oldText != newText:
+            self.setText(newText)
             
-            self.setFont(font)
+            palette = QApplication.palette()
             
-            self.setForeground(QBrush(palette.color(QPalette.Disabled, QPalette.Text)))
-            self.setBackground(QBrush(palette.color(QPalette.Disabled, QPalette.Base)))
+            if self.propertyEntry.isCurrentValueDefault():
+                font = QFont()
+                font.setItalic(True)
+                
+                self.setFont(font)
+                
+                self.setForeground(QBrush(palette.color(QPalette.Disabled, QPalette.Text)))
+                self.setBackground(QBrush(palette.color(QPalette.Disabled, QPalette.Base)))
+                
+            else:
+                font = QFont()
+                font.setPixelSize(14)
+                
+                self.setFont(font)
             
-        else:
-            font = QFont()
-            font.setPixelSize(14)
-            
-            self.setFont(font)
-        
-            self.setForeground(QBrush(palette.color(QPalette.Active, QPalette.Text)))
-            self.setBackground(QBrush(palette.color(QPalette.Active, QPalette.Base)))
+                self.setForeground(QBrush(palette.color(QPalette.Active, QPalette.Text)))
+                self.setBackground(QBrush(palette.color(QPalette.Active, QPalette.Base)))
         
 class PropertyEntry(QStandardItem):
     """Standard item displaying the name of a property
@@ -353,7 +358,30 @@ class PropertySetInspector(QWidget):
                     
                     propertyIt.next()
                 
-            for origin, propertyNames in propertiesByOrigin.iteritems():
+            def sortedPropertiesByOrigin(adict):
+                def getSortKey(t):
+                    origin, _  = t
+                    
+                    if origin == "Element":
+                        origin = "000Element"
+                    elif origin == "NamedElement":
+                        origin = "001NamedElement"
+                    elif origin == "Window":
+                        origin = "002Window"
+                    elif origin.startswith("CEGUI/"):
+                        origin = origin[6:]
+                    elif origin == "Unknown":
+                        origin = "ZZZUnknown"
+                    else:
+                        pass
+                    
+                    return origin
+                
+                items = adict.items()
+                items.sort(key = getSortKey)
+                return [(key, value) for key, value in items]
+                
+            for origin, propertyNames in sortedPropertiesByOrigin(propertiesByOrigin):
                 category = PropertyCategory(self, origin)
                 
                 self.model.appendRow([category, category.propertyCount])
