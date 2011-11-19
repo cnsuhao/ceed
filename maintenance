@@ -127,7 +127,7 @@ def clean():
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
     
-    parser.add_argument("task", type = str, help = "Which task do you want to perform? (valid choices: fetch-datafiles, archive)")
+    parser.add_argument("task", type = str, help = "Which task do you want to perform? (valid choices: fetch-datafiles, archive, clean)")
     
     args = parser.parse_args()
     
