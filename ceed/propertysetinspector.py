@@ -387,7 +387,7 @@ class PropertySetInspector(QWidget):
                 self.model.appendRow([category, category.propertyCount])
                 
                 propertyCount = 0
-                for propertyName in propertyNames:
+                for propertyName in sorted(propertyNames):
                     entry = PropertyEntry(category, propertyName)
                     category.appendRow([entry, entry.value])
                     propertyCount += 1
