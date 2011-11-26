@@ -26,7 +26,7 @@ def get_packages():
     
     # Distutils requires us to list all packages, this is very tedious and prone
     # to errors. While I believe I should know which packages ceed has at all times
-    # I also belive that saving work on my part is a "good thing".
+    # I also believe that saving work on my part is a "good thing".
     
     ret = ["ceed"]
     
@@ -40,7 +40,7 @@ setup(
     name = "CEED",
     version = version.CEED,
     description = "The CEGUI Unified Editor",
-    author = "Martin Preisler",
+    author = "Martin Preisler and others (see AUTHORS)",
     author_email = "preisler.m@gmail.com",
     url = "http://www.cegui.org.uk/",
     packages = get_packages(),
