@@ -22,6 +22,9 @@ import platform
 
 from ceed import version
 
+if version.CEED_developerMode:
+    raise RuntimeError("I politely refuse to freeze CEED in developer mode! I will only freeze end-user versions.")
+
 VERSION = version.CEED
 # TODO: these should branch depending on the platform
 GUI_BASE_APP = "Console"
