@@ -30,7 +30,7 @@ from ceed import fake
 """What's the absolute path to the package directory"""
 package_dir = os.path.dirname(os.path.abspath(fake.__file__))
 
-if package_dir.endswith("library.zip"):
+if package_dir.endswith(os.path.join("library.zip", "ceed")):
     frozen = True
     package_dir = os.path.dirname(package_dir)
 
@@ -55,6 +55,9 @@ if not system_data_dir_exists:
 ui_dir = os.path.join(package_dir, "ui")
 
 # if one of these assertions fail your installation is not valid!
-assert(os.path.exists(package_dir))
+if not frozen:
+    # these two checks will always fail in a frozen instance
+    assert(os.path.exists(package_dir))
+    assert(os.path.exists(ui_dir))
+    
 assert(os.path.exists(data_dir))
-assert(os.path.exists(ui_dir))
