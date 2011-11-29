@@ -112,7 +112,9 @@ class GraphicsScene(QGraphicsScene):
 
         # the stretch and translation should be done automatically by QPainter at this point so just
         # this code will do
-        glActiveTexture(GL_TEXTURE0)
+        if bool(glActiveTexture):
+            glActiveTexture(GL_TEXTURE0)
+        
         glEnable(GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D, self.fbo.texture())
 
