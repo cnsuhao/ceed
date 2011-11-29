@@ -32,3 +32,16 @@ def compileUIFiles(ui_dir):
                 outfile = open(os.path.join(ui_dir, outname), "w")
                 compileUi(ui_name, outfile)
                 outfile.close()
+
+def main():
+    from ceed import paths
+    
+    compileUIFiles(paths.ui_dir)
+    compileUIFiles(paths.ui_dir + "/editors")
+    compileUIFiles(paths.ui_dir + "/editors/animation_list")
+    compileUIFiles(paths.ui_dir + "/editors/imageset")
+    compileUIFiles(paths.ui_dir + "/editors/layout")
+    compileUIFiles(paths.ui_dir + "/widgets")
+    
+if __name__ == "__main__":
+    main()

@@ -54,15 +54,8 @@ class Application(QApplication):
             # in case we are in the developer's mode,
             # lets compile all UI files to ensure they are up to date
             from ceed import compileuifiles
-            from ceed import paths
+            compileuifiles.main()
             
-            compileuifiles.compileUIFiles(paths.ui_dir)
-            compileuifiles.compileUIFiles(paths.ui_dir + "/editors")
-            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/animation_list")
-            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/imageset")
-            compileuifiles.compileUIFiles(paths.ui_dir + "/editors/layout")
-            compileuifiles.compileUIFiles(paths.ui_dir + "/widgets")
-
             logging.debug("All .ui files recompiled!")
 
         self.setOrganizationName("CEGUI")
