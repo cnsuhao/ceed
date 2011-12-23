@@ -873,7 +873,8 @@ Details of this error: %s""" % (e))
     def slot_saveAs(self):
         if self.activeEditor:
             filePath, filter = QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
-            self.activeEditor.saveAs(filePath)
+            if filePath: # make sure user hasn't cancelled the dialog
+                self.activeEditor.saveAs(filePath)
 
     def slot_saveAll(self):
         """Saves all opened tabbed editors and opened project (if any)
