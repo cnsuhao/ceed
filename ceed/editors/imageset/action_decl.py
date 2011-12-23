@@ -48,6 +48,10 @@ def declare(actionManager):
                      help = "Creates a new image at the current cursor position, sized 50x50 pixels.",
                      icon = QIcon("icons/imageset_editing/create_image.png"))
     
+    cat.createAction(name = "duplicate_image", label = "Duplicate image",
+                     help = "Duplicates the selected images.",
+                     icon = QIcon("icons/imageset_editing/duplicate_image.png"))
+    
     cat.createAction(name = "delete_image", label = "Delete image",
                      help = "Deletes all selected images.",
                      icon = QIcon("icons/imageset_editing/delete_image.png"))

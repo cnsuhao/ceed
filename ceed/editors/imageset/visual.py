@@ -417,6 +417,9 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.createImageAction = action.getAction("imageset/create_image")
         self.connectionGroup.add(self.createImageAction, receiver = self.createImageAtCursor)
         
+        self.duplicateSelectedImagesAction = action.getAction("imageset/duplicate_image")
+        self.connectionGroup.add(self.duplicateSelectedImagesAction, receiver = self.duplicateSelectedImageEntries)
+        
         self.deleteSelectedImagesAction = action.getAction("imageset/delete_image")
         self.connectionGroup.add(self.deleteSelectedImagesAction, receiver = self.deleteSelectedImageEntries)
         
@@ -432,6 +435,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.toolBar.addAction(self.zoomOutAction)
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.createImageAction)
+        self.toolBar.addAction(self.duplicateSelectedImagesAction)
         self.toolBar.addAction(self.deleteSelectedImagesAction)
  
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -448,6 +452,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.contextMenu.addAction(self.zoomOutAction)
         self.contextMenu.addSeparator()
         self.contextMenu.addAction(self.createImageAction)
+        self.contextMenu.addAction(self.duplicateSelectedImagesAction)
         self.contextMenu.addAction(self.deleteSelectedImagesAction)
         
     def initialise(self, rootElement):
@@ -606,6 +611,70 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         sceneCoordinates = self.mapToScene(self.lastMousePosition)
         
         self.createImage(int(sceneCoordinates.x()), int(sceneCoordinates.y()))
+        
+    def getImageByName(self, name):
+        for imageEntry in self.imagesetEntry.imageEntries:
+            if imageEntry.name == name:
+                return imageEntry
+        return None
+    
+    def getNewImageName(self, desiredName, copyPrefix = "", copySuffix = "_copy"):
+        """Returns an image name that is not used in this imageset
+        
+        TODO: Can be used for the copy-paste functionality too
+        """
+        
+        # Try the desired name exactly
+        if self.getImageByName(desiredName) is None:
+            return desiredName
+        
+        # Try with prefix and suffix
+        desiredName = copyPrefix + desiredName + copySuffix
+        if self.getImageByName(desiredName) is None:
+            return desiredName
+        
+        # We're forced to append a counter, start with number 2 (_copy2, copy3, etc.)
+        counter = 2
+        while True:
+            tmpName = desiredName + str(counter)
+            if self.getImageByName(tmpName) is None:
+                return tmpName
+            counter += 1
+
+    def duplicateImageEntries(self, imageEntries):        
+        if len(imageEntries) > 0:
+            newNames = []
+            
+            newPositions = {}
+            newRects = {}
+            newOffsets = {}
+            
+            for imageEntry in imageEntries:
+                newName = self.getNewImageName(imageEntry.name)
+                newNames.append(newName)
+                
+                newPositions[newName] = imageEntry.pos()
+                newRects[newName] = imageEntry.rect()
+                newOffsets[newName] = imageEntry.offset.pos()
+            
+            cmd = undo.DuplicateCommand(self, newNames, newPositions, newRects, newOffsets)
+            self.tabbedEditor.undoStack.push(cmd)
+            
+            return True
+        
+        else:
+            # we didn't handle this
+            return False
+    
+    def duplicateSelectedImageEntries(self):
+        selection = self.scene().selectedItems()
+        
+        imageEntries = []
+        for item in selection:
+            if isinstance(item, elements.ImageEntry):
+                imageEntries.append(item)
+        
+        return self.duplicateImageEntries(imageEntries)
     
     def deleteImageEntries(self, imageEntries):        
         if len(imageEntries) > 0:
