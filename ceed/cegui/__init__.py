@@ -129,6 +129,8 @@ class Instance(object):
                                        os.path.join(defaultBaseDirectory, "looknfeel"))
         self.setResourceGroupDirectory("layouts",
                                        os.path.join(defaultBaseDirectory, "layouts"))
+        self.setResourceGroupDirectory("xml_schemas",
+                                       os.path.join(defaultBaseDirectory, "xml_schemas"))
 
         # all this will never be set to anything else again
         PyCEGUI.ImageManager.setImagesetDefaultResourceGroup("imagesets")
@@ -139,7 +141,7 @@ class Instance(object):
 
         parser = PyCEGUI.System.getSingleton().getXMLParser()
         if parser.isPropertyPresent("SchemaDefaultResourceGroup"):
-            parser.setProperty("SchemaDefaultResourceGroup", "schemas")
+            parser.setProperty("SchemaDefaultResourceGroup", "xml_schemas")
 
     def cleanCEGUIResources(self):
         # destroy all previous resources (if any)
@@ -194,6 +196,7 @@ class Instance(object):
         self.setResourceGroupDirectory("schemes", project.getAbsolutePathOf(project.schemesPath))
         self.setResourceGroupDirectory("looknfeels", project.getAbsolutePathOf(project.looknfeelsPath))
         self.setResourceGroupDirectory("layouts", project.getAbsolutePathOf(project.layoutsPath))
+        self.setResourceGroupDirectory("xml_schemas", project.getAbsolutePathOf(project.xmlSchemasPath))
 
         progress.setLabelText("Recreating all schemes...")
         progress.setValue(2)

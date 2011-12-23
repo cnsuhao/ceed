@@ -260,6 +260,7 @@ class Project(QStandardItemModel):
         self.looknfeelsPath = "./looknfeel"
         self.schemesPath = "./schemes"
         self.layoutsPath = "./layouts"
+        self.xmlSchemasPath = "./xml_schemas"
         
         self.changed = True
         
@@ -287,6 +288,7 @@ class Project(QStandardItemModel):
         self.looknfeelsPath = root.get("looknfeelsPath", "./looknfeel")            
         self.schemesPath = root.get("schemesPath", "./schemes")            
         self.layoutsPath = root.get("layoutsPath", "./layouts")
+        self.xmlSchemasPath = root.get("xmlSchemasPath", "./xml_schemas")
         
         items = root.find("Items")
         
@@ -320,6 +322,7 @@ class Project(QStandardItemModel):
         root.set("looknfeelsPath", self.looknfeelsPath)
         root.set("schemesPath", self.schemesPath)
         root.set("layoutsPath", self.layoutsPath)
+        root.set("xmlSchemasPath", self.xmlSchemasPath)
         
         items = ElementTree.SubElement(root, "Items")
         
@@ -358,6 +361,8 @@ class Project(QStandardItemModel):
             folder = self.schemesPath
         elif resourceGroup == "layouts":
             folder = self.layoutsPath
+        elif resourceGroup == "xml_schemas":
+            folder = self.xmlSchemasPath
         else:
             raise RuntimeError("Unknown resource group '%s'" % (resourceGroup))
         
@@ -372,7 +377,7 @@ class Project(QStandardItemModel):
         if not os.path.isdir(self.getAbsolutePathOf("")):
             raise IOError("Base directory '%s' isn't a directory or isn't accessible." % (self.getAbsolutePathOf("")))
         
-        for resourceCategory in ["imagesets", "fonts", "looknfeels", "schemes", "layouts"]:
+        for resourceCategory in ["imagesets", "fonts", "looknfeels", "schemes", "layouts", "xml_schemas"]:
             directoryPath = self.getResourceFilePath("", resourceCategory)
             if not os.path.isdir(directoryPath):
                 raise IOError("Resource directory '%s' for resources of type '%s' isn't a directory or isn't accessible" % (directoryPath, resourceCategory))
@@ -768,6 +773,8 @@ class ProjectSettingsDialog(QDialog):
         self.schemesPath.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
         self.layoutsPath = self.findChild(qtwidgets.FileLineEdit, "layoutsPath")
         self.layoutsPath.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
+        self.xmlSchemasPath = self.findChild(qtwidgets.FileLineEdit, "xmlSchemasPath")
+        self.xmlSchemasPath.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
         
         self.projectName.setText(project.name)
         self.baseDirectory.setText(project.getAbsolutePathOf(""))
@@ -776,6 +783,7 @@ class ProjectSettingsDialog(QDialog):
         self.looknfeelsPath.setText(project.getAbsolutePathOf(project.looknfeelsPath))
         self.schemesPath.setText(project.getAbsolutePathOf(project.schemesPath))
         self.layoutsPath.setText(project.getAbsolutePathOf(project.layoutsPath))
+        self.xmlSchemasPath.setText(project.getAbsolutePathOf(project.xmlSchemasPath))
         
     def apply(self, project):
         """Applies values from this dialog to given project
@@ -792,6 +800,7 @@ class ProjectSettingsDialog(QDialog):
         project.looknfeelsPath = os.path.relpath(self.looknfeelsPath.text(), absBaseDir)
         project.schemesPath = os.path.relpath(self.schemesPath.text(), absBaseDir)
         project.layoutsPath = os.path.relpath(self.layoutsPath.text(), absBaseDir)
+        project.xmlSchemasPath = os.path.relpath(self.xmlSchemasPath.text(), absBaseDir)
         
     def slot_applyResourceDirectory(self):
         resourceDir = os.path.normpath(os.path.abspath(self.resourceDirectory.text()))
@@ -801,4 +810,5 @@ class ProjectSettingsDialog(QDialog):
         self.looknfeelsPath.setText(os.path.join(resourceDir, "looknfeel"))
         self.schemesPath.setText(os.path.join(resourceDir, "schemes"))
         self.layoutsPath.setText(os.path.join(resourceDir, "layouts"))
+        self.xmlSchemasPath.setText(os.path.join(resourceDir, "xmlSchemas"))
         
