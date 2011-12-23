@@ -132,8 +132,8 @@ class TextEditPropertyInspector(PropertyInspector):
         value = propertyEntry.getCurrentValue()
         
         # if the widget has focus it is currently being edited
-        if not widget.hasFocus() and widget.text() != value:
-            widget.setText(value)
+        if not widget.hasFocus() and widget.toPlainText() != value:
+            widget.setPlainText(value)
         
     def getCurrentValueForProperty(self, widget, propertyEntry, mapping):
         return widget.toPlainText()
