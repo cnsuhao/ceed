@@ -27,6 +27,7 @@ def main():
         
         import argparse
         from ceed import metaimageset
+        from ceed.metaimageset import compiler as metaimageset_compiler
         
         from xml.etree import ElementTree
         
@@ -47,7 +48,7 @@ def main():
         element = ElementTree.fromstring(data)
         metaImageset.loadFromElement(element)
         
-        compiler = metaimageset.compiler.CompilerInstance(metaImageset)
+        compiler = metaimageset_compiler.CompilerInstance(metaImageset)
         compiler.sizeIncrement = args.sizeIncrement
         compiler.compile()
     
