@@ -20,7 +20,7 @@ from PySide.QtGui import *
 from PySide.QtCore import *
 from PySide.QtOpenGL import QGLWidget
 
-import fnmatch
+import fnmatch, re
 
 from ceed.editors import mixed
 from ceed import qtwidgets
@@ -257,13 +257,14 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.visual.tabbedEditor.undoStack.push(cmd)
     
     def filterChanged(self, filter):
-        # we append star at the end by default (makes image filtering much more practical)
-        filter = filter + "*"
+        # we append star at the beginning and at the end by default (makes property filtering much more practical)
+        filter = "*" + filter + "*"
+        regex = re.compile(fnmatch.translate(filter), re.IGNORECASE)
         
         i = 0
         while i < self.list.count():
             listItem = self.list.item(i)
-            match = fnmatch.fnmatch(listItem.text(), filter)
+            match = re.match(regex, listItem.text()) is not None
             listItem.setHidden(not match)
             
             i += 1

@@ -20,7 +20,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 # Unix like wildcard matching for property filtering
-import fnmatch
+import fnmatch, re
 
 import ceed.ui.propertysetinspector
 
@@ -223,14 +223,13 @@ class PropertyCategory(QStandardItem):
         toHide = []
         
         matches = 0
+        regex = re.compile(fnmatch.translate(filter), re.IGNORECASE)
         
         i = 0
         while i < self.rowCount():
             propertyEntry = self.child(i, 0)
             
-            match = fnmatch.fnmatch(propertyEntry.text(), filter)
-            
-            if match:
+            if re.match(regex, propertyEntry.text()) is not None:
                 matches += 1
                 toShow.append(propertyEntry)
             else:
@@ -239,7 +238,7 @@ class PropertyCategory(QStandardItem):
             i += 1
  
         self.setFilterMatched(matches > 0)
-        if filter != "*":
+        if filter != "**":
             self.propertyCount.setText("%i matches" % matches)
         else:
             self.propertyCount.setText("%i properties" % matches)
@@ -421,8 +420,8 @@ class PropertySetInspector(QWidget):
             self.setPropertySets(self.propertySets)
     
     def filterChanged(self, filter):
-        # we append star at the end by default (makes property filtering much more practical)
-        filter = filter + "*"
+        # we append star at the beginning and at the end by default (makes property filtering much more practical)
+        filter = "*" + filter + "*"
         
         i = 0
         while i < self.model.rowCount():
