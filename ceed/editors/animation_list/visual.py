@@ -55,11 +55,7 @@ class TimelineDockWidget(QDockWidget):
         self.view = self.findChild(QGraphicsView, "view")
         self.view.scale(100, 1)
         self.scene = QGraphicsScene()
-        self.timecode = timeline.TimecodeLabel()
-        self.timecode.range = 10
-        self.scene.addItem(self.timecode)
         self.timeline = timeline.AnimationTimeline()
-        self.timeline.setPos(QPointF(0, 17))
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
         

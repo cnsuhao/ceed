@@ -28,7 +28,7 @@ class TimecodeLabel(QGraphicsRectItem):
     range = property(lambda self: self.rect().width(),
                      lambda self, value: self._setRange(value))
     
-    def __init__(self, parentItem = None, keyFrame = None):
+    def __init__(self, parentItem = None):
         super(TimecodeLabel, self).__init__(parentItem)
         
         self.range = 1
@@ -142,7 +142,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         palette = QApplication.palette()
         self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
-        self.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.Background)))
+        self.setBrush(QBrush(QColor(Qt.GlobalColor.lightGray)))
         
     def setKeyFrame(self, keyFrame):
         self.keyFrame = keyFrame
@@ -154,22 +154,28 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
     
     def paint(self, painter, option, widget = None):
         #super(AffectorTimelineKeyFrame, self).paint(painter, option, widget)
+        painter.save()
         
-        palette = QApplication.palette()
-        
-        painter.setPen(self.pen())
-        painter.setBrush(self.brush())
-        
-        painter.drawRect(self.rect())
-        
-        # draw the circle representing the keyframe
-        painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
-        painter.drawEllipse(QPointF(7.5, 14.5), 4, 4)
-        
+        try:
+            palette = QApplication.palette()
+            
+            painter.setPen(self.pen())
+            painter.setBrush(self.brush())
+            
+            painter.drawRect(self.rect())
+                
+            # draw the circle representing the keyframe
+            self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
+            painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
+            painter.drawEllipse(QPointF(7.5, 14.5), 4, 4)
+            
+        finally:
+            painter.restore()
+
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemSelectedHasChanged:
             palette = QApplication.palette()
-            self.setBrush(QColor(114, 159, 207) if value else QBrush(palette.color(QPalette.Normal, QPalette.Background)))
+            self.setBrush(QColor(114, 159, 207) if value else QColor(Qt.GlobalColor.lightGray))
             self.parentItem().prepareGeometryChange()
             return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
         
@@ -195,9 +201,10 @@ class AffectorTimelineSection(QGraphicsRectItem):
     def __init__(self, parentItem = None, affector = None):
         super(AffectorTimelineSection, self).__init__(parentItem)
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable |
-                      QGraphicsItem.ItemIsSelectable)
+        self.setFlags(QGraphicsItem.ItemIsFocusable)
         
+        palette = QApplication.palette()
+        self.setPen(QPen(QColor(Qt.GlobalColor.lightGray)))
         self.setBrush(QBrush(QColor(Qt.GlobalColor.transparent)))
         
         self.setAffector(affector)
@@ -315,14 +322,39 @@ class AffectorTimelineSection(QGraphicsRectItem):
         finally:
             painter.restore()
 
+class AffectorTimelineLabel(QGraphicsProxyWidget):
+    def __init__(self, parentItem = None, affector = None):
+        super(AffectorTimelineLabel, self).__init__(parentItem)
+        
+        self.setFlags(QGraphicsItem.ItemIsFocusable |
+                      QGraphicsItem.ItemIgnoresTransformations)
+        
+        self.widget = QComboBox()
+        self.widget.setEditable(True)
+        self.widget.resize(150, 25)
+        self.setWidget(self.widget)
+        
+        self.setAffector(affector)
+        
+    def setAffector(self, affector):
+        self.affector = affector
+        
+        self.refresh()
+        
+    def refresh(self):
+        self.widget.setEditText(self.affector.getTargetProperty())
+        
 class AnimationTimeline(QGraphicsRectItem):
     """A timeline widget for just one CEGUI animation"""
     
     def __init__(self, parentItem = None, animation = None):
         super(AnimationTimeline, self).__init__(parentItem)
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable |
-                      QGraphicsItem.ItemIsSelectable)
+        self.setFlags(QGraphicsItem.ItemIsFocusable)
+        
+        self.timecode = TimecodeLabel(self)
+        self.timecode.setPos(QPointF(1.5, 0))
+        self.timecode.range = 1
         
         self.setAnimation(animation)
         
@@ -333,19 +365,27 @@ class AnimationTimeline(QGraphicsRectItem):
     
     def refresh(self):
         for item in self.childItems():
+            if item is self.timecode:
+                continue
+            
             # refcount drops and python should destroy that item
             item.setParentItem(None)
             
         if self.animation is None:
             return
-            
+        
+        self.timecode.range = self.animation.getDuration()
+        
         i = 0
         while i < self.animation.getNumAffectors():
-            affectorTimelineSection = AffectorTimelineSection(parentItem = self,
-                                                              affector = self.animation.getAffectorAtIdx(i))
+            affector = self.animation.getAffectorAtIdx(i)
             
-            # FIXME: Make the height of affector timeline a setting entry
-            affectorTimelineSection.setPos(0, i * 32)
+            label = AffectorTimelineLabel(self, affector)
+            label.setPos(0, 17 + i * 32 + 2)
+            label.setZValue(1)
+            
+            section = AffectorTimelineSection(self, affector)
+            section.setPos(QPointF(1.5, 17 + i * 32))
             
             i += 1
             
