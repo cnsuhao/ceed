@@ -123,6 +123,9 @@ class TimecodeLabel(QGraphicsRectItem):
             painter.restore()
         
 class AffectorTimelineKeyFrame(QGraphicsRectItem):
+    keyFrame = property(lambda self: self.data(0),
+                        lambda self, value: self.setData(0, value))
+    
     def __init__(self, parentItem = None, keyFrame = None):
         super(AffectorTimelineKeyFrame, self).__init__(parentItem)
 
@@ -135,9 +138,10 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         # the parts between keyframes are z-value 0 so this makes key frames always "stand out"
         self.setZValue(1)
-        self.setRect(0, 0, 15, 20)
+        self.setRect(0, 1, 15, 29)
         
         palette = QApplication.palette()
+        self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
         self.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.Background)))
         
     def setKeyFrame(self, keyFrame):
@@ -149,17 +153,27 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         self.setPos(self.keyFrame.getPosition() if self.keyFrame is not None else 0, 0)
     
     def paint(self, painter, option, widget = None):
-        super(AffectorTimelineKeyFrame, self).paint(painter, option, widget)
+        #super(AffectorTimelineKeyFrame, self).paint(painter, option, widget)
         
         palette = QApplication.palette()
         
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        
+        painter.drawRect(self.rect())
+        
         # draw the circle representing the keyframe
-        painter.setPen(QPen())
         painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
-        painter.drawEllipse(QPointF(7.5, 12.5), 3, 3)
+        painter.drawEllipse(QPointF(7.5, 14.5), 4, 4)
         
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemPositionChange:
+        if change == QGraphicsItem.ItemSelectedHasChanged:
+            palette = QApplication.palette()
+            self.setBrush(QColor(114, 159, 207) if value else QBrush(palette.color(QPalette.Normal, QPalette.Background)))
+            self.parentItem().prepareGeometryChange()
+            return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
+        
+        elif change == QGraphicsItem.ItemPositionChange:
             newPosition = QPointF()
             
             newPosition.setX(max(0, min(value.x(), self.keyFrame.getParent().getParent().getDuration())))
@@ -184,6 +198,8 @@ class AffectorTimelineSection(QGraphicsRectItem):
         self.setFlags(QGraphicsItem.ItemIsFocusable |
                       QGraphicsItem.ItemIsSelectable)
         
+        self.setBrush(QBrush(QColor(Qt.GlobalColor.transparent)))
+        
         self.setAffector(affector)
         
     def setAffector(self, affector):
@@ -192,7 +208,7 @@ class AffectorTimelineSection(QGraphicsRectItem):
         self.refresh()
 
     def refresh(self):
-        self.setRect(0, 0, self.parentItem().animation.getDuration(), 20)
+        self.setRect(0, 0, self.parentItem().animation.getDuration(), 30)
         
         for item in self.childItems():
             # refcount drops and python should destroy that item
@@ -217,11 +233,12 @@ class AffectorTimelineSection(QGraphicsRectItem):
         painter.save()
         
         try:
+            palette = QApplication.palette()
+            
             transform = painter.worldTransform()
             xScale = transform.m11()
             
             painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-            palette = QApplication.palette()
             
             if self.affector.getNumKeyFrames() == 0:
                 return
@@ -240,21 +257,32 @@ class AffectorTimelineSection(QGraphicsRectItem):
                 
                 previousPosition = previousKeyFrame.getPosition()
                 currentPosition = keyFrame.getPosition()
-                lineStartPosition = min(previousPosition + 15 / xScale, currentPosition)
-                
                 span = currentPosition - previousPosition
                 assert(span >= 0)
+                
+                selected = False
+                for item in self.childItems():
+                    if item.data(0).getPosition() == previousKeyFrame.getPosition():
+                        selected = item.isSelected()
+                        break
+                
+                painter.setPen(QColor(Qt.GlobalColor.transparent))
+                painter.setBrush(QBrush(QColor(114, 159, 207) if selected else QColor(255, 255, 255)))
+                painter.drawRect(QRectF(previousPosition, 1, span, 29))
+                painter.setBrush(QBrush())
+            
+                lineStartPosition = min(previousPosition + 15 / xScale, currentPosition)                
                 
                 if keyFrame.getProgression() == PyCEGUI.KeyFrame.P_Linear:
                     # just a straight line in this case
                     painter.setPen(Qt.DashLine)
-                    painter.drawLine(QPointF(lineStartPosition, 11), QPointF(currentPosition, 11))
-                    drawArrow(currentPosition, 11)
+                    painter.drawLine(QPointF(lineStartPosition, 15), QPointF(currentPosition, 15))
+                    drawArrow(currentPosition, 15)
                     
                 elif keyFrame.getProgression() == PyCEGUI.KeyFrame.P_QuadraticAccelerating:
                     path = QPainterPath()
-                    path.moveTo(lineStartPosition, 17)
-                    path.quadTo(previousPosition + span * 3/4, 20, currentPosition, 5)
+                    path.moveTo(lineStartPosition, 27)
+                    path.quadTo(previousPosition + span * 3/4, 30, currentPosition, 5)
                     painter.setPen(Qt.DashLine)
                     painter.drawPath(path)
                     
@@ -264,16 +292,16 @@ class AffectorTimelineSection(QGraphicsRectItem):
                     
                     path = QPainterPath()
                     path.moveTo(lineStartPosition, 3)
-                    path.quadTo(previousPosition + span * 3/4, 0, currentPosition, 15)
+                    path.quadTo(previousPosition + span * 3/4, 0, currentPosition, 25)
                     painter.setPen(Qt.DashLine)
                     painter.drawPath(path)
                     
-                    drawArrow(currentPosition, 15)
+                    drawArrow(currentPosition, 25)
                     
                 elif keyFrame.getProgression() == PyCEGUI.KeyFrame.P_Discrete:
                     painter.setPen(Qt.DashLine)
-                    painter.drawLine(QPointF(lineStartPosition, 17), QPointF(previousPosition + span / 2, 17))
-                    painter.drawLine(QPointF(previousPosition + span / 2, 5), QPointF(previousPosition + span / 2, 17))
+                    painter.drawLine(QPointF(lineStartPosition, 27), QPointF(previousPosition + span / 2, 27))
+                    painter.drawLine(QPointF(previousPosition + span / 2, 5), QPointF(previousPosition + span / 2, 27))
                     painter.drawLine(QPointF(previousPosition + span / 2, 5), QPointF(currentPosition, 5))
                     
                     drawArrow(currentPosition, 5)
@@ -317,7 +345,7 @@ class AnimationTimeline(QGraphicsRectItem):
                                                               affector = self.animation.getAffectorAtIdx(i))
             
             # FIXME: Make the height of affector timeline a setting entry
-            affectorTimelineSection.setPos(0, i * 22)
+            affectorTimelineSection.setPos(0, i * 32)
             
             i += 1
             
