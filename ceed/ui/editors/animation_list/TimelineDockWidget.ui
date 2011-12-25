@@ -19,7 +19,11 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGraphicsView" name="view"/>
+     <widget class="QGraphicsView" name="view">
+      <property name="renderHints">
+       <set>QPainter::TextAntialiasing</set>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

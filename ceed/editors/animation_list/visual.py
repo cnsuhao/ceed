@@ -55,7 +55,11 @@ class TimelineDockWidget(QDockWidget):
         self.view = self.findChild(QGraphicsView, "view")
         self.view.scale(100, 1)
         self.scene = QGraphicsScene()
+        self.timecode = timeline.TimecodeLabel()
+        self.timecode.range = 10
+        self.scene.addItem(self.timecode)
         self.timeline = timeline.AnimationTimeline()
+        self.timeline.setPos(QPointF(0, 17))
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
         
@@ -65,12 +69,12 @@ class TimelineDockWidget(QDockWidget):
         self.animation.setDuration(10)
         affector = self.animation.createAffector("Alpha", "float")
         affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(5, "0.5")
-        affector.createKeyFrame(10, "1.0")
+        affector.createKeyFrame(5, "0.5", progression = PyCEGUI.KeyFrame.P_Discrete)
+        affector.createKeyFrame(10, "1.0", progression = PyCEGUI.KeyFrame.P_QuadraticAccelerating)
         
         affector = self.animation.createAffector("Text", "String")
         affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(8, "0.5")
+        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
         affector.createKeyFrame(9, "1.0")
         
         self.timeline.setAnimation(self.animation)
