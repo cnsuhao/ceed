@@ -125,6 +125,8 @@ class TimecodeLabel(QGraphicsRectItem):
 class AffectorTimelineKeyFrame(QGraphicsRectItem):
     def __init__(self, parentItem = None, keyFrame = None):
         super(AffectorTimelineKeyFrame, self).__init__(parentItem)
+
+        self.setKeyFrame(keyFrame)
         
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable |
@@ -137,8 +139,6 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         palette = QApplication.palette()
         self.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.Background)))
-        
-        self.setKeyFrame(keyFrame)
         
     def setKeyFrame(self, keyFrame):
         self.keyFrame = keyFrame
@@ -165,6 +165,10 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
             newPosition.setX(min(value.x(), self.keyFrame.getParent().getParent().getDuration()))
             # keep the Y constant, don't allow any vertical changes to keyframes!
             newPosition.setY(self.pos().y())
+            
+            while self.keyFrame.getParent().hasKeyFrameAtPosition(newPosition.x()):
+                # FIXME: we want x() * epsilon, but how do we get epsilon in python?
+                newPosition.setX(newPosition.x() + 0.00001)
             
             self.keyFrame.moveToPosition(newPosition.x())
             self.parentItem().update()
