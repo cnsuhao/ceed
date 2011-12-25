@@ -170,8 +170,8 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
                 # FIXME: we want x() * epsilon, but how do we get epsilon in python?
                 newPosition.setX(newPosition.x() + 0.00001)
             
+            self.parentItem().prepareGeometryChange()
             self.keyFrame.moveToPosition(newPosition.x())
-            self.parentItem().update()
 
             return newPosition
         
