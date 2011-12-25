@@ -162,7 +162,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         if change == QGraphicsItem.ItemPositionChange:
             newPosition = QPointF()
             
-            newPosition.setX(min(value.x(), self.keyFrame.getParent().getParent().getDuration()))
+            newPosition.setX(max(0, min(value.x(), self.keyFrame.getParent().getParent().getDuration())))
             # keep the Y constant, don't allow any vertical changes to keyframes!
             newPosition.setY(self.pos().y())
             
