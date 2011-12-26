@@ -53,7 +53,6 @@ class TimelineDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.view = self.findChild(QGraphicsView, "view")
-        self.view.scale(100, 1)
         self.scene = QGraphicsScene()
         self.timeline = timeline.AnimationTimeline()
         self.scene.addItem(self.timeline)

@@ -21,11 +21,14 @@ from PySide.QtGui import *
 
 import PyCEGUI
 
+# default amount of pixels per second for 100% zoom
+pixelsPerSecond = 100
+
 class TimecodeLabel(QGraphicsRectItem):
     """Simply displays time position labels depending on the zoom level
     """
     
-    range = property(lambda self: self.rect().width(),
+    range = property(lambda self: self._getRange(),
                      lambda self, value: self._setRange(value))
     
     def __init__(self, parentItem = None):
@@ -38,7 +41,10 @@ class TimecodeLabel(QGraphicsRectItem):
     def _setRange(self, range):
         assert(range > 0)
         
-        self.setRect(QRectF(0, 0, range, 15))
+        self.setRect(QRectF(0, 0, range * pixelsPerSecond, 15))
+    
+    def _getRange(self):
+        return self.rect().width() / pixelsPerSecond
         
     def paint(self, painter, option, widget = None):
         #super(TimecodeLabel, self).paint(painter, option, widget)
@@ -52,7 +58,7 @@ class TimecodeLabel(QGraphicsRectItem):
             assert(xScale > 0)
             
             minLabelWidth = 50
-            maxLabelsPerSecond = xScale / minLabelWidth
+            maxLabelsPerSecond = pixelsPerSecond * xScale / minLabelWidth
             
             timeLabels = {}
             
@@ -116,8 +122,8 @@ class TimecodeLabel(QGraphicsRectItem):
             
             for key, value in timeLabels.iteritems():
                 if value:
-                    painter.drawText(key * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, Qt.AlignHCenter | Qt.AlignBottom, str(key))
-                    painter.drawLine(QPointF(key * xScale, 10), QPointF(key * xScale, 15))
+                    painter.drawText(key * pixelsPerSecond * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, Qt.AlignHCenter | Qt.AlignBottom, str(key))
+                    painter.drawLine(QPointF(key * pixelsPerSecond * xScale, 10), QPointF(pixelsPerSecond * key * xScale, 15))
             
         finally:
             painter.restore()
@@ -126,8 +132,10 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
     keyFrame = property(lambda self: self.data(0),
                         lambda self, value: self.setData(0, value))
     
-    def __init__(self, parentItem = None, keyFrame = None):
-        super(AffectorTimelineKeyFrame, self).__init__(parentItem)
+    def __init__(self, timelineSection = None, keyFrame = None):
+        super(AffectorTimelineKeyFrame, self).__init__(timelineSection)
+
+        self.timelineSection = timelineSection
 
         self.setKeyFrame(keyFrame)
         
@@ -150,7 +158,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         self.refresh()
         
     def refresh(self):
-        self.setPos(self.keyFrame.getPosition() if self.keyFrame is not None else 0, 0)
+        self.setPos(pixelsPerSecond * self.keyFrame.getPosition() if self.keyFrame is not None else 0, 0)
     
     def paint(self, painter, option, widget = None):
         #super(AffectorTimelineKeyFrame, self).paint(painter, option, widget)
@@ -180,26 +188,27 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
             return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
         
         elif change == QGraphicsItem.ItemPositionChange:
-            newPosition = QPointF()
+            newPosition = max(0, min(value.x() / pixelsPerSecond, self.keyFrame.getParent().getParent().getDuration()))
+                        
+            while self.keyFrame.getParent().hasKeyFrameAtPosition(newPosition):
+                # FIXME: we want newPosition * epsilon, but how do we get epsilon in python?
+                newPosition += 0.00001
             
-            newPosition.setX(max(0, min(value.x(), self.keyFrame.getParent().getParent().getDuration())))
-            # keep the Y constant, don't allow any vertical changes to keyframes!
-            newPosition.setY(self.pos().y())
-            
-            while self.keyFrame.getParent().hasKeyFrameAtPosition(newPosition.x()):
-                # FIXME: we want x() * epsilon, but how do we get epsilon in python?
-                newPosition.setX(newPosition.x() + 0.00001)
-            
-            self.parentItem().prepareGeometryChange()
-            self.keyFrame.moveToPosition(newPosition.x())
+            self.timelineSection.prepareGeometryChange()
+            oldPosition = self.keyFrame.getPosition()
+            self.keyFrame.moveToPosition(newPosition)
 
-            return newPosition
+            self.timelineSection.timeline.keyFrameMoved.emit(oldPosition, newPosition)
+
+            return QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
         return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
 
 class AffectorTimelineSection(QGraphicsRectItem):
-    def __init__(self, parentItem = None, affector = None):
-        super(AffectorTimelineSection, self).__init__(parentItem)
+    def __init__(self, timeline = None, affector = None):
+        super(AffectorTimelineSection, self).__init__(timeline)
+        
+        self.timeline = timeline
         
         self.setFlags(QGraphicsItem.ItemIsFocusable)
         
@@ -215,7 +224,7 @@ class AffectorTimelineSection(QGraphicsRectItem):
         self.refresh()
 
     def refresh(self):
-        self.setRect(0, 0, self.parentItem().animation.getDuration(), 30)
+        self.setRect(0, 0, self.timeline.animation.getDuration() * pixelsPerSecond, 30)
         
         for item in self.childItems():
             # refcount drops and python should destroy that item
@@ -226,8 +235,7 @@ class AffectorTimelineSection(QGraphicsRectItem):
         
         i = 0
         while i < self.affector.getNumKeyFrames():
-            affectorTimelineKeyFrame = AffectorTimelineKeyFrame(parentItem = self,
-                                                                keyFrame = self.affector.getKeyFrameAtIdx(i))
+            affectorTimelineKeyFrame = AffectorTimelineKeyFrame(self, self.affector.getKeyFrameAtIdx(i))
             
             # affector timeline key frame will refresh itself automatically to the right position
             # upon construction
@@ -262,8 +270,8 @@ class AffectorTimelineSection(QGraphicsRectItem):
                 
                 # previousKeyFrame -------- line we will draw -------> keyFrame
                 
-                previousPosition = previousKeyFrame.getPosition()
-                currentPosition = keyFrame.getPosition()
+                previousPosition = previousKeyFrame.getPosition() * pixelsPerSecond
+                currentPosition = keyFrame.getPosition() * pixelsPerSecond
                 span = currentPosition - previousPosition
                 assert(span >= 0)
                 
@@ -323,8 +331,8 @@ class AffectorTimelineSection(QGraphicsRectItem):
             painter.restore()
 
 class AffectorTimelineLabel(QGraphicsProxyWidget):
-    def __init__(self, parentItem = None, affector = None):
-        super(AffectorTimelineLabel, self).__init__(parentItem)
+    def __init__(self, timeline = None, affector = None):
+        super(AffectorTimelineLabel, self).__init__(timeline)
         
         self.setFlags(QGraphicsItem.ItemIsFocusable |
                       QGraphicsItem.ItemIgnoresTransformations)
@@ -345,39 +353,54 @@ class AffectorTimelineLabel(QGraphicsProxyWidget):
         self.widget.setEditText(self.affector.getTargetProperty())
 
 class TimelinePositionBar(QGraphicsRectItem):
-    def __init__(self, parentItem = None, affector = None):
-        super(TimelinePositionBar, self).__init__(parentItem)
+    def __init__(self, timeline):
+        super(TimelinePositionBar, self).__init__(timeline)
+        
+        self.timeline = timeline
         
         self.setFlags(QGraphicsItem.ItemIsMovable |
                       QGraphicsItem.ItemIgnoresTransformations |
                       QGraphicsItem.ItemSendsGeometryChanges)
         
-        self.setRect(QRectF(1, 0, 2, 6 * 29))
         self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
         self.setBrush(QBrush(QColor(Qt.GlobalColor.red)))
         
         # keep on top of everything
         self.setZValue(1)
+        
+        self.setHeight(1)
+        
+        self.setCursor(QCursor(Qt.SplitHCursor))
+        
+    def setHeight(self, height):
+        self.setRect(QRectF(1, 0, 3, height))
     
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionChange:
-            newPosition = QPointF()
+            oldPosition = self.pos().x() / pixelsPerSecond
+            newPosition = value.x() / pixelsPerSecond
             
-            animationDuration = 10
+            animationDuration = self.timeline.animation.getDuration() if self.timeline.animation is not None else 0.0
             
-            newPosition.setX(max(0, min(value.x(), animationDuration)))
-            # keep the Y constant, don't allow any vertical changes
-            newPosition.setY(self.pos().y())
-
-            return newPosition
+            newPosition = max(0, min(newPosition, animationDuration))
+            
+            self.timeline.timePositionChanged.emit(oldPosition, newPosition)
+            return QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
-        return super(TimelinePositionBar, self).itemChange(change, value) 
+        return super(TimelinePositionBar, self).itemChange(change, value)
         
-class AnimationTimeline(QGraphicsRectItem):
+class AnimationTimeline(QGraphicsRectItem, QObject):
     """A timeline widget for just one CEGUI animation"""
     
+    # old timeline position, new timeline position
+    timePositionChanged = Signal(float, float)
+    # old position, new position
+    keyFrameMoved = Signal(float, float)
+    
     def __init__(self, parentItem = None, animation = None):
-        super(AnimationTimeline, self).__init__(parentItem)
+        # we only inherit from QObject to be able to define QtCore.Signals in our class
+        QObject.__init__(self)
+        QGraphicsRectItem.__init__(self, parentItem)
         
         self.setFlags(QGraphicsItem.ItemIsFocusable)
         
@@ -412,7 +435,7 @@ class AnimationTimeline(QGraphicsRectItem):
             affector = self.animation.getAffectorAtIdx(i)
             
             label = AffectorTimelineLabel(self, affector)
-            label.setPos(-1.5, 17 + i * 32 + 2)
+            label.setPos(-150, 17 + i * 32 + 2)
             label.setZValue(1)
             
             section = AffectorTimelineSection(self, affector)
@@ -420,3 +443,5 @@ class AnimationTimeline(QGraphicsRectItem):
             
             i += 1
             
+        self.positionBar.setHeight(17 + i * 32)
+        
