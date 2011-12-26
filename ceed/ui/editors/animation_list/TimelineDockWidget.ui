@@ -23,6 +23,9 @@
       <property name="renderHints">
        <set>QPainter::TextAntialiasing</set>
       </property>
+      <property name="viewportUpdateMode">
+       <enum>QGraphicsView::FullViewportUpdate</enum>
+      </property>
      </widget>
     </item>
    </layout>

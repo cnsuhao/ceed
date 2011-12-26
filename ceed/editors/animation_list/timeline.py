@@ -343,6 +343,35 @@ class AffectorTimelineLabel(QGraphicsProxyWidget):
         
     def refresh(self):
         self.widget.setEditText(self.affector.getTargetProperty())
+
+class TimelinePositionBar(QGraphicsRectItem):
+    def __init__(self, parentItem = None, affector = None):
+        super(TimelinePositionBar, self).__init__(parentItem)
+        
+        self.setFlags(QGraphicsItem.ItemIsMovable |
+                      QGraphicsItem.ItemIgnoresTransformations |
+                      QGraphicsItem.ItemSendsGeometryChanges)
+        
+        self.setRect(QRectF(1, 0, 2, 6 * 29))
+        self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
+        self.setBrush(QBrush(QColor(Qt.GlobalColor.red)))
+        
+        # keep on top of everything
+        self.setZValue(1)
+    
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemPositionChange:
+            newPosition = QPointF()
+            
+            animationDuration = 10
+            
+            newPosition.setX(max(0, min(value.x(), animationDuration)))
+            # keep the Y constant, don't allow any vertical changes
+            newPosition.setY(self.pos().y())
+
+            return newPosition
+        
+        return super(TimelinePositionBar, self).itemChange(change, value) 
         
 class AnimationTimeline(QGraphicsRectItem):
     """A timeline widget for just one CEGUI animation"""
@@ -353,8 +382,10 @@ class AnimationTimeline(QGraphicsRectItem):
         self.setFlags(QGraphicsItem.ItemIsFocusable)
         
         self.timecode = TimecodeLabel(self)
-        self.timecode.setPos(QPointF(1.5, 0))
+        self.timecode.setPos(QPointF(0, 0))
         self.timecode.range = 1
+        
+        self.positionBar = TimelinePositionBar(self)
         
         self.setAnimation(animation)
         
@@ -365,7 +396,7 @@ class AnimationTimeline(QGraphicsRectItem):
     
     def refresh(self):
         for item in self.childItems():
-            if item is self.timecode:
+            if item is self.timecode or item is self.positionBar:
                 continue
             
             # refcount drops and python should destroy that item
@@ -381,11 +412,11 @@ class AnimationTimeline(QGraphicsRectItem):
             affector = self.animation.getAffectorAtIdx(i)
             
             label = AffectorTimelineLabel(self, affector)
-            label.setPos(0, 17 + i * 32 + 2)
+            label.setPos(-1.5, 17 + i * 32 + 2)
             label.setZValue(1)
             
             section = AffectorTimelineSection(self, affector)
-            section.setPos(QPointF(1.5, 17 + i * 32))
+            section.setPos(QPointF(0, 17 + i * 32))
             
             i += 1
             
