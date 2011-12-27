@@ -19,12 +19,15 @@
 from PySide.QtGui import *
 from PySide.QtCore import *
 
+import PyCEGUI
+
 from ceed.editors import mixed
 from ceed import cegui
 from ceed.editors.animation_list import timeline
 
 import ceed.ui.editors.animation_list.animationlistdockwidget
 import ceed.ui.editors.animation_list.timelinedockwidget
+import ceed.ui.editors.animation_list.visualediting
 
 class AnimationListDockWidget(QDockWidget):
     """Lists animations in the currently opened animation list XML
@@ -59,7 +62,6 @@ class TimelineDockWidget(QDockWidget):
         self.view.setScene(self.scene)
         
         ## TEMPORARY TEST CODE ##
-        import PyCEGUI
         self.animation = PyCEGUI.AnimationManager.getSingleton().createAnimation("Test")
         self.animation.setDuration(10)
         affector = self.animation.createAffector("Alpha", "float")
@@ -103,18 +105,36 @@ class VisualEditing(QWidget, mixed.EditMode):
     def __init__(self, tabbedEditor):
         super(VisualEditing, self).__init__()
         
+        self.ui = ceed.ui.editors.animation_list.visualediting.Ui_VisualEditing()
+        self.ui.setupUi(self)
+        
         self.tabbedEditor = tabbedEditor
         
         self.animationListDockWidget = AnimationListDockWidget(self)
         self.timelineDockWidget = TimelineDockWidget(self)
         
+        self.currentPreviewWidget = None
+        
+        self.rootPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "RootPreviewWidget")
+        
+        self.previewWidgetSelector = self.findChild(QComboBox, "previewWidgetSelector")
+        self.previewWidgetSelector.currentIndexChanged.connect(self.slot_previewWidgetSelectorChanged)
+        self.populateWidgetSelector()
+        self.ceguiPreview = self.findChild(QWidget, "ceguiPreview")
+        
+        layout = QVBoxLayout(self.ceguiPreview)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.ceguiPreview.setLayout(layout)        
+        
         self.scene = EditingScene(self)
 
     def showEvent(self, event):
-        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath, self.scene)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.tabbedEditor.filePath, self.scene)
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)
+        
+        PyCEGUI.System.getSingleton().setGUISheet(self.rootPreviewWidget)
         
         self.animationListDockWidget.setEnabled(True)
         self.timelineDockWidget.setEnabled(True)
@@ -125,8 +145,43 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.animationListDockWidget.setEnabled(False)
         self.timelineDockWidget.setEnabled(False)
         
-        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self.ceguiPreview)
         
         super(VisualEditing, self).hideEvent(event)
+
+    def populateWidgetSelector(self):
+        self.previewWidgetSelector.clear()
+        self.previewWidgetSelector.addItem("") # no preview
+        self.previewWidgetSelector.setCurrentIndex(0) # select no preview
+        
+        widgetsBySkin = mainwindow.MainWindow.instance.ceguiInstance.getAvailableWidgetsBySkin()
+        for skin, widgets in widgetsBySkin.iteritems():
+            if skin == "__no_skin__":
+                # pointless to preview animations with invisible widgets
+                continue
+            
+            for widget in widgets:
+                widgetType = "%s/%s" % (skin, widget)
+                
+                self.previewWidgetSelector.addItem(widgetType)
+
+    def slot_previewWidgetSelectorChanged(self, index):
+        if self.currentPreviewWidget is not None:
+            self.rootPreviewWidget.removeChild(self.currentPreviewWidget)
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(self.currentPreviewWidget)
+            self.currentPreviewWidget = None
+        
+        widgetType = self.previewWidgetSelector.itemText(index)
+        
+        if widgetType != "":
+            try:
+                self.currentPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow(widgetType, "PreviewWidget")
+            except:
+                self.currentPreviewWidget = None
+                return
+            
+            self.currentPreviewWidget.setPosition(PyCEGUI.UVector2(PyCEGUI.UDim(0.25, 0), PyCEGUI.UDim(0.25, 0)))
+            self.currentPreviewWidget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0.5, 0), PyCEGUI.UDim(0.5, 0)))
+            self.rootPreviewWidget.addChild(self.currentPreviewWidget)           
 
 from ceed import mainwindow

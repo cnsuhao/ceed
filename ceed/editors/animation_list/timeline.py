@@ -363,7 +363,7 @@ class TimelinePositionBar(QGraphicsRectItem):
                       QGraphicsItem.ItemSendsGeometryChanges)
         
         self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
-        self.setBrush(QBrush(QColor(Qt.GlobalColor.red)))
+        self.setBrush(QBrush(QColor(255, 0, 0, 128)))
         
         # keep on top of everything
         self.setZValue(1)
@@ -373,7 +373,7 @@ class TimelinePositionBar(QGraphicsRectItem):
         self.setCursor(QCursor(Qt.SplitHCursor))
         
     def setHeight(self, height):
-        self.setRect(QRectF(1, 0, 3, height))
+        self.setRect(QRectF(-1, 6, 3, height - 6))
     
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionChange:
@@ -388,6 +388,28 @@ class TimelinePositionBar(QGraphicsRectItem):
             return QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
         return super(TimelinePositionBar, self).itemChange(change, value)
+    
+    def paint(self, painter, option, widget = None):
+        super(TimelinePositionBar, self).paint(painter, option, widget)
+        
+        painter.save()
+        
+        try:
+            painter.setPen(self.pen())
+            painter.setBrush(self.brush())
+            painter.drawConvexPolygon([QPointF(-6, 0), QPointF(6, 0), QPointF(1, 6), QPointF(-1, 6)])
+            
+        finally:
+            painter.restore()
+        
+    def shape(self):
+        ret = QPainterPath()
+        # the arrow on top so that it's easier to grab for for usability
+        ret.addRect(QRectF(-6, 0, 12, 6))
+        # the rest
+        ret.addRect(self.rect())
+        
+        return ret
         
 class AnimationTimeline(QGraphicsRectItem, QObject):
     """A timeline widget for just one CEGUI animation"""
@@ -444,4 +466,11 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
             i += 1
             
         self.positionBar.setHeight(17 + i * 32)
+    
+    def notifyZoomChanged(self, zoom):
+        assert(zoom > 0)
+        
+        for item in self.childItems():
+            if isinstance(item, AffectorTimelineLabel):
+                item.setPos(-150 / zoom, item.pos().y())
         
