@@ -60,32 +60,6 @@ class TimelineDockWidget(QDockWidget):
         self.timeline = timeline.AnimationTimeline()
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
-        
-        ## TEMPORARY TEST CODE ##
-        self.animation = PyCEGUI.AnimationManager.getSingleton().createAnimation("Test")
-        self.animation.setDuration(10)
-        affector = self.animation.createAffector("Alpha", "float")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(5, "0.5", progression = PyCEGUI.KeyFrame.P_Discrete)
-        affector.createKeyFrame(10, "1.0", progression = PyCEGUI.KeyFrame.P_QuadraticAccelerating)
-        
-        affector = self.animation.createAffector("Text", "String")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
-        affector.createKeyFrame(9, "1.0")
-        
-        affector = self.animation.createAffector("ASDASD", "String")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
-        affector.createKeyFrame(9, "1.0")
-        
-        affector = self.animation.createAffector("ASzxcvDASD", "String")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
-        affector.createKeyFrame(9, "1.0")
-        
-        self.timeline.setAnimation(self.animation)
-        ## END TEMPORARY CODE ##
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.
@@ -112,8 +86,13 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         self.animationListDockWidget = AnimationListDockWidget(self)
         self.timelineDockWidget = TimelineDockWidget(self)
+        self.timelineDockWidget.timeline.timePositionChanged.connect(self.slot_timePositionChanged)
         
+        self.currentAnimation = None
+        self.currentAnimationInstance = None
         self.currentPreviewWidget = None
+        
+        self.setAnimation(None)
         
         self.rootPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "RootPreviewWidget")
         
@@ -127,6 +106,22 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.ceguiPreview.setLayout(layout)        
         
         self.scene = EditingScene(self)
+        
+        ## TEMPORARY TEST CODE ##
+        animation = PyCEGUI.AnimationManager.getSingleton().createAnimation("Test")
+        animation.setDuration(10)
+        affector = animation.createAffector("Alpha", "float")
+        affector.createKeyFrame(0, "1.0")
+        affector.createKeyFrame(5, "0.5", progression = PyCEGUI.KeyFrame.P_Discrete)
+        affector.createKeyFrame(10, "1.0", progression = PyCEGUI.KeyFrame.P_QuadraticAccelerating)
+        
+        affector = animation.createAffector("Text", "String")
+        affector.createKeyFrame(0, "1.0")
+        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
+        affector.createKeyFrame(9, "1.0")
+        
+        self.setAnimation(animation)
+        ## END TEMPORARY CODE ##
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.tabbedEditor.filePath, self.scene)
@@ -149,6 +144,56 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         super(VisualEditing, self).hideEvent(event)
 
+    def synchInstanceAndWidget(self):
+        if self.currentAnimationInstance is None:
+            return
+        
+        self.currentAnimationInstance.setTargetWindow(None)
+
+        if self.currentPreviewWidget is None:
+            return
+        
+        self.currentAnimationInstance.setTargetWindow(self.currentPreviewWidget)
+        self.currentAnimationInstance.apply()
+
+    def setAnimation(self, animation):
+        """Set animation we want to edit"""
+        
+        self.currentAnimation = animation
+        
+        if self.currentAnimationInstance is not None:
+            PyCEGUI.AnimationManager.getSingleton().destroyAnimationInstance(self.currentAnimationInstance)
+            self.currentAnimationInstance = None
+
+        if self.currentAnimation is not None:
+            self.currentAnimationInstance = PyCEGUI.AnimationManager.getSingleton().instantiateAnimation(self.currentAnimation)
+        
+        self.timelineDockWidget.timeline.setAnimation(self.currentAnimation)
+        
+        self.synchInstanceAndWidget()
+        
+    def setPreviewWidget(self, widgetType):
+        if self.currentPreviewWidget is not None:
+            self.rootPreviewWidget.removeChild(self.currentPreviewWidget)
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(self.currentPreviewWidget)
+            self.currentPreviewWidget = None
+        
+        if widgetType != "":
+            try:
+                self.currentPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow(widgetType, "PreviewWidget")
+                
+            except Exception as ex:
+                QMessageBox.warning(self, "Unable to comply!", "Your selected preview widget of type '%s' can't be used as a preview widget, error occured ('%s')." % (widgetType, ex))
+                self.currentPreviewWidget = None
+                self.synchInstanceAndWidget()
+                return
+            
+            self.currentPreviewWidget.setPosition(PyCEGUI.UVector2(PyCEGUI.UDim(0.25, 0), PyCEGUI.UDim(0.25, 0)))
+            self.currentPreviewWidget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0.5, 0), PyCEGUI.UDim(0.5, 0)))
+            self.rootPreviewWidget.addChild(self.currentPreviewWidget)
+            
+        self.synchInstanceAndWidget()  
+        
     def populateWidgetSelector(self):
         self.previewWidgetSelector.clear()
         self.previewWidgetSelector.addItem("") # no preview
@@ -166,22 +211,14 @@ class VisualEditing(QWidget, mixed.EditMode):
                 self.previewWidgetSelector.addItem(widgetType)
 
     def slot_previewWidgetSelectorChanged(self, index):
-        if self.currentPreviewWidget is not None:
-            self.rootPreviewWidget.removeChild(self.currentPreviewWidget)
-            PyCEGUI.WindowManager.getSingleton().destroyWindow(self.currentPreviewWidget)
-            self.currentPreviewWidget = None
-        
         widgetType = self.previewWidgetSelector.itemText(index)
         
-        if widgetType != "":
-            try:
-                self.currentPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow(widgetType, "PreviewWidget")
-            except:
-                self.currentPreviewWidget = None
-                return
-            
-            self.currentPreviewWidget.setPosition(PyCEGUI.UVector2(PyCEGUI.UDim(0.25, 0), PyCEGUI.UDim(0.25, 0)))
-            self.currentPreviewWidget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0.5, 0), PyCEGUI.UDim(0.5, 0)))
-            self.rootPreviewWidget.addChild(self.currentPreviewWidget)           
-
+        self.setPreviewWidget(widgetType)
+        
+    def slot_timePositionChanged(self, oldPosition, newPosition):
+        # there is intentionally no undo/redo for this (it doesn't change content or context)
+        
+        self.currentAnimationInstance.setPosition(newPosition)
+        self.currentAnimationInstance.apply()
+        
 from ceed import mainwindow
