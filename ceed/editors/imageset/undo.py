@@ -676,4 +676,60 @@ class DuplicateCommand(commands.UndoCommand):
         self.visual.dockWidget.refresh()
         
         super(DuplicateCommand, self).redo()
-                                                             
+
+class PasteCommand(commands.UndoCommand):
+    """This command pastes clipboard data to the given imageset.
+    Based on DuplicateCommand.
+    """
+
+    def __init__(self, visual, newNames, newPositions, newRects, newOffsets):
+        super(PasteCommand, self).__init__()
+
+        self.visual = visual
+
+        self.newNames = newNames
+        self.newPositions = newPositions
+        self.newRects = newRects
+        self.newOffsets = newOffsets
+
+        self.refreshText()
+
+    def refreshText(self):
+        if len(self.newNames) == 1:
+            self.setText("Paste image")
+        else:
+            self.setText("Paste %i images" % (len(self.newNames)))
+
+    def id(self):
+        return idbase + 13
+
+    def undo(self):
+        super(PasteCommand, self).undo()
+
+        for imageName in self.newNames:
+            image = self.visual.imagesetEntry.getImageEntry(imageName)
+            self.visual.imagesetEntry.imageEntries.remove(image)
+
+            image.listItem.imageEntry = None
+            image.listItem = None
+
+            image.setParentItem(None)
+            self.visual.scene().removeItem(image)
+
+            del image
+
+        self.visual.dockWidget.refresh()
+
+    def redo(self):
+        for imageName in self.newNames:
+            image = elements.ImageEntry(self.visual.imagesetEntry)
+            self.visual.imagesetEntry.imageEntries.append(image)
+
+            image.name = imageName
+            image.setPos(self.newPositions[imageName])
+            image.setRect(self.newRects[imageName])
+            image.offset.setPos(self.newOffsets[imageName])
+
+        self.visual.dockWidget.refresh()
+
+        super(PasteCommand, self).redo()

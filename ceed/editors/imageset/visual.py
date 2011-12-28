@@ -30,6 +30,7 @@ from ceed.editors.imageset import elements
 from ceed.editors.imageset import undo
 
 import ceed.ui.editors.imageset.dockwidget
+import cPickle
 
 class ImageEntryItemDelegate(QItemDelegate):
     """The only reason for this is to track when we are editing.
@@ -903,7 +904,71 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
     def slot_customContextMenu(self, point):
         self.contextMenu.exec_(self.mapToGlobal(point))
-    
+
+    def performCut(self):
+        if self.performCopy():
+            self.deleteSelectedImageEntries()
+            return True
+
+        return False
+
+    def performCopy(self):
+        selection = self.scene().selectedItems()
+        if len(selection) == 0:
+            return False
+
+        copyNames = []
+        copyPositions = {}
+        copyRects = {}
+        copyOffsets = {}
+        for item in selection:
+            if isinstance(item, elements.ImageEntry):
+                copyNames.append(item.name)
+                copyPositions[item.name] = item.pos()
+                copyRects    [item.name] = item.rect()
+                copyOffsets  [item.name] = item.offset.pos()
+        if len(copyNames) == 0:
+            return False
+
+        imageData = []
+        imageData.append(copyNames)
+        imageData.append(copyPositions)
+        imageData.append(copyRects)
+        imageData.append(copyOffsets)
+
+        data = QMimeData()
+        data.setData("application/x-ceed-imageset-image-list", QByteArray(cPickle.dumps(imageData)))
+        QApplication.clipboard().setMimeData(data)
+
+        return True
+
+    def performPaste(self):
+        data = QApplication.clipboard().mimeData()
+        if not data.hasFormat("application/x-ceed-imageset-image-list"):
+            return False
+
+        imageData = cPickle.loads(data.data("application/x-ceed-imageset-image-list").data())
+        if len(imageData) != 4:
+            return False
+
+        newNames = []
+        newPositions = {}
+        newRects = {}
+        newOffsets = {}
+        for copyName in imageData[0]:
+            newName = self.getNewImageName(copyName)
+            newNames.append(newName)
+            newPositions[newName] = imageData[1][copyName]
+            newRects    [newName] = imageData[2][copyName]
+            newOffsets  [newName] = imageData[3][copyName]
+        if len(newNames) == 0:
+            return False
+
+        cmd = undo.PasteCommand(self, newNames, newPositions, newRects, newOffsets)
+        self.tabbedEditor.undoStack.push(cmd)
+
+        return True
+
 from ceed import action
 from ceed import settings
 from ceed import mainwindow

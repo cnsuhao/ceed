@@ -127,6 +127,24 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
+    def performCut(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performCut()
+
+        return False
+
+    def performCopy(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performCopy()
+
+        return False
+
+    def performPaste(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performPaste()
+
+        return False
+
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = imageset_compatibility.Manager.instance.getAllPossibleExtensions()
