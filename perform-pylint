@@ -2,7 +2,7 @@
 
 #pushd bin
 #./runwrapper.sh
-pylint ceed > ../pylint-output
+pylint --rcfile pylint.cfg ceed > ../pylint-output
 #exit
 #popd
 
