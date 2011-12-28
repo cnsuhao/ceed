@@ -117,7 +117,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         # (allowing the change propagation to do the code validating and other work for us)
         
         if codeMode:
-            self.xml.propagateChangesToVisual()
+            self.code.propagateToVisual()
             
         rootElement = self.visual.imagesetEntry.saveToElement()
         # we indent to make the resulting files as readable as possible
