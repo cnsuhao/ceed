@@ -233,6 +233,12 @@ class MainWindow(QMainWindow):
         self.editMenu.addSeparator()
         self.globalToolbar.addSeparator()
 
+        self.findAction = self.actionManager.getAction("all_editors/find")
+        self.editMenu.addAction(self.findAction)
+        self.connectionGroup.add(self.findAction, receiver = self.slot_find)
+
+        self.editMenu.addSeparator()
+
         self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
         # when this starts up, no project is opened, hence you can't view/edit settings of the current project
         self.projectSettingsAction.setEnabled(False)
@@ -910,6 +916,10 @@ Details of this error: %s""" % (e))
     def slot_paste(self):
         if self.activeEditor:
             self.activeEditor.performPaste()
+
+    def slot_find(self):
+        if self.activeEditor:
+            self.activeEditor.find()
 
     def slot_about(self):
         dialog = about.AboutDialog()
