@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>980</width>
-    <height>182</height>
+    <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,30 +48,100 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="playButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="toolTip">
+          <string>Plays from the current position forward</string>
+         </property>
          <property name="text">
-          <string>|&gt;</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/animation_editing/timeline_play.png</normaloff>icons/animation_editing/timeline_play.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+         <property name="default">
+          <bool>false</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="pauseButton">
+         <property name="toolTip">
+          <string>Pauses at current position or resumes playback at current position</string>
+         </property>
          <property name="text">
-          <string>||</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/animation_editing/timeline_pause.png</normaloff>icons/animation_editing/timeline_pause.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="stopButton">
+         <property name="toolTip">
+          <string>Stops playback (pauses and rewinds to the start)</string>
+         </property>
          <property name="text">
-          <string>stop</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/animation_editing/timeline_stop.png</normaloff>icons/animation_editing/timeline_stop.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="loopCheckbox">
+         <property name="toolTip">
+          <string>If checked, the playback is looped (after it ends it is rewound and played again)</string>
+         </property>
          <property name="text">
-          <string>loop</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/animation_editing/timeline_loop.png</normaloff>icons/animation_editing/timeline_loop.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>22</width>
+           <height>22</height>
+          </size>
          </property>
         </widget>
        </item>
