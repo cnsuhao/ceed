@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+#pushd bin
+#./runwrapper.sh
+pylint ceed > ../pylint-output
+#exit
+#popd
+
