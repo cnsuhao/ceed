@@ -25,7 +25,6 @@ pylint-output
 data/samples/datafiles0_7/
 data/samples/datafiles0_8/
 
-CEGUI.log
 ui/**.py
 
 build/

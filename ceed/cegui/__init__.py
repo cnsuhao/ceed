@@ -29,22 +29,25 @@ import math
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
-#class CEGUIQtLogger(PyCEGUI.Logger):
-#    """Redirects CEGUI log info to CEGUIWidgetInfo"""
-#
-#    # This is a separate class from CEGUIWidgetInfo because PySide and PyCEGUI
-#    # don't like mixing base classes at all
-#
-#    def __init__(self, widgetInfo):
-#        super(CEGUIQtLogger, self).__init__()
-#
-#        self.widgetInfo = widgetInfo
-#
-#    def logEvent(self, message, level):
-#        self.widgetInfo.logEvent(message, level)
-#
-#    def setLogFilename(self, name, append):
-#        pass
+class CEGUIQtLogger(PyCEGUI.Logger):
+    """For now this is just a dummy logger that prints messages to stdout.
+    
+    This prevents writing CEGUI.log into CWD and will allow log display inside
+    the app in the future
+    """
+    
+    # This is a separate class from CEGUIWidgetInfo because PySide and PyCEGUI
+    # don't like mixing base classes at all
+
+    def __init__(self):
+        super(CEGUIQtLogger, self).__init__()
+
+    def logEvent(self, message, level):
+        #self.widgetInfo.logEvent(message, level)
+        print(message)
+
+    def setLogFilename(self, name, append):
+        pass
 
 class GLContextProvider(object):
     """Interface that provides a method to make OpenGL context
@@ -65,6 +68,8 @@ class Instance(object):
 
     def __init__(self, contextProvider = None):
         self.contextProvider = contextProvider
+
+        self.logger = CEGUIQtLogger()
 
         self.initialised = False
 
