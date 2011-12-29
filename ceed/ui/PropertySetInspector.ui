@@ -42,6 +42,12 @@
          <iconset>
           <normaloff>icons/property_inspecting/filter_reset.png</normaloff>icons/property_inspecting/filter_reset.png</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
        </widget>
       </item>
      </layout>
