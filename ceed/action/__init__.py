@@ -203,10 +203,6 @@ class ActionManager(declaration.ActionManager):
                                  help = "Performs a clipboard paste",
                                  icon = QIcon("icons/actions/paste.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Paste))
-        all_editors.createAction(name = "find", label = "Find",
-                                 help = "Searches for items in the currently active editor",
-                                 icon = QIcon("icons/actions/find.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.Find))
         # Imageset editor
         import ceed.editors.imageset.action_decl as imageset_actions
         imageset_actions.declare(self)

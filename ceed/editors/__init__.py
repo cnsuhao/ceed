@@ -377,15 +377,6 @@ class TabbedEditor(object):
         """
         return False
 
-    def find(self):
-        """Searches for items in the currently active editor.
-
-        Default implementation doesn't do anything
-
-        Returns: True if the operation was successful
-        """
-        return False
-
 class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
