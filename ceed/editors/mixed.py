@@ -269,7 +269,10 @@ class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
         # to avoid unnecessary undo command pushes we ignore currentChanged if we are
         # inside ModeChangeCommand.undo or redo
         self.ignoreCurrentChangedForUndo = False
-        
+
+    def setFileMonitor(self, switch):
+        return
+
     def initialise(self, mainWindow):
         super(MixedTabbedEditor, self).initialise(mainWindow)
         

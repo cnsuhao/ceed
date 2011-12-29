@@ -24,6 +24,8 @@ import os
 
 from ceed import resizable
 
+from ceed import filemonitor
+
 class ImageLabel(QGraphicsTextItem):
     """Text item showing image's label when the image is hovered or selected.
     You should not use this directly! Use ImageEntry.name instead to get the name.    
@@ -435,6 +437,8 @@ class ImagesetEntry(QGraphicsPixmapItem):
         
         self.transparencyBackground.setBrush(transparentBrush)
         self.transparencyBackground.setPen(QPen(QColor(Qt.transparent)))
+
+        self.fMonitor = None
         
     def getImageEntry(self, name):
         for image in self.imageEntries:
@@ -444,6 +448,12 @@ class ImagesetEntry(QGraphicsPixmapItem):
         assert(False)
         return None
     
+    def setFileMonitor(self, switch):
+        self.fMonitor.toggle(switch)
+
+    def fileReloadWrapper(self):
+        self.loadImage(self.imageFile)
+
     def loadImage(self, relativeImagePath):
         """
         Replaces the underlying image (if any is loaded) to the image on given relative path
@@ -453,6 +463,13 @@ class ImagesetEntry(QGraphicsPixmapItem):
         """
         
         self.imageFile = relativeImagePath
+        
+        #Set the file monitor to the new path
+        if self.fMonitor == None:
+            self.fMonitor = filemonitor.filemonitor(None, self.getAbsoluteImageFile(), self.fileReloadWrapper)
+        else:
+            self.fMonitor.changeToNewFile(self.getAbsoluteImageFile())
+
         self.setPixmap(QPixmap(self.getAbsoluteImageFile()))
         self.transparencyBackground.setRect(self.boundingRect())
         
