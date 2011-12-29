@@ -32,7 +32,7 @@ class Entry(object):
     editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
                            fget = lambda entry: entry._editedValue)
 
-    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0, changeRequiresRestart = False):
+    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0, changeRequiresRestart = False, optionList = None):
         self.section = section
 
         if label is None:
@@ -54,6 +54,8 @@ class Entry(object):
         self.sortingWeight = sortingWeight
 
         self.changeRequiresRestart = changeRequiresRestart
+
+        self.optionList = optionList
 
         self.subscribers = []
 

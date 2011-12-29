@@ -227,6 +227,38 @@ class InterfaceEntryKeySequence(InterfaceEntry):
         self.entry.editedValue = keySequence
         super(InterfaceEntryKeySequence, self).onChange()
 
+class InterfaceEntryCombobox(InterfaceEntry):
+    def __init__(self, entry, parent):
+        super(InterfaceEntryCombobox, self).__init__(entry, parent)
+        self.entryWidget = QComboBox()
+        # optionList should be a list of lists where the first item is the key (data) and the second is the label 
+        for option in entry.optionList:
+            self.entryWidget.addItem(option[1], option[0])
+        self.setCurrentIndexByValue(entry.value)
+        self.entryWidget.setToolTip(entry.help)
+        self.entryWidget.currentIndexChanged.connect(self.onChange)
+        self._addBasicWidgets()
+
+    def setCurrentIndexByValue(self, value):
+        index = self.entryWidget.findData(value)
+        if index != -1:
+            self.entryWidget.setCurrentIndex(index)
+
+    def discardChanges(self):
+        self.setCurrentIndexByValue(self.entry.value)
+        super(InterfaceEntryCombobox, self).discardChanges()
+
+    def resetToDefaultValue(self):
+        defValue = self.entry.defaultValue
+        if self.entry.editedValue != defValue:
+            self.onChange(defValue)
+            self.setCurrentIndexByValue(defValue)
+
+    def onChange(self, index):
+        if index != -1:
+            self.entry.editedValue = self.entryWidget.itemData(index)
+            super(InterfaceEntryCombobox, self).onChange()
+
 # Factory: Return appropriate InterfaceEntry
 # - Not exported; restricted to use within this module.
 # - Could be replaced by a static mapping.
@@ -245,6 +277,8 @@ def _InterfaceEntryFactory(entry, parent):
         return InterfaceEntryPen(entry, parent)
     elif entry.widgetHint == "keySequence":
         return InterfaceEntryKeySequence(entry, parent)
+    elif entry.widgetHint == "combobox":
+        return InterfaceEntryCombobox(entry, parent)
     else:
         raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
 

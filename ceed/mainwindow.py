@@ -127,17 +127,27 @@ class MainWindow(QMainWindow):
         self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
         self.menuPanels.addAction(self.undoViewer.toggleViewAction())
 
+        # get the toolbar and subscribe to the icon size setting
+        # note: we never unsubscribe but it's OK because the mainwindow is a singleton
+        self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
+        tbIconSizeEntry = self.app.settings.getEntry("global/ui/toolbar_icon_size")
+        self.updateToolbarIconSize(tbIconSizeEntry.value)
+        tbIconSizeEntry.subscribe(lambda value: self.updateToolbarIconSize(value))
+
         self.setupActions()
 
         self.restoreSettings()
+
+    def updateToolbarIconSize(self, size):
+        if size < 16:
+            size = 16
+        self.globalToolbar.setIconSize(QSize(size, size))
 
     def setupActions(self):
         # usage of a connection group in mainwindow may be unnecessary,
         # we never use disconnectAll and/or connectAll, it is just used as a convenient
         # way to group connections
         self.connectionGroup = action.ConnectionGroup(self.actionManager)
-
-        self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
 
         self.fileMenu = self.findChild(QMenu, "menuFile")
         self.editMenu = self.findChild(QMenu, "menuEdit")

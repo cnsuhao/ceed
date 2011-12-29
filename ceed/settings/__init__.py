@@ -47,6 +47,13 @@ class Settings(declaration.Settings):
                        defaultValue = True, widgetHint = "checkbox",
                        sortingWeight = 1, changeRequiresRestart = False)
 
+        ui = global_.createSection(name = "ui", label = "User Interface")
+        ui.createEntry(name = "toolbar_icon_size", type = int, label = "Toolbar icon size",
+                       help = "Sets the size of the toolbar icons",
+                       defaultValue = 32, widgetHint = "combobox",
+                       sortingWeight = 1, changeRequiresRestart = False,
+                       optionList = [ [32, "Normal"], [24, "Small"], [16, "Smaller"] ])
+
         import ceed.editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)
 

@@ -22,6 +22,7 @@ from PySide.QtGui import *
 import os
 import sys
 
+from ceed import settings
 from ceed import editors
 from ceed import xmledit
 import ceed.compatibility.imageset as imageset_compatibility
@@ -55,7 +56,13 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.addTab(self.code, "Code")
         
         self.tabWidget = self
-    
+
+        # set the toolbar icon size according to the setting and subscribe to it
+        self.tbIconSizeEntry = settings.getEntry("global/ui/toolbar_icon_size")
+        self.updateToolbarSize(self.tbIconSizeEntry.value)
+        self.tbIconSizeCallback = lambda value: self.updateToolbarSize(value)
+        self.tbIconSizeEntry.subscribe(self.tbIconSizeCallback)
+
     def initialise(self, mainWindow):
         super(ImagesetTabbedEditor, self).initialise(mainWindow)
     
@@ -90,7 +97,10 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         self.visual.initialise(root)
     
-    def finalise(self):        
+    def finalise(self):
+        # unsubscribe from the toolbar icon size setting
+        self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
+
         super(ImagesetTabbedEditor, self).finalise()
         
         self.tabWidget = None
@@ -103,7 +113,12 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.dockWidget)
         self.visual.dockWidget.setVisible(True)
-        
+
+    def updateToolbarSize(self, size):
+        if size < 16:
+            size = 16
+        self.visual.toolBar.setIconSize(QSize(size, size))
+
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.dockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
