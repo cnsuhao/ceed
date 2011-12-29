@@ -424,6 +424,9 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.deleteSelectedImagesAction = action.getAction("imageset/delete_image")
         self.connectionGroup.add(self.deleteSelectedImagesAction, receiver = self.deleteSelectedImageEntries)
         
+        self.focusImageListFilterBoxAction = action.getAction("imageset/focus_image_list_filter_box")
+        self.connectionGroup.add(self.focusImageListFilterBoxAction, receiver = lambda: self.focusImageListFilterBox())
+        
         self.toolBar = QToolBar()
         self.toolBar.setIconSize(QSize(32, 32))
         
@@ -438,7 +441,9 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.toolBar.addAction(self.createImageAction)
         self.toolBar.addAction(self.duplicateSelectedImagesAction)
         self.toolBar.addAction(self.deleteSelectedImagesAction)
- 
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.focusImageListFilterBoxAction)
+        
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.contextMenu = QMenu(self)
@@ -904,6 +909,19 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
     def slot_customContextMenu(self, point):
         self.contextMenu.exec_(self.mapToGlobal(point))
+
+    def focusImageListFilterBox(self):
+        """Focuses into image list filter
+        
+        This potentially allows the user to just press a shortcut to find images,
+        instead of having to reach for a mouse.
+        """
+        
+        filterBox = self.dockWidget.filterBox
+        # selects all contents of the filter so that user can replace that with their search phrase
+        filterBox.selectAll()
+        # sets focus so that typing puts text into the filter box without clicking
+        filterBox.setFocus()
 
     def performCut(self):
         if self.performCopy():

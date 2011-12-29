@@ -765,6 +765,9 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.deleteAction = action.getAction("layout/delete")
         self.connectionGroup.add(self.deleteAction, receiver = lambda: self.scene.deleteSelectedWidgets())
         
+        self.focusPropertyInspectorFilterBoxAction = action.getAction("layout/focus_property_inspector_filter_box")
+        self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
+        
         self.connectionGroup.add("layout/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
         self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
         
@@ -792,6 +795,8 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.toolBar.addAction(action.getAction("layout/absolute_mode"))
         self.toolBar.addAction(action.getAction("layout/normalise_position"))
         self.toolBar.addAction(action.getAction("layout/normalise_size"))
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(self.focusPropertyInspectorFilterBoxAction)
 
     def initialise(self, rootWidget):
         # FIXME: unreadable
@@ -871,6 +876,19 @@ class VisualEditing(QWidget, mixed.EditMode):
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
             
         super(VisualEditing, self).hideEvent(event)
+
+    def focusPropertyInspectorFilterBox(self):
+        """Focuses into property set inspector filter
+        
+        This potentially allows the user to just press a shortcut to find properties to edit,
+        instead of having to reach for a mouse.
+        """
+        
+        filterBox = self.propertiesDockWidget.inspector.filterBox
+        # selects all contents of the filter so that user can replace that with their search phrase
+        filterBox.selectAll()
+        # sets focus so that typing puts text into the filter box without clicking
+        filterBox.setFocus()
 
     def performCut(self):
         ret = self.performCopy()

@@ -76,3 +76,8 @@ def declare(actionManager):
                      help = "If the size is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
                      icon = QIcon("icons/layout_editing/normalise_size.png"),
                      defaultShortcut = QKeySequence(Qt.Key_S))
+    
+    cat.createAction(name = "focus_property_inspector_filter_box", label = "Focus property inspector filter box",
+                     help = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
+                     icon = QIcon("icons/layout_editing/focus_property_inspector_filter_box.png"),
+                     defaultShortcut = QKeySequence(QKeySequence.Find))

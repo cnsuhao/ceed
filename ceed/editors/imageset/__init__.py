@@ -160,15 +160,6 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
 
         return False
 
-    def find(self):
-        if self.currentWidget() is self.visual:
-            filterBox = self.visual.dockWidget.filterBox
-            filterBox.selectAll()
-            filterBox.setFocus()
-            return True
-
-        return False
-
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = imageset_compatibility.Manager.instance.getAllPossibleExtensions()

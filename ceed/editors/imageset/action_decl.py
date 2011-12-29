@@ -55,3 +55,8 @@ def declare(actionManager):
     cat.createAction(name = "delete_image", label = "Delete image",
                      help = "Deletes all selected images.",
                      icon = QIcon("icons/imageset_editing/delete_image.png"))
+    
+    cat.createAction(name = "focus_image_list_filter_box", label = "Focus image list filter box",
+                     help = "This allows you to easily press a shortcut and immediately search through images without having to reach for a mouse.",
+                     icon = QIcon("icons/imageset_editing/focus_image_list_filter_box.png"),
+                     defaultShortcut = QKeySequence(QKeySequence.Find))

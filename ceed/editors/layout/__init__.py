@@ -152,15 +152,6 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         return False
 
-    def find(self):
-        if self.currentWidget() is self.visual:
-            filterBox = self.visual.propertiesDockWidget.inspector.filterBox
-            filterBox.selectAll()
-            filterBox.setFocus()
-            return True
-
-        return False
-
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def canEditFile(self, filePath):
         extensions = layout_compatibility.Manager.instance.getAllPossibleExtensions()
