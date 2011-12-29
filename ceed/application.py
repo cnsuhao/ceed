@@ -22,7 +22,6 @@ from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 import logging
 
 from ceed import version
-from ceed import settings
 
 class SplashScreen(QSplashScreen):
     def __init__(self):
@@ -41,6 +40,19 @@ class Application(QApplication):
 
         logging.basicConfig()
 
+        if version.CEED_developerMode:
+            # print info about developer's mode to possibly prevent it being
+            # forgotten about when releasing
+            logging.info("Developer's mode enabled - recompiling all .ui files...")
+            
+            # in case we are in the developer's mode,
+            # lets compile all UI files to ensure they are up to date
+            from ceed import compileuifiles
+            compileuifiles.main()
+            
+            logging.debug("All .ui files recompiled!")
+
+        from ceed import settings
         self.qsettings = QSettings("CEGUI", "CEED")
         self.settings = settings.Settings(self.qsettings)
         # download all values from the persistence store
@@ -53,18 +65,6 @@ class Application(QApplication):
 
             # this ensures that the splash screen is shown on all platforms
             self.processEvents()
-
-        if version.CEED_developerMode:
-            # print info about developer's mode to possibly prevent it being
-            # forgotten about when releasing
-            logging.info("Developer's mode enabled - recompiling all .ui files...")
-            
-            # in case we are in the developer's mode,
-            # lets compile all UI files to ensure they are up to date
-            from ceed import compileuifiles
-            compileuifiles.main()
-            
-            logging.debug("All .ui files recompiled!")
 
         self.setOrganizationName("CEGUI")
         self.setOrganizationDomain("cegui.org.uk")
