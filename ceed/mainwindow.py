@@ -59,17 +59,12 @@ class MainWindow(QMainWindow):
 
         self.app = app
 
-        self.qsettings = QSettings("CEGUI", "CEED")
-
-        self.settings = settings.Settings(self.qsettings)
         # we have to construct ActionManager before settings interface (as it alters the settings declaration)!
-        self.actionManager = action.ActionManager(self, self.settings)
-        # download all values from the persistence store
-        self.settings.download()
+        self.actionManager = action.ActionManager(self, self.app.settings)
 
-        self.settingsInterface = settings.interface.QtSettingsInterface(self.settings)
+        self.settingsInterface = settings.interface.QtSettingsInterface(self.app.settings)
 
-        self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.qsettings, "Projects")
+        self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
 
         import ceed.editors.animation_list as animation_list_editor
         import ceed.editors.bitmap as bitmap_editor

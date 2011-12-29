@@ -41,6 +41,12 @@ class Settings(declaration.Settings):
                           defaultValue = 500, widgetHint = "int",
                           sortingWeight = 1, changeRequiresRestart = True)
 
+        app = global_.createSection(name = "app", label = "Application")
+        app.createEntry(name = "show_splash", type = bool, label = "Show splash screen",
+                       help = "Show the splash screen on startup",
+                       defaultValue = True, widgetHint = "checkbox",
+                       sortingWeight = 1, changeRequiresRestart = False)
+
         import ceed.editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)
 

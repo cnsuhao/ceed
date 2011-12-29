@@ -16,12 +16,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtCore import Qt
+from PySide.QtCore import Qt, QSettings
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
 import logging
 
 from ceed import version
+from ceed import settings
 
 class SplashScreen(QSplashScreen):
     def __init__(self):
@@ -40,11 +41,18 @@ class Application(QApplication):
 
         logging.basicConfig()
 
-        self.splash = SplashScreen()
-        self.splash.show()
+        self.qsettings = QSettings("CEGUI", "CEED")
+        self.settings = settings.Settings(self.qsettings)
+        # download all values from the persistence store
+        self.settings.download()
 
-        # this ensures that the splash screen is shown on all platforms
-        self.processEvents()
+        showSplash = settings.getEntry("global/app/show_splash").value
+        if showSplash:
+            self.splash = SplashScreen()
+            self.splash.show()
+
+            # this ensures that the splash screen is shown on all platforms
+            self.processEvents()
 
         if version.CEED_developerMode:
             # print info about developer's mode to possibly prevent it being
@@ -70,7 +78,8 @@ class Application(QApplication):
         self.mainWindow = mainwindow.MainWindow(self)
         self.mainWindow.showMaximized()
         self.mainWindow.raise_()
-        self.splash.finish(self.mainWindow)
+        if showSplash:
+            self.splash.finish(self.mainWindow)
 
         # import error after UI files have been recompiled
         # - Truncate exception log, if it exists.
