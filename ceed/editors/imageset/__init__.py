@@ -105,16 +105,8 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         self.tabWidget = None
     
-    def setFileMonitor(self, switch):
-        super(ImagesetTabbedEditor, self).setFileMonitor(switch)
-        self.visual.setFileMonitor(switch)
-
     def activate(self):
         super(ImagesetTabbedEditor, self).activate()
-
-        #The user is now paying attention to the file, so activate the file
-        #monitor to alert the user when external changes are being made.
-        self.setFileMonitor(True)
         
         self.mainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
@@ -128,10 +120,6 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.visual.toolBar.setIconSize(QSize(size, size))
 
     def deactivate(self):
-        #Set this editor's file monitor to deactive so it won't disturb the
-        #user is no longer paying attention to it.
-        self.setFileMonitor(False)
-        
         self.mainWindow.removeDockWidget(self.visual.dockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
         
