@@ -39,13 +39,14 @@ class InterfaceEntry(QHBoxLayout):
         self.parent = parent
 
     def _addBasicWidgets(self):
-        self.addWidget(self.entryWidget)
+        self.addWidget(self.entryWidget, 1)
         self.addWidget(self._buildResetButton())
 
     def _buildResetButton(self):
         self.entryWidget.slot_resetToDefault = self.resetToDefaultValue
         ret = QPushButton()
         ret.setIcon(QIcon("icons/settings/reset_entry_to_default.png"))
+        ret.setIconSize(QSize(16, 16))
         ret.setToolTip("Reset this settings entry to the default value")
         ret.clicked.connect(self.entryWidget.slot_resetToDefault)
         return ret
@@ -292,20 +293,15 @@ class InterfaceSection(QGroupBox):
 
         self.setTitle(section.label)
 
-        self.layout = QVBoxLayout()
+        self.layout = QFormLayout()
 
-        self.entries = QWidget()
-        self.entriesLayout = QFormLayout()
+        for entry in section.entries:
+            lw = QLabel(entry.label)
+            lw.setMinimumWidth(200)
+            lw.setWordWrap(True)
+            self.layout.addRow(lw, _InterfaceEntryFactory(entry, self))
 
-        addRow = self.entriesLayout.addRow
-        [addRow(entry.label, _InterfaceEntryFactory(entry, self)) for entry in section.entries]
-
-        self.entries.setLayout(self.entriesLayout)
-        self.layout.addWidget(self.entries)
         self.setLayout(self.layout)
-
-        # FIXME: The group box shrinks vertically for some reason
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
     def discardChanges(self):
         [entry.discardChanges() for entry in self.modifiedEntries]
@@ -314,7 +310,7 @@ class InterfaceSection(QGroupBox):
         self.modifiedEntries.append(entry)
         self.markAsChanged()
         # FIXME: This should be rolled into the InterfaceEntry types.
-        self.entriesLayout.labelForField(entry).setText(entry.entry.label)
+        self.layout.labelForField(entry).setText(entry.entry.label)
         self.parent.onChange(self)
 
     def markAsChanged(self):
@@ -322,7 +318,7 @@ class InterfaceSection(QGroupBox):
 
     def markAsUnchanged(self):
         self.section.markAsUnchanged()
-        labelForField = self.entriesLayout.labelForField
+        labelForField = self.layout.labelForField
         for entry in self.modifiedEntries:
             entry.markAsUnchanged()
             # FIXME: This should be rolled into the InterfaceEntry types.
@@ -337,17 +333,15 @@ class InterfaceCategory(QScrollArea):
         self.parent = parent
         self.modifiedSections = []
 
-        self.outerLayout = QVBoxLayout()
         self.inner = QWidget()
-        self.layout = QFormLayout()
+        self.layout = QVBoxLayout()
 
         addWidget = self.layout.addWidget
         [addWidget(InterfaceSection(section, self)) for section in category.sections]
 
+        self.layout.addStretch()
         self.inner.setLayout(self.layout)
         self.setWidget(self.inner)
-        self.outerLayout.addWidget(self.inner)
-        self.setLayout(self.outerLayout)
 
         self.setWidgetResizable(True)
 
