@@ -109,10 +109,8 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.offsetY = self.findChild(QLineEdit, "offsetY")
         self.offsetY.setValidator(QIntValidator(-9999999, 9999999, self))
         self.offsetY.textChanged.connect(self.slot_offsetYChanged)
-
+        
         self.setActiveImageEntry(None)
-
-        self.imagesetEntry = None
         
     def setImagesetEntry(self, imagesetEntry):
         self.imagesetEntry = imagesetEntry
@@ -272,10 +270,6 @@ class ImagesetEditorDockWidget(QDockWidget):
             
             i += 1
             
-    def setFileMonitor(self, switch):
-        if self.imagesetEntry != None:
-            self.imagesetEntry.setFileMonitor(switch)
-    
     def slot_nameEdited(self, newValue):
         oldName = self.imagesetEntry.name
         newName = self.name.text()
@@ -285,7 +279,6 @@ class ImagesetEditorDockWidget(QDockWidget):
         
         cmd = undo.ImagesetRenameCommand(self.visual, oldName, newName)
         self.visual.tabbedEditor.undoStack.push(cmd)
-        
         
     def slot_imageLoadClicked(self):
         oldImageFile = self.imagesetEntry.imageFile
@@ -480,9 +473,6 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
         boundingRect.adjust(-100, -100, 100, 100)
         self.scene().setSceneRect(boundingRect)
-        
-    def setFileMonitor(self, switch):
-        self.dockWidget.setFileMonitor(switch)
         
     def loadImagesetEntryFromElement(self, element):
         self.scene().clear()
