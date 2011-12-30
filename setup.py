@@ -24,6 +24,10 @@ from distutils.core import setup
 from ceed import version
 from ceed import paths
 
+from ceed import compileuifiles
+# always compile UI files to ensure they are up to date before installing
+compileuifiles.main()
+
 def get_packages():
     """Returns the whole list of ceed packages"""
     
