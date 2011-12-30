@@ -114,6 +114,45 @@ class TabbedEditor(object):
         
         self.tabWidget = None
         self.tabLabel = os.path.basename(self.filePath)
+
+        #Set up a QFileSystemWatcher to watch for external changes to a file
+        self.fileMonitor = None
+        self.fileChangedByExternalProgram = False
+        self.displayingReloadAlert = False
+
+    def slot_fileChangedByExternalProgram(self):
+        """The callback method for external file changes.  This method is
+        immediately called when this tab is open.  Otherwise, it's called when
+        the user clicks on the tab"""
+        self.fileChangedByExternalProgram = True
+        if self.active:
+            self.askForFileReload()
+
+    def askForFileReload(self):
+        """Pops a alert menu open asking the user s/he would like to reload the
+        file due to external changes being made"""
+
+        #If multiple file writes are made by an external program, multiple
+        #pop-ups will appear.  Prevent that with a switch.
+        if not self.displayingReloadAlert:
+            self.displayingReloadAlert = True
+            msgBox = QMessageBox()
+            msgBox.setText("File has been modified externally!")
+            msgBox.setInformativeText("Reload the file?  ALL UNDO HISTORY WILL BE DESTROYED!")
+            msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+            msgBox.setDefaultButton(QMessageBox.Yes)
+            ret = msgBox.exec_()
+            self.fileChangedByExternalProgram = False
+
+            if ret == QMessageBox.Yes:
+                #FIXME: This is a messy way of reloading a file.  Need a
+                #reinitialise(self) method.
+                #When the file is reloaded, CEED switches to another tab for
+                #some reason.  That should be fixed with a reinitialise method
+                self.initialised = False
+                self.initialise(self.mainWindow)
+
+            self.displayingReloadAlert = False
     
     def initialise(self, mainWindow):
         """This method loads everything up so this editor is ready to be switched to"""
@@ -142,6 +181,18 @@ class TabbedEditor(object):
             else:
                 try:
                     rawDataType = self.compatibilityManager.guessType(rawData, self.filePath)
+
+                    #A file exists and the editor has it open, so watch it for
+                    #external changes.  If an exception occurs, just print the
+                    #stack and continue.  No need for crashing.
+                    try:
+                        self.fileMonitor = QFileSystemWatcher(self.mainWindow)
+                        self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
+                        self.fileMonitor.addPath(self.filePath)
+                    except:
+                        import traceback
+                        print("Could not set file monitor")
+                        traceback.print_stack()
                     
                 except compatibility.NoPossibleTypesError:
                     dialog = NoTypeDetectedDialog(self.compatibilityManager)
@@ -237,6 +288,11 @@ class TabbedEditor(object):
 
         self.mainWindow.activeEditor = self
         self.mainWindow.undoViewer.setUndoStack(self.getUndoStack())
+
+        #If the file was changed by an external program, ask the user to reload
+        #the changes
+        if self.fileMonitor != None and self.fileChangedByExternalProgram:
+            self.askForFileReload()
         
     def deactivate(self):
         """The tab gets "off stage", user switched to another tab.
@@ -283,6 +339,16 @@ class TabbedEditor(object):
         outputData = self.nativeData
         if self.compatibilityManager is not None:
             outputData = self.compatibilityManager.transform(self.compatibilityManager.EditorNativeType, self.desiredSavingDataType, self.nativeData)
+
+        #Stop monitoring the file, the changes that are about to occur are not
+        #by an external program!
+        if self.fileMonitor != None:
+            try:
+                self.fileMonitor.removePath(self.filePath)
+            except:
+                import traceback
+                print("Could not stop file monitor")
+                traceback.print_stack()
         
         f = open(targetPath, "w")
         f.write(outputData)
@@ -298,6 +364,18 @@ class TabbedEditor(object):
             # hasattr because this might be called even before initialise is called!
             if hasattr(self, "mainWindow"):
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
+
+        try:
+            if self.fileMonitor == None:
+                self.fileMonitor = QFileSystemWatcher(self.mainWindow)
+                self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
+                self.fileMonitor.addPath(self.filePath)
+            else:
+                self.fileMonitor.addPath(self.filePath)
+        except:
+            import traceback
+            print("Could not set file monitor")
+            traceback.print_stack()
 
     def save(self):
         """Saves all progress to the same file we have opened at the moment
