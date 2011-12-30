@@ -483,7 +483,8 @@ class ImagesetRenameCommand(commands.UndoCommand):
     def redo(self):        
         imagesetEntry = self.visual.imagesetEntry
         imagesetEntry.name = self.newName
-        self.visual.dockWidget.name.setText(self.newName)
+        if self.visual.dockWidget.name.text() != self.newName:
+            self.visual.dockWidget.name.setText(self.newName)
    
         super(ImagesetRenameCommand, self).redo()
 
