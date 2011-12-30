@@ -9,8 +9,9 @@ Markus 'Cygon' Ewald - rectangle packing code
 Eniko - porting rectangle packing code to Python
 Patrick Robertson - Settings interface improvements
 Michael Kapelko - bug fixes
-Pavlos Touboulidis - bug fixes, image duplication and copy paste
+Pavlos Touboulidis - bug fixes, UI polish, image duplication, image copy paste and more
 Jorge Avila - animation editor timeline UI design
+Christopher Trenkamp - external file changes monitoring
 
 Special thanks to Martin Babka for advices and supervision of this project!
 
