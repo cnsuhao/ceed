@@ -18,8 +18,11 @@
 ################################################################################
 
 import os
+import os.path
+
 from distutils.core import setup
 from ceed import version
+from ceed import paths
 
 def get_packages():
     """Returns the whole list of ceed packages"""
@@ -36,6 +39,24 @@ def get_packages():
             
     return ret    
 
+def get_directoryfilepairs(directory, base = "data", install_base = paths.system_data_dir):
+    ret = []
+    files = []
+    for path in os.listdir(os.path.join(base, directory)):
+        full_path = os.path.join(base, directory, path)
+        if os.path.isdir(full_path):
+            ret.extend(get_directoryfilepairs(os.path.join(directory, path), base))
+            
+        elif os.path.isfile(full_path):
+            files.append(os.path.join(base, directory, path))
+            
+        else:
+            print("[W] I don't know that '%s' is (checked for file or directory)" % (full_path))
+            
+    ret.append((os.path.join(install_base, directory), files))
+
+    return ret
+
 setup(
     name = "CEED",
     version = version.CEED,
@@ -44,5 +65,6 @@ setup(
     author_email = "preisler.m@gmail.com",
     url = "http://www.cegui.org.uk/",
     packages = get_packages(),
-    scripts = ["bin/ceed-gui", "bin/ceed-mic", "bin/ceed-migrate"]
+    scripts = ["bin/ceed-gui", "bin/ceed-mic", "bin/ceed-migrate"],
+    data_files = get_directoryfilepairs("", "data", paths.system_data_dir)
 )
