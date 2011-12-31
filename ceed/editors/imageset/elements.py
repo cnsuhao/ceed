@@ -187,11 +187,6 @@ class ImageEntry(resizable.ResizableRectItem):
         # this allows fast updates of the list item without looking it up
         # It is save to assume that this is None or a valid QListWidgetItem        
         self.listItem = None
-
-        #Allocate a file monitor to automatically reload images when changes
-        #are made
-        self.imageMonitor = None
-
         
     def constrainResizeRect(self, rect, oldRect):
         # we simply round the rectangle because we only support "full" pixels
