@@ -72,6 +72,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="projectDirectoryButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Project Directory</string>
          </property>
@@ -95,6 +98,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="activeFileDirectoryButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="toolTip">
           <string>Locate active file</string>
          </property>

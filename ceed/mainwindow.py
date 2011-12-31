@@ -50,6 +50,26 @@ class MainWindow(QMainWindow):
     # TODO: This class has grown too much, I think it has too many responsibilities
     #       and refactoring will be needed in the future.
 
+    @property
+    def project(self):
+        return self._project
+ 
+    @project.setter
+    def project(self, value):
+        self._project = value
+        if self.fileSystemBrowser:
+            self.fileSystemBrowser.projectDirectoryButton.setEnabled(True if value else False)
+
+    @property
+    def activeEditor(self):
+        return self._activeEditor
+ 
+    @activeEditor.setter
+    def activeEditor(self, value):
+        self._activeEditor = value
+        if self.fileSystemBrowser:
+            self.fileSystemBrowser.activeFileDirectoryButton.setEnabled(True if value else False)
+
     def __init__(self, app):
         # make sure multiple instantiation won't happen
         assert(MainWindow.instance is None)
@@ -82,8 +102,8 @@ class MainWindow(QMainWindow):
             text_editor.TextTabbedEditorFactory()
         ]
 
-        self.activeEditor = None
-        self.project = None
+        self._activeEditor = None
+        self._project = None
 
         self.ui = ceed.ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
