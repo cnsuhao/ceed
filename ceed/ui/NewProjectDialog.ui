@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>231</height>
+    <width>442</width>
+    <height>279</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,6 +42,9 @@
       <bool>false</bool>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QLabel" name="projectNameLabel">
         <property name="sizePolicy">
@@ -134,6 +137,20 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="importStdTheme">
+        <property name="text">
+         <string>Import standard theme</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="stdThemeSelection">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -188,6 +205,54 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>importStdTheme</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>stdThemeSelection</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>createDefaultDirectories</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>importStdTheme</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>createDefaultDirectories</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>importStdTheme</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>

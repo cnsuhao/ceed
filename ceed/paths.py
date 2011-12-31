@@ -54,6 +54,39 @@ if not system_data_dir_exists:
 """What's the absolute path to the ui directory"""
 ui_dir = os.path.join(package_dir, "ui")
 
+"""What's the path to the default CEGUI themes?"""
+default_cegui_theme_paths="/usr/share/CEGUI-0.8"
+
+"""
+List of default themes to load.
+Themes must be in this order!
+theme name : [ image, font file, font settings, imageset, looknfeel, scheme ]
+"""
+default_themes = {
+
+        "AlfiskoSkin" : [ "imagesets/AlfiskoSkin.png", "fonts/DejaVuSans.ttf",
+        "fonts/DejaVuSans-10.font", "imagesets/AlfiskoSkin.imageset",        
+        "looknfeel/AlfiskoSkin.looknfeel", "schemes/AlfiskoSkin.scheme" ],
+        
+        "OgreTray" : [ "imagesets/OgreTrayImages.png", "fonts/DejaVuSans.ttf",
+        "fonts/DejaVuSans-10.font", "imagesets/OgreTray.imageset", 
+        "looknfeel/OgreTray.looknfeel", "schemes/OgreTray.scheme" ],
+
+        "TaharezLook" : [ "imagesets/TaharezLook.png", "fonts/DejaVuSans.ttf",
+        "fonts/DejaVuSans-10.font", "imagesets/TaharezLook.imageset",
+        "looknfeel/TaharezLook.looknfeel", "schemes/TaharezLook.scheme" ],
+
+        "VanillaSkin" : [ "imagesets/vanilla.png", "fonts/DejaVuSans.ttf",
+        "fonts/DejaVuSans-10-NoScale.font", "imagesets/Vanilla.imageset",
+        "looknfeel/Vanilla.looknfeel", "schemes/VanillaCommonDialogs.scheme",
+        "schemes/VanillaSkin.scheme" ],
+
+        "WindowsLook" : [  "imagesets/WindowsLook.png", "fonts/DejaVuSans.ttf",
+        "fonts/DejaVuSans-10-NoScale.font", "imagesets/WindowsLook.imageset",
+        "looknfeel/WindowsLook.looknfeel", "schemes/WindowsLook.scheme" ] 
+
+}
+
 # if one of these assertions fail your installation is not valid!
 if not frozen:
     # these two checks will always fail in a frozen instance

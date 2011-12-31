@@ -34,6 +34,8 @@ import ceed.ui.projectmanager
 import ceed.ui.newprojectdialog
 import ceed.ui.projectsettingsdialog
 
+from ceed import paths
+
 class Item(QStandardItem):
     """One item in the project
     This is usually a file or a folder
@@ -596,6 +598,14 @@ class ProjectManager(QDockWidget):
                 
                 parent.appendRow(item)
              
+    #This is used when importing a default theme to a new project.
+    def addExistingFile(self, relativePath):
+        item = Item(self.project)
+        item.itemType = Item.File
+        item.path = relativePath
+        self.project.appendRow(item)
+               
+       
     def slot_renameAction(self):
         ## TODO: Name clashes!
         
@@ -716,6 +726,9 @@ class NewProjectDialog(QDialog):
         self.projectFilePath.mode = qtwidgets.FileLineEdit.NewFileMode    
 
         self.createResourceDirs = self.ui.createDefaultDirectories
+
+        self.ui.stdThemeSelection.addItems(paths.default_themes.keys())
+        self.stdThemeImport = None
     
     def accept(self):
         if self.projectName.text() == "":
@@ -730,7 +743,6 @@ class NewProjectDialog(QDialog):
             QMessageBox.critical(self, "Project file path invalid!", "Its parent directory ('%s') is inaccessible!" % (os.path.dirname(self.projectFilePath.text())))
             return
 
-        print(self.createResourceDirs.checkState() == Qt.Checked)
         if self.createResourceDirs.checkState() == Qt.Checked:
             try:
                 path = os.path.dirname(self.projectFilePath.text())+"/"
@@ -752,6 +764,9 @@ directories!", "There was a problem creating the resource \
 directories.  Do you have the proper permissions on the \
 parent directory?")
                 return
+
+        if self.ui.importStdTheme.checkState() == Qt.Checked:
+            self.stdThemeImport = self.ui.stdThemeSelection.itemText(self.ui.stdThemeSelection.currentIndex())
 
         super(NewProjectDialog, self).accept()
     

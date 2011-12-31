@@ -37,6 +37,8 @@ from ceed import editors
 from ceed import help
 from ceed import about
 
+from ceed import paths
+
 class MainWindow(QMainWindow):
     """The central window of the application.
 
@@ -629,6 +631,7 @@ Details of this error: %s""" % (e))
 
         if result == QDialog.Accepted:
             newProject = newProjectDialog.createProject()
+
             newProject.save()
 
             #This is a new project.  If the user lets CEED create the resource
@@ -642,6 +645,17 @@ Details of this error: %s""" % (e))
                 self.openProject(path = newProject.projectFilePath)
             else:
                 self.openProject(path = newProject.projectFilePath, openSettings = True, performSanityCheck = False)
+
+            #If a default theme was selected to load, iterate through the theme
+            #file lists and add them to the project
+            if newProjectDialog.stdThemeImport != None:
+                import shutil
+                copyPath = os.path.dirname(newProjectDialog.projectFilePath.text()) + "/"
+                origPath = paths.default_cegui_theme_paths + "/"
+                for file in paths.default_themes[newProjectDialog.stdThemeImport]:
+                    shutil.copy(origPath + file, copyPath + "/" + file.split("/")[0])
+                    self.projectManager.addExistingFile(file)
+
             # save the project with the settings that were potentially set in the project settings dialog
             self.saveProject()
 
