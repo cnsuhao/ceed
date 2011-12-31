@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon
+from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon, QWidget, QVBoxLayout
 
 class UndoCommand(QUndoCommand):
     """The base class of all undo commands of CEED.
@@ -35,9 +35,19 @@ class UndoViewer(QDockWidget):
         
         self.setWindowTitle("Undo Viewer")
         
+        # main undo view
         self.view = QUndoView()
         self.view.setCleanIcon(QIcon("icons/clean_undo_state.png"))
-        self.setWidget(self.view)
+        # root widget and layout
+        contentsWidget = QWidget()
+        contentsLayout = QVBoxLayout()
+        contentsWidget.setLayout(contentsLayout)
+        margins = contentsLayout.contentsMargins()
+        margins.setTop(0)
+        contentsLayout.setContentsMargins(margins)
+
+        contentsLayout.addWidget(self.view)
+        self.setWidget(contentsWidget)
         
     def setUndoStack(self, stack):
         self.view.setStack(stack)
