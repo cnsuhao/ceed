@@ -330,7 +330,7 @@ Details of this error: %s""" % (e))
         
             return False
         
-    def openProject(self, path, openSettings = False, performSanityCheck = True):
+    def openProject(self, path, openSettings = False):
         """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
         The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
         being shown if there are changes to it)
@@ -340,9 +340,6 @@ Details of this error: %s""" % (e))
         path - Absolute path of the project file
         openSettings - if True, the settings dialog is opened instead of just loading the resources,
                        this is desirable when creating a new project
-        performSanityCheck - ONLY SET THIS TO FALSE WHEN MAKING NEW PROJECTS.
-        It stops the pop-up warning the user that it cannot access the resource
-        directories.
         """
         
         assert(self.project is None)
@@ -359,9 +356,7 @@ Details of this error: %s""" % (e))
             self.project = None
             return
         
-        #Do a sanity check if this isn't a new project.
-        if performSanityCheck:
-            self.performProjectDirectoriesSanityCheck()
+        self.performProjectDirectoriesSanityCheck()
         
         # view the newly opened project in the project manager
         self.projectManager.setProject(self.project)
@@ -631,17 +626,8 @@ Details of this error: %s""" % (e))
             newProject = newProjectDialog.createProject()
             newProject.save()
 
-            #This is a new project.  If the user lets CEED create the resource
-            #directories, there's no need to bring up the settings activity.
-            #Just create the project and perform a sanity check.
-            #If the user doesn't want CEED to create the default resource
-            #directories, additional information needs to be entered.  So bring
-            #up the project settings, but don't annoy the user with the sanity
-            #check (yet).
-            if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
-                self.openProject(path = newProject.projectFilePath)
-            else:
-                self.openProject(path = newProject.projectFilePath, openSettings = True, performSanityCheck = False)
+            # since this is a new project we do want to open project settings immediately
+            self.openProject(path = newProject.projectFilePath, openSettings = True)
             # save the project with the settings that were potentially set in the project settings dialog
             self.saveProject()
 
