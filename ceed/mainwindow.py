@@ -340,9 +340,6 @@ Details of this error: %s""" % (e))
         path - Absolute path of the project file
         openSettings - if True, the settings dialog is opened instead of just loading the resources,
                        this is desirable when creating a new project
-        performSanityCheck - ONLY SET THIS TO FALSE WHEN MAKING NEW PROJECTS.
-        It stops the pop-up warning the user that it cannot access the resource
-        directories.
         """
         
         assert(self.project is None)
