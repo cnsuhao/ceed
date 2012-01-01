@@ -648,6 +648,8 @@ Details of this error: %s""" % (e))
 
         if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
             try:
+                # FIXME: This should be changed to use os.path.join
+                
                 path = os.path.dirname(newProjectDialog.projectFilePath.text())+"/"
                 if not os.path.exists(path+"fonts"):
                     os.mkdir(path+"fonts")
@@ -661,20 +663,21 @@ Details of this error: %s""" % (e))
                     os.mkdir(path+"schemes")
                 if not os.path.exists(path+"xml_schemas"):
                     os.mkdir(path+"xml_schemas")
-            except OSError as e:
+            except OSError:
                 QMessageBox.critical(self, "Cannot create resource \
 directories!", "There was a problem creating the resource \
 directories.  Do you have the proper permissions on the \
 parent directory?")
 
-        #This is a new project.  If the user lets CEED create the resource
-        #directories, there's no need to bring up the settings activity.
-        #If the user doesn't want CEED to create the default resource
-        #directories, additional information needs to be entered.
+        # This is a new project.  If the user lets CEED create the resource
+        # directories, there's no need to bring up the settings activity.
+        # If the user doesn't want CEED to create the default resource
+        # directories, additional information needs to be entered.
         if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
             self.openProject(path = newProject.projectFilePath)
         else:
             self.openProject(path = newProject.projectFilePath, openSettings = True)
+            
         # save the project with the settings that were potentially set in the project settings dialog
         self.saveProject()
 
