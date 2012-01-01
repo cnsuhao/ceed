@@ -714,6 +714,8 @@ class NewProjectDialog(QDialog):
         self.projectFilePath = self.findChild(qtwidgets.FileLineEdit, "projectFilePath")
         self.projectFilePath.filter = "Project file (*.project)"
         self.projectFilePath.mode = qtwidgets.FileLineEdit.NewFileMode    
+
+        self.createResourceDirs = self.ui.createDefaultDirectories
     
     def accept(self):
         if self.projectName.text() == "":
@@ -727,7 +729,7 @@ class NewProjectDialog(QDialog):
         if not os.path.exists(os.path.dirname(self.projectFilePath.text())):
             QMessageBox.critical(self, "Project file path invalid!", "Its parent directory ('%s') is inaccessible!" % (os.path.dirname(self.projectFilePath.text())))
             return
-        
+
         super(NewProjectDialog, self).accept()
     
     # creates the project using data from this dialog    
