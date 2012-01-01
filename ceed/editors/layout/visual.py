@@ -221,10 +221,13 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         elif data.hasFormat("application/x-ceed-widget-type"):
             widgetType = data.data("application/x-ceed-widget-type").data()
             parentItem = self.itemFromIndex(parent)
-            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItem.data(Qt.UserRole)) if parentItem is not None else None
+            # if the drop was at empty space (parentItem is None) the parentItemPath
+            # should be "" if no root item exists, otherwise the name of the root item
+            parentItemPath = parentItem.data(Qt.UserRole) if parentItem is not None else self.dockWidget.visual.scene.rootManipulator.widget.getName() if self.dockWidget.visual.scene.rootManipulator is not None else ""
+            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItemPath) if parentItemPath else None
             uniqueName = parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]) if parentManipulator is not None else widgetType.rsplit("/", 1)[-1]
             
-            cmd = undo.CreateCommand(self.dockWidget.visual, parentItem.data(Qt.UserRole) if parentItem is not None else "", widgetType, uniqueName)
+            cmd = undo.CreateCommand(self.dockWidget.visual, parentItemPath, widgetType, uniqueName)
             self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
             
             return True
