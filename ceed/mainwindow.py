@@ -330,7 +330,7 @@ Details of this error: %s""" % (e))
         
             return False
         
-    def openProject(self, path, openSettings = False, performSanityCheck = True):
+    def openProject(self, path, openSettings = False):
         """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
         The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
         being shown if there are changes to it)
@@ -359,9 +359,7 @@ Details of this error: %s""" % (e))
             self.project = None
             return
         
-        #Do a sanity check if this isn't a new project.
-        if performSanityCheck:
-            self.performProjectDirectoriesSanityCheck()
+        self.performProjectDirectoriesSanityCheck()
         
         # view the newly opened project in the project manager
         self.projectManager.setProject(self.project)
@@ -631,19 +629,37 @@ Details of this error: %s""" % (e))
             newProject = newProjectDialog.createProject()
             newProject.save()
 
-            #This is a new project.  If the user lets CEED create the resource
-            #directories, there's no need to bring up the settings activity.
-            #Just create the project and perform a sanity check.
-            #If the user doesn't want CEED to create the default resource
-            #directories, additional information needs to be entered.  So bring
-            #up the project settings, but don't annoy the user with the sanity
-            #check (yet).
-            if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
-                self.openProject(path = newProject.projectFilePath)
-            else:
-                self.openProject(path = newProject.projectFilePath, openSettings = True, performSanityCheck = False)
-            # save the project with the settings that were potentially set in the project settings dialog
-            self.saveProject()
+        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+            try:
+                path = os.path.dirname(newProjectDialog.projectFilePath.text())+"/"
+                if not os.path.exists(path+"fonts"):
+                    os.mkdir(path+"fonts")
+                if not os.path.exists(path+"imagesets"):
+                    os.mkdir(path+"imagesets")
+                if not os.path.exists(path+"layouts"):
+                    os.mkdir(path+"layouts")
+                if not os.path.exists(path+"looknfeel"):
+                    os.mkdir(path+"looknfeel")
+                if not os.path.exists(path+"schemes"):
+                    os.mkdir(path+"schemes")
+                if not os.path.exists(path+"xml_schemas"):
+                    os.mkdir(path+"xml_schemas")
+            except OSError as e:
+                QMessageBox.critical(self, "Cannot create resource \
+directories!", "There was a problem creating the resource \
+directories.  Do you have the proper permissions on the \
+parent directory?")
+
+        #This is a new project.  If the user lets CEED create the resource
+        #directories, there's no need to bring up the settings activity.
+        #If the user doesn't want CEED to create the default resource
+        #directories, additional information needs to be entered.
+        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+            self.openProject(path = newProject.projectFilePath)
+        else:
+            self.openProject(path = newProject.projectFilePath, openSettings = True)
+        # save the project with the settings that were potentially set in the project settings dialog
+        self.saveProject()
 
     def slot_openProject(self):
         if self.project:

@@ -730,29 +730,6 @@ class NewProjectDialog(QDialog):
             QMessageBox.critical(self, "Project file path invalid!", "Its parent directory ('%s') is inaccessible!" % (os.path.dirname(self.projectFilePath.text())))
             return
 
-        print(self.createResourceDirs.checkState() == Qt.Checked)
-        if self.createResourceDirs.checkState() == Qt.Checked:
-            try:
-                path = os.path.dirname(self.projectFilePath.text())+"/"
-                if not os.path.exists(path+"fonts"):
-                    os.mkdir(path+"fonts")
-                if not os.path.exists(path+"imagesets"):
-                    os.mkdir(path+"imagesets")
-                if not os.path.exists(path+"layouts"):
-                    os.mkdir(path+"layouts")
-                if not os.path.exists(path+"looknfeel"):
-                    os.mkdir(path+"looknfeel")
-                if not os.path.exists(path+"schemes"):
-                    os.mkdir(path+"schemes")
-                if not os.path.exists(path+"xml_schemas"):
-                    os.mkdir(path+"xml_schemas")
-            except OSError as e:
-                QMessageBox.critical(self, "Cannot create resource \
-directories!", "There was a problem creating the resource \
-directories.  Do you have the proper permissions on the \
-parent directory?")
-                return
-
         super(NewProjectDialog, self).accept()
     
     # creates the project using data from this dialog    
