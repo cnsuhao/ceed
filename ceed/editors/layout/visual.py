@@ -54,12 +54,24 @@ class WidgetHierarchyItem(QStandardItem):
         
         self.setFlags(Qt.ItemIsEnabled |
                       Qt.ItemIsSelectable |
+                      Qt.ItemIsEditable |
                       Qt.ItemIsDropEnabled |
                       Qt.ItemIsDragEnabled)
         
     def clone(self):
         ret = WidgetHierarchyItem(self.manipulator)
         return ret
+
+    def refreshPathData(self):
+        """Updates the stored path data for the item and its children
+        """
+        if self.manipulator is not None:
+            self.setData(self.manipulator.widget.getNamePath(), Qt.UserRole)
+            childrenCount = self.rowCount()
+            i = 0
+            while i < childrenCount:
+                self.child(i).refreshPathData()
+                i += 1
 
 class WidgetHierarchyTreeModel(QStandardItemModel):
     def __init__(self, dockWidget):
@@ -68,6 +80,47 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         self.dockWidget = dockWidget
         self.setItemPrototype(WidgetHierarchyItem(None))
         
+    def data(self, index, role = Qt.DisplayRole):
+        return super(WidgetHierarchyTreeModel, self).data(index, role)
+
+    def setData(self, index, value, role = Qt.EditRole):
+        if role == Qt.EditRole:
+            item = self.itemFromIndex(index)
+
+            # if the new name is the same, cancel
+            if value == item.manipulator.widget.getName():
+                return False
+
+            # validate the new name, cancel if invalid
+            value = widgethelpers.Manipulator.getValidWidgetName(value)
+            if not value:
+                msgBox = QMessageBox()
+                msgBox.setText("The name was not changed because the new name is invalid.")
+                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.exec_()
+                return False
+
+            # check if the new name is unique in the parent, cancel if not 
+            parentWidget = item.manipulator.widget.getParent()
+            if parentWidget is not None and parentWidget.isChild(value):
+                msgBox = QMessageBox()
+                msgBox.setText("The name was not changed because the new name is in use by a sibling widget.")
+                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.exec_()
+                return False
+
+            # the name is good, apply it
+            cmd = undo.RenameCommand(self.dockWidget.visual, item.manipulator.widget.getNamePath(), value)
+            self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
+
+            # return false because the undo command has changed the text of the item already
+            return False
+
+        return super(WidgetHierarchyTreeModel, self).setData(index, value, role)
+
+    def flags(self, index):
+        return super(WidgetHierarchyTreeModel, self).flags(index)
+
     def constructSubtree(self, manipulator):
         ret = WidgetHierarchyItem(manipulator)
         

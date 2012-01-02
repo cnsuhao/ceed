@@ -775,3 +775,59 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
                 
     def id(self):
         return idbase + 13
+
+class RenameCommand(commands.UndoCommand):
+    """This command changes the name of the given widget
+    """
+
+    def __init__(self, visual, oldWidgetPath, newWidgetName):
+        super(RenameCommand, self).__init__()
+
+        self.visual = visual
+
+        self.oldWidgetPath = oldWidgetPath
+        self.newWidgetName = newWidgetName
+
+        self.oldWidgetName = oldWidgetPath[oldWidgetPath.rfind("/") + 1:]
+        self.newWidgetPath = oldWidgetPath[:oldWidgetPath.rfind("/") + 1] + newWidgetName
+
+        self.refreshText()
+
+    def refreshText(self):
+        self.setText("Rename '%s' to '%s'" % (self.oldWidgetName, self.newWidgetName))
+
+    def id(self):
+        return idbase + 14
+
+    def mergeWith(self, cmd):
+        # don't merge if the new rename command will simply revert to previous commands old name
+        if self.newWidgetPath == cmd.oldWidgetPath and self.oldWidgetName != cmd.newWidgetName:
+            self.newWidgetName = cmd.newWidgetName
+            self.newWidgetPath = self.oldWidgetPath[0:self.oldWidgetPath.rfind("/") + 1] + self.newWidgetName
+
+            self.refreshText()
+            return True
+
+        return False
+
+    def undo(self):
+        super(RenameCommand, self).undo()
+
+        widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.newWidgetPath)
+        assert(hasattr(widgetManipulator, "treeItem"))
+        assert(widgetManipulator.treeItem is not None)
+
+        widgetManipulator.widget.setName(self.oldWidgetName)
+        widgetManipulator.treeItem.setText(self.oldWidgetName)
+        widgetManipulator.treeItem.refreshPathData()
+
+    def redo(self):
+        widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.oldWidgetPath)
+        assert(hasattr(widgetManipulator, "treeItem"))
+        assert(widgetManipulator.treeItem is not None)
+
+        widgetManipulator.widget.setName(self.newWidgetName)
+        widgetManipulator.treeItem.setText(self.newWidgetName)
+        widgetManipulator.treeItem.refreshPathData()
+
+        super(RenameCommand, self).redo()
