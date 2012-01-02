@@ -633,18 +633,21 @@ Details of this error: %s""" % (e))
                                           QMessageBox.Yes | QMessageBox.Cancel,
                                           QMessageBox.Cancel)
 
-            if result == QMessageBox.Yes:
-                self.closeProject()
-            else:
-                # User selected cancel, NOOP
+            if result != QMessageBox.Yes:
                 return
+            # don't close the project yet, close it after the user
+            # accepts the New Project dialog below because they may cancel 
 
         newProjectDialog = project.NewProjectDialog()
-        result = newProjectDialog.exec_()
+        if newProjectDialog.exec_() != QDialog.Accepted:
+            return
 
-        if result == QDialog.Accepted:
-            newProject = newProjectDialog.createProject()
-            newProject.save()
+        # The dialog was accepted, close any open project
+        if self.project:
+            self.closeProject()
+
+        newProject = newProjectDialog.createProject()
+        newProject.save()
 
         if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
             try:
