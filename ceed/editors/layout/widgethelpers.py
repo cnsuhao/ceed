@@ -89,6 +89,19 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             
         return cls.snapGridBrush
     
+    @staticmethod
+    def getValidWidgetName(name):
+        """Returns a valid CEGUI widget name out of the supplied name, if possible.
+        Returns None if the supplied name is invalid and can't be converted to a valid name
+        (an empty string for example).
+        """
+        if not name:
+            return None
+        name = name.strip()
+        if not name:
+            return None
+        return name.replace("/", "_")
+    
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = True):
         self.visual = visual
         

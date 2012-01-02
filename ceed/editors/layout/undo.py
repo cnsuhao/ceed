@@ -477,7 +477,7 @@ class ReparentCommand(commands.UndoCommand):
         if len(self.oldWidgetPaths) == 1:
             self.setText("Reparent '%s' to '%s'" % (self.oldWidgetPaths[0], self.newWidgetPaths[0]))
         else:
-            self.setText("Reparent %i widgets'" % (len(self.oldWidgetPaths)))
+            self.setText("Reparent %i widgets" % (len(self.oldWidgetPaths)))
     
     def id(self):
         return idbase + 8
@@ -501,6 +501,8 @@ class ReparentCommand(commands.UndoCommand):
         while i < len(self.newWidgetPaths):
             widgetPath = self.newWidgetPaths[i]
             oldWidgetPath = self.oldWidgetPaths[i]
+            newWidgetName = widgetPath[widgetPath.rfind("/") + 1:]
+            oldWidgetName = oldWidgetPath[oldWidgetPath.rfind("/") + 1:]
 
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             oldParentPath = oldWidgetPath[0:oldWidgetPath.rfind("/")]
@@ -510,6 +512,11 @@ class ReparentCommand(commands.UndoCommand):
             ceguiParentWidget = widgetManipulator.widget.getParent()
             if ceguiParentWidget is not None:
                 ceguiParentWidget.removeChild(widgetManipulator.widget)
+            
+            # rename it if necessary
+            if oldWidgetName != newWidgetName:
+                widgetManipulator.widget.setProperty("Name", oldWidgetName)
+            
             # add it to the old CEGUI parent widget
             ceguiOldParentWidget = oldParentManipulator.widget
             ceguiOldParentWidget.addChild(widgetManipulator.widget)
@@ -532,6 +539,8 @@ class ReparentCommand(commands.UndoCommand):
         while i < len(self.oldWidgetPaths):
             widgetPath = self.oldWidgetPaths[i]
             newWidgetPath = self.newWidgetPaths[i]
+            oldWidgetName = widgetPath[widgetPath.rfind("/") + 1:]
+            newWidgetName = newWidgetPath[newWidgetPath.rfind("/") + 1:]
 
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             newParentPath = newWidgetPath[0:newWidgetPath.rfind("/")]
@@ -541,6 +550,11 @@ class ReparentCommand(commands.UndoCommand):
             ceguiParentWidget = widgetManipulator.widget.getParent()
             if ceguiParentWidget is not None:
                 ceguiParentWidget.removeChild(widgetManipulator.widget)
+            
+            # rename it if necessary
+            if oldWidgetName != newWidgetName:
+                widgetManipulator.widget.setProperty("Name", newWidgetName)
+            
             # add it to the new CEGUI parent widget
             ceguiNewParentWidget = newParentManipulator.widget
             ceguiNewParentWidget.addChild(widgetManipulator.widget)
