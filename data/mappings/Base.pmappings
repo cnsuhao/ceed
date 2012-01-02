@@ -20,7 +20,7 @@
     <!-- End of CEGUI::Element -->
 
     <!-- CEGUI::NamedElement -->
-    
+    <mapping propertyOrigin="NamedElement" propertyName="Name" targetInspectorName="" />
     <!-- End of CEGUI::NamedElement -->
 
     <!-- CEGUI::Window -->
