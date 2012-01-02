@@ -81,3 +81,7 @@ def declare(actionManager):
                      help = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
                      icon = QIcon("icons/layout_editing/focus_property_inspector_filter_box.png"),
                      defaultShortcut = QKeySequence(QKeySequence.Find))
+    
+    cat.createAction(name = "copy_widget_path", label = "Copy widget paths",
+                     help = "Copies the 'NamePath' properties of the selected widgets to the clipboard.",
+                     icon = QIcon("icons/actions/copy.png"))

@@ -21,6 +21,7 @@
 
     <!-- CEGUI::NamedElement -->
     <mapping propertyOrigin="NamedElement" propertyName="Name" targetInspectorName="" />
+    <mapping propertyOrigin="NamedElement" propertyName="NamePath" targetInspectorName="" />
     <!-- End of CEGUI::NamedElement -->
 
     <!-- CEGUI::Window -->

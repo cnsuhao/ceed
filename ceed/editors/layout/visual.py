@@ -31,6 +31,7 @@ from ceed.editors.layout import widgethelpers
 
 import ceed.ui.editors.layout.propertiesdockwidget
 import cPickle
+import os
 
 class WidgetHierarchyItem(QStandardItem):
     def __init__(self, manipulator):
@@ -336,6 +337,42 @@ class WidgetHierarchyTreeView(QTreeView):
         
         self.dockWidget.visual.scene.ignoreSelectionChanges = False
 
+    def setupContextMenu(self):
+        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+        self.contextMenu = QMenu(self)
+
+        # TODO: Add cut/copy/paste, rename, delete
+        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
+        self.contextMenu.addAction(self.copyNamePathAction)
+
+    def contextMenuEvent(self, event):
+        selectedIndices = self.selectedIndexes()
+
+        # TODO: since these actions enabled state depends on the selection,
+        # move the enabling/disabling to a central "selection changed" handler.
+        # The handler should be called on tab activations too because
+        # activating a tab changes the selection, effectively.
+        self.copyNamePathAction.setEnabled(len(selectedIndices) > 0)
+
+        self.contextMenu.exec_(event.globalPos())
+
+    def copySelectedWidgetPaths(self):
+        selectedIndices = self.selectedIndexes()
+        if len(selectedIndices) == 0:
+            return
+
+        paths = []
+        for index in selectedIndices:
+            item = self.model().itemFromIndex(index)
+            if item.manipulator is not None:
+                paths.append(item.manipulator.widget.getNamePath())
+
+        if len(paths) > 0:
+            # sort (otherwise the order is the item selection order)
+            paths.sort()
+            QApplication.clipboard().setText(os.linesep.join(paths))
+
 class HierarchyDockWidget(QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
     """
@@ -354,9 +391,9 @@ class HierarchyDockWidget(QDockWidget):
         self.treeView = self.findChild(WidgetHierarchyTreeView, "treeView")
         self.treeView.dockWidget = self
         self.treeView.setModel(self.model)
-        
+
         self.rootWidgetManipulator = None
-        
+
     def setRootWidgetManipulator(self, root):
         """Sets the widget manipulator that is at the root of our observed hierarchy.
         Uses getTreeItemForManipulator to recursively populate the tree.
@@ -846,6 +883,7 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         self.setupActions()
         self.setupToolBar()
+        self.hierarchyDockWidget.treeView.setupContextMenu()
 
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
@@ -884,6 +922,11 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         self.connectionGroup.add("layout/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
         self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
+        
+        # general
+        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
+        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
+
         
     def setupToolBar(self):
         self.toolBar = QToolBar()
