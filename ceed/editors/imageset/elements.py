@@ -435,6 +435,21 @@ class ImagesetEntry(QGraphicsPixmapItem):
         
         self.transparencyBackground.setBrush(transparentBrush)
         self.transparencyBackground.setPen(QPen(QColor(Qt.transparent)))
+
+        # Allocate space for monitoring the image, but don't load anything since
+        # nothing has been loaded yet
+        self.imageMonitor = None
+
+        # The imageMonitor seems to signal on file flush's, so multiple signals
+        # will be sent to reload the image.  Instead of blindy calling loadImage
+        # every time the signal is sent, delay a little bit by using QTimer.
+        # If another signal is sent before the delay time's out, push it back.
+        # Once the timer signals, the file is most likely done writing, and
+        # should be okay to reload.
+        self.imageRefreshTimer = None
+
+        # Make sure the image is okay to reload by also monitoring the file size.
+        self.imageSizeMonitor = None
         
     def getImageEntry(self, name):
         for image in self.imageEntries:
@@ -444,6 +459,30 @@ class ImagesetEntry(QGraphicsPixmapItem):
         assert(False)
         return None
     
+    def slot_imageChangedByExternalProgram(self):
+        """Monitor the image with a QFilesystemWatcher and call a timer to
+        reload it after some time. If multiple signals are sent, just push the
+        timer back."""
+
+        if self.imageRefreshTimer is None:
+            self.imageRefreshTimer = QTimer()
+            self.imageRefreshTimer.timeout.connect(self.slot_imageRefreshTimer)
+            self.imageRefreshTimer.setSingleShot(True)
+        else:
+            self.imageRefreshTimer.stop()
+
+        self.imageRefreshTimer.start(500)
+
+        # Keep track of the file size to be sure the image is ready to be read
+        self.imageSizeMonitor = QFileInfo(self.getAbsoluteImageFile()).size()
+
+    def slot_imageRefreshTimer(self):
+        """When the image is done being written, reload it."""
+        
+        # This shouldn't fail, but just to be sure, make sure the file sizes match
+        assert(self.imageSizeMonitor == QFileInfo(self.getAbsoluteImageFile()).size())
+        self.loadImage(self.imageFile)
+
     def loadImage(self, relativeImagePath):
         """
         Replaces the underlying image (if any is loaded) to the image on given relative path
@@ -452,6 +491,13 @@ class ImagesetEntry(QGraphicsPixmapItem):
         (which is usually your project's imageset resource group path)
         """
         
+        # If imageMonitor is null, then no images are being watched or the
+        # editor is first being opened up
+        # Otherwise, the image is being changed or switched, and the monitor
+        # should update itself accordingly
+        if self.imageMonitor != None:
+            self.imageMonitor.removePath(self.getAbsoluteImageFile())
+
         self.imageFile = relativeImagePath
         self.setPixmap(QPixmap(self.getAbsoluteImageFile()))
         self.transparencyBackground.setRect(self.boundingRect())
@@ -463,6 +509,12 @@ class ImagesetEntry(QGraphicsPixmapItem):
             imageEntry.updateDockWidget()
             
         self.visual.refreshSceneRect()
+
+        # If imageMonitor is null, allocate and watch the loaded file
+        if self.imageMonitor == None:
+            self.imageMonitor = QFileSystemWatcher(None)
+            self.imageMonitor.fileChanged.connect(self.slot_imageChangedByExternalProgram)
+        self.imageMonitor.addPath(self.getAbsoluteImageFile())
     
     def getAbsoluteImageFile(self):
         """Returns an absolute (OS specific!) path of the underlying image
