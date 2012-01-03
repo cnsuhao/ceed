@@ -356,7 +356,7 @@ class TabbedEditor(object):
             QMessageBox.critical(self, "Error saving file!", 
                     "CEED encountered "
                     "an error trying to save the file.  Do you have the "
-                    "proper permissions?")
+                    "proper permissions?\n\n[ " + e.strerror + " ]")
             return False
             
         

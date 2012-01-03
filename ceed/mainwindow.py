@@ -781,7 +781,7 @@ parent directory?")
                 QMessageBox.critical(self, "Error creating file!", 
                         "CEED encountered "
                         "an error trying to create a new file.  Do you have the "
-                        "proper permissions?")
+                        "proper permissions?\n\n[ " + e.strerror + " ]")
                 return
 
             self.openEditorTab(file)
