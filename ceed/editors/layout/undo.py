@@ -785,11 +785,15 @@ class RenameCommand(commands.UndoCommand):
 
         self.visual = visual
 
-        self.oldWidgetPath = oldWidgetPath
-        self.newWidgetName = newWidgetName
+        # NOTE: rfind returns -1 when '/' can't be found, so in case the widget
+        #       is the root widget, -1 + 1 = 0 and the slice just returns
+        #       full name of the widget
 
+        self.oldWidgetPath = oldWidgetPath
         self.oldWidgetName = oldWidgetPath[oldWidgetPath.rfind("/") + 1:]
+        
         self.newWidgetPath = oldWidgetPath[:oldWidgetPath.rfind("/") + 1] + newWidgetName
+        self.newWidgetName = newWidgetName
 
         self.refreshText()
 
