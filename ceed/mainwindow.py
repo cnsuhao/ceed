@@ -50,6 +50,26 @@ class MainWindow(QMainWindow):
     # TODO: This class has grown too much, I think it has too many responsibilities
     #       and refactoring will be needed in the future.
 
+    @property
+    def project(self):
+        return self._project
+ 
+    @project.setter
+    def project(self, value):
+        self._project = value
+        if self.fileSystemBrowser:
+            self.fileSystemBrowser.projectDirectoryButton.setEnabled(True if value else False)
+
+    @property
+    def activeEditor(self):
+        return self._activeEditor
+ 
+    @activeEditor.setter
+    def activeEditor(self, value):
+        self._activeEditor = value
+        if self.fileSystemBrowser:
+            self.fileSystemBrowser.activeFileDirectoryButton.setEnabled(True if value else False)
+
     def __init__(self, app):
         # make sure multiple instantiation won't happen
         assert(MainWindow.instance is None)
@@ -82,8 +102,8 @@ class MainWindow(QMainWindow):
             text_editor.TextTabbedEditorFactory()
         ]
 
-        self.activeEditor = None
-        self.project = None
+        self._activeEditor = None
+        self._project = None
 
         self.ui = ceed.ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
@@ -613,23 +633,56 @@ Details of this error: %s""" % (e))
                                           QMessageBox.Yes | QMessageBox.Cancel,
                                           QMessageBox.Cancel)
 
-            if result == QMessageBox.Yes:
-                self.closeProject()
-            else:
-                # User selected cancel, NOOP
+            if result != QMessageBox.Yes:
                 return
+            # don't close the project yet, close it after the user
+            # accepts the New Project dialog below because they may cancel 
 
         newProjectDialog = project.NewProjectDialog()
-        result = newProjectDialog.exec_()
+        if newProjectDialog.exec_() != QDialog.Accepted:
+            return
 
-        if result == QDialog.Accepted:
-            newProject = newProjectDialog.createProject()
-            newProject.save()
+        # The dialog was accepted, close any open project
+        if self.project:
+            self.closeProject()
 
-            # since this is a new project we do want to open project settings immediately
+        newProject = newProjectDialog.createProject()
+        newProject.save()
+
+        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+            try:
+                # FIXME: This should be changed to use os.path.join
+                
+                path = os.path.dirname(newProjectDialog.projectFilePath.text())+"/"
+                if not os.path.exists(path+"fonts"):
+                    os.mkdir(path+"fonts")
+                if not os.path.exists(path+"imagesets"):
+                    os.mkdir(path+"imagesets")
+                if not os.path.exists(path+"layouts"):
+                    os.mkdir(path+"layouts")
+                if not os.path.exists(path+"looknfeel"):
+                    os.mkdir(path+"looknfeel")
+                if not os.path.exists(path+"schemes"):
+                    os.mkdir(path+"schemes")
+                if not os.path.exists(path+"xml_schemas"):
+                    os.mkdir(path+"xml_schemas")
+            except OSError:
+                QMessageBox.critical(self, "Cannot create resource \
+directories!", "There was a problem creating the resource \
+directories.  Do you have the proper permissions on the \
+parent directory?")
+
+        # This is a new project.  If the user lets CEED create the resource
+        # directories, there's no need to bring up the settings activity.
+        # If the user doesn't want CEED to create the default resource
+        # directories, additional information needs to be entered.
+        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+            self.openProject(path = newProject.projectFilePath)
+        else:
             self.openProject(path = newProject.projectFilePath, openSettings = True)
-            # save the project with the settings that were potentially set in the project settings dialog
-            self.saveProject()
+            
+        # save the project with the settings that were potentially set in the project settings dialog
+        self.saveProject()
 
     def slot_openProject(self):
         if self.project:

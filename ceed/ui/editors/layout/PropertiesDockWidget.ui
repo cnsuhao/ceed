@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>198</width>
-    <height>450</height>
+    <width>200</width>
+    <height>140</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,13 +30,16 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="PropertySetInspector" name="inspector" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>180</width>
-        <height>300</height>
-       </size>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>

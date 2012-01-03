@@ -30,6 +30,9 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="WidgetHierarchyTreeView" name="treeView">
       <property name="dragEnabled">
