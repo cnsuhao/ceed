@@ -37,7 +37,7 @@ class FileLineEdit(QWidget):
         self.filter = "Any file (*.*)"
         
         self.lineEdit = self.findChild(QLineEdit, "lineEdit")
-        self.browseButton = self.findChild(QPushButton, "browseButton")
+        self.browseButton = self.findChild(QToolButton, "browseButton")
         
         self.browseButton.pressed.connect(self.slot_browse)
         
