@@ -85,3 +85,7 @@ def declare(actionManager):
     cat.createAction(name = "copy_widget_path", label = "Copy widget paths",
                      help = "Copies the 'NamePath' properties of the selected widgets to the clipboard.",
                      icon = QIcon("icons/actions/copy.png"))
+    
+    cat.createAction(name = "rename", label = "Rename widget",
+                     help = "Edits the selected widget's name.",
+                     icon = QIcon("icons/layout_editing/rename.png"))

@@ -342,9 +342,24 @@ class WidgetHierarchyTreeView(QTreeView):
 
         self.contextMenu = QMenu(self)
 
-        # TODO: Add cut/copy/paste, rename, delete
+        self.renameAction = action.getAction("layout/rename")
+        self.contextMenu.addAction(self.renameAction)
+
+        self.contextMenu.addSeparator()
+
+        self.cutAction = action.getAction("all_editors/cut")
+        self.contextMenu.addAction(self.cutAction)
+        self.copyAction = action.getAction("all_editors/copy")
+        self.contextMenu.addAction(self.copyAction)
         self.copyNamePathAction = action.getAction("layout/copy_widget_path")
         self.contextMenu.addAction(self.copyNamePathAction)
+        self.pasteAction = action.getAction("all_editors/paste")
+        self.contextMenu.addAction(self.pasteAction)
+
+        self.contextMenu.addSeparator()
+
+        self.deleteAction = action.getAction("layout/delete")
+        self.contextMenu.addAction(self.deleteAction)
 
     def contextMenuEvent(self, event):
         selectedIndices = self.selectedIndexes()
@@ -353,9 +368,22 @@ class WidgetHierarchyTreeView(QTreeView):
         # move the enabling/disabling to a central "selection changed" handler.
         # The handler should be called on tab activations too because
         # activating a tab changes the selection, effectively.
-        self.copyNamePathAction.setEnabled(len(selectedIndices) > 0)
+        # We don't touch the cut/copy/paste actions because they're shared
+        # among all editors and disabling them here would disable them
+        # for the other editors too.
+        haveSel = len(selectedIndices) > 0
+        self.copyNamePathAction.setEnabled(haveSel)
+        self.renameAction.setEnabled(haveSel)
+        self.deleteAction.setEnabled(haveSel)
 
         self.contextMenu.exec_(event.globalPos())
+
+    def editSelectedWidgetName(self):
+        selectedIndices = self.selectedIndexes()
+        if len(selectedIndices) == 0:
+            return
+        self.setCurrentIndex(selectedIndices[0])
+        self.edit(selectedIndices[0])
 
     def copySelectedWidgetPaths(self):
         selectedIndices = self.selectedIndexes()
@@ -926,6 +954,8 @@ class VisualEditing(QWidget, mixed.EditMode):
         # general
         self.copyNamePathAction = action.getAction("layout/copy_widget_path")
         self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
+        self.renameWidgetAction = action.getAction("layout/rename")
+        self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
 
         
     def setupToolBar(self):
