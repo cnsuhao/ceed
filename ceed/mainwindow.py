@@ -955,7 +955,14 @@ parent directory?")
         if self.activeEditor:
             filePath, filter = QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
             if filePath: # make sure user hasn't cancelled the dialog
-                self.activeEditor.saveAs(filePath)
+                try:
+                    self.activeEditor.saveAs(filePath)
+                except IOError as e:
+                    QMessageBox.critical(self, "Error saving file!", 
+                            "CEED encountered "
+                            "an error trying to save the file.  Do you have the "
+                            "proper permissions?")
+
 
     def slot_saveAll(self):
         """Saves all opened tabbed editors and opened project (if any)
