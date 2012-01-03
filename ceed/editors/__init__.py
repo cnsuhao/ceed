@@ -193,9 +193,7 @@ class TabbedEditor(object):
 
                     # A file exists and the editor has it open, so watch it for
                     # external changes.
-                    self.fileMonitor = QFileSystemWatcher(self.mainWindow)
-                    self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
-                    self.fileMonitor.addPath(self.filePath)
+                    self.addFileMonitor(self.filePath)
                     
                 except compatibility.NoPossibleTypesError:
                     dialog = NoTypeDetectedDialog(self.compatibilityManager)
@@ -345,8 +343,7 @@ class TabbedEditor(object):
 
         # Stop monitoring the file, the changes that are about to occur are not
         # picked up as being from an external program!
-        if self.fileMonitor is not None: # FIXME: Will it ever be None at this point?
-            self.fileMonitor.removePath(self.filePath)
+        self.removeFileMonitor(self.filePath)
         
         f = open(targetPath, "w")
         f.write(outputData)
@@ -363,12 +360,20 @@ class TabbedEditor(object):
             if hasattr(self, "mainWindow"):
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
 
-        if self.fileMonitor is None: # FIXME: Will it ever be None at this point?
+        self.addFileMonitor(self.filePath)
+
+    def addFileMonitor(self, path):
+        """Adds a file monitor to the specified file so CEED will alert the
+        user that an external change happened to the file"""
+        if self.fileMonitor is None:
             self.fileMonitor = QFileSystemWatcher(self.mainWindow)
             self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
-            self.fileMonitor.addPath(self.filePath)
-        else:
-            self.fileMonitor.addPath(self.filePath)
+        self.fileMonitor.addPath(path)
+
+    def removeFileMonitor(self, path):
+        """Removes the file monitor from the specified path"""
+        if self.fileMonitor is not None: # FIXME: Will it ever be None at this point?
+            self.fileMonitor.removePath(path)
 
     def save(self):
         """Saves all progress to the same file we have opened at the moment

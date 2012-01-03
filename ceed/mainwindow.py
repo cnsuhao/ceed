@@ -774,8 +774,15 @@ parent directory?")
         file, filter = QFileDialog.getSaveFileName(self, "New File", dir)
 
         if file:
-            f = open(file, "w")
-            f.close()
+            try:
+                f = open(file, "w")
+                f.close()
+            except IOError as e:
+                QMessageBox.critical(self, "Error creating file!", 
+                        "CEED encountered "
+                        "an error trying to create a new file.  Do you have the "
+                        "proper permissions?")
+                return
 
             self.openEditorTab(file)
 
@@ -867,7 +874,17 @@ parent directory?")
 
             if result == QMessageBox.Save:
                 # lets save changes and then kill the editor (This is the default action)
-                editor.save()
+                # If there was an error saving the file, stop what we're doing
+                # and let the user fix the problem.
+                try:
+                    editor.save()
+                except IOError as e:
+                    QMessageBox.critical(self, "Error saving file!", 
+                            "CEED encountered "
+                            "an error trying to save the file.  Do you have the "
+                            "proper permissions?")
+                    return False
+                    
                 self.closeEditorTab(editor)
                 return True
 
@@ -926,7 +943,13 @@ parent directory?")
 
     def slot_save(self):
         if self.activeEditor:
-            self.activeEditor.save()
+            try:
+                self.activeEditor.save()
+            except IOError as e:
+                QMessageBox.critical(self, "Error saving file!", 
+                        "CEED encountered "
+                        "an error trying to save the file.  Do you have the "
+                        "proper permissions?")
 
     def slot_saveAs(self):
         if self.activeEditor:
