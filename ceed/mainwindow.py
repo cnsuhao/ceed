@@ -876,15 +876,9 @@ parent directory?")
                 # lets save changes and then kill the editor (This is the default action)
                 # If there was an error saving the file, stop what we're doing
                 # and let the user fix the problem.
-                try:
-                    editor.save()
-                except IOError as e:
-                    QMessageBox.critical(self, "Error saving file!", 
-                            "CEED encountered "
-                            "an error trying to save the file.  Do you have the "
-                            "proper permissions?")
+                if not editor.save():
                     return False
-                    
+
                 self.closeEditorTab(editor)
                 return True
 
@@ -943,26 +937,13 @@ parent directory?")
 
     def slot_save(self):
         if self.activeEditor:
-            try:
-                self.activeEditor.save()
-            except IOError as e:
-                QMessageBox.critical(self, "Error saving file!", 
-                        "CEED encountered "
-                        "an error trying to save the file.  Do you have the "
-                        "proper permissions?")
+            self.activeEditor.save()
 
     def slot_saveAs(self):
         if self.activeEditor:
             filePath, filter = QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
             if filePath: # make sure user hasn't cancelled the dialog
-                try:
-                    self.activeEditor.saveAs(filePath)
-                except IOError as e:
-                    QMessageBox.critical(self, "Error saving file!", 
-                            "CEED encountered "
-                            "an error trying to save the file.  Do you have the "
-                            "proper permissions?")
-
+                self.activeEditor.saveAs(filePath)
 
     def slot_saveAll(self):
         """Saves all opened tabbed editors and opened project (if any)

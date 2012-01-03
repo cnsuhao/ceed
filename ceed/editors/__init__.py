@@ -345,9 +345,20 @@ class TabbedEditor(object):
         # picked up as being from an external program!
         self.removeFileMonitor(self.filePath)
         
-        f = open(targetPath, "w")
-        f.write(outputData)
-        f.close()
+        try:
+            f = open(targetPath, "w")
+            f.write(outputData)
+            f.close()
+        except IOError as e:
+            # The rest of the code is skipped, so be sure to turn file
+            # monitoring back on
+            self.addFileMonitor(self.filePath)
+            QMessageBox.critical(self, "Error saving file!", 
+                    "CEED encountered "
+                    "an error trying to save the file.  Do you have the "
+                    "proper permissions?")
+            return False
+            
         
         if updateCurrentPath:
             # changes current path to the path we saved to
@@ -361,6 +372,7 @@ class TabbedEditor(object):
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
 
         self.addFileMonitor(self.filePath)
+        return True
 
     def addFileMonitor(self, path):
         """Adds a file monitor to the specified file so CEED will alert the
@@ -379,7 +391,7 @@ class TabbedEditor(object):
         """Saves all progress to the same file we have opened at the moment
         """
         
-        self.saveAs(self.filePath)
+        return self.saveAs(self.filePath)
 
     def discardChanges(self):
         """Causes the tabbed editor to discard all it's progress"""
@@ -493,9 +505,11 @@ class UndoStackTabbedEditor(TabbedEditor):
         return not self.undoStack.isClean()
 
     def saveAs(self, targetPath, updateCurrentPath = True):
-        super(UndoStackTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
-        
-        self.undoStack.setClean()
+        if super(UndoStackTabbedEditor, self).saveAs(targetPath, updateCurrentPath):
+            self.undoStack.setClean()
+            return True
+
+        return False
         
     def undo(self):
         self.undoStack.undo()
