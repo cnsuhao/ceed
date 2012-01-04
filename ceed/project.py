@@ -40,13 +40,11 @@ class Item(QStandardItem):
     """
     
     Unknown = 1
-    """A file is an item that can't have any children, it is directly opened instead of
-    being expanded/collapsed like folders
-    """
+    # A file is an item that can't have any children, it is directly opened instead of
+    # being expanded/collapsed like folders
     File = 2
-    """Folder is a group of files. Project folders don't necessarily have to have
-    a counterpart on the HDD, they could be virtual.
-    """
+    # Folder is a group of files. Project folders don't necessarily have to have
+    # a counterpart on the HDD, they could be virtual.
     Folder = 3
 
     itemType = property(lambda self: self.data(Qt.UserRole + 1),
@@ -58,8 +56,9 @@ class Item(QStandardItem):
     icon = property(lambda self: self.icon(),
                     lambda self, value: self.setIcon(QIcon(value)))
     
-    # only applicable to files
-    """path is the path relative to project's base dir"""
+    # following properties are only applicable to files
+    
+    # path is the path relative to project's base dir
     path = property(lambda self: self.getPath(),
                     lambda self, value: self.setPath(value))
     # only applicable to folders
@@ -190,7 +189,7 @@ class Item(QStandardItem):
         return self.project.getAbsolutePathOf(self.path)
         
     @staticmethod
-    def loadFromElement(project, parent, element):
+    def loadFromElement(project, element):
         item = Item(project)
         
         typeString = element.get("type")
@@ -204,7 +203,7 @@ class Item(QStandardItem):
             
             subItemElements = element.findall("Item")
             for subItemElement in subItemElements:
-                subItem = Item.loadFromElement(project, item, subItemElement)
+                subItem = Item.loadFromElement(project, subItemElement)
                 item.appendRow(subItem)
                 
         else:
@@ -293,7 +292,7 @@ class Project(QStandardItemModel):
         items = root.find("Items")
         
         for itemElement in items.findall("Item"):
-            item = Item.loadFromElement(self, None, itemElement)
+            item = Item.loadFromElement(self, itemElement)
             self.appendRow(item)
             
         self.changed = False
@@ -332,9 +331,9 @@ class Project(QStandardItemModel):
             i = i + 1
         
         nativeData = ElementTree.tostring(root)
-        f = open(path, "w")
-        f.write(nativeData)
-        f.close()
+        outputFile = open(path, "w")
+        outputFile.write(nativeData)
+        outputFile.close()
     
     def hasChanges(self):
         return self.changed
