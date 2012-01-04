@@ -303,6 +303,9 @@ class PropertySetInspector(QWidget):
         self.view = self.findChild(QTreeView, "view")
         self.model = QStandardItemModel()
         
+        # we store the last used filter to be able to reapply it when inspected property sets change
+        self.lastUsedFilter = ""
+
         self.setPropertySets([])
         
         self.view.setItemDelegate(PropertySetInspectorDelegate(self))
@@ -399,6 +402,8 @@ class PropertySetInspector(QWidget):
         else:
             self.setEnabled(False)
             
+        # reapply last filter (we have cleared the whole model, including show/hide state of properties)
+        self.filterChanged(self.lastUsedFilter)
         self.setUpdatesEnabled(True)
         
     def getPropertySets(self):
@@ -420,6 +425,7 @@ class PropertySetInspector(QWidget):
             self.setPropertySets(self.propertySets)
     
     def filterChanged(self, filter):
+        self.lastUsedFilter = filter
         # we append star at the beginning and at the end by default (makes property filtering much more practical)
         filter = "*" + filter + "*"
         
