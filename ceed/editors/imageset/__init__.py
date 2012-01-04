@@ -140,7 +140,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         self.nativeData = ElementTree.tostring(rootElement, "utf-8")
         
-        super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
+        return super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
     def performCut(self):
         if self.currentWidget() is self.visual:

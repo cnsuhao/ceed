@@ -132,7 +132,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
             # empty layout
             self.nativeData = ""
         
-        super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
+        return super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
     def performCut(self):
         if self.currentWidget() is self.visual:
