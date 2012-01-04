@@ -123,6 +123,9 @@ class Bitmap(Input):
     def __init__(self, metaImageset):
         super(Bitmap, self).__init__(metaImageset)
         
+        self.path = ""
+        self.paths = []
+        
         self.xoffset = 0
         self.yoffset = 0
         self.images = []
@@ -156,6 +159,9 @@ class Bitmap(Input):
 class SVG(Input):
     def __init__(self, metaImageset):
         super(SVG, self).__init__(metaImageset)
+        
+        self.path = ""
+        self.paths = []
         
         self.xoffset = 0
         self.yoffset = 0
