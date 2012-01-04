@@ -257,7 +257,7 @@ class Category(object):
 
     def createEntry(self, **kwargs):
         if self.getSection("") is None:
-            section = self.createSection("")
+            section = self.createSection(name = "")
             section.sortingWeight = -1
 
         section = self.getSection("")
