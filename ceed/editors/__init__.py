@@ -193,9 +193,7 @@ class TabbedEditor(object):
 
                     # A file exists and the editor has it open, so watch it for
                     # external changes.
-                    self.fileMonitor = QFileSystemWatcher(self.mainWindow)
-                    self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
-                    self.fileMonitor.addPath(self.filePath)
+                    self.addFileMonitor(self.filePath)
                     
                 except compatibility.NoPossibleTypesError:
                     dialog = NoTypeDetectedDialog(self.compatibilityManager)
@@ -345,12 +343,22 @@ class TabbedEditor(object):
 
         # Stop monitoring the file, the changes that are about to occur are not
         # picked up as being from an external program!
-        if self.fileMonitor is not None: # FIXME: Will it ever be None at this point?
-            self.fileMonitor.removePath(self.filePath)
+        self.removeFileMonitor(self.filePath)
         
-        f = open(targetPath, "w")
-        f.write(outputData)
-        f.close()
+        try:
+            f = open(targetPath, "w")
+            f.write(outputData)
+            f.close()
+        except IOError as e:
+            # The rest of the code is skipped, so be sure to turn file
+            # monitoring back on
+            self.addFileMonitor(self.filePath)
+            QMessageBox.critical(self, "Error saving file!", 
+                    "CEED encountered "
+                    "an error trying to save the file.  Do you have the "
+                    "proper permissions?\n\n[ " + e.strerror + " ]")
+            return False
+            
         
         if updateCurrentPath:
             # changes current path to the path we saved to
@@ -363,18 +371,27 @@ class TabbedEditor(object):
             if hasattr(self, "mainWindow"):
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
 
-        if self.fileMonitor is None: # FIXME: Will it ever be None at this point?
+        self.addFileMonitor(self.filePath)
+        return True
+
+    def addFileMonitor(self, path):
+        """Adds a file monitor to the specified file so CEED will alert the
+        user that an external change happened to the file"""
+        if self.fileMonitor is None:
             self.fileMonitor = QFileSystemWatcher(self.mainWindow)
             self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
-            self.fileMonitor.addPath(self.filePath)
-        else:
-            self.fileMonitor.addPath(self.filePath)
+        self.fileMonitor.addPath(path)
+
+    def removeFileMonitor(self, path):
+        """Removes the file monitor from the specified path"""
+        if self.fileMonitor is not None: # FIXME: Will it ever be None at this point?
+            self.fileMonitor.removePath(path)
 
     def save(self):
         """Saves all progress to the same file we have opened at the moment
         """
         
-        self.saveAs(self.filePath)
+        return self.saveAs(self.filePath)
 
     def discardChanges(self):
         """Causes the tabbed editor to discard all it's progress"""
@@ -488,9 +505,11 @@ class UndoStackTabbedEditor(TabbedEditor):
         return not self.undoStack.isClean()
 
     def saveAs(self, targetPath, updateCurrentPath = True):
-        super(UndoStackTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
-        
-        self.undoStack.setClean()
+        if super(UndoStackTabbedEditor, self).saveAs(targetPath, updateCurrentPath):
+            self.undoStack.setClean()
+            return True
+
+        return False
         
     def undo(self):
         self.undoStack.undo()
