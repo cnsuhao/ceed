@@ -170,7 +170,7 @@ class CodeEditMode(QTextEdit, EditMode):
         """Returns native source code from your editor implementation."""
         
         raise NotImplementedError("Every CodeEditing derived class must implement CodeEditing.getRefreshedNativeSource")
-        return ""
+        #return ""
     
     def propagateNativeCode(self, code):
         """Synchronizes your editor implementation with given native source code.
@@ -180,8 +180,7 @@ class CodeEditMode(QTextEdit, EditMode):
         """
         
         raise NotImplementedError("Every CodeEditing derived class must implement CodeEditing.propagateNativeSource")
-        
-        return False
+        #return False
     
     def refreshFromVisual(self):
         """Refreshes this Code editing mixed mode with current native source code."""
