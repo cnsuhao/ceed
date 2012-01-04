@@ -16,7 +16,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# This module provides all metaimageset API core functionality (except editing)
+"""
+This module provides all metaimageset API core functionality (except editing)
+"""
 
 import ceed.editors.imageset.elements as imageset_elements
 import ceed.compatibility.imageset as imageset_compatibility
@@ -55,7 +57,7 @@ class Input(object):
     def loadFromElement(self, element):
         raise NotImplementedError("Each Input subclass must override Input.loadFromElement!")
     
-    def saveToElement(self, element):
+    def saveToElement(self):
         raise NotImplementedError("Each Input subclass must override Input.saveToElement!")
     
     def getImages(self):
@@ -104,6 +106,8 @@ class Imageset(Input):
     def saveToElement(self):
         ret = ElementTree.Element("Imageset")
         ret.set("path", self.filePath)
+        
+        return ret
     
     def getImages(self):
         assert(self.imagesetEntry is not None)
@@ -143,6 +147,8 @@ class Bitmap(Input):
         ret.set("path", self.path)
         ret.set("xoffset", str(self.xoffset))
         ret.set("yoffset", str(self.yoffset))
+        
+        return ret
     
     def getImages(self):
         return self.images
@@ -183,6 +189,8 @@ class SVG(Input):
         ret.set("path", self.path)
         ret.set("xoffset", str(self.xoffset))
         ret.set("yoffset", str(self.yoffset))
+        
+        return ret
     
     def getImages(self):
         return self.images
@@ -245,3 +253,5 @@ class MetaImageset(object):
         for input in self.inputs:
             element = input.saveToElement()
             ret.append(element)
+            
+        return ret
