@@ -40,7 +40,8 @@ class CEGUIQtLogger(PyCEGUI.Logger):
     # don't like mixing base classes at all
 
     def __init__(self):
-        super(CEGUIQtLogger, self).__init__()
+        # don't use super here, PyCEGUI.Logger is an old-style class
+        PyCEGUI.Logger.__init__(self)
 
     def logEvent(self, message, level):
         #self.widgetInfo.logEvent(message, level)
