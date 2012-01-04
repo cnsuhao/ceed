@@ -103,7 +103,7 @@ class Imageset(Input):
     
     def saveToElement(self):
         ret = ElementTree.Element("Imageset")
-        ret.set("path", self.path)
+        ret.set("path", self.filePath)
     
     def getImages(self):
         assert(self.imagesetEntry is not None)
