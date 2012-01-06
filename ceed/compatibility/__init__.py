@@ -118,8 +118,13 @@ class Manager(object):
         """Retrieves all possible extensions of all types this manager knows of."""
     
         ret = []
+        # remove duplicates
+        seen = set()
         for detector in self.detectors:
-            ret.extend(detector.getPossibleExtensions())
+            for x in detector.getPossibleExtensions():
+                if not x in seen:
+                    ret.append(x)
+                    seen.add(x)
             
         return ret
     

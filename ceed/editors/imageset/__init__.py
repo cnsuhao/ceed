@@ -160,9 +160,31 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
 
         return False
 
+    def performDelete(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performDelete()
+
+        return False
+
+    def zoomIn(self):
+        if self.currentWidget() is self.visual:
+            self.visual.zoomIn()
+
+    def zoomOut(self):
+        if self.currentWidget() is self.visual:
+            self.visual.zoomOut()
+
+    def zoomReset(self):
+        if self.currentWidget() is self.visual:
+            self.visual.zoomOriginal()
+
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
-    def canEditFile(self, filePath):
+    def getFileExtensions(self):
         extensions = imageset_compatibility.Manager.instance.getAllPossibleExtensions()
+        return extensions
+
+    def canEditFile(self, filePath):
+        extensions = self.getFileExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

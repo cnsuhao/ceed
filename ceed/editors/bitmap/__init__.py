@@ -51,8 +51,12 @@ class BitmapTabbedEditor(editors.TabbedEditor, QWidget):
         return False
 
 class BitmapTabbedEditorFactory(editors.TabbedEditorFactory):
-    def canEditFile(self, filePath):
+    def getFileExtensions(self):
         extensions = ["png", "jpg", "jpeg", "tga", "dds"]
+        return extensions
+
+    def canEditFile(self, filePath):
+        extensions = self.getFileExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

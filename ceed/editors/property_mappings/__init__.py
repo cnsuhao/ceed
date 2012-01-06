@@ -54,8 +54,12 @@ class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
         self.tabWidget = None
 
 class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
-    def canEditFile(self, filePath):
+    def getFileExtensions(self):
         extensions = ["pmappings"]
+        return extensions
+
+    def canEditFile(self, filePath):
+        extensions = self.getFileExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

@@ -68,8 +68,12 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
         super(AnimationListTabbedEditor, self).deactivate()
 
 class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
-    def canEditFile(self, filePath):
+    def getFileExtensions(self):
         extensions = ["anims"]
+        return extensions
+
+    def canEditFile(self, filePath):
+        extensions = self.getFileExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

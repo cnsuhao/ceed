@@ -101,6 +101,19 @@ class MainWindow(QMainWindow):
             property_mappings_editor.PropertyMappingsTabbedEditorFactory(),
             text_editor.TextTabbedEditorFactory()
         ]
+        # File dialog filters, keep indices in sync with the list above
+        self.editorFactoryFileFilters = [
+            "Animation files (%s)" % ("*." + " *.".join(self.editorFactories[0].getFileExtensions())),
+            "Bitmap files (%s)" % ("*." + " *.".join(self.editorFactories[1].getFileExtensions())),
+            "Imageset files (%s)" % ("*." + " *.".join(self.editorFactories[2].getFileExtensions())),
+            "Layout files (%s)" % ("*." + " *.".join(self.editorFactories[3].getFileExtensions())),
+            "Property Mapping files (%s)" % ("*." + " *.".join(self.editorFactories[4].getFileExtensions())),
+            "Text files (%s)" % ("*." + " *.".join(self.editorFactories[5].getFileExtensions()))
+        ]
+        allExt = []
+        for factory in self.editorFactories:
+            allExt.extend(factory.getFileExtensions())
+        self.editorFactoryFileFilters.insert(0, "All known files (*." + " *.".join(allExt) + ")")
 
         self._activeEditor = None
         self._project = None
@@ -129,39 +142,23 @@ class MainWindow(QMainWindow):
         self.tabEditors = []
 
         self.projectManager = project.ProjectManager()
+        self.projectManager.fileOpenRequested.connect(self.slot_openFile)
         self.addDockWidget(Qt.RightDockWidgetArea, self.projectManager)
 
         self.fileSystemBrowser = filesystembrowser.FileSystemBrowser()
         self.fileSystemBrowser.setVisible(False)
+        self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
         self.addDockWidget(Qt.RightDockWidgetArea, self.fileSystemBrowser)
 
         self.undoViewer = commands.UndoViewer()
         self.undoViewer.setVisible(False)
         self.addDockWidget(Qt.RightDockWidgetArea, self.undoViewer)
 
-        # this menu contains checkable "actions" that hide and show the panels
-        # even though you can achieve the same thing by right clicking empty space in
-        # mainwindow I believe having this has a benefit, it is much easier to find this way
-        self.menuPanels = self.findChild(QMenu, "menuPanels")
-        self.menuPanels.addAction(self.projectManager.toggleViewAction())
-        self.menuPanels.addAction(self.fileSystemBrowser.toggleViewAction())
-        self.menuPanels.addAction(self.undoViewer.toggleViewAction())
-
-        # get the toolbar and subscribe to the icon size setting
-        # note: we never unsubscribe but it's OK because the mainwindow is a singleton
-        self.globalToolbar = self.findChild(QToolBar, "globalToolbar")
-        tbIconSizeEntry = self.app.settings.getEntry("global/ui/toolbar_icon_size")
-        self.updateToolbarIconSize(tbIconSizeEntry.value)
-        tbIconSizeEntry.subscribe(lambda value: self.updateToolbarIconSize(value))
-
         self.setupActions()
+        self.setupMenus()
+        self.setupToolbars()
 
         self.restoreSettings()
-
-    def updateToolbarIconSize(self, size):
-        if size < 16:
-            size = 16
-        self.globalToolbar.setIconSize(QSize(size, size))
 
     def setupActions(self):
         # usage of a connection group in mainwindow may be unnecessary,
@@ -169,147 +166,302 @@ class MainWindow(QMainWindow):
         # way to group connections
         self.connectionGroup = action.ConnectionGroup(self.actionManager)
 
-        self.fileMenu = self.findChild(QMenu, "menuFile")
-        self.editMenu = self.findChild(QMenu, "menuEdit")
-
+        #
+        # get and connect all actions we care about
+        #
         self.newFileAction = self.actionManager.getAction("all_editors/new_file")
-        self.fileMenu.addAction(self.newFileAction)
-        self.globalToolbar.addAction(self.newFileAction)
         self.connectionGroup.add(self.newFileAction, receiver = self.slot_newFileDialog)
 
+        self.newLayoutAction = self.actionManager.getAction("all_editors/new_layout")
+        self.connectionGroup.add(self.newLayoutAction, receiver = self.slot_newLayoutDialog)
+        
+        self.newImagesetAction = self.actionManager.getAction("all_editors/new_imageset")
+        self.connectionGroup.add(self.newImagesetAction, receiver = self.slot_newImagesetDialog)
+        
         self.openFileAction = self.actionManager.getAction("all_editors/open_file")
-        self.fileMenu.addAction(self.openFileAction)
-        self.globalToolbar.addAction(self.openFileAction)
         self.connectionGroup.add(self.openFileAction, receiver = self.slot_openFileDialog)
 
         self.saveAction = self.actionManager.getAction("all_editors/save_file")
         self.saveAction.setEnabled(False)
-        self.fileMenu.addAction(self.saveAction)
-        self.globalToolbar.addAction(self.saveAction)
         self.connectionGroup.add(self.saveAction, receiver = self.slot_save)
-        
+
         self.saveAsAction = self.actionManager.getAction("all_editors/save_file_as")
         self.saveAsAction.setEnabled(False)
-        self.fileMenu.addAction(self.saveAsAction)
-        self.globalToolbar.addAction(self.saveAsAction)
         self.connectionGroup.add(self.saveAsAction, receiver = self.slot_saveAs)
 
         self.saveAllAction = self.actionManager.getAction("all_editors/save_all")
-        self.fileMenu.addAction(self.saveAllAction)
-        self.globalToolbar.addAction(self.saveAllAction)
         self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
-
-        self.fileMenu.addSeparator()
 
         # tab bar context menu (but also added to the file menu so it's easy to discover)
         self.closeTabAction = self.actionManager.getAction("all_editors/close_current_tab")
         self.closeTabAction.setEnabled(False)
-        self.fileMenu.addAction(self.closeTabAction)
         self.connectionGroup.add(self.closeTabAction, receiver = self.slot_closeTab)
 
         self.closeOtherTabsAction = self.actionManager.getAction("all_editors/close_other_tabs")
         self.closeOtherTabsAction.setEnabled(False)
-        self.fileMenu.addAction(self.closeOtherTabsAction)
         self.connectionGroup.add(self.closeOtherTabsAction, receiver = self.slot_closeOtherTabs)
 
         self.closeAllTabsAction = self.actionManager.getAction("all_editors/close_all_tabs")
-        self.fileMenu.addAction(self.closeAllTabsAction)
         self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
         # end of tab bar context menu
 
-        self.fileMenu.addSeparator()
-        self.globalToolbar.addSeparator()
+        self.revertAction = self.actionManager.getAction("all_editors/revert_file")
+        # TODO: Revert
+        #self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_revert)
+
+        # the clear action will be handled by the RecentlyUsed manager, no need to connect
+        self.clearRecentFilesAction = self.actionManager.getAction("all_editors/clear_recent_files")
+
+        # the clear action will be handled by the RecentlyUsed manager, no need to connect
+        self.clearRecentProjectsAction = self.actionManager.getAction("all_editors/clear_recent_projects")
 
         self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
-        self.editMenu.addAction(self.undoAction)
-        self.globalToolbar.addAction(self.undoAction)
         self.connectionGroup.add(self.undoAction, receiver = self.slot_undo)
 
         self.redoAction = self.actionManager.getAction("all_editors/redo")
         self.redoAction.setEnabled(False)
-        self.editMenu.addAction(self.redoAction)
-        self.globalToolbar.addAction(self.redoAction)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
 
-        self.editMenu.addSeparator()
-        self.globalToolbar.addSeparator()
-
         self.cutAction = self.actionManager.getAction("all_editors/cut")
-        self.editMenu.addAction(self.cutAction)
-        self.globalToolbar.addAction(self.cutAction)
         self.connectionGroup.add(self.cutAction, receiver = self.slot_cut)
 
         self.copyAction = self.actionManager.getAction("all_editors/copy")
-        self.editMenu.addAction(self.copyAction)
-        self.globalToolbar.addAction(self.copyAction)
         self.connectionGroup.add(self.copyAction, receiver = self.slot_copy)
 
         self.pasteAction = self.actionManager.getAction("all_editors/paste")
-        self.editMenu.addAction(self.pasteAction)
-        self.globalToolbar.addAction(self.pasteAction)
         self.connectionGroup.add(self.pasteAction, receiver = self.slot_paste)
 
-        self.editMenu.addSeparator()
-        self.globalToolbar.addSeparator()
+        self.deleteAction = self.actionManager.getAction("all_editors/delete")
+        self.connectionGroup.add(self.deleteAction, receiver = self.slot_delete)
 
         self.projectSettingsAction = self.actionManager.getAction("project_management/project_settings")
-        # when this starts up, no project is opened, hence you can't view/edit settings of the current project
         self.projectSettingsAction.setEnabled(False)
-        self.editMenu.addAction(self.projectSettingsAction)
-        self.globalToolbar.addAction(self.projectSettingsAction)
         self.connectionGroup.add(self.projectSettingsAction, receiver = self.slot_projectSettings)
-        
+
         self.projectReloadResourcesAction = self.actionManager.getAction("project_management/reload_resources")
-        # when this starts up, no project is opened, hence you can't reload resources of the current project
         self.projectReloadResourcesAction.setEnabled(False)
-        self.editMenu.addAction(self.projectReloadResourcesAction)
-        self.globalToolbar.addAction(self.projectReloadResourcesAction)
         self.connectionGroup.add(self.projectReloadResourcesAction, receiver = self.slot_projectReloadResources)
 
-        self.editMenu.addAction(self.actionManager.getAction("general/application_settings"))
-        self.connectionGroup.add("general/application_settings", receiver = lambda: self.settingsInterface.show())
+        self.preferencesAction = self.actionManager.getAction("general/application_settings")
+        self.connectionGroup.add(self.preferencesAction, receiver = lambda: self.settingsInterface.show())
 
-        self.fileMenu.addAction(self.actionManager.getAction("project_management/new_project"))
-        self.connectionGroup.add("project_management/new_project", receiver = self.slot_newProject)
+        self.newProjectAction = self.actionManager.getAction("project_management/new_project")
+        self.connectionGroup.add(self.newProjectAction, receiver = self.slot_newProject)
 
-        self.fileMenu.addAction(self.actionManager.getAction("project_management/open_project"))
-        self.connectionGroup.add("project_management/open_project", receiver = self.slot_openProject)
+        self.openProjectAction = self.actionManager.getAction("project_management/open_project")
+        self.connectionGroup.add(self.openProjectAction, receiver = self.slot_openProject)
 
         self.saveProjectAction = self.actionManager.getAction("project_management/save_project")
-        # when this starts up, no project is opened, hence you can't save the "no project"
         self.saveProjectAction.setEnabled(False)
-        self.fileMenu.addAction(self.saveProjectAction)
-        self.globalToolbar.addAction(self.saveProjectAction)
         self.connectionGroup.add(self.saveProjectAction, receiver = self.slot_saveProject)
 
         self.closeProjectAction = self.actionManager.getAction("project_management/close_project")
-        self.fileMenu.addAction(self.closeProjectAction)
-        self.connectionGroup.add(self.closeProjectAction, receiver = self.slot_closeProject)
-        # when this starts up, no project is opened, hence you can't close the current project
         self.closeProjectAction.setEnabled(False)
+        self.connectionGroup.add(self.closeProjectAction, receiver = self.slot_closeProject)
 
-        self.fileMenu.addSeparator()
+        self.quitAction = self.actionManager.getAction("general/quit")
+        self.connectionGroup.add(self.quitAction, receiver = self.slot_quit)
 
-        self.recentProjectsMenu = self.findChild(QMenu, "menuRecentProjects")
-        self.recentlyUsedProjects.setParentMenu(self.recentProjectsMenu, self.slot_openRecentProject)
+        self.helpContentsAction = self.actionManager.getAction("general/help_contents")
+        self.connectionGroup.add(self.helpContentsAction, receiver = self.slot_helpContents)
 
-        self.aboutAction = self.findChild(QAction, "actionAbout")
-        self.aboutAction.triggered.connect(self.slot_about)
+        self.sendFeedbackAction = self.actionManager.getAction("general/send_feedback")
+        self.connectionGroup.add(self.sendFeedbackAction, receiver = self.slot_sendFeedback)
 
-        self.licenseAction = self.findChild(QAction, "actionLicense")
-        self.licenseAction.triggered.connect(self.slot_license)
+        self.reportBugAction = self.actionManager.getAction("general/report_bug")
+        self.connectionGroup.add(self.reportBugAction, receiver = self.slot_reportBug)
 
-        self.qtAction = self.findChild(QAction, "actionQt")
-        self.qtAction.triggered.connect(QApplication.aboutQt)
+        self.viewLogAction = self.actionManager.getAction("general/view_log")
+        # TODO: Create/Connect log viewer
+        #self.connectionGroup.add(self.viewLogAction, receiver = self.slot_viewLog)
 
-        self.connectionGroup.add("general/quit", receiver = self.slot_quit)
-        self.fileMenu.addAction(self.actionManager.getAction("general/quit"))
+        self.viewLicenseAction = self.actionManager.getAction("general/view_license")
+        self.connectionGroup.add(self.viewLicenseAction, receiver = self.slot_license)
+
+        self.aboutQtAction = self.actionManager.getAction("general/about_qt")
+        self.connectionGroup.add(self.aboutQtAction, receiver = QApplication.aboutQt)
+
+        self.aboutAction = self.actionManager.getAction("general/about")
+        self.connectionGroup.add(self.aboutAction, receiver = self.slot_about)
+
+        self.zoomInAction = self.actionManager.getAction("all_editors/zoom_in")
+        self.connectionGroup.add(self.zoomInAction, receiver = self.slot_zoomIn)
+        self.zoomOutAction = self.actionManager.getAction("all_editors/zoom_out")
+        self.connectionGroup.add(self.zoomOutAction, receiver = self.slot_zoomOut)
+        self.zoomResetAction = self.actionManager.getAction("all_editors/zoom_reset")
+        self.connectionGroup.add(self.zoomResetAction, receiver = self.slot_zoomReset)
+
+        self.statusbarAction = self.actionManager.getAction("all_editors/statusbar")
+        self.statusbarAction.setChecked(True)
+        self.connectionGroup.add(self.statusbarAction, receiver = self.slot_toggleStatusbar)
+
+        self.fullScreenAction = self.actionManager.getAction("all_editors/full_screen")
+        self.connectionGroup.add(self.fullScreenAction, receiver = self.slot_toggleFullScreen)
 
         self.connectionGroup.connectAll()
 
-        self.projectManager.fileOpenRequested.connect(self.slot_openFile)
-        self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
+    def setupMenus(self):
+        #
+        # Construct File menu
+        #
+        self.fileMenu = QMenu("&File")
+        self.menuBar().addMenu(self.fileMenu)
+        menu = QMenu("&New")
+        # sorted, generic "file" last
+        menu.addActions([self.newImagesetAction, self.newLayoutAction, self.newFileAction])
+        menu.addSeparator()
+        menu.addAction(self.newProjectAction)
+        self.fileMenu.addMenu(menu)
+        self.fileNewMenu = menu
+        self.fileMenu.addActions([self.openFileAction, self.openProjectAction])
+        self.fileMenu.addSeparator()
+        self.fileMenu.addActions([self.closeTabAction, self.closeProjectAction])
+        self.fileMenu.addSeparator()
+        self.fileMenu.addActions([self.saveAction, self.saveAsAction, self.saveProjectAction, self.saveAllAction])
+        # TODO: Revert
+        #self.fileMenu.addSeparator()
+        #self.fileMenu.addAction(self.revertAction)
+        self.fileMenu.addSeparator()
+        # TODO: Recent files
+        #menu = QMenu("&Recent Files")
+        #self.fileMenu.addMenu(menu)
+        #self.recentlyUsedFiles.setParentMenu(menu, self.slot_openRecentFile, self.clearRecentFilesAction)
+        menu = QMenu("&Recent Projects")
+        self.fileMenu.addMenu(menu)
+        self.recentlyUsedProjects.setParentMenu(menu, self.slot_openRecentProject, self.clearRecentProjectsAction)
+        self.fileMenu.addSeparator()
+        self.fileMenu.addAction(self.quitAction)
+
+        #
+        # Construct Edit menu
+        #
+        self.editMenu = QMenu("&Edit")
+        self.menuBar().addMenu(self.editMenu)
+        self.editMenu.addActions([self.undoAction, self.redoAction])
+        self.editMenu.addSeparator()
+        self.editMenu.addActions([self.cutAction, self.copyAction, self.pasteAction, self.deleteAction])
+        self.editMenu.addSeparator()
+        self.editMenu.addAction(self.preferencesAction)
+
+        #
+        # Construct View menu
+        #
+        self.viewMenu = QMenu("&View")
+        self.menuBar().addMenu(self.viewMenu)
+
+        # this menu contains checkable "actions" that hide and show the panels
+        # even though you can achieve the same thing by right clicking empty space in
+        # mainwindow I believe having this has a benefit, it is much easier to find this way
+        menu = QMenu("&Docks")
+        menu.addActions([self.projectManager.toggleViewAction(), self.fileSystemBrowser.toggleViewAction(), self.undoViewer.toggleViewAction()])
+        #menu.addSeparator()
+        self.viewMenu.addMenu(menu)
+        self.viewDocksMenu = menu
+
+        menu = QMenu("&Toolbars")
+        #menu.addActions([self.projectManager.toggleViewAction(), self.fileSystemBrowser.toggleViewAction(), self.undoViewer.toggleViewAction()])
+        #menu.addSeparator()
+        self.viewMenu.addMenu(menu)
+        self.viewToolbarsMenu = menu
+        
+        self.viewMenu.addAction(self.statusbarAction)
+        
+        self.viewMenu.addSeparator()
+        self.viewMenu.addActions([self.zoomInAction, self.zoomOutAction, self.zoomResetAction])
+        self.viewMenu.addSeparator()
+        self.viewMenu.addAction(self.fullScreenAction)
+
+        #
+        # Construct Project menu
+        #
+        self.projectMenu = QMenu("&Project")
+        self.menuBar().addMenu(self.projectMenu)
+        self.projectMenu.addAction(self.projectReloadResourcesAction)
+        self.projectMenu.addSeparator()
+        self.projectMenu.addAction(self.projectSettingsAction)
+
+        #
+        # Construct Editor menu
+        #
+        #self.editorMenu = QMenu("Some E&ditor")
+        #self.menuBar().addMenu(self.editorMenu)
+
+        #
+        # Construct Tabs menu
+        #
+        self.tabsMenu = QMenu("&Tabs")
+        self.menuBar().addMenu(self.tabsMenu)
+        self.tabsMenu.addActions([self.closeOtherTabsAction, self.closeAllTabsAction])
+
+        #
+        # Construct Help menu
+        #
+        self.helpMenu = QMenu("&Help")
+        self.menuBar().addMenu(self.helpMenu)
+        self.helpMenu.addAction(self.helpContentsAction)
+        self.helpMenu.addSeparator()
+        self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction]) #, self.viewLogAction])
+        self.helpMenu.addSeparator()
+        self.helpMenu.addActions([self.viewLicenseAction, self.aboutQtAction])
+        self.helpMenu.addSeparator()
+        self.helpMenu.addAction(self.aboutAction)
+
+    def setupToolbars(self):
+        def createToolbar(name):
+            tb = QToolBar(name, self)
+            tbIconSizeEntry = self.app.settings.getEntry("global/ui/toolbar_icon_size")
+
+            def updateToolbarIconSize(toolbar, size):
+                if size < 16:
+                    size = 16
+                toolbar.setIconSize(QSize(size, size))
+
+            updateToolbarIconSize(tb, tbIconSizeEntry.value)
+            tbIconSizeEntry.subscribe(lambda value: updateToolbarIconSize(tb, value))
+            self.addToolBar(tb)
+            self.viewToolbarsMenu.addAction(tb.toggleViewAction())
+            return tb
+
+        #
+        # Standard toolbar
+        #
+        tbar = self.globalToolbar = createToolbar("Standard")
+        newMenuButton = QToolButton(tbar)
+        newMenuButton.setText("New")
+        newMenuButton.setToolTip("New File")
+        newMenuButton.setIcon(QIcon("icons/actions/new_file.png"))
+        newMenuButton.setMenu(self.fileNewMenu)
+        newMenuButton.setPopupMode(QToolButton.InstantPopup)
+        tbar.addWidget(newMenuButton)
+        tbar.addActions([self.openFileAction, self.openProjectAction])
+        tbar.addSeparator()
+        tbar.addActions([self.saveAction, self.saveAsAction, self.saveProjectAction, self.saveAllAction])
+        # The menubutton does not resize its icon correctly unless we tell it to do so 
+        tbar.iconSizeChanged.connect(lambda size: newMenuButton.setIconSize(size))
+
+        #
+        # Edit toolbar
+        #
+        tbar = self.editToolbar = createToolbar("Edit")
+        tbar.addActions([self.undoAction, self.redoAction])
+        tbar.addSeparator()
+        tbar.addActions([self.cutAction, self.copyAction, self.pasteAction, self.deleteAction])
+
+        #
+        # View toolbar
+        #
+        tbar = self.viewToolbar = createToolbar("View")
+        tbar.addActions([self.zoomInAction, self.zoomOutAction, self.zoomResetAction])
+        tbar.addSeparator()
+        tbar.addAction(self.fullScreenAction)
+
+        #
+        # Project toolbar
+        #
+        tbar = self.projectToolbar = createToolbar("Project")
+        tbar.addAction(self.projectReloadResourcesAction)
+        tbar.addAction(self.projectSettingsAction)
 
     def syncProjectToCEGUIInstance(self, indicateErrorsWithDialogs = True):
         """Synchronises current project to the CEGUI instance.
@@ -766,38 +918,111 @@ parent directory?")
         self.performProjectDirectoriesSanityCheck()
         self.syncProjectToCEGUIInstance()
         
-    def slot_newFileDialog(self):
-        dir = ""
+    def slot_newFileDialog(self, title = "New File", filtersList = None, selectedFilterIndex = 0, autoSuffix = False):
+        defaultDir = ""
         if self.project:
-            dir = self.project.getAbsolutePathOf("")
+            defaultDir = self.project.getAbsolutePathOf("")
 
-        file, filter = QFileDialog.getSaveFileName(self, "New File", dir)
+        # Qt (as of 4.8) does not support default suffix (extension) unless you use
+        # non-native file dialogs with non-static methods (see QFileDialog.setDefaultSuffix).
+        # HACK: We handle this differently depending on whether a default suffix is required
 
-        if file:
-            try:
-                f = open(file, "w")
-                f.close()
-            except IOError as e:
-                QMessageBox.critical(self, "Error creating file!", 
-                        "CEED encountered "
-                        "an error trying to create a new file.  Do you have the "
-                        "proper permissions?\n\n[ " + e.strerror + " ]")
-                return
+        if filtersList is None or len(filtersList) == 0 or not autoSuffix:
+            fileName, selectedFilter = QFileDialog.getSaveFileName(self,
+                                                       title,
+                                                       defaultDir,
+                                                       ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
+                                                       filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None)
+            if fileName:
+                try:
+                    f = open(fileName, "w")
+                    f.close()
+                except IOError as e:
+                    QMessageBox.critical(self, "Error creating file!", 
+                            "CEED encountered "
+                            "an error trying to create a new file.  Do you have the "
+                            "proper permissions?\n\n[ " + e.strerror + " ]")
+                    return
+                self.openEditorTab(fileName)
+        else:
+            while True:
+                fileName, selectedFilter = QFileDialog.getSaveFileName(self,
+                                                           title,
+                                                           defaultDir,
+                                                           ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
+                                                           filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None,
+                                                           QFileDialog.DontConfirmOverwrite)
+                if not fileName:
+                    break
 
-            self.openEditorTab(file)
+                # if there is no dot, append the selected filter's extension
+                if fileName.find(".") == -1:
+                    # really ugly, handle with care
+                    # find last open paren
+                    i = selectedFilter.rfind("(")
+                    if i != -1:
+                        # find next dot
+                        i = selectedFilter.find(".", i)
+                        if i != -1:
+                            # find next space or close paren
+                            k = selectedFilter.find(")", i)
+                            l = selectedFilter.find(" ", i)
+                            if l != -1 and l < k:
+                                k = l
+                            if k != -1:
+                                selectedExt = selectedFilter[i:k]
+                                if selectedExt.find("*") == -1 and selectedExt.find("?") == -1:
+                                    fileName += selectedExt
+
+                # and now test & confirm overwrite
+                try:
+                    if os.path.exists(fileName):
+                        msgBox = QMessageBox(self)
+                        msgBox.setText("A file named \"%s\" already exists in \"%s\"." % (os.path.basename(fileName), os.path.dirname(fileName)))
+                        msgBox.setInformativeText("Do you want to replace it, overwriting its contents?")
+                        msgBox.addButton(QMessageBox.Cancel)
+                        replaceButton = msgBox.addButton("&Replace", QMessageBox.YesRole)
+                        msgBox.setDefaultButton(replaceButton)
+                        msgBox.setIcon(QMessageBox.Question)
+                        msgBox.exec_()
+                        if msgBox.clickedButton() != replaceButton:
+                            continue
+                    f = open(fileName, "w")
+                    f.close()
+                except IOError as e:
+                    QMessageBox.critical(self, "Error creating file!", 
+                            "CEED encountered "
+                            "an error trying to create a new file.  Do you have the "
+                            "proper permissions?\n\n[ " + e.strerror + " ]")
+                    return
+                self.openEditorTab(fileName)
+                break
+
+    def slot_newLayoutDialog(self):
+        self.slot_newFileDialog(title = "New Layout",
+                                filtersList = ["Layout files (*.layout)"],
+                                autoSuffix = True)
+
+    def slot_newImagesetDialog(self):
+        self.slot_newFileDialog(title = "New Imageset",
+                                filtersList = ["Imageset files (*.imageset)"],
+                                autoSuffix = True)
 
     def slot_openFile(self, absolutePath):
         self.openEditorTab(absolutePath)
 
     def slot_openFileDialog(self):
-        dir = ""
+        defaultDir = ""
         if self.project:
-            dir = self.project.getAbsolutePathOf("")
+            defaultDir = self.project.getAbsolutePathOf("")
 
-        file, filter = QFileDialog.getOpenFileName(self, "Open File", dir)
-
-        if file:
-            self.openEditorTab(file)
+        fileName, selectedFilter = QFileDialog.getOpenFileName(self,
+                                                               "Open File",
+                                                               defaultDir,
+                                                               ";;".join(self.editorFactoryFileFilters),
+                                                               self.editorFactoryFileFilters[0])
+        if fileName:
+            self.openEditorTab(fileName)
 
     def slot_currentTabChanged(self, index):
         # to fight flicker
@@ -975,6 +1200,22 @@ parent directory?")
         if self.activeEditor:
             self.activeEditor.performPaste()
 
+    def slot_delete(self):
+        if self.activeEditor:
+            self.activeEditor.performDelete()
+
+    def slot_zoomIn(self):
+        if self.activeEditor:
+            self.activeEditor.zoomIn()
+
+    def slot_zoomOut(self):
+        if self.activeEditor:
+            self.activeEditor.zoomOut()
+
+    def slot_zoomReset(self):
+        if self.activeEditor:
+            self.activeEditor.zoomReset()
+
     def slot_about(self):
         dialog = about.AboutDialog()
         dialog.exec_()
@@ -1004,3 +1245,27 @@ parent directory?")
                     return
 
             self.openProject(temp)
+
+    def slot_toggleFullScreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+            if self.wasMaximized:
+                self.showMaximized()
+        else:
+            self.wasMaximized = self.isMaximized()
+            self.showFullScreen()
+
+    def slot_toggleStatusbar(self):
+        self.statusBar().hide() if self.statusBar().isVisible() else self.statusBar().show()
+
+    def openUrlString(self, url):
+        return QDesktopServices.openUrl(QUrl(url))
+
+    def slot_helpContents(self):
+        self.openUrlString("http://www.cegui.org.uk/wiki/index.php/CEED")
+
+    def slot_sendFeedback(self):
+        self.openUrlString("http://www.cegui.org.uk/phpBB2/viewforum.php?f=15")
+
+    def slot_reportBug(self):
+        self.openUrlString("http://www.cegui.org.uk/mantis/bug_report_page.php")

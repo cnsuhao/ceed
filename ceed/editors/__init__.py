@@ -465,6 +465,27 @@ class TabbedEditor(object):
         """
         return False
 
+    def performDelete(self):
+        """Deletes the selected items in the editor.
+        
+        Default implementation doesn't do anything
+        
+        Returns: True if the operation was successful
+        """
+        return False
+
+    def zoomIn(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+        
+    def zoomOut(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+        
+    def zoomReset(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+
 class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
@@ -553,7 +574,11 @@ class TabbedEditorFactory(object):
     can coexist - user editing 2 layouts for example - with the ability to switch
     from one to another) 
     """
-    
+
+    def getFileExtensions(self):
+        """Returns a list of file extensions (without prefix dots) that can be edited by this factory"""
+        return []
+
     def canEditFile(self, filePath):
         """This checks whether instance created by this factory can edit given file"""
         return False

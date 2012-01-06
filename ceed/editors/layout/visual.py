@@ -351,15 +351,15 @@ class WidgetHierarchyTreeView(QTreeView):
         self.contextMenu.addAction(self.cutAction)
         self.copyAction = action.getAction("all_editors/copy")
         self.contextMenu.addAction(self.copyAction)
-        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
-        self.contextMenu.addAction(self.copyNamePathAction)
         self.pasteAction = action.getAction("all_editors/paste")
         self.contextMenu.addAction(self.pasteAction)
+        self.deleteAction = action.getAction("all_editors/delete")
+        self.contextMenu.addAction(self.deleteAction)
 
         self.contextMenu.addSeparator()
 
-        self.deleteAction = action.getAction("layout/delete")
-        self.contextMenu.addAction(self.deleteAction)
+        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
+        self.contextMenu.addAction(self.copyNamePathAction)
 
     def contextMenuEvent(self, event):
         selectedIndices = self.selectedIndexes()
@@ -916,16 +916,6 @@ class VisualEditing(QWidget, mixed.EditMode):
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
         
-        # TODO: Move these to the new action API
-        self.zoomOriginalAction = action.getAction("layout/zoom_original")
-        self.connectionGroup.add(self.zoomOriginalAction, receiver = lambda: self.scene.views()[0].zoomOriginal())
-        
-        self.zoomInAction = action.getAction("layout/zoom_in")
-        self.connectionGroup.add(self.zoomInAction, receiver = lambda: self.scene.views()[0].zoomIn())
-        
-        self.zoomOutAction = action.getAction("layout/zoom_out")
-        self.connectionGroup.add(self.zoomOutAction, receiver = lambda: self.scene.views()[0].zoomOut())
-        
         # horizontal alignment actions
         self.alignHLeftAction = action.getAction("layout/align_hleft")
         self.connectionGroup.add(self.alignHLeftAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
@@ -941,9 +931,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.connectionGroup.add(self.alignVCentreAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
         self.alignVBottomAction = action.getAction("layout/align_vbottom")
         self.connectionGroup.add(self.alignVBottomAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
-        
-        self.deleteAction = action.getAction("layout/delete")
-        self.connectionGroup.add(self.deleteAction, receiver = lambda: self.scene.deleteSelectedWidgets())
         
         self.focusPropertyInspectorFilterBoxAction = action.getAction("layout/focus_property_inspector_filter_box")
         self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
@@ -962,12 +949,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.toolBar = QToolBar()
         self.toolBar.setIconSize(QSize(32, 32))
         
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.zoomOriginalAction)
-        self.toolBar.addAction(self.zoomInAction)
-        self.toolBar.addAction(self.zoomOutAction)
-        
-        self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.alignHLeftAction)
         self.toolBar.addAction(self.alignHCentreAction)
         self.toolBar.addAction(self.alignHRightAction)
@@ -975,8 +956,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.toolBar.addAction(self.alignVTopAction)
         self.toolBar.addAction(self.alignVCentreAction)
         self.toolBar.addAction(self.alignVBottomAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.deleteAction)
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(action.getAction("layout/snap_grid"))
         self.toolBar.addAction(action.getAction("layout/absolute_mode"))
@@ -1157,6 +1136,9 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.tabbedEditor.undoStack.push(cmd)
         
         return True
+
+    def performDelete(self):
+        return self.scene.deleteSelectedWidgets()
 
 # needs to be at the end to sort circular deps
 import ceed.ui.editors.layout.hierarchydockwidget
