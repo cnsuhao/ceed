@@ -118,7 +118,10 @@ class Manager(object):
         """Retrieves all possible extensions of all types this manager knows of."""
     
         ret = []
-        # remove duplicates
+        # we're using a temporary set() to prevent duplicate extensions
+        # getPossibleExtensions() returns a list, we go through its
+        # elements one by one and only add to 'ret' those that
+        # haven't been added yet.
         seen = set()
         for detector in self.detectors:
             for x in detector.getPossibleExtensions():
