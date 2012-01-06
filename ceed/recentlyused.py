@@ -63,7 +63,26 @@ class RecentlyUsed(object):
         # make sure we trim them correctly in all circumstances
         while len(items) > self.maxRecentlItems:
             items.remove(items[self.maxRecentlItems])
+    
+    def removeRecentlyUsed(self, itemname):
+        """Removes an item from the list. Safe to call even if the item is not in the list."""
+        items = []
+        if self.qsettings.contains(self.sectionIdentifier):
+            val = unicode(self.qsettings.value(self.sectionIdentifier))
+            items = self.stringToStringList(val)
             
+        # if something went wrong before, stop
+        if not isinstance(items, list):
+            return False
+        
+        if not itemname in items:
+            return False
+        
+        items.remove(itemname)
+
+        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(items))
+        return True
+    
     def clearRecentlyUsed(self):
         self.qsettings.remove(self.sectionIdentifier)
         
@@ -158,6 +177,11 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
         super(RecentlyUsedMenuEntry, self).addRecentlyUsed(itemName)
         self.updateMenu()
         
+    def removeRecentlyUsed(self, itemName):
+        """Removes an item from the list. Safe to call even if the item is not in the list."""
+        super(RecentlyUsedMenuEntry, self).removeRecentlyUsed(itemName)
+        self.updateMenu()
+
     def slot_clear(self):
         super(RecentlyUsedMenuEntry, self).clearRecentlyUsed()
         self.updateMenu()

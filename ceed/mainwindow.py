@@ -85,6 +85,7 @@ class MainWindow(QMainWindow):
         self.settingsInterface = settings.interface.QtSettingsInterface(self.app.settings)
 
         self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
+        self.recentlyUsedFiles = RecentlyUsedMenuEntry(self.app.qsettings, "Files")
 
         import ceed.editors.animation_list as animation_list_editor
         import ceed.editors.bitmap as bitmap_editor
@@ -323,10 +324,9 @@ class MainWindow(QMainWindow):
         #self.fileMenu.addSeparator()
         #self.fileMenu.addAction(self.revertAction)
         self.fileMenu.addSeparator()
-        # TODO: Recent files
-        #menu = QMenu("&Recent Files")
-        #self.fileMenu.addMenu(menu)
-        #self.recentlyUsedFiles.setParentMenu(menu, self.slot_openRecentFile, self.clearRecentFilesAction)
+        menu = QMenu("&Recent Files")
+        self.fileMenu.addMenu(menu)
+        self.recentlyUsedFiles.setParentMenu(menu, self.slot_openRecentFile, self.clearRecentFilesAction)
         menu = QMenu("&Recent Projects")
         self.fileMenu.addMenu(menu)
         self.recentlyUsedProjects.setParentMenu(menu, self.slot_openRecentProject, self.clearRecentProjectsAction)
@@ -664,6 +664,9 @@ Details of this error: %s""" % (e))
 
         try:
             ret.initialise(self)
+            
+            # add successfully opened file to the recent files list
+            self.recentlyUsedFiles.addRecentlyUsed(absolutePath)
 
         except Exception:
             # it may have been partly constructed at this point
@@ -1236,15 +1239,46 @@ parent directory?")
         else:
             event.accept()
 
-    def slot_openRecentProject(self):
-        temp = str(self.sender().data())
+    def slot_openRecentFile(self):
         if self.sender():
-            if self.project:
-                # give user a chance to save changes if needed
-                if not self.slot_closeProject():
-                    return
+            absolutePath = str(self.sender().data())
+            if os.path.exists(absolutePath):
+                self.openEditorTab(absolutePath)
+            else:
+                msgBox = QMessageBox(self)
+                msgBox.setText("File \"%s\" was not found." % (absolutePath))
+                msgBox.setInformativeText("The file does not exist; it may have been moved or deleted."
+                                          " Do you want to remove it from the recently used list?")
+                msgBox.addButton(QMessageBox.Cancel)
+                removeButton = msgBox.addButton("&Remove", QMessageBox.YesRole)
+                msgBox.setDefaultButton(removeButton)
+                msgBox.setIcon(QMessageBox.Question)
+                msgBox.exec_()
+                if msgBox.clickedButton() == removeButton:
+                    self.recentlyUsedFiles.removeRecentlyUsed(absolutePath)
 
-            self.openProject(temp)
+    def slot_openRecentProject(self):
+        if self.sender():
+            absolutePath = str(self.sender().data())
+            if os.path.exists(absolutePath):
+                if self.project:
+                    # give user a chance to save changes if needed
+                    if not self.slot_closeProject():
+                        return
+    
+                self.openProject(absolutePath)
+            else:
+                msgBox = QMessageBox(self)
+                msgBox.setText("Project \"%s\" was not found." % (absolutePath))
+                msgBox.setInformativeText("The project file does not exist; it may have been moved or deleted."
+                                          " Do you want to remove it from the recently used list?")
+                msgBox.addButton(QMessageBox.Cancel)
+                removeButton = msgBox.addButton("&Remove", QMessageBox.YesRole)
+                msgBox.setDefaultButton(removeButton)
+                msgBox.setIcon(QMessageBox.Question)
+                msgBox.exec_()
+                if msgBox.clickedButton() == removeButton:
+                    self.recentlyUsedProjects.removeRecentlyUsed(absolutePath)
 
     def slot_toggleFullScreen(self):
         if self.isFullScreen():
