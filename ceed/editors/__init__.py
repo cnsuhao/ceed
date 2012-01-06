@@ -576,7 +576,7 @@ class TabbedEditorFactory(object):
     """
 
     def getFileExtensions(self):
-        """Returns a list of file extensions (without prefix dots) that can be edited by this factory"""
+        """Returns a set of file extensions (without prefix dots) that can be edited by this factory"""
         return []
 
     def canEditFile(self, filePath):

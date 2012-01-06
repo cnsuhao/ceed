@@ -28,7 +28,7 @@ class Layout2TypeDetector(compatibility.TypeDetector):
         return CEGUILayout2
     
     def getPossibleExtensions(self):
-        return ["layout"]
+        return {"layout"}
     
     def matches(self, data, extension):
         if extension not in ["", "layout"]:
@@ -57,7 +57,7 @@ class Layout3TypeDetector(compatibility.TypeDetector):
         return CEGUILayout3
     
     def getPossibleExtensions(self):
-        return ["layout"]
+        return {"layout"}
     
     def matches(self, data, extension):
         if extension not in ["", "layout"]:
@@ -86,7 +86,7 @@ class Layout4TypeDetector(compatibility.TypeDetector):
         return CEGUILayout4
     
     def getPossibleExtensions(self):
-        return ["layout"]
+        return {"layout"}
     
     def matches(self, data, extension):
         if extension not in ["", "layout"]:
