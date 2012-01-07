@@ -88,6 +88,12 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         super(LayoutTabbedEditor, self).finalise()
         
         self.tabWidget = None
+
+    def rebuildEditorMenu(self, editorMenu):
+        editorMenu.setTitle("&Layout")
+        self.visual.rebuildEditorMenu(editorMenu)
+
+        return True, self.currentWidget() == self.visual
     
     def activate(self):
         super(LayoutTabbedEditor, self).activate()

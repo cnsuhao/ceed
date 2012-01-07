@@ -248,7 +248,7 @@ class ActionManager(declaration.ActionManager):
                                  help = "Performs a clipboard copy",
                                  icon = QIcon("icons/actions/copy.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Copy))
-        all_editors.createAction(name = "cut", label = "&Cut",
+        all_editors.createAction(name = "cut", label = "Cu&t",
                                  help = "Performs a clipboard cut",
                                  icon = QIcon("icons/actions/cut.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Cut))

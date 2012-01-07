@@ -269,6 +269,14 @@ class TabbedEditor(object):
         assert(tabRemoved)
         
         self.initialised = False
+
+    def rebuildEditorMenu(self, editorMenu):
+        """The main window has one special menu on its menubar (editorMenu)
+        whose items are updated dynamically to match the currently active
+        editor. Implement this method if you want to use this menu for an editor.
+        Returns two booleans: Visible, Enabled
+        """
+        return False, False
     
     def activate(self):
         """The tab gets "on stage", it's been clicked on and is now the only active
@@ -284,7 +292,13 @@ class TabbedEditor(object):
         
         if currentActive is not None:
             currentActive.deactivate()
-        
+
+        edMenu = self.mainWindow.editorMenu
+        edMenu.clear()
+        visible, enabled = self.rebuildEditorMenu(edMenu)
+        edMenu.menuAction().setVisible(visible)
+        edMenu.menuAction().setEnabled(enabled)
+
         self.active = True
 
         self.mainWindow.activeEditor = self
@@ -305,6 +319,10 @@ class TabbedEditor(object):
         
         if self.mainWindow.activeEditor == self:
             self.mainWindow.activeEditor = None
+            edMenu = self.mainWindow.editorMenu
+            edMenu.clear()
+            edMenu.menuAction().setEnabled(False)
+            edMenu.menuAction().setVisible(False)
     
     def makeCurrent(self):
         """Makes this tab editor current (= the selected tab)"""

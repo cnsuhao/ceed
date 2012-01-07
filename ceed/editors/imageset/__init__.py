@@ -104,6 +104,12 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         super(ImagesetTabbedEditor, self).finalise()
         
         self.tabWidget = None
+
+    def rebuildEditorMenu(self, editorMenu):
+        editorMenu.setTitle("&Imageset")
+        self.visual.rebuildEditorMenu(editorMenu)
+
+        return True, self.currentWidget() == self.visual
     
     def activate(self):
         super(ImagesetTabbedEditor, self).activate()

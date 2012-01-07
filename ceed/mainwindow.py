@@ -382,10 +382,14 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.projectSettingsAction)
 
         #
-        # Construct Editor menu
+        # Construct active editor menu
+        # This is disabled & hidden by default
+        # and it's managed by the active editor
         #
-        #self.editorMenu = QMenu("Some E&ditor")
-        #self.menuBar().addMenu(self.editorMenu)
+        self.editorMenu = QMenu("EditorMenu")
+        self.editorMenu.menuAction().setEnabled(False)
+        self.editorMenu.menuAction().setVisible(False)
+        self.menuBar().addMenu(self.editorMenu)
 
         #
         # Construct Tabs menu
