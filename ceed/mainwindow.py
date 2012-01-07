@@ -206,6 +206,12 @@ class MainWindow(QMainWindow):
         self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
         # end of tab bar context menu
 
+        self.previousTabAction = self.actionManager.getAction("all_editors/previous_tab")
+        self.connectionGroup.add(self.previousTabAction, receiver = self.slot_previousTab)
+
+        self.nextTabAction = self.actionManager.getAction("all_editors/next_tab")
+        self.connectionGroup.add(self.nextTabAction, receiver = self.slot_nextTab)
+
         self.revertAction = self.actionManager.getAction("all_editors/revert_file")
         # TODO: Revert
         #self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_revert)
@@ -404,6 +410,8 @@ class MainWindow(QMainWindow):
         #
         self.tabsMenu = QMenu("&Tabs")
         self.menuBar().addMenu(self.tabsMenu)
+        self.tabsMenu.addActions([self.previousTabAction, self.nextTabAction])
+        self.tabsMenu.addSeparator()
         self.tabsMenu.addActions([self.closeOtherTabsAction, self.closeAllTabsAction])
 
         #
@@ -1154,6 +1162,20 @@ parent directory?")
             if not self.slot_tabCloseRequested(i):
                 # user selected Cancel, we skip this widget
                 i += 1
+
+    def slot_previousTab(self):
+        if self.tabs.count() <= 1:
+            return
+        index = self.tabs.currentIndex() - 1
+        if index < 0:
+            index = self.tabs.count() + index
+        self.tabs.setCurrentIndex(index)
+
+    def slot_nextTab(self):
+        if self.tabs.count() <= 1:
+            return
+        index = (self.tabs.currentIndex() + 1) % self.tabs.count()
+        self.tabs.setCurrentIndex(index)
 
     def slot_tabBarCustomContextMenuRequested(self, point):
         atIndex = self.tabBar.tabAt(point)

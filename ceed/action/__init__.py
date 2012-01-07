@@ -236,6 +236,12 @@ class ActionManager(declaration.ActionManager):
                                  help = "Closes all tabs - asks for confirmation if there are unsaved changes.",
                                  icon = QIcon("icons/actions/close_all_tabs.png"),
                                  defaultShortcut = QKeySequence())
+        all_editors.createAction(name = "previous_tab", label = "&Previous Tab",
+                                 help = "Activates the previous (left) tab.",
+                                 defaultShortcut = QKeySequence("Ctrl+PgUp"))
+        all_editors.createAction(name = "next_tab", label = "&Next Tab",
+                                 help = "Activates the next (right) tab.",
+                                 defaultShortcut = QKeySequence("Ctrl+PgDown"))
         all_editors.createAction(name = "undo", label = "&Undo",
                                  help = "Undoes the last operation (in the currently active tabbed editor)",
                                  icon = QIcon("icons/actions/undo.png"),
