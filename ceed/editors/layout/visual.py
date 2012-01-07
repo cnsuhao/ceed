@@ -948,7 +948,7 @@ class VisualEditing(QWidget, mixed.EditMode):
 
         
     def setupToolBar(self):
-        self.toolBar = QToolBar()
+        self.toolBar = QToolBar("Layout")
         self.toolBar.setIconSize(QSize(32, 32))
         
         self.toolBar.addAction(self.alignHLeftAction)

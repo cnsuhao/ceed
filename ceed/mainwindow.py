@@ -350,23 +350,31 @@ class MainWindow(QMainWindow):
         self.viewMenu = QMenu("&View")
         self.menuBar().addMenu(self.viewMenu)
 
+        # the first menu item of the view menu is "Docks & Toolbars"
         # this menu contains checkable "actions" that hide and show the panels
         # even though you can achieve the same thing by right clicking empty space in
         # mainwindow I believe having this has a benefit, it is much easier to find this way
-        menu = QMenu("&Docks")
-        menu.addActions([self.projectManager.toggleViewAction(), self.fileSystemBrowser.toggleViewAction(), self.undoViewer.toggleViewAction()])
-        #menu.addSeparator()
-        self.viewMenu.addMenu(menu)
-        self.viewDocksMenu = menu
-
-        menu = QMenu("&Toolbars")
-        #menu.addActions([self.projectManager.toggleViewAction(), self.fileSystemBrowser.toggleViewAction(), self.undoViewer.toggleViewAction()])
-        #menu.addSeparator()
-        self.viewMenu.addMenu(menu)
-        self.viewToolbarsMenu = menu
+        # this menu is created dynamically when the view menu is about to be shown and we
+        # rely on the default implementation to create it.
+        # the other option would be to create the menu by iterating all docks and toolbars,
+        # like: https://qt.gitorious.org/qt/qt/blobs/4.8/src/gui/widgets/qmainwindow.cpp#line1643
+        self._docksAndToolbarsMenu = None
+        def viewMenuAboutShow():
+            # call super to be safe in case we change our own createPopupMenu.
+            menu = super(MainWindow, self).createPopupMenu()
+            menu.setTitle("&Docks && Toolbars")
+            # add before the statusbar action
+            self.viewMenu.insertMenu(self.statusbarAction, menu)
+            # keep reference so we can remove on hide
+            self._docksAndToolbarsMenu = menu
+        def viewMenuAboutHide():
+            self.viewMenu.removeAction(self._docksAndToolbarsMenu.menuAction())
+            self._docksAndToolbarsMenu = None
+        self.viewMenu.aboutToShow.connect(viewMenuAboutShow)
+        self.viewMenu.aboutToHide.connect(viewMenuAboutHide)
         
+        # add the rest of the view menu items
         self.viewMenu.addAction(self.statusbarAction)
-        
         self.viewMenu.addSeparator()
         self.viewMenu.addActions([self.zoomInAction, self.zoomOutAction, self.zoomResetAction])
         self.viewMenu.addSeparator()
@@ -424,7 +432,6 @@ class MainWindow(QMainWindow):
             updateToolbarIconSize(tb, tbIconSizeEntry.value)
             tbIconSizeEntry.subscribe(lambda value: updateToolbarIconSize(tb, value))
             self.addToolBar(tb)
-            self.viewToolbarsMenu.addAction(tb.toggleViewAction())
             return tb
 
         #

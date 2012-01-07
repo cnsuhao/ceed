@@ -418,7 +418,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.focusImageListFilterBoxAction = action.getAction("imageset/focus_image_list_filter_box")
         self.connectionGroup.add(self.focusImageListFilterBoxAction, receiver = lambda: self.focusImageListFilterBox())
         
-        self.toolBar = QToolBar()
+        self.toolBar = QToolBar("Imageset")
         self.toolBar.setIconSize(QSize(32, 32))
         
         self.toolBar.addAction(self.createImageAction)
