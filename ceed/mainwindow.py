@@ -170,57 +170,57 @@ class MainWindow(QMainWindow):
         #
         # get and connect all actions we care about
         #
-        self.newFileAction = self.actionManager.getAction("all_editors/new_file")
+        self.newFileAction = self.actionManager.getAction("files/new_file")
         self.connectionGroup.add(self.newFileAction, receiver = self.slot_newFileDialog)
 
-        self.newLayoutAction = self.actionManager.getAction("all_editors/new_layout")
+        self.newLayoutAction = self.actionManager.getAction("files/new_layout")
         self.connectionGroup.add(self.newLayoutAction, receiver = self.slot_newLayoutDialog)
         
-        self.newImagesetAction = self.actionManager.getAction("all_editors/new_imageset")
+        self.newImagesetAction = self.actionManager.getAction("files/new_imageset")
         self.connectionGroup.add(self.newImagesetAction, receiver = self.slot_newImagesetDialog)
         
-        self.openFileAction = self.actionManager.getAction("all_editors/open_file")
+        self.openFileAction = self.actionManager.getAction("files/open_file")
         self.connectionGroup.add(self.openFileAction, receiver = self.slot_openFileDialog)
 
-        self.saveAction = self.actionManager.getAction("all_editors/save_file")
+        self.saveAction = self.actionManager.getAction("files/save_file")
         self.saveAction.setEnabled(False)
         self.connectionGroup.add(self.saveAction, receiver = self.slot_save)
 
-        self.saveAsAction = self.actionManager.getAction("all_editors/save_file_as")
+        self.saveAsAction = self.actionManager.getAction("files/save_file_as")
         self.saveAsAction.setEnabled(False)
         self.connectionGroup.add(self.saveAsAction, receiver = self.slot_saveAs)
 
-        self.saveAllAction = self.actionManager.getAction("all_editors/save_all")
+        self.saveAllAction = self.actionManager.getAction("files/save_all")
         self.connectionGroup.add(self.saveAllAction, receiver = self.slot_saveAll)
 
         # tab bar context menu (but also added to the file menu so it's easy to discover)
-        self.closeTabAction = self.actionManager.getAction("all_editors/close_current_tab")
+        self.closeTabAction = self.actionManager.getAction("files/close_current_tab")
         self.closeTabAction.setEnabled(False)
         self.connectionGroup.add(self.closeTabAction, receiver = self.slot_closeTab)
 
-        self.closeOtherTabsAction = self.actionManager.getAction("all_editors/close_other_tabs")
+        self.closeOtherTabsAction = self.actionManager.getAction("files/close_other_tabs")
         self.closeOtherTabsAction.setEnabled(False)
         self.connectionGroup.add(self.closeOtherTabsAction, receiver = self.slot_closeOtherTabs)
 
-        self.closeAllTabsAction = self.actionManager.getAction("all_editors/close_all_tabs")
+        self.closeAllTabsAction = self.actionManager.getAction("files/close_all_tabs")
         self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_closeAllTabs)
         # end of tab bar context menu
 
-        self.previousTabAction = self.actionManager.getAction("all_editors/previous_tab")
+        self.previousTabAction = self.actionManager.getAction("files/previous_tab")
         self.connectionGroup.add(self.previousTabAction, receiver = self.slot_previousTab)
 
-        self.nextTabAction = self.actionManager.getAction("all_editors/next_tab")
+        self.nextTabAction = self.actionManager.getAction("files/next_tab")
         self.connectionGroup.add(self.nextTabAction, receiver = self.slot_nextTab)
 
-        self.revertAction = self.actionManager.getAction("all_editors/revert_file")
         # TODO: Revert
+        #self.revertAction = self.actionManager.getAction("files/revert_file")
         #self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_revert)
 
         # the clear action will be handled by the RecentlyUsed manager, no need to connect
-        self.clearRecentFilesAction = self.actionManager.getAction("all_editors/clear_recent_files")
+        self.clearRecentFilesAction = self.actionManager.getAction("files/clear_recent_files")
 
         # the clear action will be handled by the RecentlyUsed manager, no need to connect
-        self.clearRecentProjectsAction = self.actionManager.getAction("all_editors/clear_recent_projects")
+        self.clearRecentProjectsAction = self.actionManager.getAction("files/clear_recent_projects")
 
         self.undoAction = self.actionManager.getAction("all_editors/undo")
         self.undoAction.setEnabled(False)
@@ -279,8 +279,8 @@ class MainWindow(QMainWindow):
         self.reportBugAction = self.actionManager.getAction("general/report_bug")
         self.connectionGroup.add(self.reportBugAction, receiver = self.slot_reportBug)
 
-        self.viewLogAction = self.actionManager.getAction("general/view_log")
-        # TODO: Create/Connect log viewer
+        # TODO: Log viewer
+        #self.viewLogAction = self.actionManager.getAction("general/view_log")
         #self.connectionGroup.add(self.viewLogAction, receiver = self.slot_viewLog)
 
         self.viewLicenseAction = self.actionManager.getAction("general/view_license")
@@ -299,11 +299,11 @@ class MainWindow(QMainWindow):
         self.zoomResetAction = self.actionManager.getAction("all_editors/zoom_reset")
         self.connectionGroup.add(self.zoomResetAction, receiver = self.slot_zoomReset)
 
-        self.statusbarAction = self.actionManager.getAction("all_editors/statusbar")
+        self.statusbarAction = self.actionManager.getAction("general/statusbar")
         self.statusbarAction.setChecked(True)
         self.connectionGroup.add(self.statusbarAction, receiver = self.slot_toggleStatusbar)
 
-        self.fullScreenAction = self.actionManager.getAction("all_editors/full_screen")
+        self.fullScreenAction = self.actionManager.getAction("general/full_screen")
         self.connectionGroup.add(self.fullScreenAction, receiver = self.slot_toggleFullScreen)
 
         self.connectionGroup.connectAll()
