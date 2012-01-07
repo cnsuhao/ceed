@@ -413,6 +413,45 @@ class MainWindow(QMainWindow):
         self.tabsMenu.addActions([self.previousTabAction, self.nextTabAction])
         self.tabsMenu.addSeparator()
         self.tabsMenu.addActions([self.closeOtherTabsAction, self.closeAllTabsAction])
+        # add menu items for open tabs
+        self._tabsMenuSeparator = None
+        def tabsMenuAboutShow():
+            self._tabsMenuSeparator = self.tabsMenu.addSeparator()
+            actions = []
+            counter = 1
+            # the items are taken from the 'self.tabEditors' list
+            # which always has the order by which the files were
+            # opened (not the order of the tabs in the tab bar).
+            # this is a feature, maintains the same mnemonic
+            # even if a tab is moved.
+            for editor in self.tabEditors:
+                # construct the label from the filePath
+                name = editor.filePath
+                # TODO: the next few lines are basically the
+                # same as the code in recentlyused. refactor
+                # so both places use the same (generic) code.
+
+                # if name length greater than some value, trim
+                if len(name) > 40:
+                    name = "...%s" % (name[-40 + 3:])
+                # if the first 10 tabs, add mnemonic (1 to 9, then 0)
+                if counter <= 10:
+                    name = "&%i. %s" % (counter % 10, name)
+                counter += 1
+                # create the action object
+                action = QAction(name, self.tabsMenu)
+                action.setData(editor.filePath)
+                action.triggered.connect(self.slot_tabsMenuActivateTab)
+                actions.append(action)
+            # add all to menu
+            self.tabsMenu.addActions(actions)
+        def tabsMenuAboutHide():
+            # remove all from the separator to the end
+            for action in self.tabsMenu.actions()[self.tabsMenu.actions().index(self._tabsMenuSeparator):]:
+                self.tabsMenu.removeAction(action)
+            self._tabsMenuSeparator = None
+        self.tabsMenu.aboutToShow.connect(tabsMenuAboutShow)
+        self.tabsMenu.aboutToHide.connect(tabsMenuAboutHide)
 
         #
         # Construct Help menu
@@ -701,17 +740,24 @@ Details of this error: %s""" % (e))
         self.tabEditors.append(ret)
         return ret
 
-    def openEditorTab(self, absolutePath):
-        """Opens editor tab. Creates new editor if such file wasn't opened yet and if it was opened,
-        it just makes the tab current.
+    def activateEditorTabByFilePath(self, absolutePath):
+        """Activates (makes current) the tab for the path specified and
+        returns True on success, otherwise False.
         """
-
         absolutePath = os.path.normpath(absolutePath)
 
         for tabEditor in self.tabEditors:
             if tabEditor.filePath == absolutePath:
                 tabEditor.makeCurrent()
-                return
+                return True
+        return False
+
+    def openEditorTab(self, absolutePath):
+        """Opens editor tab. Creates new editor if such file wasn't opened yet and if it was opened,
+        it just makes the tab current.
+        """
+        if self.activateEditorTabByFilePath(absolutePath):
+            return
 
         editor = self.createEditorForFile(absolutePath)
         editor.makeCurrent()
@@ -1312,6 +1358,11 @@ parent directory?")
                 msgBox.exec_()
                 if msgBox.clickedButton() == removeButton:
                     self.recentlyUsedProjects.removeRecentlyUsed(absolutePath)
+
+    def slot_tabsMenuActivateTab(self):
+        if self.sender():
+            absolutePath = str(self.sender().data())
+            self.activateEditorTabByFilePath(absolutePath)
 
     def slot_toggleFullScreen(self):
         if self.isFullScreen():
