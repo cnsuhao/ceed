@@ -270,6 +270,13 @@ class TabbedEditor(object):
         
         self.initialised = False
 
+    def editorMenu(self):
+        """Returns the editorMenu for this editor, or None.
+        The editorMenu is shared across editors so this returns
+        None if this editor is not the active editor.
+        """
+        return self.mainWindow.editorMenu if self.active else None 
+
     def rebuildEditorMenu(self, editorMenu):
         """The main window has one special menu on its menubar (editorMenu)
         whose items are updated dynamically to match the currently active
@@ -293,12 +300,6 @@ class TabbedEditor(object):
         if currentActive is not None:
             currentActive.deactivate()
 
-        edMenu = self.mainWindow.editorMenu
-        edMenu.clear()
-        visible, enabled = self.rebuildEditorMenu(edMenu)
-        edMenu.menuAction().setVisible(visible)
-        edMenu.menuAction().setEnabled(enabled)
-
         self.active = True
 
         self.mainWindow.activeEditor = self
@@ -308,6 +309,12 @@ class TabbedEditor(object):
         # the changes
         if self.fileMonitor is not None and self.fileChangedByExternalProgram:
             self.askForFileReload()
+
+        edMenu = self.mainWindow.editorMenu
+        edMenu.clear()
+        visible, enabled = self.rebuildEditorMenu(edMenu)
+        edMenu.menuAction().setVisible(visible)
+        edMenu.menuAction().setEnabled(enabled)
         
     def deactivate(self):
         """The tab gets "off stage", user switched to another tab.

@@ -909,8 +909,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         self.scene = EditingScene(self)
         
-        self.editorMenu = None
-
         self.setupActions()
         self.setupToolBar()
         self.hierarchyDockWidget.treeView.setupContextMenu()
@@ -966,8 +964,6 @@ class VisualEditing(QWidget, mixed.EditMode):
 
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
-        # keep a reference to the menu, we need it on show/hide events
-        self.editorMenu = editorMenu
         # similar to the toolbar, includes the focus filter box action
         editorMenu.addAction(self.alignHLeftAction)
         editorMenu.addAction(self.alignHCentreAction)
@@ -1038,8 +1034,8 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.propertiesDockWidget.setEnabled(True)
         self.createWidgetDockWidget.setEnabled(True)
         self.toolBar.setEnabled(True)
-        if self.editorMenu is not None:
-            self.editorMenu.menuAction().setEnabled(True)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
 
         # make sure all the manipulators are in sync to matter what
         # this is there mainly for the situation when you switch to live preview, then change resolution, then switch
@@ -1060,8 +1056,8 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.propertiesDockWidget.setEnabled(False)
         self.createWidgetDockWidget.setEnabled(False)
         self.toolBar.setEnabled(False)
-        if self.editorMenu is not None:
-            self.editorMenu.menuAction().setEnabled(False)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
         
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
             

@@ -394,7 +394,6 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.setBackgroundBrush(QBrush(Qt.lightGray))
         
         self.imagesetEntry = None
-        self.editorMenu = None
         
         self.dockWidget = ImagesetEditorDockWidget(self)
     
@@ -446,8 +445,6 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
 
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
-        # keep a reference to the menu, we need it on show/hide events
-        self.editorMenu = editorMenu
         # similar to the toolbar, includes the focus filter box action
         editorMenu.addAction(self.createImageAction)
         editorMenu.addAction(self.duplicateSelectedImagesAction)
@@ -716,8 +713,8 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
     def showEvent(self, event):        
         self.dockWidget.setEnabled(True)
         self.toolBar.setEnabled(True)
-        if self.editorMenu is not None:
-            self.editorMenu.menuAction().setEnabled(True)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
         
         # connect all our actions
         self.connectionGroup.connectAll()
@@ -732,8 +729,8 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
         self.dockWidget.setEnabled(False)
         self.toolBar.setEnabled(False)
-        if self.editorMenu is not None:
-            self.editorMenu.menuAction().setEnabled(False)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
         
         super(VisualEditing, self).hideEvent(event)
     
