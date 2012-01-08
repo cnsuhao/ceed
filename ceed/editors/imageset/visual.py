@@ -408,58 +408,52 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.cycleOverlappingAction = action.getAction("imageset/cycle_overlapping")
         self.connectionGroup.add(self.cycleOverlappingAction, receiver = self.cycleOverlappingImages)
         
-        self.zoomOriginalAction = action.getAction("imageset/zoom_original")
-        self.connectionGroup.add(self.zoomOriginalAction, receiver = self.zoomOriginal)
-        self.zoomInAction = action.getAction("imageset/zoom_in")
-        self.connectionGroup.add(self.zoomInAction, receiver = self.zoomIn)
-        self.zoomOutAction = action.getAction("imageset/zoom_out")
-        self.connectionGroup.add(self.zoomOutAction, receiver = self.zoomOut)
-        
         self.createImageAction = action.getAction("imageset/create_image")
         self.connectionGroup.add(self.createImageAction, receiver = self.createImageAtCursor)
         
         self.duplicateSelectedImagesAction = action.getAction("imageset/duplicate_image")
         self.connectionGroup.add(self.duplicateSelectedImagesAction, receiver = self.duplicateSelectedImageEntries)
         
-        self.deleteSelectedImagesAction = action.getAction("imageset/delete_image")
-        self.connectionGroup.add(self.deleteSelectedImagesAction, receiver = self.deleteSelectedImageEntries)
-        
         self.focusImageListFilterBoxAction = action.getAction("imageset/focus_image_list_filter_box")
         self.connectionGroup.add(self.focusImageListFilterBoxAction, receiver = lambda: self.focusImageListFilterBox())
         
-        self.toolBar = QToolBar()
+        self.toolBar = QToolBar("Imageset")
         self.toolBar.setIconSize(QSize(32, 32))
         
-        self.toolBar.addAction(self.editOffsetsAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.cycleOverlappingAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.zoomOriginalAction)
-        self.toolBar.addAction(self.zoomInAction)
-        self.toolBar.addAction(self.zoomOutAction)
-        self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(self.createImageAction)
         self.toolBar.addAction(self.duplicateSelectedImagesAction)
-        self.toolBar.addAction(self.deleteSelectedImagesAction)
         self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.focusImageListFilterBoxAction)
+        self.toolBar.addAction(self.editOffsetsAction)
+        self.toolBar.addAction(self.cycleOverlappingAction)
         
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.contextMenu = QMenu(self)
         self.customContextMenuRequested.connect(self.slot_customContextMenu)
         
-        self.contextMenu.addAction(self.editOffsetsAction)
+        self.contextMenu.addAction(self.createImageAction)
+        self.contextMenu.addAction(self.duplicateSelectedImagesAction)
+        self.contextMenu.addAction(action.getAction("all_editors/delete"))
         self.contextMenu.addSeparator() # ----------------------
         self.contextMenu.addAction(self.cycleOverlappingAction)
         self.contextMenu.addSeparator() # ----------------------
-        self.contextMenu.addAction(self.zoomOriginalAction)
-        self.contextMenu.addAction(self.zoomInAction)
-        self.contextMenu.addAction(self.zoomOutAction)
-        self.contextMenu.addSeparator()
-        self.contextMenu.addAction(self.createImageAction)
-        self.contextMenu.addAction(self.duplicateSelectedImagesAction)
-        self.contextMenu.addAction(self.deleteSelectedImagesAction)
+        self.contextMenu.addAction(action.getAction("all_editors/zoom_in"))
+        self.contextMenu.addAction(action.getAction("all_editors/zoom_out"))
+        self.contextMenu.addAction(action.getAction("all_editors/zoom_reset"))
+        self.contextMenu.addSeparator() # ----------------------
+        self.contextMenu.addAction(self.editOffsetsAction)
+
+    def rebuildEditorMenu(self, editorMenu):
+        """Adds actions to the editor menu"""
+        # similar to the toolbar, includes the focus filter box action
+        editorMenu.addAction(self.createImageAction)
+        editorMenu.addAction(self.duplicateSelectedImagesAction)
+        editorMenu.addSeparator() # ---------------------------
+        editorMenu.addAction(self.cycleOverlappingAction)
+        editorMenu.addSeparator() # ---------------------------
+        editorMenu.addAction(self.editOffsetsAction)
+        editorMenu.addSeparator() # ---------------------------
+        editorMenu.addAction(self.focusImageListFilterBoxAction)
         
     def initialise(self, rootElement):
         self.loadImagesetEntryFromElement(rootElement)
@@ -719,6 +713,8 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
     def showEvent(self, event):        
         self.dockWidget.setEnabled(True)
         self.toolBar.setEnabled(True)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
         
         # connect all our actions
         self.connectionGroup.connectAll()
@@ -733,6 +729,8 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
         self.dockWidget.setEnabled(False)
         self.toolBar.setEnabled(False)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
         
         super(VisualEditing, self).hideEvent(event)
     
@@ -986,6 +984,9 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.tabbedEditor.undoStack.push(cmd)
 
         return True
+
+    def performDelete(self):
+        return self.deleteSelectedImageEntries()
 
 from ceed import action
 from ceed import settings

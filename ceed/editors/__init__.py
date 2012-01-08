@@ -269,6 +269,21 @@ class TabbedEditor(object):
         assert(tabRemoved)
         
         self.initialised = False
+
+    def editorMenu(self):
+        """Returns the editorMenu for this editor, or None.
+        The editorMenu is shared across editors so this returns
+        None if this editor is not the active editor.
+        """
+        return self.mainWindow.editorMenu if self.active else None 
+
+    def rebuildEditorMenu(self, editorMenu):
+        """The main window has one special menu on its menubar (editorMenu)
+        whose items are updated dynamically to match the currently active
+        editor. Implement this method if you want to use this menu for an editor.
+        Returns two booleans: Visible, Enabled
+        """
+        return False, False
     
     def activate(self):
         """The tab gets "on stage", it's been clicked on and is now the only active
@@ -284,7 +299,7 @@ class TabbedEditor(object):
         
         if currentActive is not None:
             currentActive.deactivate()
-        
+
         self.active = True
 
         self.mainWindow.activeEditor = self
@@ -294,6 +309,12 @@ class TabbedEditor(object):
         # the changes
         if self.fileMonitor is not None and self.fileChangedByExternalProgram:
             self.askForFileReload()
+
+        edMenu = self.mainWindow.editorMenu
+        edMenu.clear()
+        visible, enabled = self.rebuildEditorMenu(edMenu)
+        edMenu.menuAction().setVisible(visible)
+        edMenu.menuAction().setEnabled(enabled)
         
     def deactivate(self):
         """The tab gets "off stage", user switched to another tab.
@@ -305,6 +326,10 @@ class TabbedEditor(object):
         
         if self.mainWindow.activeEditor == self:
             self.mainWindow.activeEditor = None
+            edMenu = self.mainWindow.editorMenu
+            edMenu.clear()
+            edMenu.menuAction().setEnabled(False)
+            edMenu.menuAction().setVisible(False)
     
     def makeCurrent(self):
         """Makes this tab editor current (= the selected tab)"""
@@ -465,6 +490,27 @@ class TabbedEditor(object):
         """
         return False
 
+    def performDelete(self):
+        """Deletes the selected items in the editor.
+        
+        Default implementation doesn't do anything
+        
+        Returns: True if the operation was successful
+        """
+        return False
+
+    def zoomIn(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+        
+    def zoomOut(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+        
+    def zoomReset(self):
+        """Called by the mainwindow whenever zoom is requested"""
+        pass
+
 class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
@@ -553,7 +599,11 @@ class TabbedEditorFactory(object):
     can coexist - user editing 2 layouts for example - with the ability to switch
     from one to another) 
     """
-    
+
+    def getFileExtensions(self):
+        """Returns a set of file extensions (without prefix dots) that can be edited by this factory"""
+        return []
+
     def canEditFile(self, filePath):
         """This checks whether instance created by this factory can edit given file"""
         return False

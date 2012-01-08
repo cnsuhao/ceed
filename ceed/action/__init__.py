@@ -19,7 +19,7 @@
 from ceed.action import declaration
 
 from PySide.QtCore import Qt
-from PySide.QtGui import QIcon, QKeySequence
+from PySide.QtGui import QIcon, QKeySequence, QAction
 
 class ConnectionGroup(object):
     """This object allows you to group signal slot connections and
@@ -121,88 +121,155 @@ class ActionManager(declaration.ActionManager):
         super(ActionManager, self).__init__(mainWindow, settings)
         
         general = self.createCategory(name = "general", label = "General")
-        general.createAction(name = "application_settings", label = "Application settings",
+        general.createAction(name = "application_settings", label = "Prefere&nces",
                              help = "Displays and allows changes of the application settings (persistent settings)",
                              icon = QIcon("icons/actions/application_settings.png"),
-                             defaultShortcut = QKeySequence(QKeySequence.Preferences))
+                             defaultShortcut = QKeySequence(QKeySequence.Preferences),
+                             menuRole = QAction.PreferencesRole)
         general.createAction(name = "quit", label = "Quit",
                              help = "Exits the entire application safely with confirmation dialogs for all unsaved data.",
                              icon = QIcon("icons/actions/quit.png"),
-                             defaultShortcut = QKeySequence(QKeySequence.Quit))
+                             defaultShortcut = QKeySequence(QKeySequence.Quit),
+                             menuRole = QAction.QuitRole)
+        general.createAction(name = "help_contents", label = "&Contents",
+                             help = "Opens the help page.",
+                             icon = QIcon("icons/actions/help_contents.png"),
+                             defaultShortcut = QKeySequence(QKeySequence.HelpContents))
+        general.createAction(name = "send_feedback", label = "Send &Feedback",
+                             help = "Opens the feedback forum.",
+                             icon = QIcon("icons/actions/help_feedback.png"))
+        general.createAction(name = "report_bug", label = "Report &Bug",
+                             help = "Opens the issue tracker application.")
+        # TODO: Log viewer
+        #general.createAction(name = "view_log", label = "&Log",
+        #                     help = "Opens the log viewer.")
+        general.createAction(name = "view_license", label = "L&icense",
+                             help = "Displays the application license.")
+        general.createAction(name = "about_qt", label = "About &Qt",
+                             help = "Display information about the Qt framework.",
+                             menuRole = QAction.AboutQtRole)
+        general.createAction(name = "about", label = "&About",
+                             help = "Display information about the application.",
+                             icon = QIcon("icons/actions/help_about.png"),
+                             menuRole = QAction.AboutRole)
+        general.createAction(name = "full_screen", label = "&Full Screen", settingsLabel = "Toggle Full Screen",
+                             help = "Switches between full screen view and normal view.",
+                             icon = QIcon("icons/actions/view_fullscreen.png"),
+                             defaultShortcut = QKeySequence("F11"))
+        general.createAction(name = "statusbar", label = "&Statusbar", settingsLabel = "Toggle Statusbar",
+                             help = "Hides and shows the visibility status bar.").setCheckable(True)
 
         project_management = self.createCategory(name = "project_management", label = "Project Management")
-        project_management.createAction(name = "new_project", label = "New project",
+        project_management.createAction(name = "new_project", label = "Pro&ject...", settingsLabel = "New Project",
                                         help = "Creates a new project from scratch. Only one project can be opened at a time so you will be asked to close your current project if any.",
                                         icon = QIcon("icons/actions/new_project.png"))
-        project_management.createAction(name = "open_project", label = "Open project",
+        project_management.createAction(name = "open_project", label = "Open Pro&ject...",
                                         help = "Opens a pre-existing project file. Only one project can be opened at a time so you will be asked to close your current project if any.",
                                         icon = QIcon("icons/actions/open_project.png"))
-        project_management.createAction(name = "save_project", label = "Save project",
+        project_management.createAction(name = "save_project", label = "Save Pro&ject",
                                         help = "Saves currently opened project file to the same location from where it was opened.",
                                         icon = QIcon("icons/actions/save_project.png"))
-        project_management.createAction(name = "close_project", label = "Close project",
+        project_management.createAction(name = "close_project", label = "Close Project",
                                         help = "Closes currently opened project file.",
                                         icon = QIcon("icons/actions/close_project.png"))
-        project_management.createAction(name = "project_settings", label = "Project settings",
+        project_management.createAction(name = "project_settings", label = "&Settings",
                                         help = "Displays and allows changes of the project settings (of the currently opened project).",
-                                        icon = QIcon("icons/actions/project_settings.png"))
-        project_management.createAction(name = "reload_resources", label = "Reload resources",
+                                        icon = QIcon("icons/actions/project_settings.png"),
+                                        menuRole = QAction.NoRole)
+        project_management.createAction(name = "reload_resources", label = "&Reload Resources",
                                         help = "Reloads all CEGUI resources associated with currently opened project.",
                                         icon = QIcon("icons/project_management/reload_resources.png"))
 
+        files = self.createCategory(name = "files", label = "Tabs and Files")
+        files.createAction(name = "new_file", label = "&Other...", settingsLabel = "New File",
+                           help = "Creates a new empty file of any type.",
+                           icon = QIcon("icons/actions/new_file.png"),
+                           defaultShortcut = QKeySequence(QKeySequence.New))
+        files.createAction(name = "new_layout", label = "&Layout...", settingsLabel = "New Layout",
+                           help = "Creates a new layout file.",
+                           icon = QIcon("icons/project_items/layout.png"))
+        files.createAction(name = "new_imageset", label = "&Imageset...", settingsLabel = "New Imageset",
+                           help = "Creates a new imageset file.",
+                           icon = QIcon("icons/project_items/imageset.png"))
+        # TODO: Revert
+        #files.createAction(name = "revert_file", label = "Re&vert", settingsLabel = "Revert File",
+        #                   help = "Reverts the active file to version on disk.")
+        files.createAction(name = "clear_recent_files", label = "&Clear", settingsLabel = "Clear Recent Files",
+                           help = "Empties the recent files list.")
+        files.createAction(name = "clear_recent_projects", label = "&Clear", settingsLabel = "Clear Recent Projects",
+                           help = "Empties the recent projects list.")
+        files.createAction(name = "open_file", label = "&Open File...",
+                           help = "Opens a pre-existing file from any location (if the file is already opened the tab with it will be switched to).",
+                           icon = QIcon("icons/actions/open_file.png"),
+                           defaultShortcut = QKeySequence(QKeySequence.Open))
+        files.createAction(name = "save_file", label = "&Save", settingsLabel = "Save File",
+                           help = "Saves currently opened (and active - currently edited) file to its original location.",
+                           icon = QIcon("icons/actions/save.png"),
+                           defaultShortcut = QKeySequence(QKeySequence.Save))
+        files.createAction(name = "save_file_as", label = "Save &As", settingsLabel = "Save File As",
+                           help = "Saves currently opened (and active - currently edited) file to a custom location.",
+                           icon = QIcon("icons/actions/save_as.png"),
+                           defaultShortcut = QKeySequence(QKeySequence.SaveAs))
+        files.createAction(name = "save_all", label = "Save A&ll",
+                           help = "Saves currently opened project file (if any) and all currently opened files to their original location.",
+                           icon = QIcon("icons/actions/save_all.png"),
+                           defaultShortcut = QKeySequence())
+        files.createAction(name = "close_current_tab", label = "&Close", settingsLabel = "Close Tab",
+                           help = "Closes currently active (and switched to) tab - asks for confirmation if there are unsaved changes.",
+                           icon = QIcon("icons/actions/close_tab.png"),
+                           defaultShortcut = QKeySequence(QKeySequence.Close))
+        files.createAction(name = "close_other_tabs", label = "Close &Other", settingsLabel = "Close Other Tabs",
+                           help = "Closes all tabs except the one that is currently active - asks for confirmation if there are unsaved changes.",
+                           icon = QIcon("icons/actions/close_other_tabs.png"),
+                           defaultShortcut = QKeySequence())
+        files.createAction(name = "close_all_tabs", label = "Close A&ll", settingsLabel = "Close All Tabs",
+                           help = "Closes all tabs - asks for confirmation if there are unsaved changes.",
+                           icon = QIcon("icons/actions/close_all_tabs.png"),
+                           defaultShortcut = QKeySequence())
+        files.createAction(name = "previous_tab", label = "&Previous Tab",
+                           help = "Activates the previous (left) tab.",
+                           defaultShortcut = QKeySequence("Ctrl+PgUp"))
+        files.createAction(name = "next_tab", label = "&Next Tab",
+                           help = "Activates the next (right) tab.",
+                           defaultShortcut = QKeySequence("Ctrl+PgDown"))
+
         all_editors = self.createCategory(name = "all_editors", label = "All Editors")
-        all_editors.createAction(name = "new_file", label = "New file",
-                                 help = "Creates a new empty file of any type.",
-                                 icon = QIcon("icons/actions/new_file.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.New))
-        all_editors.createAction(name = "open_file", label = "Open file",
-                                 help = "Opens a pre-existing file from any location (if the file is already opened the tab with it will be switched to).",
-                                 icon = QIcon("icons/actions/open_file.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.Open))
-        all_editors.createAction(name = "save_file", label = "Save file",
-                                 help = "Saves currently opened (and active - currently edited) file to its original location.",
-                                 icon = QIcon("icons/actions/save.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.Save))
-        all_editors.createAction(name = "save_file_as", label = "Save file as",
-                                 help = "Saves currently opened (and active - currently edited) file to a custom location.",
-                                 icon = QIcon("icons/actions/save_as.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.SaveAs))
-        all_editors.createAction(name = "save_all", label = "Save all",
-                                 help = "Saves currently opened project file (if any) and all currently opened files to their original location.",
-                                 icon = QIcon("icons/actions/save_all.png"),
-                                 defaultShortcut = QKeySequence())
-        all_editors.createAction(name = "close_current_tab", label = "Close current tab",
-                                 help = "Closes currently active (and switched to) tab - asks for confirmation if there are unsaved changes.",
-                                 icon = QIcon("icons/actions/close_tab.png"),
-                                 defaultShortcut = QKeySequence(QKeySequence.Close))
-        all_editors.createAction(name = "close_other_tabs", label = "Close other tabs",
-                                 help = "Closes all tabs except the one that is currently active - asks for confirmation if there are unsaved changes.",
-                                 icon = QIcon("icons/actions/close_other_tabs.png"),
-                                 defaultShortcut = QKeySequence())
-        all_editors.createAction(name = "close_all_tabs", label = "Close all tabs",
-                                 help = "Closes all tabs - asks for confirmation if there are unsaved changes.",
-                                 icon = QIcon("icons/actions/close_all_tabs.png"),
-                                 defaultShortcut = QKeySequence())
-        all_editors.createAction(name = "undo", label = "Undo",
+        all_editors.createAction(name = "zoom_in", label = "Zoom &In",
+                                 help = "Increases the zoom level.",
+                                 icon = QIcon("icons/actions/zoom_in.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.ZoomIn))
+        all_editors.createAction(name = "zoom_out", label = "Zoom &Out",
+                                 help = "Decreases the zoom level.",
+                                 icon = QIcon("icons/actions/zoom_out.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.ZoomOut))
+        all_editors.createAction(name = "zoom_reset", label = "&Normal Size", settingsLabel = "Zoom Reset",
+                                 help = "Resets zoom level to the default (1:1).",
+                                 icon = QIcon("icons/actions/zoom_original.png"),
+                                 defaultShortcut = QKeySequence("Ctrl+0"))
+        all_editors.createAction(name = "undo", label = "&Undo",
                                  help = "Undoes the last operation (in the currently active tabbed editor)",
                                  icon = QIcon("icons/actions/undo.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Undo))
-        all_editors.createAction(name = "redo", label = "Redo",
+        all_editors.createAction(name = "redo", label = "&Redo",
                                  help = "Redoes the last undone operation (in the currently active tabbed editor)",
                                  icon = QIcon("icons/actions/redo.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Redo))
-        all_editors.createAction(name = "copy", label = "Copy",
+        all_editors.createAction(name = "copy", label = "&Copy",
                                  help = "Performs a clipboard copy",
                                  icon = QIcon("icons/actions/copy.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Copy))
-        all_editors.createAction(name = "cut", label = "Cut",
+        all_editors.createAction(name = "cut", label = "Cu&t",
                                  help = "Performs a clipboard cut",
                                  icon = QIcon("icons/actions/cut.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Cut))
-        all_editors.createAction(name = "paste", label = "Paste",
+        all_editors.createAction(name = "paste", label = "&Paste",
                                  help = "Performs a clipboard paste",
                                  icon = QIcon("icons/actions/paste.png"),
                                  defaultShortcut = QKeySequence(QKeySequence.Paste))
+        all_editors.createAction(name = "delete", label = "&Delete",
+                                 help = "Deletes the selected items",
+                                 icon = QIcon("icons/actions/delete.png"),
+                                 defaultShortcut = QKeySequence(QKeySequence.Delete))
         # Imageset editor
         import ceed.editors.imageset.action_decl as imageset_actions
         imageset_actions.declare(self)

@@ -29,9 +29,9 @@ class RecentlyUsed(object):
         self.sectionIdentifier = "recentlyUsedIdentifier/" + sectionIdentifier
         self.qsettings = qsettings
         # how many recent items should the editor remember
-        self.maxRecentlItems = 5
+        self.maxRecentlItems = 10
         # to how many characters should the recent file names be trimmed to
-        self.recentlItemsNameTrimLength = 40
+        self.recentlItemsNameTrimLength = 60
         
     def addRecentlyUsed(self, itemName):
         """ Add an item to the list """        
@@ -63,8 +63,29 @@ class RecentlyUsed(object):
         # make sure we trim them correctly in all circumstances
         while len(items) > self.maxRecentlItems:
             items.remove(items[self.maxRecentlItems])
+    
+    def removeRecentlyUsed(self, itemname):
+        """Removes an item from the list. Safe to call even if the item is not in the list."""
+        items = []
+        if self.qsettings.contains(self.sectionIdentifier):
+            val = unicode(self.qsettings.value(self.sectionIdentifier))
+            items = self.stringToStringList(val)
             
-            
+        # if something went wrong before, stop
+        if not isinstance(items, list):
+            return False
+        
+        if not itemname in items:
+            return False
+        
+        items.remove(itemname)
+
+        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(items))
+        return True
+    
+    def clearRecentlyUsed(self):
+        self.qsettings.remove(self.sectionIdentifier)
+        
     def getRecentlyUsed(self):
         """ Returns all items as a string list """
         items = []
@@ -143,10 +164,12 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
     def __init__(self, qsettings, sectionIdentifier):
         super(RecentlyUsedMenuEntry, self).__init__(qsettings, sectionIdentifier)
         
-    def setParentMenu(self, menu, slot):
+    def setParentMenu(self, menu, slot, clearAction):
         """ sets the parent menu and the slot that is called when clicked on an item """
         self.menu = menu
         self.slot = slot
+        self.clearAction = clearAction
+        self.clearAction.triggered.connect(self.slot_clear)
         self.updateMenu()
     
     def addRecentlyUsed(self, itemName):
@@ -154,16 +177,32 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
         super(RecentlyUsedMenuEntry, self).addRecentlyUsed(itemName)
         self.updateMenu()
         
+    def removeRecentlyUsed(self, itemName):
+        """Removes an item from the list. Safe to call even if the item is not in the list."""
+        super(RecentlyUsedMenuEntry, self).removeRecentlyUsed(itemName)
+        self.updateMenu()
+
+    def slot_clear(self):
+        super(RecentlyUsedMenuEntry, self).clearRecentlyUsed()
+        self.updateMenu()
+
     def updateMenu(self):
         self.menu.clear()
         items = self.getRecentlyUsed()
-                
+
+        i = 1
         for f in items:
             actionRP = QAction(self.menu)
-            actionRP.setText(self.trimItemName(f))
+            text = self.trimItemName(f)
+            if i <= 10:
+                text = "&" + str(i % 10) + ". " + text
+            actionRP.setText(text)
             actionRP.setData(f)
             actionRP.setVisible(True)
             actionRP.triggered.connect(self.slot)
             self.menu.addAction(actionRP)
-                   
-        
+            i += 1
+
+        self.menu.addSeparator()
+        self.menu.addAction(self.clearAction)
+        self.clearAction.setEnabled(len(items) > 0)

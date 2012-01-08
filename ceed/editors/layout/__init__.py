@@ -88,6 +88,12 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         super(LayoutTabbedEditor, self).finalise()
         
         self.tabWidget = None
+
+    def rebuildEditorMenu(self, editorMenu):
+        editorMenu.setTitle("&Layout")
+        self.visual.rebuildEditorMenu(editorMenu)
+
+        return True, self.currentWidget() == self.visual
     
     def activate(self):
         super(LayoutTabbedEditor, self).activate()
@@ -152,9 +158,31 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         return False
 
+    def performDelete(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.performDelete()
+
+        return False
+
+    def zoomIn(self):
+        if self.currentWidget() is self.visual:
+            self.visual.scene.views()[0].zoomIn()
+
+    def zoomOut(self):
+        if self.currentWidget() is self.visual:
+            self.visual.scene.views()[0].zoomOut()
+
+    def zoomReset(self):
+        if self.currentWidget() is self.visual:
+            self.visual.scene.views()[0].zoomOriginal()
+
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
-    def canEditFile(self, filePath):
+    def getFileExtensions(self):
         extensions = layout_compatibility.Manager.instance.getAllPossibleExtensions()
+        return extensions
+
+    def canEditFile(self, filePath):
+        extensions = self.getFileExtensions()
         
         for extension in extensions:
             if filePath.endswith("." + extension):

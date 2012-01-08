@@ -49,7 +49,7 @@ class TypeDetector(object):
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
     
     def getPossibleExtensions(self):
-        """Retrieves all possible extensions the type this detector detects can have."""
+        """Retrieves all possible extensions the type this detector detects can have as a set."""
         
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getPossibleExtensions!")
     
@@ -117,9 +117,9 @@ class Manager(object):
     def getAllPossibleExtensions(self):
         """Retrieves all possible extensions of all types this manager knows of."""
     
-        ret = []
+        ret = set()
         for detector in self.detectors:
-            ret.extend(detector.getPossibleExtensions())
+            ret.update(detector.getPossibleExtensions())
             
         return ret
     

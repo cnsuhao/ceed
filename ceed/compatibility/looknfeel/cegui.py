@@ -34,7 +34,7 @@ class LookNFeel6TypeDetector(compatibility.TypeDetector):
         return CEGUILookNFeel6
     
     def getPossibleExtensions(self):
-        return ["looknfeel"]
+        return {"looknfeel"}
     
     def matches(self, data, extension):
         if extension not in ["", "looknfeel"]:
@@ -62,7 +62,7 @@ class LookNFeel7TypeDetector(compatibility.TypeDetector):
         return CEGUILookNFeel7
     
     def getPossibleExtensions(self):
-        return ["looknfeel"]
+        return {"looknfeel"}
     
     def matches(self, data, extension):
         if extension not in ["", "looknfeel"]:
