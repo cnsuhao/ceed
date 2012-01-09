@@ -111,7 +111,7 @@ def archive():
         
     import tarfile
     target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
-    with tarfile.open(target_archive_path, "w") as tar:
+    with tarfile.open(target_archive_path, "w:bz2") as tar:
         tar.add(target_temp_directory_path, os.path.basename(target_temp_directory_path))
     
     print("*** The resulting archive is ready at '%s'" % (target_archive_path))
