@@ -22,6 +22,7 @@ from PySide.QtOpenGL import *
 
 from OpenGL.GL import *
 
+import time
 import math
 import PyCEGUI
 
@@ -44,6 +45,9 @@ class GraphicsScene(QGraphicsScene):
         self.scenePadding = 100
         # reasonable defaults I think
         self.setCEGUIDisplaySize(800, 600, lazyUpdate = True)
+        
+        self.timeOfLastRender = time.time()
+        self.lastDelta = 0
         
         self.fbo = None
         
@@ -77,6 +81,11 @@ class GraphicsScene(QGraphicsScene):
             
             return
 
+        system = PyCEGUI.System.getSingleton()
+        self.lastDelta = time.time() - self.timeOfLastRender
+        system.injectTimePulse(self.lastDelta)
+        self.timeOfLastRender = time.time()
+
         painter.beginNativePainting()
                 
         self.ceguiInstance.ensureIsInitialised()
@@ -87,7 +96,6 @@ class GraphicsScene(QGraphicsScene):
         
         # signalRedraw is called to work around potential issues with dangling
         # references in the rendering code for some versions of CEGUI.
-        system = PyCEGUI.System.getSingleton()
         system.signalRedraw()
         
         glClearColor(0.3, 0.3, 0.3, 1)
@@ -152,9 +160,6 @@ class GraphicsScene(QGraphicsScene):
         glEnd()
         
         painter.endNativePainting()
-        
-        # TODO: Fake time impulse for now
-        system.injectTimePulse(1)
 
 class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     """This is a final class, not suitable for subclassing. This views given scene
@@ -191,9 +196,10 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
                 self.updateSelfAndScene()
                 
             else:
-                # FIXME: this is actually wrong, we have to measure how long it takes us to render and count that in!
                 # * 1000 because QTimer thinks in milliseconds
-                QTimer.singleShot(1.0 / self.continuousRenderingTargetFPS * 1000, self.updateSelfAndScene)
+                lastDelta = self.scene().lastDelta if self.scene() is not None else 0
+                QTimer.singleShot(max(0, ((1.0 / self.continuousRenderingTargetFPS) - lastDelta) * 1000),
+                                  lambda: self.updateSelfAndScene())
         
         else:
             # we don't mark ourselves as dirty if user didn't request continuous rendering
