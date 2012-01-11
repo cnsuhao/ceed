@@ -60,6 +60,13 @@ class TimelineDockWidget(QDockWidget):
         self.timeline = timeline.AnimationTimeline()
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
+        
+        self.playButton = self.findChild(QPushButton, "playButton")
+        self.playButton.clicked.connect(lambda: self.timeline.play())
+        self.pauseButton = self.findChild(QPushButton, "pauseButton")
+        self.pauseButton.clicked.connect(lambda: self.timeline.pause())
+        self.stopButton = self.findChild(QPushButton, "stopButton")
+        self.stopButton.clicked.connect(lambda: self.timeline.stop())
 
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.

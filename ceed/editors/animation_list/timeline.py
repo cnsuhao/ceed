@@ -21,6 +21,8 @@ from PySide.QtGui import *
 
 import PyCEGUI
 
+import time
+
 # default amount of pixels per second for 100% zoom
 pixelsPerSecond = 100
 
@@ -424,6 +426,10 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
         QObject.__init__(self)
         QGraphicsRectItem.__init__(self, parentItem)
         
+        self.playDelta = 1.0 / 60.0
+        self.lastPlayInjectTime = time.time()
+        self.playing = True
+        
         self.setFlags(QGraphicsItem.ItemIsFocusable)
         
         self.timecode = TimecodeLabel(self)
@@ -432,10 +438,29 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
         
         self.positionBar = TimelinePositionBar(self)
         
+        self.animation = None
+        self.animationInstance = None
+        
         self.setAnimation(animation)
+        
+        self.ignoreTimelineChanges = False
+        self.timePositionChanged.connect(self.slot_timePositionChanged)
         
     def setAnimation(self, animation):
         self.animation = animation
+        
+        if self.animationInstance is not None:
+            PyCEGUI.AnimationManager.getSingleton().destroyAnimationInstance(self.animationInstance)
+            self.animationInstance = None
+        
+        # we only use this animation instance to avoid reimplementing looping modes
+        if self.animation is not None:
+            self.animationInstance = PyCEGUI.AnimationManager.getSingleton().instantiateAnimation(self.animation)
+            # we don't want CEGUI's injectTimePulse to step our animation instances, we will step them manually
+            self.animationInstance.setAutoSteppingEnabled(False)
+        else:
+            # FIXME: Whenever AnimationTimeline is destroyed, one animation instance is leaked!
+            self.animationInstance = None
         
         self.refresh()
     
@@ -473,4 +498,55 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
         for item in self.childItems():
             if isinstance(item, AffectorTimelineLabel):
                 item.setPos(-150 / zoom, item.pos().y())
+    
+    def setTimelinePosition(self, position):
+        self.positionBar.setPos(position * pixelsPerSecond, self.positionBar.pos().y())
+        
+        if self.animationInstance is not None:
+            self.animationInstance.setPosition(position)
+    
+    def playTick(self):
+        if not self.playing:
+            return
+        
+        if self.animationInstance is None:
+            return
+        
+        delta = time.time() - self.lastPlayInjectTime
+        # we get a little CEGUI internals abusive here, brace yourself!
+        self.animationInstance.step(delta)
+        self.setTimelinePosition(self.animationInstance.getPosition())   
+        # end of abuses! :D     
+        
+        self.lastPlayInjectTime = time.time()
+        QTimer.singleShot(self.playDelta * 1000, lambda: self.playTick())
+        
+    def play(self):
+        self.playing = True
+        self.lastPlayInjectTime = time.time()
+        self.animationInstance.start()
+        
+        self.playTick()
+        
+    def pause(self):
+        self.animationInstance.togglePause()
+        self.playing = self.animationInstance.isRunning()
+        
+        self.playTick()
+        
+    def stop(self):
+        self.playing = False
+        self.setTimelinePosition(0)
+        self.animationInstance.stop()
+        
+    def slot_timePositionChanged(self, oldPosition, newPosition):
+        if self.ignoreTimelineChanges:
+            return
+            
+        try:
+            self.ignoreTimelineChanges = True
+            self.setTimelinePosition(newPosition)
+            
+        finally:
+            self.ignoreTimelineChanges = False
         

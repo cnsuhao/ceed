@@ -128,26 +128,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QCheckBox" name="loopCheckbox">
-         <property name="toolTip">
-          <string>If checked, the playback is looped (after it ends it is rewound and played again)</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>icons/animation_editing/timeline_loop.png</normaloff>icons/animation_editing/timeline_loop.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
