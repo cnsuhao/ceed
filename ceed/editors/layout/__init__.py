@@ -131,12 +131,11 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         
         currentRootWidget = self.visual.getCurrentRootWidget()
         
-        if currentRootWidget is not None:    
-            self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
+        if currentRootWidget is None:
+            QMessageBox.warning(self.mainWindow, "No root widget in the layout!", "I am refusing to save your layout, CEGUI layouts are invalid unless they have a root widget!\n\nPlease create a root widget before saving.")
+            return False
         
-        else:
-            # empty layout
-            self.nativeData = ""
+        self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
         
         return super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
