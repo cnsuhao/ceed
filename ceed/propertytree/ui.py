@@ -27,6 +27,14 @@ class PropertyTreeItem(QStandardItem):
     def finalise(self):
         self.propertyTreeRow = None
 
+    def bold(self):
+        return self.font().bold()
+
+    def setBold(self, value):
+        font = self.font()
+        font.setBold(value)
+        self.setFont(font)
+
 class PropertyTreeRow(object):
 
     def __init__(self):
@@ -63,6 +71,7 @@ class PropertyCategoryRow(PropertyTreeRow):
 
         self.nameItem.setEditable(False)
         self.nameItem.setText(self.category.name)
+        self.nameItem.setBold(True)
 
         self.valueItem.setEditable(False)
 
