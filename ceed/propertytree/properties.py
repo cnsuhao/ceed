@@ -1,0 +1,187 @@
+"""The basic properties.
+
+PropertyCategory -- A category, groups properties together.
+Property -- The base class for all properties, has name, value, etc.
+"""
+
+from collections import OrderedDict
+
+class PropertyCategory(object):
+    """A category for properties.
+    Categories have a name and hold a list of properties.
+    """
+    def __init__(self, name):
+        """Initialise the instance with the specified name."""
+        self.name = name
+        self.properties = OrderedDict()
+
+    @staticmethod
+    def categorisePropertyList(propertyList, unknownCategoryName="Unknown"):
+        """Given a list of properties, create categories and add the
+        properties to them based on their 'category' field.
+        
+        The unknownCategoryName is used for a category that holds all
+        properties that have no 'category' specified.
+        """
+        categories = {}
+        for prop in propertyList:
+            catName = prop.category if prop.category else unknownCategoryName
+            if not catName in categories:
+                categories[catName] = PropertyCategory(catName)
+            category = categories[catName]
+            category.properties[prop.name] = prop
+
+        return categories
+
+class Property(object):
+    """A property which is the base for all properties.
+    
+    The most important fields of a property are 'name' and 'value'.
+    A property instance should be able to return the type of its value
+    and has a simple mechanism to notify others when its value changes.
+    """
+
+    class ChangeValueReason(object):
+        Unknown = 0
+        ComponentValueChanged = 1
+        ParentValueChanged = 2
+        Editor = 3
+
+    def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False):
+        """Initialise an instance using the specified parameters.
+        
+        The 'category' field is usually a string that is used by
+        'PropertyCategory.categorisePropertyList()' to place the
+        property in a category.
+        """
+
+        # prevent values that are Property instances themselves;
+        # these have to be added as components if needed.
+        if isinstance(value, Property):
+            raise TypeError("The 'value' argument of the '%s' Property can't be a Property. Did you mean to create a component?" % name)
+
+        self.name = str(name) # make sure it's string
+        self.value = value
+        self.defaultValue = defaultValue
+        self.category = category
+        self.helpText = helpText
+        self.readOnly = readOnly
+
+        # A list of callables that are called when the value changes.
+        self.valueChanged = set()
+        
+        # Create components
+        self.createComponents()
+
+    def finalise(self):
+        """Perform any cleanup necessary."""
+        self.finaliseComponents()
+        self.valueChanged.clear()
+
+    def createComponents(self):
+        """Create an OrderedDict with the component-properties that make up
+        this property.
+        
+        The property subscribes to the components' valueChanged event
+        here to be able to update this property's own value when
+        their value changes.
+        """
+        components = self.getComponents()
+        if components:
+            for comp in components.values():
+                comp.valueChanged.add(self.componentValueChanged)
+
+    def getComponents(self):
+        """Return the OrderedDict of the components, or None."""
+        return None
+
+    def finaliseComponents(self):
+        """Clean up components.
+        
+        Unsubscribe from the components' events, finalise them
+        and clear the components field.
+        """
+        components = self.getComponents()
+        if components:
+            for comp in components.values():
+                # TODO: uncomment below to be safe, it's commented to test execution order
+                #if self.componentValueChanged in comp.valueChanged:
+                comp.valueChanged.remove(self.componentValueChanged)
+                comp.finalise()
+            components.clear()
+
+    def valueType(self):
+        """Return the type of this property's value.
+        The default implementation simply returns the Python type()
+        of the current value.
+        """
+        return type(self.value)
+
+    def valueToString(self):
+        """Return a string representation of the current value.
+        """
+        if self.value is not None:
+            if issubclass(type(self.value), Property):
+                return self.value.valueToString()
+            return str(self.value)
+        return ""
+
+    def isStringRepresentationEditable(self):
+        """Return True if the property supports editing its string representation,
+        in addition to editing its components."""
+        return False
+
+    def parseValueString(self, strValue):
+        """Parse the specified string value and return
+        a value suitable for this property.
+        
+        Return None if the string can't be parsed or
+        if parsing is not implemented (see isStringRepresentationEditable()).
+        """
+        return None
+
+    def setValue(self, value, reason=ChangeValueReason.Unknown):
+        """Change the current value to the one specified
+        and notify all subscribers of the change.
+        
+        If the property has components, this method is responsible
+        for updating their values, if necessary. The default
+        implementation does this by calling 'self.updateComponentValues()'.
+        
+        Note: The default implementation ignores the call if the
+        value being set is the same as the current value.
+        """
+
+        #TODO: Remove print
+        print "Setting value of property '%s' to '%s'%s, reason=%s" % (self.name, str(value), " (same)" if value is self.value else "", reason)
+        if self.value is not value:
+            self.value = value
+            self.raiseValueChanged(reason)
+
+            # Do not update components if our own value was changed
+            # in response to a component's value having changed.
+            if reason != self.ChangeValueReason.ComponentValueChanged:
+                self.updateComponentValues(self.ChangeValueReason.ParentValueChanged)
+
+    def updateComponentValues(self, reason=None):
+        pass
+
+    def raiseValueChanged(self, reason=None):
+        """Notify all subscribers that the current value
+        has been changed.
+        You don't usually need to call this directly, it is
+        called as part of 'setValue()'.
+        """
+        for subscriber in self.valueChanged:
+            subscriber(self, reason)
+
+    def componentValueChanged(self, component, reason):
+        """Callback called when a component's value changes.
+        
+        This will generally call setValue() to update this instance's
+        value in response to the component's value change. If this
+        happens, the call to setValue() should use ChangeValueReason.ComponentValueChanged.
+        
+        See the DictionaryProperty for a different implementation.
+        """
+        pass
