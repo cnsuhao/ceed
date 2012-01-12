@@ -47,12 +47,16 @@ class Property(object):
         ParentValueChanged = 2
         Editor = 3
 
-    def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False):
+    def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False, editorOptions=None):
         """Initialise an instance using the specified parameters.
         
         The 'category' field is usually a string that is used by
         'PropertyCategory.categorisePropertyList()' to place the
         property in a category.
+        
+        In the default implementation, the 'editorOptions' argument
+        should be a dictionary of options that will be passed to the
+        editor of the property's value. See getEditorOption().
         """
 
         # prevent values that are Property instances themselves;
@@ -66,6 +70,7 @@ class Property(object):
         self.category = category
         self.helpText = helpText
         self.readOnly = readOnly
+        self.editorOptions = editorOptions
 
         # A list of callables that are called when the value changes.
         self.valueChanged = set()
@@ -185,3 +190,37 @@ class Property(object):
         See the DictionaryProperty for a different implementation.
         """
         pass
+
+    def getEditorOption(self, path, defaultValue=None):
+        """Get the value of the editor option at the specified path string.
+        
+        Return 'defaultValue' if the option/path can't be found.
+        """
+        if not path or not self.editorOptions:
+            return defaultValue
+
+        # remove slashes from start because the path is always absolute.
+        # we do not remove the final slash, if any, because it is
+        # allowed (to return a subtree of options)
+        path.lstrip("/")
+
+        pcs = path.split("/")
+        optRoot = self.editorOptions
+
+        for pc in pcs:
+            # if the path component is an empty string we've reached the destination,
+            # getEditorOption("numeric/") for example.
+            if pc == "":
+                return optRoot
+
+            # if the pc exists in the current root, make it root and
+            # process the next pc
+            if pc in optRoot:
+                optRoot = optRoot[pc]
+                continue
+
+            # if it wasn't found in the current root, return the default value.
+            return defaultValue
+
+        # we've traversed the option tree, return whatever our root is
+        return optRoot

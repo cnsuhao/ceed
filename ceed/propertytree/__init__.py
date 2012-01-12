@@ -31,10 +31,8 @@ class TestDock(QDockWidget):
         self.setWindowTitle("Test Dock")
         self.setMinimumWidth(400)
         
-        self.registry = PropertyEditorRegistry(True)
         self.view = PropertyTreeWidget()
-        self.itemDelegate = PropertyTreeItemDelegate(self.view, self.registry)
-        self.view.view.setItemDelegate(self.itemDelegate)
+        self.view.setupRegistry(PropertyEditorRegistry(True))
         
         # root widget and layout
         contentsWidget = QWidget()
@@ -61,18 +59,30 @@ class TestDock(QDockWidget):
         from collections import OrderedDict
         # TODO: Write CEGUI widget property creator/loader that
         # creates the properties and destroys them
+        
+        colourProp = DictionaryProperty(
+                                        name = "Colour",
+                                        value = OrderedDict([
+                                                             ("Red", 160),
+                                                             ("Green", 255),
+                                                             ("Blue", 160)
+                                                             ]),
+                                        editorOptions = {"instantApply":False}
+                                        )
+        
         props = [
                 Property("stringProperty", "Hello", "Hello", "Default Category", "This is a string property"),
                 DictionaryProperty("dictionary", OrderedDict([
-                                                                 ("X", 0),
-                                                                 ("Y", 0),
-                                                                 ("Width", 50),
-                                                                 ("Height", 50),
-                                                                 ("Options", DictionaryProperty("Options",
-                                                                                                OrderedDict([("A", 1), ("B", 2)])))]), readOnly=False)
+                                                              ("X", 0),
+                                                              ("Y", 0),
+                                                              ("Width", 50),
+                                                              ("Height", 50),
+                                                              ("Colour", colourProp)
+                                                              ]),
+                                   readOnly=False)
                 ]
         categories = PropertyCategory.categorisePropertyList(props)
-        # test: add the category to another category too!
+        # test: add the property to another category too!
         categories["Default Category"].properties["dictionary"] = props[1]
         # load
         self.view.load(categories)

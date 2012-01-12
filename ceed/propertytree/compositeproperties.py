@@ -51,7 +51,7 @@ class DictionaryProperty(Property):
                 self.components[name] = value
             # if it's any other value, create a Property for it.
             else:
-                self.components[name] = Property(name=name, value=value, defaultValue=value, readOnly=self.readOnly)
+                self.components[name] = Property(name=name, value=value, defaultValue=value, readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         # call super to have it subscribe to our components;
         # it will call 'getComponents()' to get them.

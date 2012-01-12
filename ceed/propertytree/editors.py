@@ -102,12 +102,16 @@ class PropertyEditor(object):
         """
         return None
 
-    def __init__(self, boundProperty):
+    def __init__(self, boundProperty, instantApply=True):
         """Initialise an instance and keeps a reference
         to the property that will be edited.
         """
         self.editWidget = None
         self.property = boundProperty
+        self.instantApply = self.property.getEditorOption("instantApply", instantApply)
+
+        # see valueChanging()
+        self.widgetValueInitialized = False
 
     def createEditWidget(self, parent):
         """Create and return a widget that will be used
@@ -125,30 +129,57 @@ class PropertyEditor(object):
         return None
 
     def setWidgetValueFromProperty(self):
-        """Set the value of the widget to the value of the property."""
-        pass
+        """Set the value of the widget to the value of the property.
+        
+        Implementors should set self.widgetValueInitialized to True
+        *after* setting the widget value.
+        """
+        self.widgetValueInitialized = True
 
     def setPropertyValueFromWidget(self):
         """Set the value of the property to value of the widget."""
         value = self.getWidgetValue()
-        self.property.setValue(value, Property.ChangeValueReason.Editor)
+        if value != self.property.value:
+            self.property.setValue(value, Property.ChangeValueReason.Editor)
+
+    def valueChanging(self):
+        """Callback-style method used when the 'instantApply' option
+        is True to update the property's value without waiting for
+        the editor to commit the edit.
+        Should be called by implementors whenever the value of
+        the widget changes, even if it hasn't been committed.
+        """
+        if not self.instantApply:
+            return False
+
+        # We ignore the first event because that one
+        # occurs when we initialise the edit widget's value.
+        if not self.widgetValueInitialized:
+            return False
+
+        self.setPropertyValueFromWidget()
+        return True
 
 class StringPropertyEditor(PropertyEditor):
 
     @classmethod
     def getSupportedValueTypes(cls):
-        return { str:0 }
+        return { str:0, unicode:0 }
 
-    # TODO: Live (immediate) edit
     def createEditWidget(self, parent):
         self.editWidget = QLineEdit(parent)
+        self.editWidget.textChanged.connect(self.valueChanging)
+
         return self.editWidget
 
     def getWidgetValue(self):
         return self.editWidget.text()
 
     def setWidgetValueFromProperty(self):
-        self.editWidget.setText(self.property.value)
+        if self.property.value != self.getWidgetValue():
+            self.editWidget.setText(self.property.value)
+
+        super(StringPropertyEditor, self).setWidgetValueFromProperty()
 
 PropertyEditorRegistry._standardEditors.add(StringPropertyEditor)
 
@@ -160,12 +191,17 @@ class NumericPropertyEditor(PropertyEditor):
 
     def createEditWidget(self, parent):
         self.editWidget = QSpinBox(parent)
+        self.editWidget.valueChanged.connect(self.valueChanging)
+
         return self.editWidget
 
     def getWidgetValue(self):
         return self.editWidget.value()
 
     def setWidgetValueFromProperty(self):
-        self.editWidget.setValue(self.property.value)
+        if self.property.value != self.getWidgetValue():
+            self.editWidget.setValue(self.property.value)
+
+        super(NumericPropertyEditor, self).setWidgetValueFromProperty()
 
 PropertyEditorRegistry._standardEditors.add(NumericPropertyEditor)

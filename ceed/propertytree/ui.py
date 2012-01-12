@@ -144,9 +144,6 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
 
 class PropertyTreeView(QTreeView):
 
-#    def __init__(self, *args, **kwargs):
-#        QTreeView.__init__(self, *args, **kwargs)
-
     def drawRow(self, painter, option, index):
         super(PropertyTreeView, self).drawRow(painter, option, index)
 
@@ -210,6 +207,13 @@ class PropertyTreeWidget(QWidget):
         self.view.setModel(self.model)
 
         layout.addWidget(self.view)
+
+        self.registry = None
+
+    def setupRegistry(self, registry):
+        self.registry = registry
+        itemDelegate = PropertyTreeItemDelegate(self, self.registry)
+        self.view.setItemDelegate(itemDelegate)
 
     def load(self, categoryList):
         self.view.setUpdatesEnabled(False)
