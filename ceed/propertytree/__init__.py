@@ -72,6 +72,12 @@ class TestDock(QDockWidget):
         
         props = [
                 Property("stringProperty", "Hello", "Hello", "Default Category", "This is a string property"),
+                Property(name = "fourHexChars", value = "0xDEAD", editorOptions = {
+                                                                         "string": {"inputMask":"\\0\\xHHHH;_"}
+                                                                         }),
+                Property(name = "fourDigits", value = "1234", editorOptions = {
+                                                                         "string": {"inputMask":"9999;_"}
+                                                                         }),
                 DictionaryProperty("dictionary", OrderedDict([
                                                               ("X", 0),
                                                               ("Y", 0),

@@ -125,8 +125,9 @@ class PropertyEditor(object):
         return self.editWidget
 
     def getWidgetValue(self):
-        """Read and return the current value of the widget."""
-        return None
+        """Read and return a tuple with the current value of the widget
+        and a boolean specifying whether it's a valid value or not."""
+        return None, False
 
     def setWidgetValueFromProperty(self):
         """Set the value of the widget to the value of the property.
@@ -138,8 +139,8 @@ class PropertyEditor(object):
 
     def setPropertyValueFromWidget(self):
         """Set the value of the property to value of the widget."""
-        value = self.getWidgetValue()
-        if value != self.property.value:
+        value, valid = self.getWidgetValue()
+        if valid and value != self.property.value:
             self.property.setValue(value, Property.ChangeValueReason.Editor)
 
     def valueChanging(self):
@@ -168,15 +169,21 @@ class StringPropertyEditor(PropertyEditor):
 
     def createEditWidget(self, parent):
         self.editWidget = QLineEdit(parent)
-        self.editWidget.textChanged.connect(self.valueChanging)
+        self.editWidget.textEdited.connect(self.valueChanging)
+
+        self.editWidget.setMaxLength(self.property.getEditorOption("string/maxLength", self.editWidget.maxLength()))
+        self.editWidget.setPlaceholderText(self.property.getEditorOption("string/placeholderText", self.editWidget.placeholderText()))
+        self.editWidget.setInputMask(self.property.getEditorOption("string/inputMask", self.editWidget.inputMask()))
+        self.editWidget.setValidator(self.property.getEditorOption("string/validator", self.editWidget.validator()))
 
         return self.editWidget
 
     def getWidgetValue(self):
-        return self.editWidget.text()
+        return (self.editWidget.text(), True) if self.editWidget.hasAcceptableInput() else ("", False)
 
     def setWidgetValueFromProperty(self):
-        if self.property.value != self.getWidgetValue():
+        value, valid = self.getWidgetValue()
+        if (not valid) or (self.property.value != value):
             self.editWidget.setText(self.property.value)
 
         super(StringPropertyEditor, self).setWidgetValueFromProperty()
@@ -196,7 +203,7 @@ class NumericPropertyEditor(PropertyEditor):
         return self.editWidget
 
     def getWidgetValue(self):
-        return self.editWidget.value()
+        return self.editWidget.value(), True
 
     def setWidgetValueFromProperty(self):
         if self.property.value != self.getWidgetValue():

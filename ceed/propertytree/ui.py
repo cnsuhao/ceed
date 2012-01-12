@@ -14,12 +14,14 @@ from PySide.QtGui import QVBoxLayout
 
 from PySide.QtCore import Qt
 from PySide.QtCore import QModelIndex
+from PySide.QtCore import QSize
 
 class PropertyTreeItem(QStandardItem):
 
     def __init__(self, propertyTreeRow):
         super(PropertyTreeItem, self).__init__()
 
+        self.setSizeHint(QSize(-1, 24))
         self.propertyTreeRow = propertyTreeRow
 
     def finalise(self):
