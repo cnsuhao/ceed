@@ -194,11 +194,15 @@ class NumericPropertyEditor(PropertyEditor):
 
     @classmethod
     def getSupportedValueTypes(cls):
-        return { int:0, float:0 }
+        return { int:0, float:-5 }
 
     def createEditWidget(self, parent):
         self.editWidget = QSpinBox(parent)
         self.editWidget.valueChanged.connect(self.valueChanging)
+
+        self.editWidget.setRange(self.property.getEditorOption("numeric/min", self.editWidget.minimum()),
+                                 self.property.getEditorOption("numeric/max", self.editWidget.maximum()));
+        self.editWidget.setSingleStep(self.property.getEditorOption("numeric/step", self.editWidget.singleStep()))
 
         return self.editWidget
 

@@ -67,7 +67,7 @@ class TestDock(QDockWidget):
                                                              ("Green", 255),
                                                              ("Blue", 160)
                                                              ]),
-                                        editorOptions = {"instantApply":False}
+                                        editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}}
                                         )
         
         props = [
