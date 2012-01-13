@@ -59,9 +59,6 @@ class DictionaryProperty(Property):
     def hasDefaultValue(self):
         # it doesn't really make sense to maintain a default value for this property.
         # we check whether our components have their default values instead.
-        # FIXME: I think this might be a problem in cases where the components'
-        # values haven't been updated yet but we check for the default value;
-        # for example inside the callbacks of our valueChanged event.
         for comp in self.components.values():
             if not comp.hasDefaultValue():
                 return False

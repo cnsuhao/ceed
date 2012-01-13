@@ -178,12 +178,15 @@ class Property(object):
         print "Setting value of property '%s' to '%s'%s, reason=%s" % (self.name, str(value), " (same)" if value is self.value else "", reason)
         if self.value is not value:
             self.value = value
-            self.raiseValueChanged(reason)
 
             # Do not update components if our own value was changed
             # in response to a component's value having changed.
             if reason != self.ChangeValueReason.ComponentValueChanged:
                 self.updateComponents(self.ChangeValueReason.ParentValueChanged)
+
+            # This must be raised after updating the components because handlers
+            # of the event will probably want to use the components.
+            self.raiseValueChanged(reason)
 
     def updateComponents(self, reason=None):
         pass
