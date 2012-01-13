@@ -7,6 +7,8 @@ NumericPropertyEditor -- Editor for integers and floating point numbers.
 StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 """
 
+from . import utility
+
 from .properties import Property
 
 from PySide.QtGui import QLineEdit
@@ -175,10 +177,14 @@ class StringPropertyEditor(PropertyEditor):
         self.editWidget = QLineEdit(parent)
         self.editWidget.textEdited.connect(self.valueChanging)
 
-        self.editWidget.setMaxLength(self.property.getEditorOption("string/maxLength", self.editWidget.maxLength()))
-        self.editWidget.setPlaceholderText(self.property.getEditorOption("string/placeholderText", self.editWidget.placeholderText()))
-        self.editWidget.setInputMask(self.property.getEditorOption("string/inputMask", self.editWidget.inputMask()))
-        self.editWidget.setValidator(self.property.getEditorOption("string/validator", self.editWidget.validator()))
+        # setup options
+        options = self.property.getEditorOption("string/")
+        go = utility.getDictionaryTreePath
+
+        self.editWidget.setMaxLength(go(options, "maxLength", self.editWidget.maxLength()))
+        self.editWidget.setPlaceholderText(go(options, "placeholderText", self.editWidget.placeholderText()))
+        self.editWidget.setInputMask(go(options, "inputMask", self.editWidget.inputMask()))
+        self.editWidget.setValidator(go(options, "validator", self.editWidget.validator()))
 
         return self.editWidget
 
@@ -204,9 +210,13 @@ class NumericPropertyEditor(PropertyEditor):
         self.editWidget = QSpinBox(parent)
         self.editWidget.valueChanged.connect(self.valueChanging)
 
-        self.editWidget.setRange(self.property.getEditorOption("numeric/min", self.editWidget.minimum()),
-                                 self.property.getEditorOption("numeric/max", self.editWidget.maximum()));
-        self.editWidget.setSingleStep(self.property.getEditorOption("numeric/step", self.editWidget.singleStep()))
+        # setup options
+        options = self.property.getEditorOption("numeric/")
+        go = utility.getDictionaryTreePath
+
+        self.editWidget.setRange(go(options, "min", self.editWidget.minimum()),
+                                 go(options, "max", self.editWidget.maximum()));
+        self.editWidget.setSingleStep(go(options, "step", self.editWidget.singleStep()))
 
         return self.editWidget
 
@@ -235,5 +245,5 @@ class StringWrapperValidator(QValidator):
         self.property = swProperty
 
     def validate(self, inputStr, pos):
-        value, valid = self.property.parseStringValue(inputStr)
+        _, valid = self.property.parseStringValue(inputStr)
         return QValidator.Intermediate if not valid else QValidator.Acceptable
