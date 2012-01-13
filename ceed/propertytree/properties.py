@@ -164,7 +164,8 @@ class Property(object):
 
     def setValue(self, value, reason=ChangeValueReason.Unknown):
         """Change the current value to the one specified
-        and notify all subscribers of the change.
+        and notify all subscribers of the change. Return True
+        if the value was changed, otherwise False.
         
         If the property has components, this method is responsible
         for updating their values, if necessary. The default
@@ -187,6 +188,10 @@ class Property(object):
             # This must be raised after updating the components because handlers
             # of the event will probably want to use the components.
             self.raiseValueChanged(reason)
+
+            return True
+
+        return False
 
     def updateComponents(self, reason=None):
         pass
@@ -251,3 +256,21 @@ class Property(object):
 
         # we've traversed the option tree, return whatever our root is
         return optRoot
+
+class StringWrapperProperty(Property):
+
+    def __init__(self, innerProperty):
+        super(StringWrapperProperty, self).__init__("__wrapper__", value=innerProperty.valueToString())
+        self.innerProperty = innerProperty
+
+    def finalise(self):
+        super(StringWrapperProperty, self).finalise()
+
+    def setValue(self, value, reason=Property.ChangeValueReason.Unknown):
+        if super(StringWrapperProperty, self).setValue(value, reason):
+            value = self.innerProperty.parseValueString(value)
+            if value is not None:
+                self.innerProperty.setValue(value, reason)
+                return True
+
+        return False

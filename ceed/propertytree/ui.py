@@ -1,4 +1,5 @@
 from . import Property
+from .properties import StringWrapperProperty
 
 from PySide.QtGui import QStandardItem
 from PySide.QtGui import QApplication
@@ -168,7 +169,11 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
 
         row.editor = self.registry.createEditor(row.property)
         if row.editor is None:
-            return None
+            if row.property.isStringRepresentationEditable():
+                wrapperProperty = StringWrapperProperty(row.property)
+                row.editor = self.registry.createEditor(wrapperProperty)
+            if row.editor is None:
+                return None
 
         editWidget = row.editor.createEditWidget(parent)
 
