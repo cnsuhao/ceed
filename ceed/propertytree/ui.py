@@ -1,5 +1,6 @@
-from . import Property
+from .properties import Property
 from .properties import StringWrapperProperty
+from .editors import StringWrapperValidator
 
 from PySide.QtGui import QStandardItem
 from PySide.QtGui import QApplication
@@ -171,6 +172,7 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
         if row.editor is None:
             if row.property.isStringRepresentationEditable():
                 wrapperProperty = StringWrapperProperty(row.property)
+                wrapperProperty.editorOptions["string"] = { "validator": StringWrapperValidator(row.property) }
                 row.editor = self.registry.createEditor(wrapperProperty)
             if row.editor is None:
                 return None

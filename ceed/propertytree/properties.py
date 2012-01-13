@@ -256,21 +256,26 @@ class Property(object):
         return optRoot
 
 class StringWrapperProperty(Property):
-
-    def __init__(self, innerProperty):
-        super(StringWrapperProperty, self).__init__("__wrapper__", value=innerProperty.valueToString())
-        if self.editorOptions is None:
-            self.editorOptions = dict()
-        self.editorOptions["instantApply"] = False
+    """Special property used to wrap the string value
+    of another property so it can be edited.
+    """
+    def __init__(self, innerProperty, instantApply=False):
+        super(StringWrapperProperty, self).__init__("__wrapper__",
+                                                    value = innerProperty.valueToString(),
+                                                    editorOptions = {"instantApply":instantApply}
+                                                    )
         self.innerProperty = innerProperty
 
     def finalise(self):
         super(StringWrapperProperty, self).finalise()
 
     def setValue(self, value, reason=Property.ChangeValueReason.Unknown):
+        # if setting the value of the wrapper succeeded
         if super(StringWrapperProperty, self).setValue(value, reason):
+            # if the inner property deems the value valid
             value, valid = self.innerProperty.parseStringValue(value)
             if valid:
+                # set the value to the inner property and return True
                 self.innerProperty.setValue(value, reason)
                 return True
 

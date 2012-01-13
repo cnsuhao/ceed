@@ -8,6 +8,7 @@ from . import Property
 
 from PySide.QtGui import QLineEdit
 from PySide.QtGui import QSpinBox
+from PySide.QtGui import QValidator
 
 class PropertyEditorRegistry(object):
     """The registry contains a (sorted) list of property editor
@@ -216,3 +217,20 @@ class NumericPropertyEditor(PropertyEditor):
         super(NumericPropertyEditor, self).setWidgetValueFromProperty()
 
 PropertyEditorRegistry._standardEditors.add(NumericPropertyEditor)
+
+class StringWrapperValidator(QValidator):
+    """Validate the edit widget value when editing
+    a StringWrapperProperty.
+    
+    Using this prevents closing the edit widget using
+    "Enter" when the value is invalid and allows the
+    user the correct their mistake without losing any
+    editing they have done.
+    """
+    def __init__(self, swProperty, parent=None):
+        super(StringWrapperValidator, self).__init__(parent)
+        self.property = swProperty
+
+    def validate(self, inputStr, pos):
+        value, valid = self.property.parseStringValue(inputStr)
+        return QValidator.Intermediate if not valid else QValidator.Acceptable
