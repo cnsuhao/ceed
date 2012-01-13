@@ -104,6 +104,8 @@ class PropertyRow(PropertyTreeRow):
                 row = PropertyRow(component)
                 self.appendChildRow(row)
 
+        self.updateStyle()
+
     def finalise(self):
         # TODO: uncomment below to be safe, it's commented to test execution order
         #if self.propertyValueChanged in self.property.valueChanged:
@@ -111,8 +113,13 @@ class PropertyRow(PropertyTreeRow):
 
         super(PropertyRow, self).finalise()
 
-    def propertyValueChanged(self, component, reason):
+    def propertyValueChanged(self, senderProperty, reason):
         self.valueItem.setText(self.property.valueToString())
+
+        self.updateStyle()
+
+    def updateStyle(self):
+        self.nameItem.setBold(not self.property.hasDefaultValue())
 
 class PropertyTreeItemDelegate(QStyledItemDelegate):
 

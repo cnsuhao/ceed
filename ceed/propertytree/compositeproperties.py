@@ -57,6 +57,17 @@ class DictionaryProperty(Property):
         # it will call 'getComponents()' to get them.
         super(DictionaryProperty, self).createComponents()
 
+    def hasDefaultValue(self):
+        # it doesn't really make sense to maintain a default value for this property.
+        # we check whether our components have their default values instead.
+        # FIXME: I think this might be a problem in cases where the components'
+        # values haven't been updated yet but we check for the default value;
+        # for example inside the callbacks of our valueChanged event.
+        for comp in self.components.values():
+            if not comp.hasDefaultValue():
+                return False
+        return True
+
     def getComponents(self):
         return self.components
 
@@ -65,13 +76,8 @@ class DictionaryProperty(Property):
         return ",".join(gen)
 
     def componentValueChanged(self, component, reason):
-        #self.value[component.name] = component.value
-        #self.raiseValueChanged(reason)
-        
-        # TODO: the above is sufficient, doing this for testing...
-        copy = self.value.copy()
-        copy[component.name] = component.value
-        self.setValue(copy, Property.ChangeValueReason.ComponentValueChanged)
+        self.value[component.name] = component.value
+        self.raiseValueChanged(Property.ChangeValueReason.ComponentValueChanged)
 
     def updateComponentValues(self, reason=Property.ChangeValueReason.Unknown):
         for name in self.value:

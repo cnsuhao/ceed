@@ -122,6 +122,9 @@ class Property(object):
         """
         return type(self.value)
 
+    def hasDefaultValue(self):
+        return self.value == self.defaultValue
+
     def valueToString(self):
         """Return a string representation of the current value.
         """
