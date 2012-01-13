@@ -15,24 +15,23 @@ class DictionaryProperty(Property):
     hierarchical properties.
     
     Example::
-        prop = DictionaryProperty(
-                                "rectangle",
-                                OrderedDict([
-                                             ("X", 0),
-                                             ("Y", 0),
-                                             ("Width", 50),
-                                             ("Height", 50),
-                                             ("Colour", DictionaryProperty(
-                                                                        "Colour",
-                                                                        OrderedDict(
-                                                                                [
-                                                                                    ("Red", 255),
-                                                                                    ("Green", 255),
-                                                                                    ("Blue", 255)
-                                                                                ])
-                                                                        )
-                                            )]),
-                                readOnly=False)
+        colourProp = DictionaryProperty(
+                                        name = "Colour",
+                                        value = OrderedDict([
+                                                             ("Red", 160),
+                                                             ("Green", 255),
+                                                             ("Blue", 160)
+                                                             ]),
+                                        editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}}
+                                        )
+        DictionaryProperty("dictionary", OrderedDict([
+                                                      ("X", 0),
+                                                      ("Y", 0),
+                                                      ("Width", 50),
+                                                      ("Height", 50),
+                                                      ("Colour", colourProp)
+                                                      ]),
+                           readOnly=False)
     """
 
     def createComponents(self):
