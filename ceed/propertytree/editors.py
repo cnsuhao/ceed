@@ -12,7 +12,7 @@ from . import utility
 from .properties import Property
 
 from PySide.QtGui import QLineEdit
-from PySide.QtGui import QSpinBox
+from PySide.QtGui import QDoubleSpinBox
 from PySide.QtGui import QValidator
 
 class PropertyEditorRegistry(object):
@@ -204,16 +204,18 @@ class NumericPropertyEditor(PropertyEditor):
 
     @classmethod
     def getSupportedValueTypes(cls):
-        return { int:0, float:-5 }
+        return { int:0, float:0 }
 
     def createEditWidget(self, parent):
-        self.editWidget = QSpinBox(parent)
+        self.editWidget = QDoubleSpinBox(parent)
         self.editWidget.valueChanged.connect(self.valueChanging)
 
         # setup options
         options = self.property.getEditorOption("numeric/")
         go = utility.getDictionaryTreePath
 
+        # set decimals first because according to the docs setting it can change the range.
+        self.editWidget.setDecimals(go(options, "decimals", 0 if self.property.valueType() == int else 6))
         self.editWidget.setRange(go(options, "min", self.editWidget.minimum()),
                                  go(options, "max", self.editWidget.maximum()));
         self.editWidget.setSingleStep(go(options, "step", self.editWidget.singleStep()))
@@ -221,10 +223,14 @@ class NumericPropertyEditor(PropertyEditor):
         return self.editWidget
 
     def getWidgetValue(self):
-        return self.editWidget.value(), True
+        # the call to the constructor of the type is so we return
+        # an integer and not a float if the property's type is an integer.
+        # it should be future proof too.
+        return self.property.valueType()(self.editWidget.value()), True
 
     def setWidgetValueFromProperty(self):
-        if self.property.value != self.getWidgetValue():
+        value, valid = self.getWidgetValue()
+        if (not valid) or (self.property.value != value):
             self.editWidget.setValue(self.property.value)
 
         super(NumericPropertyEditor, self).setWidgetValueFromProperty()

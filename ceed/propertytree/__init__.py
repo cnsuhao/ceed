@@ -72,7 +72,8 @@ class TestDock(QDockWidget):
                                         value = OrderedDict([
                                                              ("Red", 160),
                                                              ("Green", 255),
-                                                             ("Blue", 160)
+                                                             ("Blue", 160),
+                                                             ("Alpha", Property(name="Alpha", value=0.5, defaultValue=0.5))
                                                              ]),
                                         editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}}
                                         )
