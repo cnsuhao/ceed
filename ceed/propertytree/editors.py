@@ -82,7 +82,6 @@ class PropertyEditorRegistry(object):
         if valueType in self.editorsForValueType:
             return self.editorsForValueType[valueType][0][1](editProperty)
 
-        # TODO: if property.isStringRepresentationEditable() find string editor and edit the string value
         return None
 
 class PropertyEditor(object):
@@ -223,7 +222,7 @@ class NumericPropertyEditor(PropertyEditor):
         return self.editWidget
 
     def getWidgetValue(self):
-        # the call to the constructor of the type is so we return
+        # the call to the constructor of the type is done so we return
         # an integer and not a float if the property's type is an integer.
         # it should be future proof too.
         return self.property.valueType()(self.editWidget.value()), True

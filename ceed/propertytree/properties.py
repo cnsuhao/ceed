@@ -2,6 +2,7 @@
 
 PropertyCategory -- A category, groups properties together.
 Property -- The base class for all properties, has name, value, etc.
+StringWrapperProperty -- Special purpose property to edit the string representation of another property.
 """
 
 from collections import OrderedDict
@@ -232,7 +233,7 @@ class Property(object):
         return utility.getDictionaryTreePath(self.editorOptions, path, defaultValue)
 
 class StringWrapperProperty(Property):
-    """Special property used to wrap the string value
+    """Special purpose property used to wrap the string value
     of another property so it can be edited.
     """
     def __init__(self, innerProperty, instantApply=False):

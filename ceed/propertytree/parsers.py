@@ -63,6 +63,15 @@ class AstHelper(object):
 
     @staticmethod
     def parseOrderedDict(s, valueReplacements={"true": True, "false": False}):
+        """Parse a string and return an ordered dictionary; nesting allowed.
+        
+        The format is similar to Python's dict literal but it doesn't require
+        quotes around strings.
+        Example: ``{Red:255, Green:0, Blue:0, Awesome: True}``
+        
+        Values found in the 'valueReplacements' parameter (case insensitive)
+        will be replaced.
+        """
         vr = dict((str(k).lower(), v) for k, v in valueReplacements.items())
         def convertHook(node, convert):
             if isinstance(node, ast.Dict):
