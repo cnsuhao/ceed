@@ -79,6 +79,17 @@ class DictionaryProperty(Property):
         self.value[component.name] = component.value
         self.raiseValueChanged(Property.ChangeValueReason.ComponentValueChanged)
 
-    def updateComponentValues(self, reason=Property.ChangeValueReason.Unknown):
-        for name in self.value:
-            self.components[name].setValue(self.value[name], reason)
+    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+        # check if our value and our components match
+        # and if not, recreate our components.
+        # we do this on this Property because our value is a dictionary
+        # and its items are not fixed.
+
+        # if our keys are the same as our components' keys, simply update the values
+        if self.value.keys() == self.components.keys():
+            for name in self.value:
+                self.components[name].setValue(self.value[name], reason)
+        else:
+            # recreate our components
+            self.finaliseComponents()
+            self.createComponents()

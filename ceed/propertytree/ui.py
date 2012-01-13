@@ -1,3 +1,5 @@
+from . import Property
+
 from PySide.QtGui import QStandardItem
 from PySide.QtGui import QApplication
 from PySide.QtGui import QPalette
@@ -24,8 +26,11 @@ class PropertyTreeItem(QStandardItem):
         self.setSizeHint(QSize(-1, 24))
         self.propertyTreeRow = propertyTreeRow
 
+        self.finalised = False
+
     def finalise(self):
         self.propertyTreeRow = None
+        self.finalised = True
 
     def bold(self):
         return self.font().bold()
@@ -43,14 +48,14 @@ class PropertyTreeRow(object):
         self.editor = None
         self.finalised = False
 
+        self.createChildRows()
+
     def finalise(self):
         # TODO: Remove print
         print("Finalising row with nameItem.text() = " + str(self.nameItem.text()))
         if not self.finalised:
             # Finalise children before clearing nameItem or we can't get them
-            for row in self.childRows():
-                row.finalise()
-                # Will be removed from the tree automatically
+            self.destroyChildRows()
 
             self.nameItem.finalise(); self.nameItem = None
             self.valueItem.finalise(); self.valueItem = None
@@ -62,12 +67,23 @@ class PropertyTreeRow(object):
     def appendChildRow(self, row):
         self.nameItem.appendRow([row.nameItem, row.valueItem])
 
+    def createChildRows(self):
+        pass
+
+    def destroyChildRows(self):
+        for row in self.childRows():
+            row.finalise()
+        self.nameItem.setRowCount(0)
+
 class PropertyCategoryRow(PropertyTreeRow):
 
     def __init__(self, propertyCategory):
-        super(PropertyCategoryRow, self).__init__()
-
+        # set the category before super init because
+        # we need it in createChildRows() which is
+        # called by super init.
         self.category = propertyCategory
+
+        super(PropertyCategoryRow, self).__init__()
 
         self.nameItem.setEditable(False)
         self.nameItem.setText(self.category.name)
@@ -79,6 +95,7 @@ class PropertyCategoryRow(PropertyTreeRow):
         self.nameItem.setForeground(palette.brush(QPalette.Normal, QPalette.BrightText))
         self.nameItem.setBackground(palette.brush(QPalette.Normal, QPalette.Dark))
 
+    def createChildRows(self):
         for prop in self.category.properties.values():
             row = PropertyRow(prop)
             self.appendChildRow(row)
@@ -86,9 +103,12 @@ class PropertyCategoryRow(PropertyTreeRow):
 class PropertyRow(PropertyTreeRow):
 
     def __init__(self, boundProperty):
-        super(PropertyRow, self).__init__()
-
+        # set the property before super init because
+        # we need it in createChildRows() which is
+        # called by super init.
         self.property = boundProperty
+
+        super(PropertyRow, self).__init__()
 
         self.nameItem.setEditable(False)
         self.nameItem.setText(self.property.name)
@@ -97,14 +117,16 @@ class PropertyRow(PropertyTreeRow):
         self.valueItem.setText(self.property.valueToString())
 
         self.property.valueChanged.add(self.propertyValueChanged)
+        self.property.componentsUpdate.add(self.propertyComponentsUpdate)
 
+        self.updateStyle()
+
+    def createChildRows(self):
         components = self.property.getComponents()
         if components:
             for component in components.values():
                 row = PropertyRow(component)
                 self.appendChildRow(row)
-
-        self.updateStyle()
 
     def finalise(self):
         # TODO: uncomment below to be safe, it's commented to test execution order
@@ -112,6 +134,12 @@ class PropertyRow(PropertyTreeRow):
         self.property.valueChanged.remove(self.propertyValueChanged)
 
         super(PropertyRow, self).finalise()
+
+    def propertyComponentsUpdate(self, senderProperty, updateType):
+        if updateType == Property.ComponentsUpdateType.BeforeDestroy:
+            self.destroyChildRows()
+        elif updateType == Property.ComponentsUpdateType.AfterCreate:
+            self.createChildRows()
 
     def propertyValueChanged(self, senderProperty, reason):
         self.valueItem.setText(self.property.valueToString())
@@ -200,8 +228,9 @@ class PropertyTreeWidget(QWidget):
             for i in range(start, end+1):
                 mi = self.model.index(i, 0, parentIndex)
                 item = self.model.itemFromIndex(mi)
-                row = item.propertyTreeRow
-                row.finalise()
+                if not item.finalised:
+                    row = item.propertyTreeRow
+                    row.finalise()
         self.model.rowsAboutToBeRemoved.connect(rowsAboutToBeRemoved)
 
         layout = QVBoxLayout()

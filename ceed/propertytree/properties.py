@@ -47,6 +47,10 @@ class Property(object):
         ParentValueChanged = 2
         Editor = 3
 
+    class ComponentsUpdateType(object):
+        AfterCreate = 0,
+        BeforeDestroy = 1
+
     def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False, editorOptions=None):
         """Initialise an instance using the specified parameters.
         
@@ -72,9 +76,10 @@ class Property(object):
         self.readOnly = readOnly
         self.editorOptions = editorOptions
 
-        # A list of callables that are called when the value changes.
-        self.valueChanged = set()
-        
+        # Lists of callables (aka events, signals).
+        self.valueChanged = set()               # takes two arguments: sender, reason
+        self.componentsUpdate = set()           # takes two arguments: sender, update type
+
         # Create components
         self.createComponents()
 
@@ -87,14 +92,20 @@ class Property(object):
         """Create an OrderedDict with the component-properties that make up
         this property.
         
-        The property subscribes to the components' valueChanged event
-        here to be able to update this property's own value when
-        their value changes.
+        The default implementation is incomplete,
+        it simply subscribes to the components' valueChanged event
+        to be able to update this property's own value when
+        their value changes. It also calls raiseComponentsUpdate().
+        
+        Implementors should create the components, make sure they
+        are accessible from getComponents() and then call this
+        as super().
         """
         components = self.getComponents()
         if components:
             for comp in components.values():
                 comp.valueChanged.add(self.componentValueChanged)
+            self.raiseComponentsUpdate(self.ComponentsUpdateType.AfterCreate)
 
     def getComponents(self):
         """Return the OrderedDict of the components, or None."""
@@ -103,11 +114,14 @@ class Property(object):
     def finaliseComponents(self):
         """Clean up components.
         
-        Unsubscribe from the components' events, finalise them
-        and clear the components field.
+        The default implementation is usually enough, it will
+        unsubscribe from the components' events, finalise them
+        and clear the components field. It will also call
+        raiseComponentsUpdate().
         """
         components = self.getComponents()
         if components:
+            self.raiseComponentsUpdate(self.ComponentsUpdateType.BeforeDestroy)
             for comp in components.values():
                 # TODO: uncomment below to be safe, it's commented to test execution order
                 #if self.componentValueChanged in comp.valueChanged:
@@ -154,7 +168,7 @@ class Property(object):
         
         If the property has components, this method is responsible
         for updating their values, if necessary. The default
-        implementation does this by calling 'self.updateComponentValues()'.
+        implementation does this by calling 'self.updateComponents()'.
         
         Note: The default implementation ignores the call if the
         value being set is the same as the current value.
@@ -169,9 +183,9 @@ class Property(object):
             # Do not update components if our own value was changed
             # in response to a component's value having changed.
             if reason != self.ChangeValueReason.ComponentValueChanged:
-                self.updateComponentValues(self.ChangeValueReason.ParentValueChanged)
+                self.updateComponents(self.ChangeValueReason.ParentValueChanged)
 
-    def updateComponentValues(self, reason=None):
+    def updateComponents(self, reason=None):
         pass
 
     def raiseValueChanged(self, reason=None):
@@ -182,6 +196,13 @@ class Property(object):
         """
         for subscriber in self.valueChanged:
             subscriber(self, reason)
+
+    def raiseComponentsUpdate(self, updateType):
+        """Notify all subscribers that the components
+        are about to be destroyed or have been created.
+        """
+        for subscriber in self.componentsUpdate:
+            subscriber(self, updateType)
 
     def componentValueChanged(self, component, reason):
         """Callback called when a component's value changes.

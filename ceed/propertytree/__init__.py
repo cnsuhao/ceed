@@ -9,6 +9,8 @@ ui -- The Qt GUI widget and its supporting classes.
 __all__ = ["properties", "compositeproperties", "editors", "ui"]
 
 # Everything below will be removed, I'm just testing it
+from collections import OrderedDict
+
 from properties import Property
 from properties import PropertyCategory
 
@@ -46,8 +48,14 @@ class TestDock(QDockWidget):
         self.setWidget(contentsWidget)
         
         def test():
-            self.props[1].components["X"].setValue(20)
-        
+            #self.props[1].components["X"].setValue(20)
+            self.colourProp.setValue(OrderedDict([
+                                                 ("Red", 160),
+                                                 ("Green", 255),
+                                                 ("Blue", 160),
+                                                 ("Alpha", 255)
+                                                 ]))
+
         testButton = QPushButton()
         testButton.setText("Test")
         testButton.clicked.connect(test)
@@ -56,7 +64,6 @@ class TestDock(QDockWidget):
         self.setup()
 
     def setup(self):
-        from collections import OrderedDict
         # TODO: Write CEGUI widget property creator/loader that
         # creates the properties and destroys them
         
@@ -93,3 +100,4 @@ class TestDock(QDockWidget):
         # load
         self.view.load(categories)
         self.props = props
+        self.colourProp = colourProp
