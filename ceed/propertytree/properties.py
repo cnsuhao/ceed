@@ -153,14 +153,12 @@ class Property(object):
         in addition to editing its components."""
         return False
 
-    def parseValueString(self, strValue):
+    def parseStringValue(self, strValue):
         """Parse the specified string value and return
-        a value suitable for this property.
-        
-        Return None if the string can't be parsed or
-        if parsing is not implemented (see isStringRepresentationEditable()).
+        a tuple with the parsed value and a boolean
+        specifying success or failure.
         """
-        return None
+        return None, False
 
     def setValue(self, value, reason=ChangeValueReason.Unknown):
         """Change the current value to the one specified
@@ -261,6 +259,9 @@ class StringWrapperProperty(Property):
 
     def __init__(self, innerProperty):
         super(StringWrapperProperty, self).__init__("__wrapper__", value=innerProperty.valueToString())
+        if self.editorOptions is None:
+            self.editorOptions = dict()
+        self.editorOptions["instantApply"] = False
         self.innerProperty = innerProperty
 
     def finalise(self):
@@ -268,8 +269,8 @@ class StringWrapperProperty(Property):
 
     def setValue(self, value, reason=Property.ChangeValueReason.Unknown):
         if super(StringWrapperProperty, self).setValue(value, reason):
-            value = self.innerProperty.parseValueString(value)
-            if value is not None:
+            value, valid = self.innerProperty.parseStringValue(value)
+            if valid:
                 self.innerProperty.setValue(value, reason)
                 return True
 

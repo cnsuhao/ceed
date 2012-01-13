@@ -91,10 +91,16 @@ class DictionaryProperty(Property):
     """
 
     @staticmethod
-    def parseOrderedDict(s):
+    def parseOrderedDict(s, valueReplacements={"true": True, "false": False}):
+        vr = dict((str(k).lower(), v) for k, v in valueReplacements.items())
         def convertHook(node, convert):
             if isinstance(node, ast.Dict):
                 return True, OrderedDict((convert(k), convert(v)) for k, v in zip(node.keys, node.values))
+            elif isinstance(node, ast.Name):
+                if node.id.lower() in vr:
+                    return True, vr[node.id.lower()]
+                else:
+                    return True, str(node.id)
             return False, None
 
         return AstHelper.delegate_literal_eval(s, convertHook)
@@ -133,18 +139,22 @@ class DictionaryProperty(Property):
         return self.components
 
     def valueToString(self):
-        gen = ("{%s:%s}" % (prop.name, prop.valueToString()) for prop in self.components.values())
-        return ",".join(gen)
+        gen = ("%s:%s" % (prop.name, prop.valueToString()) for prop in self.components.values())
+        return "{%s}" % (", ".join(gen))
 
     def isStringRepresentationEditable(self):
         return True
 
-    def parseValueString(self, strValue):
+    def parseStringValue(self, strValue):
         try:
-            return DictionaryProperty.parseOrderedDict(strValue)
+            value = DictionaryProperty.parseOrderedDict(strValue)
+            if isinstance(value, OrderedDict):
+                return value, True
         except ValueError:
             pass
-        return None
+        except SyntaxError:
+            pass
+        return None, False
 
     def componentValueChanged(self, component, reason):
         self.value[component.name] = component.value
