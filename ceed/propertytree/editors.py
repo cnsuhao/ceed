@@ -2,9 +2,12 @@
 
 PropertyEditorRegistry -- Maintains a list of the available editors and the types they can edit; creates the appropriate editor for a property.
 PropertyEditor -- The base class for all property editors.
-NumericPropertyEditor -- Editors for integers and floating point numbers.
+StringPropertyEditor -- Editor for strings.
+NumericPropertyEditor -- Editor for integers and floating point numbers.
+StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 """
-from . import Property
+
+from .properties import Property
 
 from PySide.QtGui import QLineEdit
 from PySide.QtGui import QSpinBox

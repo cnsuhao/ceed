@@ -260,7 +260,7 @@ class StringWrapperProperty(Property):
     of another property so it can be edited.
     """
     def __init__(self, innerProperty, instantApply=False):
-        super(StringWrapperProperty, self).__init__("__wrapper__",
+        super(StringWrapperProperty, self).__init__(innerProperty.name + "__wrapper__",
                                                     value = innerProperty.valueToString(),
                                                     editorOptions = {"instantApply":instantApply}
                                                     )
