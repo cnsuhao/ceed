@@ -24,6 +24,7 @@ import ceed.compatibility.animation_list as animation_list_compatibility
 from ceed.editors.animation_list import visual
 from ceed.editors.animation_list import code
 
+import os.path
 from xml.etree import ElementTree
 
 class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
@@ -45,9 +46,44 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
     def initialise(self, mainWindow):
         super(AnimationListTabbedEditor, self).initialise(mainWindow)
         
-        if self.nativeData != "":
-            pass
+        # We do something most people would not expect here,
+        # instead of asking CEGUI to load the animation list as it is,
+        # we parse it ourself, mine each and every animation from it,
+        # and use these chunks of code to load every animation one at a time
+        
+        # the reason we do this is more control (CEGUI just adds the animation
+        # list to the pool of existing animations, we don't want to pollute that
+        # pool and we want to group all loaded animations)
+        
+        root = None
+        try:
+            root = ElementTree.fromstring(self.nativeData)
             
+        except:
+            # things didn't go smooth
+            # 2 reasons for that
+            #  * the file is empty
+            #  * the contents of the file are invalid
+            #
+            # In the first case we will silently move along (it is probably just a new file),
+            # in the latter we will output a message box informing about the situation
+            
+            # the file should exist at this point, so we are not checking and letting exceptions
+            # fly out of this method
+            if os.path.getsize(self.filePath) > 2:
+                # the file contains more than just CR LF
+                QMessageBox.question(self,
+                                     "Can't parse given animation list!",
+                                     "Parsing '%s' failed, it's most likely not a valid XML file. "
+                                     "Constructing empty animation list instead (if you save you will override the invalid data!). "
+                                     "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
+                                     QMessageBox.Ok)
+            
+            # we construct the minimal empty imageset    
+            root = ElementTree.Element("Animations")
+        
+        self.visual.loadFromElement(root)
+        
     def finalise(self):
         super(AnimationListTabbedEditor, self).finalise()
         
@@ -66,6 +102,19 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.mainWindow.removeDockWidget(self.visual.timelineDockWidget)
         
         super(AnimationListTabbedEditor, self).deactivate()
+        
+    def saveAs(self, targetPath, updateCurrentPath = True):
+        codeMode = self.currentWidget() is self.code
+        
+        # if user saved in code mode, we process the code by propagating it to visual
+        # (allowing the change propagation to do the code validating and other work for us)
+        
+        if codeMode:
+            self.code.propagateToVisual()
+                
+        self.nativeData = self.visual.generateNativeData()
+        
+        return super(AnimationListTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
 class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):

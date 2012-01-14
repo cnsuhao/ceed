@@ -29,6 +29,8 @@ import ceed.ui.editors.animation_list.animationlistdockwidget
 import ceed.ui.editors.animation_list.timelinedockwidget
 import ceed.ui.editors.animation_list.visualediting
 
+from xml.etree import ElementTree
+
 class AnimationListDockWidget(QDockWidget):
     """Lists animations in the currently opened animation list XML
     """
@@ -42,6 +44,12 @@ class AnimationListDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.list = self.findChild(QListWidget, "list")
+        
+    def fillWithAnimations(self, animationWrappers):
+        self.list.clear()
+        
+        for wrapper in animationWrappers:
+            self.list.addItem(wrapper.realDefinitionName)
         
 class TimelineDockWidget(QDockWidget):
     """Shows a timeline of currently selected animation (from the animation list dock widget)
@@ -77,11 +85,50 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
         
         self.visual = visual
 
+class AnimationDefinitionWrapper(object):
+    """Represents one of the animations in the list, takes care of loading and saving it from/to XML element
+    """
+    
+    def __init__(self, visual):
+        self.visual = visual
+        self.animationDefinition = None
+        # the real name that should be saved when saving to a file
+        self.realDefinitionName = ""
+        # the fake name that will never clash with anything
+        self.fakeDefinitionName = ""
+        
+    def loadFromElement(self, element):
+        self.realDefinitionName = element.get("name", "")
+        self.fakeDefinitionName = self.visual.generateFakeAnimationDefinitionName()
+        
+        element.set("name", self.fakeDefinitionName)
+        
+        wrapperElement = ElementTree.Element("Animations")
+        wrapperElement.append(element)
+        
+        fakeWrapperCode = ElementTree.tostring(wrapperElement, "utf-8")
+        # tidy up what we abused
+        element.set("name", self.realDefinitionName)
+        
+        PyCEGUI.AnimationManager.getSingleton().loadAnimationsFromString(fakeWrapperCode)
+
+        self.animationDefinition = PyCEGUI.AnimationManager.getSingleton().getAnimation(self.fakeDefinitionName)
+    
+    def saveToElement(self):
+        ceguiCode = PyCEGUI.AnimationManager.getSingleton().getAnimationDefinitionAsString(self.animationDefinition)
+        
+        ret = ElementTree.fromstring(ceguiCode)
+        ret.set("name", self.realDefinitionName)
+        
+        return ret
+
 class VisualEditing(QWidget, mixed.EditMode):
     """This is the default visual editing mode for animation lists
     
     see editors.mixed.EditMode
     """
+    
+    fakeAnimationDefinitionNameSuffix = 1
     
     def __init__(self, tabbedEditor):
         super(VisualEditing, self).__init__()
@@ -95,11 +142,12 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.timelineDockWidget = TimelineDockWidget(self)
         self.timelineDockWidget.timeline.timePositionChanged.connect(self.slot_timePositionChanged)
         
+        self.fakeAnimationDefinitionNameSuffix = 1
         self.currentAnimation = None
         self.currentAnimationInstance = None
         self.currentPreviewWidget = None
         
-        self.setAnimation(None)
+        self.setCurrentAnimation(None)
         
         self.rootPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "RootPreviewWidget")
         
@@ -127,8 +175,15 @@ class VisualEditing(QWidget, mixed.EditMode):
         affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
         affector.createKeyFrame(9, "1.0")
         
-        self.setAnimation(animation)
+        print PyCEGUI.AnimationManager.getSingleton().getAnimationDefinitionAsString(animation)
+        
+        self.setCurrentAnimation(animation)
         ## END TEMPORARY CODE ##
+
+    def generateFakeAnimationDefinitionName(self):
+        VisualEditing.fakeAnimationDefinitionNameSuffix += 1
+        
+        return "CEED_InternalAnimationDefinition_%i" % (VisualEditing.fakeAnimationDefinitionNameSuffix)
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.tabbedEditor.filePath, self.scene)
@@ -163,7 +218,20 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.currentAnimationInstance.setTargetWindow(self.currentPreviewWidget)
         self.currentAnimationInstance.apply()
 
-    def setAnimation(self, animation):
+    def loadFromElement(self, rootElement):
+        self.animationWrappers = []
+        
+        for animation in rootElement.findall("AnimationDefinition"):
+            animationWrapper = AnimationDefinitionWrapper(self)
+            animationWrapper.loadFromElement(animation)
+            self.animationWrappers.append(animationWrapper)
+    
+        self.animationListDockWidget.fillWithAnimations(self.animationWrappers)
+    
+    def saveToElement(self):
+        return ""
+
+    def setCurrentAnimation(self, animation):
         """Set animation we want to edit"""
         
         self.currentAnimation = animation
