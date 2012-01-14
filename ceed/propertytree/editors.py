@@ -11,9 +11,7 @@ from . import utility
 
 from .properties import Property
 
-from PySide.QtGui import QLineEdit
-from PySide.QtGui import QDoubleSpinBox
-from PySide.QtGui import QValidator
+from PySide import QtGui
 
 class PropertyEditorRegistry(object):
     """The registry contains a (sorted) list of property editor
@@ -173,7 +171,7 @@ class StringPropertyEditor(PropertyEditor):
         return { str:0, unicode:0 }
 
     def createEditWidget(self, parent):
-        self.editWidget = QLineEdit(parent)
+        self.editWidget = QtGui.QLineEdit(parent)
         self.editWidget.textEdited.connect(self.valueChanging)
 
         # setup options
@@ -206,7 +204,7 @@ class NumericPropertyEditor(PropertyEditor):
         return { int:0, float:0 }
 
     def createEditWidget(self, parent):
-        self.editWidget = QDoubleSpinBox(parent)
+        self.editWidget = QtGui.QDoubleSpinBox(parent)
         self.editWidget.valueChanged.connect(self.valueChanging)
 
         # setup options
@@ -218,6 +216,8 @@ class NumericPropertyEditor(PropertyEditor):
         self.editWidget.setRange(go(options, "min", self.editWidget.minimum()),
                                  go(options, "max", self.editWidget.maximum()));
         self.editWidget.setSingleStep(go(options, "step", self.editWidget.singleStep()))
+        self.editWidget.setWrapping(go(options, "wrapping", self.editWidget.wrapping()))
+        self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(go(options, "buttons", self.editWidget.buttonSymbols())))
 
         return self.editWidget
 
@@ -236,7 +236,7 @@ class NumericPropertyEditor(PropertyEditor):
 
 PropertyEditorRegistry._standardEditors.add(NumericPropertyEditor)
 
-class StringWrapperValidator(QValidator):
+class StringWrapperValidator(QtGui.QValidator):
     """Validate the edit widget value when editing
     a StringWrapperProperty.
     
@@ -251,4 +251,4 @@ class StringWrapperValidator(QValidator):
 
     def validate(self, inputStr, pos):
         _, valid = self.property.parseStringValue(inputStr)
-        return QValidator.Intermediate if not valid else QValidator.Acceptable
+        return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
