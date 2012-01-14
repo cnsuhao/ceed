@@ -36,6 +36,25 @@ class DictionaryProperty(Property):
                            readOnly=False)
     """
 
+    class StringRepresentationMode(object):
+        ReadOnly = 0,
+        EditValuesRestrictTypes = 1,
+        EditValuesFreeTypes = 2,
+        EditKeysAndValues = 3
+
+    def __init__(self, name, value=None, category=None, helpText=None, readOnly=False, editorOptions=None,
+                 strReprMode=StringRepresentationMode.ReadOnly,
+                 strValueReplacements={"true": True, "false": False}):
+        super(DictionaryProperty, self).__init__(name = name,
+                                                 value = value,
+                                                 defaultValue = None,
+                                                 category = category,
+                                                 helpText = helpText,
+                                                 readOnly = readOnly,
+                                                 editorOptions = editorOptions)
+        self.strReprMode = strReprMode
+        self.strValueReplacements = strValueReplacements
+
     def createComponents(self):
         self.components = OrderedDict()
         for name, value in self.value.items():
@@ -74,13 +93,34 @@ class DictionaryProperty(Property):
         return "{%s}" % (", ".join(gen))
 
     def isStringRepresentationEditable(self):
-        return True
+        return self.strReprMode != self.StringRepresentationMode.ReadOnly
 
     def parseStringValue(self, strValue):
         try:
-            value = AstHelper.parseOrderedDict(strValue)
+            value = AstHelper.parseOrderedDict(strValue, self.strValueReplacements)
             if isinstance(value, OrderedDict):
-                return value, True
+                # we parsed it successfully and it's a dictionary.
+                # now make sure it agrees with our edit mode.
+                valid = False
+
+                # all changes allowed
+                if self.strReprMode == self.StringRepresentationMode.EditKeysAndValues:
+                    valid = True
+                # keys must remain the same, values can change type or value
+                elif self.strReprMode == self.StringRepresentationMode.EditValuesFreeTypes:
+                    valid = self.value.keys() == value.keys()
+                # only values can be changed but not their type
+                elif self.strReprMode == self.StringRepresentationMode.EditValuesRestrictTypes:
+                    # ensure keys are the same
+                    valid = self.value.keys() == value.keys()
+                    if valid:
+                        # check value types
+                        for k, v in self.value.items():
+                            if type(v) != type(value[k]):
+                                valid = False
+                                break
+
+                return value, valid
         except ValueError:
             pass
         except SyntaxError:

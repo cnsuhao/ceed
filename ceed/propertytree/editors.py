@@ -7,8 +7,6 @@ NumericPropertyEditor -- Editor for integers and floating point numbers.
 StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 """
 
-from . import utility
-
 from .properties import Property
 
 from PySide import QtGui
@@ -175,13 +173,12 @@ class StringPropertyEditor(PropertyEditor):
         self.editWidget.textEdited.connect(self.valueChanging)
 
         # setup options
-        options = self.property.getEditorOption("string/")
-        go = utility.getDictionaryTreePath
+        options = self.property.getEditorOption("string/", {})
 
-        self.editWidget.setMaxLength(go(options, "maxLength", self.editWidget.maxLength()))
-        self.editWidget.setPlaceholderText(go(options, "placeholderText", self.editWidget.placeholderText()))
-        self.editWidget.setInputMask(go(options, "inputMask", self.editWidget.inputMask()))
-        self.editWidget.setValidator(go(options, "validator", self.editWidget.validator()))
+        self.editWidget.setMaxLength(options.get("maxLength", self.editWidget.maxLength()))
+        self.editWidget.setPlaceholderText(options.get("placeholderText", self.editWidget.placeholderText()))
+        self.editWidget.setInputMask(options.get("inputMask", self.editWidget.inputMask()))
+        self.editWidget.setValidator(options.get("validator", self.editWidget.validator()))
 
         return self.editWidget
 
@@ -208,16 +205,15 @@ class NumericPropertyEditor(PropertyEditor):
         self.editWidget.valueChanged.connect(self.valueChanging)
 
         # setup options
-        options = self.property.getEditorOption("numeric/")
-        go = utility.getDictionaryTreePath
+        options = self.property.getEditorOption("numeric/", {})
 
         # set decimals first because according to the docs setting it can change the range.
-        self.editWidget.setDecimals(go(options, "decimals", 0 if self.property.valueType() == int else 6))
-        self.editWidget.setRange(go(options, "min", self.editWidget.minimum()),
-                                 go(options, "max", self.editWidget.maximum()));
-        self.editWidget.setSingleStep(go(options, "step", self.editWidget.singleStep()))
-        self.editWidget.setWrapping(go(options, "wrapping", self.editWidget.wrapping()))
-        self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(go(options, "buttons", self.editWidget.buttonSymbols())))
+        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else 6))
+        self.editWidget.setRange(options.get("min", self.editWidget.minimum()),
+                                 options.get("max", self.editWidget.maximum()));
+        self.editWidget.setSingleStep(options.get("step", self.editWidget.singleStep()))
+        self.editWidget.setWrapping(options.get("wrapping", self.editWidget.wrapping()))
+        self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(options.get("buttons", self.editWidget.buttonSymbols())))
 
         return self.editWidget
 

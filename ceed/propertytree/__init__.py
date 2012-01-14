@@ -77,7 +77,16 @@ class TestDock(QDockWidget):
                                                              ]),
                                         editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}}
                                         )
-        
+        xyzProp = DictionaryProperty(
+                                     name = "XYZ",
+                                     value = OrderedDict([
+                                                         ("X", 0),
+                                                         ("Y", 0),
+                                                         ("Z", 0)
+                                                         ]),
+                                     strReprMode = DictionaryProperty.StringRepresentationMode.EditValuesRestrictTypes
+                                    )
+
         props = [
                 Property("stringProperty", "Hello", "Hello", "Default Category", "This is a string property"),
                 Property(name = "fourHexChars", value = "0xDEAD", defaultValue="0xBEEF", editorOptions = {
@@ -93,7 +102,8 @@ class TestDock(QDockWidget):
                                                               ("Height", 50),
                                                               ("Colour", colourProp)
                                                               ]),
-                                   readOnly=False)
+                                   readOnly=False),
+                xyzProp
                 ]
         categories = PropertyCategory.categorisePropertyList(props)
         # test: add the property to another category too!

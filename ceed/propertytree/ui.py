@@ -335,15 +335,20 @@ class PropertyTreeWidget(QWidget):
         itemDelegate = PropertyTreeItemDelegate(self, self.registry)
         self.view.setItemDelegate(itemDelegate)
 
+    def clear(self):
+        """Clear the tree."""
+        self.model.clear()
+        self.model.setColumnCount(2)
+        self.model.setHorizontalHeaderLabels(["Property", "Value"])
+
     def load(self, categoryList):
         """Clear tree and load the specified categories into it."""
         
         # prevent flicker
         self.view.setUpdatesEnabled(False)
+
         # clear and setup
-        self.model.clear()
-        self.model.setColumnCount(2)
-        self.model.setHorizontalHeaderLabels(["Property", "Value"])
+        self.clear()
 
         # add all categories
         for category in categoryList.values():
