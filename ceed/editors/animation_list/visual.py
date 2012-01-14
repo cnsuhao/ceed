@@ -24,6 +24,7 @@ import PyCEGUI
 from ceed.editors import mixed
 from ceed import cegui
 from ceed.editors.animation_list import timeline
+from ceed.editors.animation_list import undo
 
 import ceed.ui.editors.animation_list.animationlistdockwidget
 import ceed.ui.editors.animation_list.timelinedockwidget
@@ -44,12 +45,20 @@ class AnimationListDockWidget(QDockWidget):
         self.ui.setupUi(self)
         
         self.list = self.findChild(QListWidget, "list")
+        self.list.currentItemChanged.connect(self.slot_currentItemChanged)
         
     def fillWithAnimations(self, animationWrappers):
         self.list.clear()
         
         for wrapper in animationWrappers:
             self.list.addItem(wrapper.realDefinitionName)
+            
+    def slot_currentItemChanged(self, newItem, oldItem):
+        newName = newItem.text()
+        oldName = oldItem.text() if oldItem else None
+        
+        cmd = undo.ChangeCurrentAnimationDefinition(self.visual, newName, oldName)
+        self.visual.tabbedEditor.undoStack.push(cmd)
         
 class TimelineDockWidget(QDockWidget):
     """Shows a timeline of currently selected animation (from the animation list dock widget)
@@ -161,24 +170,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.ceguiPreview.setLayout(layout)        
         
         self.scene = EditingScene(self)
-        
-        ## TEMPORARY TEST CODE ##
-        animation = PyCEGUI.AnimationManager.getSingleton().createAnimation("Test")
-        animation.setDuration(10)
-        affector = animation.createAffector("Alpha", "float")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(5, "0.5", progression = PyCEGUI.KeyFrame.P_Discrete)
-        affector.createKeyFrame(10, "1.0", progression = PyCEGUI.KeyFrame.P_QuadraticAccelerating)
-        
-        affector = animation.createAffector("Text", "String")
-        affector.createKeyFrame(0, "1.0")
-        affector.createKeyFrame(8, "0.5", progression = PyCEGUI.KeyFrame.P_QuadraticDecelerating)
-        affector.createKeyFrame(9, "1.0")
-        
-        print PyCEGUI.AnimationManager.getSingleton().getAnimationDefinitionAsString(animation)
-        
-        self.setCurrentAnimation(animation)
-        ## END TEMPORARY CODE ##
 
     def generateFakeAnimationDefinitionName(self):
         VisualEditing.fakeAnimationDefinitionNameSuffix += 1
@@ -219,14 +210,14 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.currentAnimationInstance.apply()
 
     def loadFromElement(self, rootElement):
-        self.animationWrappers = []
+        self.animationWrappers = {}
         
         for animation in rootElement.findall("AnimationDefinition"):
             animationWrapper = AnimationDefinitionWrapper(self)
             animationWrapper.loadFromElement(animation)
-            self.animationWrappers.append(animationWrapper)
+            self.animationWrappers[animationWrapper.realDefinitionName] = animationWrapper
     
-        self.animationListDockWidget.fillWithAnimations(self.animationWrappers)
+        self.animationListDockWidget.fillWithAnimations(self.animationWrappers.itervalues())
     
     def saveToElement(self):
         return ""
@@ -246,6 +237,12 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.timelineDockWidget.timeline.setAnimation(self.currentAnimation)
         
         self.synchInstanceAndWidget()
+        
+    def setCurrentAnimationWrapper(self, animationWrapper):
+        self.setCurrentAnimation(animationWrapper.animationDefinition)
+        
+    def getAnimationWrapper(self, name):
+        return self.animationWrappers[name]
         
     def setPreviewWidget(self, widgetType):
         if self.currentPreviewWidget is not None:
@@ -293,7 +290,8 @@ class VisualEditing(QWidget, mixed.EditMode):
     def slot_timePositionChanged(self, oldPosition, newPosition):
         # there is intentionally no undo/redo for this (it doesn't change content or context)
         
-        self.currentAnimationInstance.setPosition(newPosition)
-        self.currentAnimationInstance.apply()
+        if self.currentAnimationInstance is not None:
+            self.currentAnimationInstance.setPosition(newPosition)
+            self.currentAnimationInstance.apply()
         
 from ceed import mainwindow

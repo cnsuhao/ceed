@@ -24,7 +24,7 @@ import PyCEGUI
 import time
 
 # default amount of pixels per second for 100% zoom
-pixelsPerSecond = 100
+pixelsPerSecond = 1000
 
 class TimecodeLabel(QGraphicsRectItem):
     """Simply displays time position labels depending on the zoom level
@@ -471,6 +471,8 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
             
             # refcount drops and python should destroy that item
             item.setParentItem(None)
+            if self.scene():
+                self.scene().removeItem(item)
             
         if self.animation is None:
             return
