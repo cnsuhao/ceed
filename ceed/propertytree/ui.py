@@ -1,6 +1,12 @@
 """Qt property tree widget supporting classes.
 
-AstHelper -- Customised Python literal parsing.
+PropertyTreeItem -- Base item for all items.
+PropertyTreeRow -- Pair of name and value items, manages it's child rows.
+PropertyCategoryRow -- Special tree items placed at the root of the tree.
+PropertyRow -- Tree row bound to a Property.
+PropertyTreeItemDelegate -- Facilitates editing of the rows' values.
+PropertyTreeView -- QTreeView with some modifications for better results.
+PropertyTreeWidget -- The property tree widget.
 """
 
 from .properties import Property
