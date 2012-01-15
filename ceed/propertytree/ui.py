@@ -131,6 +131,8 @@ class PropertyRow(PropertyTreeRow):
 
         self.nameItem.setEditable(False)
         self.nameItem.setText(self.property.name)
+        if self.property.helpText:
+            self.nameItem.setToolTip(self.property.helpText)
 
         self.valueItem.setEditable(not self.property.readOnly)
         self.valueItem.setText(self.property.valueToString())
