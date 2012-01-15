@@ -465,6 +465,7 @@ class MainWindow(QMainWindow):
     def setupToolbars(self):
         def createToolbar(name):
             tb = QToolBar(name, self)
+            tb.setObjectName("%s toolbar" % (name))
             tbIconSizeEntry = self.app.settings.getEntry("global/ui/toolbar_icon_size")
 
             def updateToolbarIconSize(toolbar, size):

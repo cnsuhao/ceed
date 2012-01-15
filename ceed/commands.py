@@ -33,6 +33,7 @@ class UndoViewer(QDockWidget):
     def __init__(self):
         super(UndoViewer, self).__init__()
         
+        self.setObjectName("Undo Viewer dock widget")
         self.setWindowTitle("Undo Viewer")
         
         # main undo view
