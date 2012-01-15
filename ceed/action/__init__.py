@@ -140,9 +140,8 @@ class ActionManager(declaration.ActionManager):
                              icon = QIcon("icons/actions/help_feedback.png"))
         general.createAction(name = "report_bug", label = "Report &Bug",
                              help = "Opens the issue tracker application.")
-        # TODO: Log viewer
-        #general.createAction(name = "view_log", label = "&Log",
-        #                     help = "Opens the log viewer.")
+        general.createAction(name = "cegui_debug_info", label = "&CEGUI debug info",
+                             help = "Opens CEGUI debug info (FPS and log). Only useful when you have issues.")
         general.createAction(name = "view_license", label = "L&icense",
                              help = "Displays the application license.")
         general.createAction(name = "about_qt", label = "About &Qt",

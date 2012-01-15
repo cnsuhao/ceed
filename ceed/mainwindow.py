@@ -275,9 +275,8 @@ class MainWindow(QMainWindow):
         self.reportBugAction = self.actionManager.getAction("general/report_bug")
         self.connectionGroup.add(self.reportBugAction, receiver = self.slot_reportBug)
 
-        # TODO: Log viewer
-        #self.viewLogAction = self.actionManager.getAction("general/view_log")
-        #self.connectionGroup.add(self.viewLogAction, receiver = self.slot_viewLog)
+        self.ceguiDebugInfoAction = self.actionManager.getAction("general/cegui_debug_info")
+        self.connectionGroup.add(self.ceguiDebugInfoAction, receiver = self.slot_ceguiDebugInfo)
 
         self.viewLicenseAction = self.actionManager.getAction("general/view_license")
         self.connectionGroup.add(self.viewLicenseAction, receiver = self.slot_license)
@@ -456,7 +455,7 @@ class MainWindow(QMainWindow):
         self.menuBar().addMenu(self.helpMenu)
         self.helpMenu.addAction(self.helpContentsAction)
         self.helpMenu.addSeparator()
-        self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction]) #, self.viewLogAction])
+        self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction, self.ceguiDebugInfoAction])
         self.helpMenu.addSeparator()
         self.helpMenu.addActions([self.viewLicenseAction, self.aboutQtAction])
         self.helpMenu.addSeparator()
@@ -1389,3 +1388,6 @@ parent directory?")
 
     def slot_reportBug(self):
         self.openUrlString("http://www.cegui.org.uk/mantis/bug_report_page.php")
+
+    def slot_ceguiDebugInfo(self):
+        self.ceguiContainerWidget.debugInfo.show()
