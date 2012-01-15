@@ -19,6 +19,7 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from PySide.QtOpenGL import *
+from PySide.QtWebKit import *
 
 from OpenGL.GL import *
 
@@ -58,20 +59,61 @@ class DebugInfo(QDialog):
         self.others = 0
         self.othersBox = self.findChild(QLineEdit, "othersBox")
         
+        self.logViewArea = self.findChild(QWidget, "logViewArea")
+        self.logViewAreaLayout = QVBoxLayout()
+        
+        self.logView = QWebView()
+        self.logViewAreaLayout.addWidget(self.logView)
+        
+        self.logViewArea.setLayout(self.logViewAreaLayout)
+        
+        self.htmlLog = ""
+        
+        self.containerWidget.ceguiInstance.logger.registerSubscriber(self.logEvent)
+        
     def logEvent(self, message, level):
+        stringLevel = "unknown"
+        bgColour = "transparent"
+        
         if level == PyCEGUI.LoggingLevel.Errors:
             self.errors += 1
             self.errorsBox.setText(str(self.errors))
+            stringLevel = "E"
+            bgColour = "#ff5f5f"
             
         elif level == PyCEGUI.LoggingLevel.Warnings:
             self.warnings += 1
             self.warningsBox.setText(str(self.warnings))
+            stringLevel = "W"
+            bgColour = "#fff76f"
+            
         else:
             self.others += 1
             self.othersBox.setText(str(self.others))
+            stringLevel = " "
+            bgColour = "transparent"
+            
+        self.htmlLog += "<tr><td style=\"background: %s\">%s</td><td>%s</td></tr>\n" % (bgColour, stringLevel, message)
         
-        print message.c_str()
-
+    def show(self):
+        self.logView.setHtml("""
+<html>
+<body>
+<style type="text/css">
+font-size: 10px;
+</style>
+<table>
+<thead>
+<th></th><th>Message</th>
+</thead>
+<tbody>
+""" + self.htmlLog + """
+</tbody>
+</table>
+</html>""")
+        
+        super(DebugInfo, self).show()
+        
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
 
