@@ -28,22 +28,20 @@ class CodeEditing(mixed.CodeEditMode):
         self.tabbedEditor = tabbedEditor
         
     def getNativeCode(self):
-        #element = self.tabbedEditor.visual.imagesetEntry.saveToElement()
-        #xmledit.indent(element)
+        element = self.tabbedEditor.visual.saveToElement()
+        xmledit.indent(element)
         
-        #return ElementTree.tostring(element, "utf-8")
-        return ""
+        return ElementTree.tostring(element, "utf-8")
         
     def propagateNativeCode(self, code):
-        #element = None
-        #
-        #try:
-        #    element = ElementTree.fromstring(code)
-        #
-        #except:
-        #    return False
+        element = None
         
-        #else:
-        #    self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
-        #    return True
-        return True
+        try:
+            element = ElementTree.fromstring(code)
+        
+        except:
+            return False
+        
+        else:
+            self.tabbedEditor.visual.loadFromElement(element)
+            return True

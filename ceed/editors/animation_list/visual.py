@@ -220,8 +220,14 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.animationListDockWidget.fillWithAnimations(self.animationWrappers.itervalues())
     
     def saveToElement(self):
-        return ""
-
+        root = ElementTree.Element("Animations")
+        
+        for animationWrapper in self.animationWrappers.itervalues():
+            element = animationWrapper.saveToElement()
+            root.append(element)
+            
+        return root
+    
     def setCurrentAnimation(self, animation):
         """Set animation we want to edit"""
         
