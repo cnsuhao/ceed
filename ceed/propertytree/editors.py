@@ -232,6 +232,31 @@ class NumericPropertyEditor(PropertyEditor):
 
 PropertyEditorRegistry._standardEditors.add(NumericPropertyEditor)
 
+class BoolPropertyEditor(PropertyEditor):
+
+    @classmethod
+    def getSupportedValueTypes(cls):
+        return { bool:0 }
+
+    def createEditWidget(self, parent):
+        self.editWidget = QtGui.QCheckBox(parent)
+        self.editWidget.setAutoFillBackground(True)
+        self.editWidget.stateChanged.connect(self.valueChanging)
+
+        return self.editWidget
+
+    def getWidgetValue(self):
+        return self.editWidget.isChecked(), True
+
+    def setWidgetValueFromProperty(self):
+        value, valid = self.getWidgetValue()
+        if (not valid) or (self.property.value != value):
+            self.editWidget.setChecked(self.property.value)
+
+        super(BoolPropertyEditor, self).setWidgetValueFromProperty()
+
+PropertyEditorRegistry._standardEditors.add(BoolPropertyEditor)
+
 class StringWrapperValidator(QtGui.QValidator):
     """Validate the edit widget value when editing
     a StringWrapperProperty.

@@ -7,6 +7,8 @@ from propertytree import PropertyTreeWidget
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
 
+import operator
+
 class PropertyInspectorWidget(QWidget):
 
     def __init__(self, parent=None):
@@ -35,6 +37,65 @@ class PropertyMappingEntry(object):
 class PropertyMap(object):
     pass
 
+class CEGUIPropertyWrapper(Property):
+
+    @staticmethod
+    def gatherData(ceguiProperty, ceguiSets):
+        values = dict()
+        defaultValues = dict()
+        validSets = []
+        propName = ceguiProperty.getName()
+        for ceguiSet in ceguiSets:
+            if ceguiSet.isPropertyPresent(propName):
+                validSets.append(ceguiSet)
+
+                value = ceguiProperty.get(ceguiSet)
+                if value in values:
+                    values[value] += 1
+                else:
+                    values[value] = 1
+
+                defaultValue = ceguiProperty.getDefault(ceguiSet)
+                if defaultValue in defaultValues:
+                    defaultValues[defaultValue] += 1
+                else:
+                    defaultValues[defaultValue] = 1
+
+        values = [value for value, _ in sorted(values.iteritems(), key = operator.itemgetter(1), reverse = True)]
+        defaultValues = [value for value, _ in sorted(defaultValues.iteritems(), key = operator.itemgetter(1), reverse = True)]
+
+        return validSets, values, defaultValues
+
+    def __init__(self, ceguiProperty, ceguiSets):
+
+        if len(ceguiSets) == 0:
+            raise ValueError("The 'ceguiSets' argument has no elements; at least one is required.")
+
+        realType = CEGUIPropertyManager.getTypeFromCEGUITypeString(ceguiProperty.getDataType())
+
+        ceguiSets, values, defaultValues = self.gatherData(ceguiProperty, ceguiSets)
+
+        value = realType(values[0])
+        defaultValue = realType(defaultValues[0])
+
+        super(CEGUIPropertyWrapper, self).__init__(name = ceguiProperty.getName(),
+                                                   category = ceguiProperty.getOrigin(),
+                                                   helpText = ceguiProperty.getHelp(),
+                                                   value = value,
+                                                   defaultValue = defaultValue,
+                                                   readOnly = not ceguiProperty.isWritable()
+                                                   )
+        self.ceguiProperty = ceguiProperty
+        self.ceguiSets = ceguiSets
+        self.values = values
+        self.defaultValues = defaultValues
+        # TODO: Can it also listen for value changes to the underlying ceguiSets' properties?
+
+    def valueToString(self):
+        if len(self.values) == 1:
+            return super(CEGUIPropertyWrapper, self).valueToString()
+        return "<multiple values>"
+
 class CEGUIPropertyManager(object):
 
     # Maps CEGUI data types (in string form) to Python types
@@ -49,8 +110,10 @@ class CEGUIPropertyManager(object):
     # types here in Python and those would parse and write the strings.
     
     _typeMap = {
-                "something": int,
-                "supertype": float
+                "int": int,
+                "float": float,
+                "double": float,
+                "bool": bool
                 }
 
     @staticmethod
@@ -64,27 +127,13 @@ class CEGUIPropertyManager(object):
         # There's currently no way to get this information, apart
         # from examining the name, datatype, origin etc. of the property
         # and build a string/hash value out of it.
-        # However, since CEGUI properties are defined as static,
-        # we can cheat and use their memory address to compare them.
-        return ceguiProperty
+        return "/".join([ceguiProperty.getOrigin(),
+                         ceguiProperty.getName(),
+                         ceguiProperty.getDataType()])
 
-    # TODO: Remove this and create a Property subclass that
-    # sets the value on the ceguiSets. Can it also listen for
-    # value changes to the underlying ceguiSets' properties?
     def createProperty(self, ceguiProperty, ceguiSets):
 
-        if len(ceguiSets) != 1:
-            raise NotImplementedError("Only supports one selected widget at the moment. Sorry!")
-        ceguiSet = ceguiSets[0]
-
-        prop = Property(name = ceguiProperty.getName(),
-                        category = ceguiProperty.getOrigin(),
-                        helpText = ceguiProperty.getHelp(),
-                        value = ceguiProperty.get(ceguiSet),
-                        defaultValue = ceguiProperty.getDefault(ceguiSet),
-                        readOnly = not ceguiProperty.isWritable())
-
-        return prop
+        return CEGUIPropertyWrapper(ceguiProperty, ceguiSets)
 
     # TODO: L-O-L it works! (so far)
     # TODO: Add a way to only show modified (non-default) or recently
