@@ -124,7 +124,8 @@ class TimecodeLabel(QGraphicsRectItem):
             
             for key, value in timeLabels.iteritems():
                 if value:
-                    painter.drawText(key * pixelsPerSecond * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, Qt.AlignHCenter | Qt.AlignBottom, str(key))
+                    # round(key, 6) because we want at most 6 digits, %g to display it as compactly as possible
+                    painter.drawText(key * pixelsPerSecond * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, Qt.AlignHCenter | Qt.AlignBottom, "%g" % (round(key, 6)))
                     painter.drawLine(QPointF(key * pixelsPerSecond * xScale, 10), QPointF(pixelsPerSecond * key * xScale, 15))
             
         finally:
