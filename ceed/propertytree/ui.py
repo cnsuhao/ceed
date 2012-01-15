@@ -329,6 +329,8 @@ class PropertyTreeWidget(QWidget):
 
         self.registry = None
 
+        self.clear()
+
     def setupRegistry(self, registry):
         """Setup the registry and the item delegate."""
         self.registry = registry

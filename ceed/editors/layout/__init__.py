@@ -102,8 +102,10 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.visual.hierarchyDockWidget.setVisible(True)
         self.mainWindow.addDockWidget(Qt.RightDockWidgetArea, self.visual.propertiesDockWidget)
         self.visual.propertiesDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
-        self.visual.createWidgetDockWidget.setVisible(True)
+        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.propertiesDockWidget2)
+        self.visual.propertiesDockWidget2.setVisible(True)
+        #self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
+        #self.visual.createWidgetDockWidget.setVisible(True)
         self.mainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
 
@@ -114,8 +116,9 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
 
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.hierarchyDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.propertiesDockWidget2)
         self.mainWindow.removeDockWidget(self.visual.propertiesDockWidget)
-        self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
+        #self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
         
         super(LayoutTabbedEditor, self).deactivate()

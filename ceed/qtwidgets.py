@@ -218,3 +218,47 @@ class KeySequenceButton(QPushButton):
         
         if dialog.exec_() == QDialog.Accepted:
             self.keySequence = dialog.keySequence
+
+class LineEditWithClearButton(QLineEdit):
+    """A QLineEdit with an inline clear button.
+    
+    Hitting Escape in the line edit clears it.
+    
+    Based on http://labs.qt.nokia.com/2007/06/06/lineedit-with-a-clear-button/
+    """
+
+    def __init__(self, parent=None):
+        super(LineEditWithClearButton, self).__init__(parent)
+
+        btn = self.button = QToolButton(self)
+        icon = QPixmap("icons/widgets/edit-clear.png")
+        btn.setIcon(icon)
+        btn.setIconSize(icon.size())
+        btn.setCursor(Qt.ArrowCursor)
+        btn.setStyleSheet("QToolButton { border: none; padding: 0px; }")
+        btn.hide()
+
+        btn.clicked.connect(self.clear)
+        self.textChanged.connect(self.updateCloseButton)
+
+        clearAction = QAction(self)
+        clearAction.setShortcut(QKeySequence("Esc"))
+        clearAction.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+        clearAction.triggered.connect(self.clear)
+        self.addAction(clearAction)
+
+        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.setStyleSheet("QLineEdit { padding-right: %ipx; }" % (btn.sizeHint().width() + frameWidth + 1))
+
+        minSizeHint = self.minimumSizeHint()
+        self.setMinimumSize(max(minSizeHint.width(), btn.sizeHint().width() + frameWidth * 2 + 2),
+                            max(minSizeHint.height(), btn.sizeHint().height() + frameWidth * 2 + 2))
+
+    def resizeEvent(self, event):
+        sz = self.button.sizeHint()
+        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        self.button.move(self.rect().right() - frameWidth - sz.width(),
+                         (self.rect().bottom() + 1 - sz.height()) / 2)
+
+    def updateCloseButton(self, text):
+        self.button.setVisible(not not text)

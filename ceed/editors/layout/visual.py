@@ -33,6 +33,10 @@ import ceed.ui.editors.layout.propertiesdockwidget
 import cPickle
 import os
 
+from ceed.propertymapping import PropertyInspectorWidget
+
+from ceed.propertytree import PropertyEditorRegistry
+
 class WidgetHierarchyItem(QStandardItem):
     def __init__(self, manipulator):
         self.manipulator = manipulator
@@ -604,6 +608,21 @@ class CreateWidgetDockWidget(QDockWidget):
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
 
+class PropertiesDockWidget2(QDockWidget):
+
+    def __init__(self, visual):
+        super(PropertiesDockWidget2, self).__init__()
+        
+        self.visual = visual
+
+        self.setWindowTitle("Properties 2")
+        self.setMinimumSize(400, 400)
+
+        self.inspector = PropertyInspectorWidget()
+        self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))
+
+        self.setWidget(self.inspector)
+
 class EditingScene(cegui_widgethelpers.GraphicsScene):
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
     visual editing centre screen where CEGUI is rendered.
@@ -758,6 +777,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
                 sets.append(wdt)
         
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
+        self.visual.propertiesDockWidget2.inspector.setPropertySets(sets)
         
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
@@ -902,6 +922,7 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.hierarchyDockWidget = HierarchyDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
         self.createWidgetDockWidget = CreateWidgetDockWidget(self)
+        self.propertiesDockWidget2 = PropertiesDockWidget2(self)
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
