@@ -72,6 +72,8 @@ class TimelineDockWidget(QDockWidget):
         self.ui = ceed.ui.editors.animation_list.timelinedockwidget.Ui_TimelineDockWidget()
         self.ui.setupUi(self)
         
+        self.zoomLevel = 1
+        
         self.view = self.findChild(QGraphicsView, "view")
         self.scene = QGraphicsScene()
         self.timeline = timeline.AnimationTimeline()
@@ -84,7 +86,31 @@ class TimelineDockWidget(QDockWidget):
         self.pauseButton.clicked.connect(lambda: self.timeline.pause())
         self.stopButton = self.findChild(QPushButton, "stopButton")
         self.stopButton.clicked.connect(lambda: self.timeline.stop())
-
+        
+    def zoomIn(self):
+        self.view.scale(2, 1)
+        self.zoomLevel *= 2.0
+        
+        self.timeline.notifyZoomChanged(self.zoomLevel)
+        
+        return True
+    
+    def zoomOut(self):
+        self.view.scale(0.5, 1)
+        self.zoomLevel /= 2.0
+        
+        self.timeline.notifyZoomChanged(self.zoomLevel)
+        
+        return True
+    
+    def zoomReset(self):
+        self.view.scale(1.0 / self.zoomLevel, 1)
+        self.zoomLevel = 1.0
+        
+        self.timeline.notifyZoomChanged(self.zoomLevel)
+        
+        return True
+        
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.
     """
@@ -178,7 +204,7 @@ class VisualEditing(QWidget, mixed.EditMode):
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.tabbedEditor.filePath, self.scene)
-        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
+        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = False,
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)
         
@@ -299,5 +325,14 @@ class VisualEditing(QWidget, mixed.EditMode):
         if self.currentAnimationInstance is not None:
             self.currentAnimationInstance.setPosition(newPosition)
             self.currentAnimationInstance.apply()
+            
+    def zoomIn(self):
+        return self.timelineDockWidget.zoomIn()
         
+    def zoomOut(self):
+        return self.timelineDockWidget.zoomOut()
+        
+    def zoomReset(self):
+        return self.timelineDockWidget.zoomReset()
+    
 from ceed import mainwindow

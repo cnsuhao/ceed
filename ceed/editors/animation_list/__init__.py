@@ -116,6 +116,24 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.nativeData = self.visual.generateNativeData()
         
         return super(AnimationListTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
+    
+    def zoomIn(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.zoomIn()
+
+        return False
+    
+    def zoomOut(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.zoomOut()
+
+        return False
+    
+    def zoomReset(self):
+        if self.currentWidget() is self.visual:
+            return self.visual.zoomReset()
+        
+        return False
 
 class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
