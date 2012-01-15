@@ -796,12 +796,6 @@ Details of this error: %s""" % (e))
 
         self.saveSettings()
 
-        if self.project is not None:
-            # if the slot returned False, user pressed Cancel
-            if not self.slot_closeProject():
-                # in case user pressed cancel the entire quitting processed has to be terminated
-                return False
-
         # we remember last tab we closed to check whether user pressed Cancel in any of the dialogs
         lastTab = None
         while len(self.tabEditors) > 0:
@@ -813,6 +807,13 @@ Details of this error: %s""" % (e))
             lastTab = currentTab
 
             self.slot_tabCloseRequested(0)
+
+        # Close project after all tabs have been closed, there may be tabs requiring a project opened!
+        if self.project is not None:
+            # if the slot returned False, user pressed Cancel
+            if not self.slot_closeProject():
+                # in case user pressed cancel the entire quitting processed has to be terminated
+                return False
 
         self.app.quit()
 
