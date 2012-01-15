@@ -771,26 +771,30 @@ Details of this error: %s""" % (e))
 
     def saveSettings(self):
         """Saves geometry and state of this window to QSettings.
-        
-        FIXME: This is not currently used for reasons I am not sure of!
         """
         
-        #self.qsettings.setValue("geometry", self.saveGeometry())
-        #self.qsettings.setValue("state", self.saveState())
-        pass
-
+        try:
+            self.app.qsettings.setValue("window-geometry", self.saveGeometry())
+            self.app.qsettings.setValue("window-state", self.saveState())
+            
+        except:
+            # we don't really care if this fails
+            pass
+        
     def restoreSettings(self):
         """Restores geometry and state of this window from QSettings.
-        
-        FIXME: This is not currently used for reasons I am not sure of!
         """
         
-        #if self.qsettings.contains("geometry"):
-        #    self.restoreGeometry(self.qsettings.value("geometry"))
-        #if self.qsettings.contains("state"):
-        #    self.restoreState(self.qsettings.value("state"))
-        return
-
+        try:
+            if self.app.qsettings.contains("window-geometry"):
+                self.restoreGeometry(self.app.qsettings.value("window-geometry"))
+            if self.app.qsettings.contains("window-state"):
+                self.restoreState(self.app.qsettings.value("window-state"))
+                
+        except:
+            # we don't really care if this fails
+            pass
+        
     def quit(self):
         """Safely quits the editor, prompting user to save changes to files and the project."""
 

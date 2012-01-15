@@ -76,7 +76,7 @@ class Application(QApplication):
         from ceed import mainwindow
 
         self.mainWindow = mainwindow.MainWindow(self)
-        self.mainWindow.showMaximized()
+        self.mainWindow.show()
         self.mainWindow.raise_()
         if showSplash:
             self.splash.finish(self.mainWindow)
