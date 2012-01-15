@@ -113,6 +113,19 @@ font-size: 10px;
 </html>""")
         
         super(DebugInfo, self).show()
+        self.updateFPSTick()
+        
+    def updateFPSTick(self):
+        if not self.isVisible():
+            return
+        
+        lastRenderDelta = self.containerWidget.ceguiInstance.lastRenderTimeDelta
+        if lastRenderDelta <= 0:
+            lastRenderDelta = 1
+            
+        self.currentFPSBox.setText("%0.6f" % (1.0 / lastRenderDelta))
+        
+        QTimer.singleShot(500, lambda: self.updateFPSTick())
         
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget

@@ -83,6 +83,7 @@ class GraphicsScene(QGraphicsScene):
 
         system = PyCEGUI.System.getSingleton()
         self.lastDelta = time.time() - self.timeOfLastRender
+        self.ceguiInstance.lastRenderTimeDelta = self.lastDelta
         system.injectTimePulse(self.lastDelta)
         self.timeOfLastRender = time.time()
 

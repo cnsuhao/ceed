@@ -78,6 +78,7 @@ class Instance(object):
         self.logger = RedirectingCEGUILogger()
 
         self.initialised = False
+        self.lastRenderTimeDelta = 0
 
     def setGLContextProvider(self, contextProvider):
         """CEGUI instance might need an OpenGL context provider to make sure the right context is active
