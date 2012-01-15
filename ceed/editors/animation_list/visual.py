@@ -54,7 +54,7 @@ class AnimationListDockWidget(QDockWidget):
             self.list.addItem(wrapper.realDefinitionName)
             
     def slot_currentItemChanged(self, newItem, oldItem):
-        newName = newItem.text()
+        newName = newItem.text() if newItem else None
         oldName = oldItem.text() if oldItem else None
         
         cmd = undo.ChangeCurrentAnimationDefinition(self.visual, newName, oldName)
