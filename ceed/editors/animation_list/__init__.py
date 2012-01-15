@@ -25,6 +25,7 @@ from ceed.editors.animation_list import visual
 from ceed.editors.animation_list import code
 
 import os.path
+import sys
 from xml.etree import ElementTree
 
 class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
