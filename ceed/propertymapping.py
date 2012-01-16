@@ -8,6 +8,8 @@ from propertytree import Property
 from propertytree import PropertyCategory
 from propertytree import PropertyTreeWidget
 
+from cegui import ceguitypes as ct
+
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
 
@@ -91,8 +93,12 @@ class CEGUIPropertyWrapper(Property):
 
         ceguiSets, values, defaultValues = self.gatherData(ceguiProperty, ceguiSets)
 
-        value = realType(values[0])
-        defaultValue = realType(defaultValues[0])
+        if issubclass(realType, ct.Base):
+            value = realType.fromString(values[0])
+            defaultValue = realType.fromString(defaultValues[0])
+        else:
+            value = realType(values[0])
+            defaultValue = realType(defaultValues[0])
 
         super(CEGUIPropertyWrapper, self).__init__(name = ceguiProperty.getName(),
                                                    category = ceguiProperty.getOrigin(),
@@ -128,12 +134,31 @@ class CEGUIPropertyManager(object):
     _typeMap = {
                 "int": int,
                 "float": float,
-                "double": float,
-                "bool": bool
+                "bool": bool,
+                "USize": ct.USize
                 }
+#===============================================================================
+# XXXXX: AspectMode
+# XXXXX: bool
+# XXXXX: float
+# XXXXX: Font*
+# XXXXX: HorizontalAlignment
+# XXXXX: Image*
+# XXXXX: Quaternion
+# XXXXX: String
+# XXXXX: UBox
+# XXXXX: uint
+# XXXXX: Unknown
+# XXXXX: URect
+# XXXXX: USize
+# XXXXX: UVector2
+# XXXXX: VerticalAlignment
+# XXXXX: WindowUpdateMode
+#===============================================================================
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
+        #print "XXXXX: " + ceguiStrType
         return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
 
     @staticmethod
