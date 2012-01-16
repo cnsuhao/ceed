@@ -22,6 +22,8 @@ class PropertyInspectorWidget(QWidget):
 
         self.filterBox = LineEditWithClearButton()
         self.filterBox.setPlaceholderText("Filter")
+        self.filterBox.textChanged.connect(self.filterChanged)
+
         self.ptree = PropertyTreeWidget()
 
         layout.addWidget(self.filterBox)
@@ -41,6 +43,9 @@ class PropertyInspectorWidget(QWidget):
     # FIXME: Decide what to do here.
     def refresh(self, onlyValues = True):
         pass
+
+    def filterChanged(self, filterText):
+        self.ptree.setFilter(filterText)
 
 class PropertyMappingEntry(object):
     pass
@@ -147,6 +152,7 @@ class CEGUIPropertyManager(object):
 
     # TODO: Add a way to only show modified (non-default) or recently
     # used properties (filterbox? toggle/radio button? extra categories?)
+    # TODO: Try to keep selection/scroll pos/focus when changing property sets
 
     def buildCategories(self, ceguiPropertySets):
         propertyList = self.buildProperties(ceguiPropertySets)

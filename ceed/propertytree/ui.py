@@ -9,6 +9,9 @@ PropertyTreeView -- QTreeView with some modifications for better results.
 PropertyTreeWidget -- The property tree widget.
 """
 
+import fnmatch
+import re
+
 from .properties import Property
 from .properties import StringWrapperProperty
 from .editors import StringWrapperValidator
@@ -66,8 +69,7 @@ class PropertyTreeRow(object):
         self.createChildRows()
 
     def finalise(self):
-        # TODO: Remove print
-        print("Finalising row with nameItem.text() = " + str(self.nameItem.text()))
+        #print("Finalising row with nameItem.text() = " + str(self.nameItem.text()))
         if not self.finalised:
             # Finalise children before clearing nameItem or we can't get them
             self.destroyChildRows()
@@ -91,6 +93,17 @@ class PropertyTreeRow(object):
         for row in self.childRows():
             row.finalise()
         self.nameItem.setRowCount(0)
+
+    def setFilter(self, filterRegEx, view):
+        i = 0
+        while i < self.nameItem.rowCount():
+            nameItem = self.nameItem.child(i, 0)
+
+            matched = re.match(filterRegEx, nameItem.text()) is not None
+
+            view.setRowHidden(nameItem.index().row(), nameItem.index().parent(), not matched)
+
+            i += 1
 
 class PropertyCategoryRow(PropertyTreeRow):
     """Special tree items placed at the root of the tree."""
@@ -283,7 +296,7 @@ class PropertyTreeView(QTreeView):
 class PropertyTreeWidget(QWidget):
     """The property tree widget.
     
-    Sets up and options necessary.
+    Sets up any options necessary.
     Provides easy access methods.
     """
 
@@ -331,6 +344,7 @@ class PropertyTreeWidget(QWidget):
         layout.addWidget(self.view)
 
         self.registry = None
+        self.filter = ""
 
         self.clear()
 
@@ -341,7 +355,9 @@ class PropertyTreeWidget(QWidget):
         self.view.setItemDelegate(itemDelegate)
 
     def clear(self):
-        """Clear the tree."""
+        """Clear the tree.
+        Does not clear the current filter.
+        """
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Property", "Value"])
 
@@ -364,7 +380,10 @@ class PropertyTreeWidget(QWidget):
         self.view.expandAll()
         self.view.header().setResizeMode(QHeaderView.Stretch)
         #self.view.resizeColumnToContents(0)
-        
+
+        # apply the filter
+        self.setFilter(self.filter)
+
         # reset updates
         self.view.setUpdatesEnabled(True)
 
@@ -373,3 +392,18 @@ class PropertyTreeWidget(QWidget):
         self.model.appendRow([row.nameItem, row.valueItem])
         # make the category name span two columns (all)
         self.view.setFirstColumnSpanned(self.model.rowCount() - 1, QModelIndex(), True)
+
+    def setFilter(self, filterText=""):
+        # we store the filter to be able to reapply it when our data changes
+        self.filter = filterText
+
+        # we append star at the beginning and at the end by default (makes property filtering much more practical)
+        filterText = "*" + filterText + "*"
+        regex = re.compile(fnmatch.translate(filterText), re.IGNORECASE)
+
+        i = 0
+        while i < self.model.rowCount():
+            categoryRow = self.model.item(i, 0).propertyTreeRow
+            categoryRow.setFilter(regex, self.view)
+
+            i += 1

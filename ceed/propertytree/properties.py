@@ -179,8 +179,7 @@ class Property(object):
         value being set is the same as the current value.
         """
 
-        #TODO: Remove print
-        print "Setting value of property '%s' to '%s'%s, reason=%s" % (self.name, str(value), " (same)" if value is self.value else "", reason)
+        #print "Setting value of property '%s' to '%s'%s, reason=%s" % (self.name, str(value), " (same)" if value is self.value else "", reason)
         if self.value is not value:
             self.value = value
 
