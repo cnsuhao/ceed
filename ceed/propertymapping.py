@@ -1,3 +1,7 @@
+import operator
+
+from collections import OrderedDict
+
 from .qtwidgets import LineEditWithClearButton
 
 from propertytree import Property
@@ -6,8 +10,6 @@ from propertytree import PropertyTreeWidget
 
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
-
-import operator
 
 class PropertyInspectorWidget(QWidget):
 
@@ -25,11 +27,20 @@ class PropertyInspectorWidget(QWidget):
         layout.addWidget(self.filterBox)
         layout.addWidget(self.ptree)
 
+        self.propertyManager = None
+
+    def setPropertyManager(self, propertyManager):
+        self.propertyManager = propertyManager
+
     def setPropertySets(self, ceguiPropertySets):
-        man = CEGUIPropertyManager()
-        props = man.buildProperties(ceguiPropertySets)
-        categories = PropertyCategory.categorisePropertyList(props)
+        categories = self.propertyManager.buildCategories(ceguiPropertySets)
+
+        # load them into the tree
         self.ptree.load(categories)
+
+    # FIXME: Decide what to do here.
+    def refresh(self, onlyValues = True):
+        pass
 
 class PropertyMappingEntry(object):
     pass
@@ -122,8 +133,8 @@ class CEGUIPropertyManager(object):
 
     @staticmethod
     def getCEGUIPropertyGUID(ceguiProperty):
-        # HACK: The GUID is used as a hash value and to be able
-        # to tell if two properties are the same.
+        # HACK: The GUID is used as a hash value (to be able
+        # to tell if two properties are the same).
         # There's currently no way to get this information, apart
         # from examining the name, datatype, origin etc. of the property
         # and build a string/hash value out of it.
@@ -132,14 +143,23 @@ class CEGUIPropertyManager(object):
                          ceguiProperty.getDataType()])
 
     def createProperty(self, ceguiProperty, ceguiSets):
-
         return CEGUIPropertyWrapper(ceguiProperty, ceguiSets)
 
-    # TODO: L-O-L it works! (so far)
     # TODO: Add a way to only show modified (non-default) or recently
     # used properties (filterbox? toggle/radio button? extra categories?)
-    # TODO: Sort the categories and the properties inside categories
-    # TODO: Make first column wider (the automatic way doesn't do what I want)
+
+    def buildCategories(self, ceguiPropertySets):
+        propertyList = self.buildProperties(ceguiPropertySets)
+        categories = PropertyCategory.categorisePropertyList(propertyList)
+
+        # sort properties in categories
+        for cat in categories.values():
+            cat.sortProperties()
+
+        # sort categories by name
+        categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
+
+        return categories
 
     def buildProperties(self, ceguiPropertySets):
         # short name

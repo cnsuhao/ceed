@@ -16,24 +16,29 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import OrderedDict
+
+import cPickle
+import os
+
 from PySide.QtGui import *
 from PySide.QtCore import *
 
+import PyCEGUI
+
+from ceed import resizable
+from ceed import propertytree
+
 from ceed.editors import mixed
-from ceed import propertysetinspector
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
-from ceed import resizable
-import PyCEGUI
 
 from ceed.editors.layout import undo
 from ceed.editors.layout import widgethelpers
 
-import ceed.ui.editors.layout.propertiesdockwidget
-import cPickle
-import os
-
 from ceed.propertymapping import PropertyInspectorWidget
+from ceed.propertymapping import CEGUIPropertyWrapper
+from ceed.propertymapping import CEGUIPropertyManager
 
 from ceed.propertytree import PropertyEditorRegistry
 
@@ -449,44 +454,87 @@ class HierarchyDockWidget(QDockWidget):
         
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
+class CEGUIWidgetPropertyWrapper(CEGUIPropertyWrapper):
+
+    def __init__(self, ceguiProperty, ceguiSets, visual):
+        super(CEGUIWidgetPropertyWrapper, self).__init__(ceguiProperty, ceguiSets)
+
+        self.visual = visual
+
+    def setValue(self, value, reason=propertytree.Property.ChangeValueReason.Unknown):
+        # if setting the value of the wrapper succeeded
+        if super(CEGUIWidgetPropertyWrapper, self).setValue(value, reason):
+            ceguiValue = str(self.value)
+
+            # create and execute command
+            widgetPaths = []
+            undoOldValues = {}
+
+            # set the properties where applicable
+            for ceguiSet in self.ceguiSets:
+                widgetPath = ceguiSet.getNamePath()
+                widgetPaths.append(widgetPath)
+                undoOldValues[widgetPath] = self.ceguiProperty.get(ceguiSet)
+
+            cmd = undo.PropertyEditCommand(self.visual, self.ceguiProperty.getName(), widgetPaths, undoOldValues, ceguiValue)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+
+            # make sure to redraw the scene to preview the property
+            self.visual.scene.update()
+
+            return True
+
+        return False
+
+class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
+
+    def __init__(self, visual):
+        self.visual = visual
+
+    def createProperty(self, ceguiProperty, ceguiSets):
+        return CEGUIWidgetPropertyWrapper(ceguiProperty, ceguiSets, self.visual)
+
+    def buildCategories(self, ceguiPropertySets):
+        categories = super(CEGUIWidgetPropertyManager, self).buildCategories(ceguiPropertySets)
+
+        # sort categories by name but keep some special categories on top
+        def getSortKey(t):
+            name, _  = t
+            
+            if name == "Element":
+                return "000Element"
+            elif name == "NamedElement":
+                return "001NamedElement"
+            elif name == "Window":
+                return "002Window"
+            elif name.startswith("CEGUI/"):
+                return name[6:]
+            elif name == "Unknown":
+                return "ZZZUnknown"
+            else:
+                return name
+
+        categories = OrderedDict(sorted(categories.items(), key=getSortKey))
+
+        return categories
+
 class PropertiesDockWidget(QDockWidget):
-    """Lists and allows editing of properties of the selected widget(s). Uses the PropertySetInspector machinery.
+    """Lists and allows editing of properties of the selected widget(s).
     """
     
     def __init__(self, visual):
         super(PropertiesDockWidget, self).__init__()
         
         self.visual = visual
-        
-        self.ui = ceed.ui.editors.layout.propertiesdockwidget.Ui_PropertiesDockWidget()
-        self.ui.setupUi(self)
-        
-        self.inspector = self.findChild(propertysetinspector.PropertySetInspector, "inspector")
-        self.inspector.propertyEditingProgress.connect(self.slot_propertyEditingProgress)
-        self.inspector.propertyEditingEnded.connect(self.slot_propertyEditingEnded)
-        
-    def slot_propertyEditingProgress(self, propertyName, value):
-        widgetPaths = []
-        undoOldValues = {}
-        
-        # set the properties where applicable
-        for set in self.inspector.propertySets:
-            if set.isPropertyPresent(propertyName):
-                widgetPath = set.getNamePath()
-                widgetPaths.append(widgetPath)
-                undoOldValues[widgetPath] = set.getProperty(propertyName)
-        
-        if len(widgetPaths) > 0:
-            cmd = undo.PropertyEditCommand(self.visual, propertyName, widgetPaths, undoOldValues, value)
-            # FIXME: unreadable
-            self.visual.tabbedEditor.undoStack.push(cmd)
-            
-        # make sure to redraw the scene to preview the property
-        self.visual.scene.update()
-    
-    def slot_propertyEditingEnded(self, propertyName, oldValues, value):
-        # we create the undo command immediately in propertyEditingProgress
-        pass
+
+        self.setWindowTitle("Selection Properties")
+        # TODO: Smaller minimum size
+        self.setMinimumSize(400, 400)
+
+        self.inspector = PropertyInspectorWidget()
+        self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))
+
+        self.setWidget(self.inspector)
 
 class WidgetTypeTreeWidget(QTreeWidget):
     """Represents a single available widget for creation (it has a mapping in the scheme or is
@@ -607,21 +655,6 @@ class CreateWidgetDockWidget(QDockWidget):
                 widgetItem = QTreeWidgetItem()
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
-
-class PropertiesDockWidget2(QDockWidget):
-
-    def __init__(self, visual):
-        super(PropertiesDockWidget2, self).__init__()
-        
-        self.visual = visual
-
-        self.setWindowTitle("Properties 2")
-        self.setMinimumSize(400, 400)
-
-        self.inspector = PropertyInspectorWidget()
-        self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))
-
-        self.setWidget(self.inspector)
 
 class EditingScene(cegui_widgethelpers.GraphicsScene):
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
@@ -777,7 +810,6 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
                 sets.append(wdt)
         
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
-        self.visual.propertiesDockWidget2.inspector.setPropertySets(sets)
         
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
@@ -922,7 +954,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.hierarchyDockWidget = HierarchyDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
         self.createWidgetDockWidget = CreateWidgetDockWidget(self)
-        self.propertiesDockWidget2 = PropertiesDockWidget2(self)
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1002,8 +1033,9 @@ class VisualEditing(QWidget, mixed.EditMode):
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
     def initialise(self, rootWidget):
-        # FIXME: unreadable
-        self.propertiesDockWidget.inspector.setPropertyInspectorManager(mainwindow.MainWindow.instance.project.propertyInspectorManager)
+        # old - self.propertiesDockWidget.inspector.setPropertyInspectorManager(mainwindow.MainWindow.instance.project.propertyInspectorManager)
+        # FIXME: singleton?
+        self.propertiesDockWidget.inspector.setPropertyManager(CEGUIWidgetPropertyManager(self))
         
         self.setRootWidget(rootWidget)
         self.createWidgetDockWidget.populate()

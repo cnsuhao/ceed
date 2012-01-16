@@ -26,6 +26,7 @@ from PySide.QtGui import QWidget
 from PySide.QtGui import QStandardItemModel
 from PySide.QtGui import QAbstractItemView
 from PySide.QtGui import QVBoxLayout
+from PySide.QtGui import QHeaderView
 
 from PySide.QtCore import Qt
 from PySide.QtCore import QModelIndex
@@ -342,11 +343,13 @@ class PropertyTreeWidget(QWidget):
     def clear(self):
         """Clear the tree."""
         self.model.clear()
-        self.model.setColumnCount(2)
         self.model.setHorizontalHeaderLabels(["Property", "Value"])
 
-    def load(self, categoryList):
-        """Clear tree and load the specified categories into it."""
+    def load(self, categories):
+        """Clear tree and load the specified categories into it.
+        
+        categories -- Dictionary
+        """
         
         # prevent flicker
         self.view.setUpdatesEnabled(False)
@@ -355,11 +358,12 @@ class PropertyTreeWidget(QWidget):
         self.clear()
 
         # add all categories
-        for category in categoryList.values():
+        for category in categories.values():
             self.appendCategory(category)
 
         self.view.expandAll()
-        self.view.resizeColumnToContents(0)
+        self.view.header().setResizeMode(QHeaderView.Stretch)
+        #self.view.resizeColumnToContents(0)
         
         # reset updates
         self.view.setUpdatesEnabled(True)

@@ -36,6 +36,9 @@ class PropertyCategory(object):
 
         return categories
 
+    def sortProperties(self, reverse=False):
+        self.properties = OrderedDict(sorted(self.properties.items(), key=lambda t: t[0], reverse=reverse))
+
 class Property(object):
     """A property which is the base for all properties.
     
