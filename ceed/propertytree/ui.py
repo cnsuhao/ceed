@@ -377,7 +377,7 @@ class PropertyTreeWidget(QWidget):
         for category in categories.values():
             self.appendCategory(category)
 
-        self.view.expandAll()
+        self.view.expandToDepth(0)
         self.view.header().setResizeMode(QHeaderView.Stretch)
         #self.view.resizeColumnToContents(0)
 

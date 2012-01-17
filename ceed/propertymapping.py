@@ -4,9 +4,11 @@ from collections import OrderedDict
 
 from .qtwidgets import LineEditWithClearButton
 
-from propertytree import Property
-from propertytree import PropertyCategory
-from propertytree import PropertyTreeWidget
+from .propertytree.properties import Property
+from .propertytree.properties import PropertyCategory
+from .propertytree.properties import MultiPropertyWrapper
+
+from .propertytree.ui import PropertyTreeWidget
 
 from cegui import ceguitypes as ct
 
@@ -55,6 +57,7 @@ class PropertyMappingEntry(object):
 class PropertyMap(object):
     pass
 
+"""
 class CEGUIPropertyWrapper(Property):
 
     @staticmethod
@@ -117,6 +120,7 @@ class CEGUIPropertyWrapper(Property):
         if len(self.values) == 1:
             return super(CEGUIPropertyWrapper, self).valueToString()
         return "<multiple values>"
+"""
 
 class CEGUIPropertyManager(object):
 
@@ -172,8 +176,51 @@ class CEGUIPropertyManager(object):
                          ceguiProperty.getName(),
                          ceguiProperty.getDataType()])
 
-    def createProperty(self, ceguiProperty, ceguiSets):
-        return CEGUIPropertyWrapper(ceguiProperty, ceguiSets)
+    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
+        pythonDataType = self.getTypeFromCEGUITypeString(ceguiProperty.getDataType())
+
+        valueCreator = None
+        propertyType = None
+        if issubclass(pythonDataType, ct.Base):
+            valueCreator = pythonDataType.fromString
+            propertyType = pythonDataType.getPropertyType()
+        else:
+            valueCreator = pythonDataType
+            propertyType = Property
+
+        name = ceguiProperty.getName()
+        category = ceguiProperty.getOrigin()
+        helpText = ceguiProperty.getHelp()
+        readOnly = not ceguiProperty.isWritable()
+        value = None
+        defaultValue = None
+
+        innerProperties = []
+        for ceguiSet in ceguiSets:
+            assert ceguiSet.isPropertyPresent(name), "Property '%s' what not found in PropertySet." % name
+            value = valueCreator(ceguiProperty.get(ceguiSet))
+            defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
+
+            innerProperty = propertyType(name = name,
+                                         category = category,
+                                         helpText = helpText,
+                                         value = value,
+                                         defaultValue = defaultValue,
+                                         readOnly = readOnly
+                                         )
+            innerProperties.append(innerProperty)
+
+        templateProperty = propertyType(name = name,
+                                        category = category,
+                                        helpText = helpText,
+                                        value = value,
+                                        defaultValue = defaultValue,
+                                        readOnly = readOnly
+                                        )
+
+        multiProperty = multiWrapperType(templateProperty, innerProperties, True)
+
+        return multiProperty
 
     # TODO: Add a way to only show modified (non-default) or recently
     # used properties (filterbox? toggle/radio button? extra categories?)

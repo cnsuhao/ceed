@@ -37,9 +37,9 @@ class DictionaryProperty(Property):
     """
 
     class StringRepresentationMode(object):
-        ReadOnly = 0,
-        EditValuesRestrictTypes = 1,
-        EditValuesFreeTypes = 2,
+        ReadOnly = 0
+        EditValuesRestrictTypes = 1
+        EditValuesFreeTypes = 2
         EditKeysAndValues = 3
 
     def __init__(self, name, value=None, category=None, helpText=None, readOnly=False, editorOptions=None,
@@ -95,7 +95,7 @@ class DictionaryProperty(Property):
     def isStringRepresentationEditable(self):
         return self.strReprMode != self.StringRepresentationMode.ReadOnly
 
-    def parseStringValue(self, strValue):
+    def tryParse(self, strValue):
         try:
             value = AstHelper.parseOrderedDict(strValue, self.strValueReplacements)
             if isinstance(value, OrderedDict):

@@ -1,17 +1,55 @@
 import re
 
+from collections import OrderedDict
+
+from ..propertytree.properties import Property
+
 class Base(object):
 
     @classmethod
-    def parseStringValue(cls, strValue, target=None):
+    def tryParse(cls, strValue, target=None):
         return None, False
 
     @classmethod
     def fromString(cls, strValue):
-        value, valid = cls.parseStringValue(strValue)
+        value, valid = cls.tryParse(strValue)
         if not valid:
             raise ValueError("String value '%s' can't be parsed." % strValue)
         return value
+
+    @classmethod
+    def getPropertyType(cls):
+        return None
+
+class BaseProperty(Property):
+
+    def createComponents(self):
+        self.components = None
+        super(BaseProperty, self).createComponents()
+
+    def getComponents(self):
+        return self.components
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return None, False
+
+    @classmethod
+    def getAttrName(cls, componentName):
+        return componentName[:1].lower() + componentName[1:]
+
+    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+        components = self.getComponents()
+        if components is not None:
+            for compName, compValue in components.items():
+                compValue.setValue(getattr(self.value, self.getAttrName(compName)), reason)
+
+    def componentValueChanged(self, component, reason):
+        setattr(self.value, self.getAttrName(component.name), component.value)
+        self.raiseValueChanged(Property.ChangeValueReason.ComponentValueChanged)
+
 
 class UDim(Base):
 
@@ -19,7 +57,7 @@ class UDim(Base):
     rex = re.compile(pattern)
 
     @classmethod
-    def parseStringValue(cls, strValue, target=None):
+    def tryParse(cls, strValue, target=None):
         match = re.match(UDim.rex, strValue)
         if match is None:
             return None, False
@@ -36,8 +74,8 @@ class UDim(Base):
         return target, True
 
     def __init__(self, scale=0.0, offset=0.0):
-        self.scale = scale
-        self.offset = offset
+        self.scale = float(scale)
+        self.offset = float(offset)
 
     def __eq__(self, other):
         if isinstance(other, UDim):
@@ -48,11 +86,33 @@ class UDim(Base):
         return not (self == other)
 
     def __repr__(self):
-        return "{{ {}, {} }}".format(self.scale, self.offset)
+        #return "{{ {:f}, {:f} }}".format(self.scale, self.offset)
+        # use round because we want max x digits but not zero padded
+        return "{{ {}, {} }}".format(round(self.scale, 6), round(self.offset, 6))
 
     def parse(self, strValue):
-        return UDim.parseStringValue(strValue, self)[1]
+        return UDim.tryParse(strValue, self)[1]
 
+    @classmethod
+    def getPropertyType(cls):
+        return UDimProperty
+
+class UDimProperty(BaseProperty):
+
+    def createComponents(self):
+        self.components = OrderedDict()
+        self.components["Scale"] = Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["Offset"] = Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+
+        super(BaseProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return UDim.tryParse(strValue)
 
 class USize(Base):
 
@@ -64,7 +124,7 @@ class USize(Base):
     rex = re.compile(pattern)
 
     @classmethod
-    def parseStringValue(cls, strValue, target=None):
+    def tryParse(cls, strValue, target=None):
         match = re.match(USize.rex, strValue)
         if match is None:
             return None, False
@@ -100,4 +160,25 @@ class USize(Base):
         return "{{ {}, {} }}".format(self.width, self.height)
 
     def parse(self, strValue):
-        return USize.parseStringValue(strValue, self)[1]
+        return USize.tryParse(strValue, self)[1]
+
+    @classmethod
+    def getPropertyType(cls):
+        return USizeProperty
+
+class USizeProperty(BaseProperty):
+
+    def createComponents(self):
+        self.components = OrderedDict()
+        self.components["Width"] = UDimProperty(name="Width", value=self.value.width, defaultValue=self.defaultValue.width,
+                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["Height"] = UDimProperty(name="Height", value=self.value.height, defaultValue=self.defaultValue.height,
+                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
+
+        super(BaseProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return USize.tryParse(strValue)

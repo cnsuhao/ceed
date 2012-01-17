@@ -271,5 +271,5 @@ class StringWrapperValidator(QtGui.QValidator):
         self.property = swProperty
 
     def validate(self, inputStr, pos):
-        _, valid = self.property.parseStringValue(inputStr)
+        _, valid = self.property.tryParse(inputStr)
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable

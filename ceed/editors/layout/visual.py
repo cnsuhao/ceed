@@ -27,7 +27,6 @@ from PySide.QtCore import *
 import PyCEGUI
 
 from ceed import resizable
-from ceed import propertytree
 
 from ceed.editors import mixed
 
@@ -37,10 +36,12 @@ from ceed.editors.layout import undo
 from ceed.editors.layout import widgethelpers
 
 from ceed.propertymapping import PropertyInspectorWidget
-from ceed.propertymapping import CEGUIPropertyWrapper
 from ceed.propertymapping import CEGUIPropertyManager
 
-from ceed.propertytree import PropertyEditorRegistry
+import ceed.propertytree as pt
+
+from ceed.propertytree.editors import PropertyEditorRegistry
+
 
 class WidgetHierarchyItem(QStandardItem):
     def __init__(self, manipulator):
@@ -454,17 +455,18 @@ class HierarchyDockWidget(QDockWidget):
         
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
-class CEGUIWidgetPropertyWrapper(CEGUIPropertyWrapper):
+class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
-    def __init__(self, ceguiProperty, ceguiSets, visual):
-        super(CEGUIWidgetPropertyWrapper, self).__init__(ceguiProperty, ceguiSets)
+    def __init__(self, templateProperty, innerProperties, takeOwnership, ceguiProperty=None, ceguiSets=None, visual=None):
+        super(WidgetMultiPropertyWrapper, self).__init__(templateProperty, innerProperties, takeOwnership)
 
+        self.ceguiProperty = ceguiProperty
+        self.ceguiSets = ceguiSets
         self.visual = visual
 
-    def setValue(self, value, reason=propertytree.Property.ChangeValueReason.Unknown):
-        # if setting the value of the wrapper succeeded
-        if super(CEGUIWidgetPropertyWrapper, self).setValue(value, reason):
-            ceguiValue = str(self.value)
+    def tryUpdateInner(self, newValue, reason=pt.properties.Property.ChangeValueReason.Unknown):
+        if super(WidgetMultiPropertyWrapper, self).tryUpdateInner(newValue, reason):
+            ceguiValue = str(newValue)
 
             # create and execute command
             widgetPaths = []
@@ -492,7 +494,12 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
         self.visual = visual
 
     def createProperty(self, ceguiProperty, ceguiSets):
-        return CEGUIWidgetPropertyWrapper(ceguiProperty, ceguiSets, self.visual)
+        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, WidgetMultiPropertyWrapper)
+        prop.ceguiProperty = ceguiProperty
+        prop.ceguiSets = ceguiSets
+        prop.visual = self.visual
+        
+        return prop
 
     def buildCategories(self, ceguiPropertySets):
         categories = super(CEGUIWidgetPropertyManager, self).buildCategories(ceguiPropertySets)
