@@ -535,8 +535,8 @@ class PropertiesDockWidget(QDockWidget):
         self.visual = visual
 
         self.setWindowTitle("Selection Properties")
-        # TODO: Smaller minimum size
-        self.setMinimumSize(400, 400)
+        # Make the dock take as much space as it can vertically
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
         self.inspector = PropertyInspectorWidget()
         self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))

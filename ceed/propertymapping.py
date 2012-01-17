@@ -12,6 +12,9 @@ from cegui import ceguitypes as ct
 
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
+from PySide.QtGui import QSizePolicy
+
+from PySide.QtCore import QSize
 
 class PropertyInspectorWidget(QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
@@ -40,7 +43,14 @@ class PropertyInspectorWidget(QWidget):
         layout.addWidget(self.filterBox)
         layout.addWidget(self.ptree)
 
+        # set the minimum size to a reasonable value for this widget
+        self.setMinimumSize(200, 200)
+
         self.propertyManager = None
+
+    def sizeHint(self):
+        # we'd rather have this size
+        return QSize(400, 600)
 
     def filterChanged(self, filterText):
         self.ptree.setFilter(filterText)
