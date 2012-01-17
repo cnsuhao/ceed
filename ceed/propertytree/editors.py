@@ -201,6 +201,11 @@ PropertyEditorRegistry._standardEditors.add(StringPropertyEditor)
 
 class NumericPropertyEditor(PropertyEditor):
 
+    class Defaults(object):
+        Decimals = 6
+        Min = -999999
+        Max = 999999
+
     @classmethod
     def getSupportedValueTypes(cls):
         return { int:0, float:0 }
@@ -213,11 +218,12 @@ class NumericPropertyEditor(PropertyEditor):
         options = self.property.getEditorOption("numeric/", {})
 
         # set decimals first because according to the docs setting it can change the range.
-        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else 6))
-        self.editWidget.setRange(options.get("min", self.editWidget.minimum()),
-                                 options.get("max", self.editWidget.maximum()));
-        self.editWidget.setSingleStep(options.get("step", self.editWidget.singleStep()))
-        self.editWidget.setWrapping(options.get("wrapping", self.editWidget.wrapping()))
+        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else self.Defaults.Decimals))
+        self.editWidget.setRange(options.get("min", self.Defaults.Min),
+                                 options.get("max", self.Defaults.Max));
+        # make the default step 0.1 if the value range is 1 or less, otherwise 1
+        self.editWidget.setSingleStep(options.get("step", 0.1 if abs(self.editWidget.maximum() - self.editWidget.minimum()) <= 1.0 else 1))
+        self.editWidget.setWrapping(options.get("wrapping", False))
         self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(options.get("buttons", self.editWidget.buttonSymbols())))
 
         return self.editWidget
