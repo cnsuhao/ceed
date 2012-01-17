@@ -9,6 +9,7 @@ ui -- The Qt GUI widget and its supporting classes.
 __all__ = ["properties", "compositeproperties", "editors", "ui"]
 
 
+"""
 # Everything below will be removed, I'm just testing it
 from collections import OrderedDict
 
@@ -74,16 +75,20 @@ class TestDock(QDockWidget):
                                                              ("Red", 160),
                                                              ("Green", 255),
                                                              ("Blue", 160),
-                                                             ("Alpha", Property(name="Alpha", value=0.5, defaultValue=0.5))
+                                                             ("Alpha", Property(name="Alpha", value=0.5, defaultValue=0.5)),
+                                                             ("You_can_edit", "The whole dictionary string"),
+                                                             ("and_even_add", "or remove members")
                                                              ]),
-                                        editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}}
+                                        editorOptions = {"instantApply":False, "numeric": {"min":0, "max":255, "step": 8}},
+                                        strReprMode = DictionaryProperty.StringRepresentationMode.EditKeysAndValues
                                         )
         xyzProp = DictionaryProperty(
                                      name = "XYZ",
                                      value = OrderedDict([
                                                          ("X", 0),
                                                          ("Y", 0),
-                                                         ("Z", 0)
+                                                         ("Z", 0),
+                                                         ("Only_Values", "can be edited here.")
                                                          ]),
                                      strReprMode = DictionaryProperty.StringRepresentationMode.EditValuesRestrictTypes
                                     )
@@ -113,3 +118,4 @@ class TestDock(QDockWidget):
         self.view.load(categories)
         self.props = props
         self.colourProp = colourProp
+"""

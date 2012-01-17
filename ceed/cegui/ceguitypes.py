@@ -1,3 +1,5 @@
+"""Lightweight CEGUI property value types that can parse and write text."""
+
 import re
 
 from collections import OrderedDict
@@ -5,6 +7,7 @@ from collections import OrderedDict
 from ..propertytree.properties import Property
 
 class Base(object):
+    """Base class for all value types."""
 
     @classmethod
     def tryParse(cls, strValue, target=None):
@@ -22,6 +25,7 @@ class Base(object):
         return None
 
 class UDim(Base):
+    """UDim"""
 
     pattern = '\s*\{\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\}\s*'
     rex = re.compile(pattern)
@@ -68,6 +72,7 @@ class UDim(Base):
         return UDimProperty
 
 class USize(Base):
+    """USize (uses UDim)"""
 
     pattern = '\s*\{' + \
               UDim.pattern + \
@@ -121,6 +126,14 @@ class USize(Base):
 
 
 class BaseProperty(Property):
+    """Base class for all Property types.
+    
+    Note that, by default, it expects the components to map
+    directly to an attribute of it's value; with the first letter in lower case.
+    
+    For example the UDimProperty has two components, 'Scale' and 'Offset' and
+    it also uses the UDim type that has the 'scale' and 'offset' attribute values.
+    """
 
     def createComponents(self):
         super(BaseProperty, self).createComponents()
@@ -149,6 +162,7 @@ class BaseProperty(Property):
         self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
 
 class UDimProperty(BaseProperty):
+    """Property for UDim values."""
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -166,6 +180,7 @@ class UDimProperty(BaseProperty):
         return UDim.tryParse(strValue)
 
 class USizeProperty(BaseProperty):
+    """Property for USize values."""
 
     def createComponents(self):
         self.components = OrderedDict()

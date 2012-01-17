@@ -217,18 +217,24 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
             # supports editing it as a string, wrap it and fire
             # up the string editor.
             if row.property.isStringRepresentationEditable():
+                # don't forget to finalise this property
                 wrapperProperty = StringWrapperProperty(row.property)
                 wrapperProperty.editorOptions["string"] = { "validator": StringWrapperValidator(row.property) }
                 row.editor = self.registry.createEditor(wrapperProperty)
                 if row.editor is None:
                     wrapperProperty.finalise()
                 else:
+                    # set the ownsProperty flag so the editor
+                    # finalises it when it's finalised.
                     row.editor.ownsProperty = True
             if row.editor is None:
                 return None
 
         # tell the newly created editor to create its widget
         editWidget = row.editor.createEditWidget(parent)
+        # keep a reference to the editor inside the edit widget
+        # so we can finalise the editor when the edit widget
+        # is closed.
         editWidget.delegate_Editor = row.editor
 
         return editWidget

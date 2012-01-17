@@ -14,6 +14,15 @@ from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
 
 class PropertyInspectorWidget(QWidget):
+    """Full blown inspector widget for CEGUI PropertySet(s).
+    
+    Requires a call to 'setPropertyManager()' before
+    it can show properties via 'setPropertySets'.
+    """
+
+    # TODO: Add a way to only show modified (non-default) or recently
+    # used properties (filterbox? toggle/radio button? extra categories?)
+    # TODO: Try to keep selection/scroll pos/focus when changing property sets
 
     def __init__(self, parent=None):
         super(PropertyInspectorWidget, self).__init__(parent)
@@ -33,6 +42,9 @@ class PropertyInspectorWidget(QWidget):
 
         self.propertyManager = None
 
+    def filterChanged(self, filterText):
+        self.ptree.setFilter(filterText)
+
     def setPropertyManager(self, propertyManager):
         self.propertyManager = propertyManager
 
@@ -46,79 +58,11 @@ class PropertyInspectorWidget(QWidget):
     def refresh(self, onlyValues = True):
         pass
 
-    def filterChanged(self, filterText):
-        self.ptree.setFilter(filterText)
-
 class PropertyMappingEntry(object):
     pass
 
 class PropertyMap(object):
     pass
-
-"""
-class CEGUIPropertyWrapper(Property):
-
-    @staticmethod
-    def gatherData(ceguiProperty, ceguiSets):
-        values = dict()
-        defaultValues = dict()
-        validSets = []
-        propName = ceguiProperty.getName()
-        for ceguiSet in ceguiSets:
-            if ceguiSet.isPropertyPresent(propName):
-                validSets.append(ceguiSet)
-
-                value = ceguiProperty.get(ceguiSet)
-                if value in values:
-                    values[value] += 1
-                else:
-                    values[value] = 1
-
-                defaultValue = ceguiProperty.getDefault(ceguiSet)
-                if defaultValue in defaultValues:
-                    defaultValues[defaultValue] += 1
-                else:
-                    defaultValues[defaultValue] = 1
-
-        values = [value for value, _ in sorted(values.iteritems(), key = operator.itemgetter(1), reverse = True)]
-        defaultValues = [value for value, _ in sorted(defaultValues.iteritems(), key = operator.itemgetter(1), reverse = True)]
-
-        return validSets, values, defaultValues
-
-    def __init__(self, ceguiProperty, ceguiSets):
-
-        if len(ceguiSets) == 0:
-            raise ValueError("The 'ceguiSets' argument has no elements; at least one is required.")
-
-        realType = CEGUIPropertyManager.getTypeFromCEGUITypeString(ceguiProperty.getDataType())
-
-        ceguiSets, values, defaultValues = self.gatherData(ceguiProperty, ceguiSets)
-
-        if issubclass(realType, ct.Base):
-            value = realType.fromString(values[0])
-            defaultValue = realType.fromString(defaultValues[0])
-        else:
-            value = realType(values[0])
-            defaultValue = realType(defaultValues[0])
-
-        super(CEGUIPropertyWrapper, self).__init__(name = ceguiProperty.getName(),
-                                                   category = ceguiProperty.getOrigin(),
-                                                   helpText = ceguiProperty.getHelp(),
-                                                   value = value,
-                                                   defaultValue = defaultValue,
-                                                   readOnly = not ceguiProperty.isWritable()
-                                                   )
-        self.ceguiProperty = ceguiProperty
-        self.ceguiSets = ceguiSets
-        self.values = values
-        self.defaultValues = defaultValues
-        # TODO: Can it also listen for value changes to the underlying ceguiSets' properties?
-
-    def valueToString(self):
-        if len(self.values) == 1:
-            return super(CEGUIPropertyWrapper, self).valueToString()
-        return "<multiple values>"
-"""
 
 class CEGUIPropertyManager(object):
 
@@ -221,10 +165,6 @@ class CEGUIPropertyManager(object):
 
         return multiProperty
 
-    # TODO: Add a way to only show modified (non-default) or recently
-    # used properties (filterbox? toggle/radio button? extra categories?)
-    # TODO: Try to keep selection/scroll pos/focus when changing property sets
-
     def buildCategories(self, ceguiPropertySets):
         propertyList = self.buildProperties(ceguiPropertySets)
         categories = PropertyCategory.categorisePropertyList(propertyList)
@@ -279,7 +219,7 @@ class CEGUIPropertyManager(object):
 
                 propIt.next()
 
-        # Convert the CEGUI properties with their sets to propertytree properties.
+        # Convert the CEGUI properties with their sets to property tree properties.
         ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
 
         return ptProps
