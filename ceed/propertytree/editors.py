@@ -103,16 +103,21 @@ class PropertyEditor(object):
         """
         return None
 
-    def __init__(self, boundProperty, instantApply=True):
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         """Initialise an instance and keeps a reference
         to the property that will be edited.
         """
         self.editWidget = None
         self.property = boundProperty
         self.instantApply = self.property.getEditorOption("instantApply", instantApply)
+        self.ownsProperty = ownsProperty
 
         # see valueChanging()
         self.widgetValueInitialized = False
+
+    def finalise(self):
+        if self.ownsProperty:
+            self.property.finalise()
 
     def createEditWidget(self, parent):
         """Create and return a widget that will be used

@@ -151,9 +151,9 @@ class MainWindow(QMainWindow):
         self.undoViewer.setVisible(False)
         self.addDockWidget(Qt.RightDockWidgetArea, self.undoViewer)
 
-        #import propertytree
-        #test = propertytree.TestDock()
-        #self.addDockWidget(Qt.LeftDockWidgetArea, test)
+        import propertytree
+        test = propertytree.TestDock()
+        self.addDockWidget(Qt.LeftDockWidgetArea, test)
 
         self.setupActions()
         self.setupMenus()

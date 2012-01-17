@@ -21,36 +21,6 @@ class Base(object):
     def getPropertyType(cls):
         return None
 
-class BaseProperty(Property):
-
-    def createComponents(self):
-        self.components = None
-        super(BaseProperty, self).createComponents()
-
-    def getComponents(self):
-        return self.components
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return None, False
-
-    @classmethod
-    def getAttrName(cls, componentName):
-        return componentName[:1].lower() + componentName[1:]
-
-    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
-        components = self.getComponents()
-        if components is not None:
-            for compName, compValue in components.items():
-                compValue.setValue(getattr(self.value, self.getAttrName(compName)), reason)
-
-    def componentValueChanged(self, component, reason):
-        setattr(self.value, self.getAttrName(component.name), component.value)
-        self.raiseValueChanged(Property.ChangeValueReason.ComponentValueChanged)
-
-
 class UDim(Base):
 
     pattern = '\s*\{\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\}\s*'
@@ -96,23 +66,6 @@ class UDim(Base):
     @classmethod
     def getPropertyType(cls):
         return UDimProperty
-
-class UDimProperty(BaseProperty):
-
-    def createComponents(self):
-        self.components = OrderedDict()
-        self.components["Scale"] = Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Offset"] = Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(BaseProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return UDim.tryParse(strValue)
 
 class USize(Base):
 
@@ -166,6 +119,52 @@ class USize(Base):
     def getPropertyType(cls):
         return USizeProperty
 
+
+class BaseProperty(Property):
+
+    def createComponents(self):
+        super(BaseProperty, self).createComponents()
+
+    def getComponents(self):
+        return self.components
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return None, False
+
+    @classmethod
+    def getAttrName(cls, componentName):
+        return componentName[:1].lower() + componentName[1:]
+
+    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+        components = self.getComponents()
+        if components is not None:
+            for compName, compValue in components.items():
+                compValue.setValue(getattr(self.value, self.getAttrName(compName)), reason)
+
+    def componentValueChanged(self, component, reason):
+        setattr(self.value, self.getAttrName(component.name), component.value)
+        self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
+
+class UDimProperty(BaseProperty):
+
+    def createComponents(self):
+        self.components = OrderedDict()
+        self.components["Scale"] = Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["Offset"] = Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+
+        super(UDimProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return UDim.tryParse(strValue)
+
 class USizeProperty(BaseProperty):
 
     def createComponents(self):
@@ -175,7 +174,7 @@ class USizeProperty(BaseProperty):
         self.components["Height"] = UDimProperty(name="Height", value=self.value.height, defaultValue=self.defaultValue.height,
                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
 
-        super(BaseProperty, self).createComponents()
+        super(USizeProperty, self).createComponents()
 
     def isStringRepresentationEditable(self):
         return True

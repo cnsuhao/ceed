@@ -1,8 +1,11 @@
 """The basic properties.
 
-PropertyCategory -- A category, groups properties together.
 Property -- The base class for all properties, has name, value, etc.
+PropertyCategory -- A category, groups properties together.
+PropertyEvent -- Custom event implementation for the Property system.
+PropertyEventSubscription -- A subscription to a PropertyEvent.
 StringWrapperProperty -- Special purpose property to edit the string representation of another property.
+MultiPropertyWrapper -- Special purpose property used to group many properties of the same type in one.
 """
 
 import operator
@@ -41,6 +44,119 @@ class PropertyCategory(object):
     def sortProperties(self, reverse=False):
         self.properties = OrderedDict(sorted(self.properties.items(), key=lambda t: t[0], reverse=reverse))
 
+class PropertyEventSubscription(object):
+    """A subscription to a PropertyEvent."""
+
+    def __init__(self, callback, excludedReasons=None, includedReasons=None):
+        """Initialise the subscription to call the specified callback.
+        
+        callback -- The callable to call, will take the arguments specified
+                    during the call to PropertyEvent.trigger().
+        excludedReasons -- If the 'reason' argument of PropertyEvent.trigger()
+                    is in this set, the callback will not be called that time.
+                    Has higher priority than 'includedReasons'.
+        includedReasons -- Like 'excludedReasons' but specifies the values that
+                    will cause the callback to be called. If None, all values
+                    are valid.
+                    Has lower priority than 'excludedReasons'
+        """
+        self.callback = callback
+        self.excludedReasons = excludedReasons
+        self.includedReasons = includedReasons
+
+    def isValidForReason(self, reason):
+        """Return True if the callback should be called for the specified reason."""
+        if (self.includedReasons is None) or (reason in self.includedReasons):
+            if (self.excludedReasons is None) or (not reason in self.excludedReasons):
+                return True
+        return False
+
+    def __hash__(self):
+        """Return the hash of the callback.
+        
+        The __hash__, __eq__ and __ne__ methods have been re-implemented so that it's
+        possible to manage this subscription via it's callback, without holding a
+        reference to the subscription instance.
+        """
+        return hash(self.callback)
+    def __eq__(self, other):
+        """Return True if this subscription's callback is equal to the
+        'other' argument (subscription or callback).
+        
+        See the notes on '__hash__'
+        """
+        if isinstance(other, PropertyEventSubscription):
+            return self.callback == other.callback
+        if callable(other) and self.callback == other:
+            return True
+        return False
+    def __ne__(self, other):
+        """Inverted '__eq__'.
+        
+        See the notes on '__hash__' and '__eq__'
+        """
+        return not self.__eq__(other)
+
+class PropertyEvent(object):
+
+    def __init__(self, maxRecursionDepth=None, assertOnDepthExceeded=False):
+        """Custom event.
+        
+        An event can have subscribers and can guard against recursion.
+        
+        maxRecursionDepth -- 0 (zero) means no recursion at all, None means unlimited.
+        assertOnDepthExcessed -- Will call 'assert False' if the recursion depth exceeds the maximum.
+        """
+        self.subscriptions = set()
+        self.maxRecursionDepth = maxRecursionDepth
+        self.assertOnDepthExceeded = assertOnDepthExceeded
+        self.recursionDepth = -1
+
+    def clear(self):
+        """Remove all subscriptions."""
+        self.subscriptions.clear()
+
+    def subscribe(self, callback, excludedReasons=None, includedReasons=None):
+        """Shortcut to create and add a subscription.
+        
+        Multiple subscriptions with the same callback are not supported.
+        """
+        s = PropertyEventSubscription(callback, excludedReasons, includedReasons)
+        self.subscriptions.add(s)
+        return s
+
+    def unsubscribe(self, eventSubOrCallback, safe=True):
+        """Remove a subscription.
+        
+        eventSubOrCallback -- An event subscription instance or the callback
+                            of a subscription to remove.
+        safe -- If True, check that the subscription exists to avoid
+                KeyErrors.
+        """
+        if (not safe) or (eventSubOrCallback in self.subscriptions):
+            self.subscriptions.remove(eventSubOrCallback)
+
+    def trigger(self, sender, reason, *args, **kwargs):
+        """Raise the event by calling all subscriptions that are valid
+        for the specified reason.
+        """
+        try:
+            # increase the counter first, so the first call sets it to 0.
+            self.recursionDepth += 1
+            # if there's a max set and we're over it
+            if (self.maxRecursionDepth is not None) and (self.recursionDepth > self.maxRecursionDepth):
+                # if we want assertions
+                if self.assertOnDepthExceeded:
+                    assert False, "Excessive recursion detected ({} when the max is {}).".format(self.recursionCounter, self.maxRecursionDepth)
+                # bail out
+                return
+
+            for subscription in self.subscriptions:
+                if subscription.isValidForReason(reason):
+                    subscription.callback(sender, reason, *args, **kwargs)
+        finally:
+            self.recursionDepth -= 1
+
 class Property(object):
     """A property which is the base for all properties.
     
@@ -49,19 +165,23 @@ class Property(object):
     and has a simple mechanism to notify others when its value changes.
     """
 
+    # TODO: Is it necessary to set this to False for releases or is
+    # the release made with optimisations?
+    DebugMode = __debug__
+
     class ChangeValueReason(object):
-        Unknown = 0
-        ComponentValueChanged = 1
-        ParentValueChanged = 2
-        Editor = 3
-        InnerValueChanged = 4
-        WrapperValueChanged = 5
+        Unknown = "Unknown"
+        ComponentValueChanged = "ComponentValueChanged"
+        ParentValueChanged = "ParentValueChanged"
+        Editor = "Editor"
+        InnerValueChanged = "InnerValueChanged"
+        WrapperValueChanged = "WrapperValueChanged"
 
     class ComponentsUpdateType(object):
         AfterCreate = 0
         BeforeDestroy = 1
 
-    def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False, editorOptions=None):
+    def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False, editorOptions=None, createComponents=True):
         """Initialise an instance using the specified parameters.
         
         The 'category' field is usually a string that is used by
@@ -86,12 +206,14 @@ class Property(object):
         self.readOnly = readOnly
         self.editorOptions = editorOptions
 
-        # Lists of callables (aka events, signals).
-        self.valueChanged = set()               # takes two arguments: sender, reason
-        self.componentsUpdate = set()           # takes two arguments: sender, update type
+        # Events
+        self.valueChanged = PropertyEvent(0, Property.DebugMode)
+        self.componentsUpdate = PropertyEvent(0, Property.DebugMode)
 
         # Create components
-        self.createComponents()
+        self.components = None
+        if createComponents:
+            self.createComponents()
 
     def finalise(self):
         """Perform any cleanup necessary."""
@@ -114,8 +236,8 @@ class Property(object):
         components = self.getComponents()
         if components:
             for comp in components.values():
-                comp.valueChanged.add(self.componentValueChanged)
-            self.raiseComponentsUpdate(self.ComponentsUpdateType.AfterCreate)
+                comp.valueChanged.subscribe(self.componentValueChanged, {self.ChangeValueReason.ParentValueChanged})
+            self.componentsUpdate.trigger(self, self.ComponentsUpdateType.AfterCreate)
 
     def getComponents(self):
         """Return the OrderedDict of the components, or None."""
@@ -131,11 +253,9 @@ class Property(object):
         """
         components = self.getComponents()
         if components:
-            self.raiseComponentsUpdate(self.ComponentsUpdateType.BeforeDestroy)
+            self.componentsUpdate.trigger(self, self.ComponentsUpdateType.BeforeDestroy)
             for comp in components.values():
-                # TODO: uncomment below to be safe, it's commented to test execution order
-                #if self.componentValueChanged in comp.valueChanged:
-                comp.valueChanged.remove(self.componentValueChanged)
+                comp.valueChanged.unsubscribe(self.componentValueChanged)
                 comp.finalise()
             components.clear()
 
@@ -183,13 +303,31 @@ class Property(object):
         property), this method tries to set the value of the
         inner property first and bails out if it can't. The default
         implementation does this by calling 'self.tryUpdateInner()'.
-        
-        Note: The default implementation ignores the call if the
-        value being set is the same as the current value.
         """
 
-        print "Setting value of property '%s' to '%s'%s, reason=%s" % (self.name, str(value), " (same)" if value is self.value else "", reason)
-        if self.value is not value:
+        # TODO: Convert print to logging or something
+        if Property.DebugMode:
+            print "{} ({}).setValue: Value={}, Changed={}, Reason={}".format(self.name, self.__class__.__name__, str(value), not value == self.value, reason)
+
+        # Really complicated stuff :/
+        #
+        # This used to check if the new value is different than the current and
+        # only run if it is.
+        #    if self.value != value:
+        # It has been removed because there are cases where a component property
+        # modifies the parent's value directly (i.e. they use the same instance of
+        # a class) and the check would return false because the parent's value
+        # has already been changed. The problem would be that the parent wouldn't
+        # update it's inner values and would not trigger the valueChanged event
+        # even though it has changed.
+        #
+        # The check, however, was a nice way to prevent infinite recursion bugs
+        # because it would stabilise the model sooner or later. We've worked around
+        # that by:
+        #    a) fixing the bugs :D
+        #    b) the events are set to detect and disallow recursion
+        #
+        if True: #self.value != value:
 
             # Do not update inner properties if our own value was changed
             # in response to an inner property's value having changed.
@@ -206,7 +344,7 @@ class Property(object):
 
             # This must be raised after updating the components because handlers
             # of the event will probably want to use the components.
-            self.raiseValueChanged(reason)
+            self.valueChanged.trigger(self, reason)
 
             return True
 
@@ -217,27 +355,11 @@ class Property(object):
         pass
 
     def tryUpdateInner(self, newValue, reason=ChangeValueReason.Unknown):
-        """Try to update the inner property (if any) to the new value.
+        """Try to update the inner properties (if any) to the new value.
         
         Return True on success, False on failure.
         """
         return True
-
-    def raiseValueChanged(self, reason=ChangeValueReason.Unknown):
-        """Notify all subscribers that the current value
-        has been changed.
-        You don't usually need to call this directly, it is
-        called as part of 'setValue()'.
-        """
-        for subscriber in self.valueChanged:
-            subscriber(self, reason)
-
-    def raiseComponentsUpdate(self, updateType):
-        """Notify all subscribers that the components
-        are about to be destroyed or have been created.
-        """
-        for subscriber in self.componentsUpdate:
-            subscriber(self, updateType)
 
     def componentValueChanged(self, component, reason):
         """Callback called when a component's value changes.
@@ -269,11 +391,10 @@ class StringWrapperProperty(Property):
                                                     editorOptions = { "instantApply": instantApply }
                                                     )
         self.innerProperty = innerProperty
-        self.innerProperty.valueChanged.add(self.innerValueChanged)
+        self.innerProperty.valueChanged.subscribe(self.innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
 
     def finalise(self):
-        if self.innerValueChanged in self.innerProperty.valueChanged:
-            self.innerProperty.valueChanged.remove(self.innerValueChanged)
+        self.innerProperty.valueChanged.unsubscribe(self.innerValueChanged)
         super(StringWrapperProperty, self).finalise()
 
     def innerValueChanged(self, innerProperty, reason):
@@ -362,21 +483,19 @@ class MultiPropertyWrapper(Property):
         # subscribe to the valueChanged event of the inner properties
         # to update our value if the value of one of them changes.
         for prop in self.innerProperties:
-            prop.valueChanged.add(self.innerValueChanged)
+            prop.valueChanged.subscribe(self.innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
         # subscribe to the valueChanged event of the template property.
-        self.templateProperty.valueChanged.add(self.templateValueChanged)
+        self.templateProperty.valueChanged.subscribe(self.templateValueChanged, {Property.ChangeValueReason.WrapperValueChanged, Property.ChangeValueReason.ParentValueChanged})
 
     def finalise(self):
         for prop in self.innerProperties:
-            # unregister from any events
-            if self.innerValueChanged in prop.valueChanged:
-                prop.valueChanged.remove(self.innerValueChanged)
+            prop.valueChanged.unsubscribe(self.innerValueChanged)
             # if we own it, finalise it
             if self.ownsInnerProperties:
                 prop.finalise()
         self.innerProperties = None
 
-        self.templateProperty.valueChanged.remove(self.templateValueChanged)
+        self.templateProperty.valueChanged.unsubscribe(self.templateValueChanged)
         self.templateProperty.finalise()
         self.templateProperty = None
 
@@ -385,7 +504,7 @@ class MultiPropertyWrapper(Property):
     def createComponents(self):
         # We don't call super because we don't need to subscribe
         # to the templateProperty's components!
-        self.raiseComponentsUpdate(self.ComponentsUpdateType.AfterCreate)
+        self.componentsUpdate.trigger(self, self.ComponentsUpdateType.AfterCreate)
 
     def getComponents(self):
         return self.templateProperty.getComponents()
@@ -393,7 +512,7 @@ class MultiPropertyWrapper(Property):
     def finaliseComponents(self):
         # We don't call super because we don't actually own any
         # components, they're owned by the templateProperty
-        self.raiseComponentsUpdate(self.ComponentsUpdateType.BeforeDestroy)
+        self.componentsUpdate.trigger(self, self.ComponentsUpdateType.BeforeDestroy)
 
     def valueType(self):
         return self.templateProperty.valueType()
@@ -408,7 +527,6 @@ class MultiPropertyWrapper(Property):
         return self.templateProperty.tryParse(strValue)
 
     def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
-        #self.templateProperty.updateComponents(reason)
         self.templateProperty.setValue(self.value, reason)
 
     def valueToString(self):
@@ -419,8 +537,8 @@ class MultiPropertyWrapper(Property):
     def templateValueChanged(self, sender, reason):
         # The template's value is changed when it's components change
         # or when we change it's value directly to match our own.
-        if reason == Property.ChangeValueReason.ComponentValueChanged:
-            self.setValue(self.templateProperty.value, reason)
+        # Unnecessary? if reason == Property.ChangeValueReason.ComponentValueChanged:
+        self.setValue(self.templateProperty.value, reason)
 
     def tryUpdateInner(self, newValue, reason=Property.ChangeValueReason.Unknown):
         for prop in self.innerProperties:

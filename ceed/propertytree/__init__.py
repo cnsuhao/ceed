@@ -8,7 +8,7 @@ ui -- The Qt GUI widget and its supporting classes.
 
 __all__ = ["properties", "compositeproperties", "editors", "ui"]
 
-"""
+
 # Everything below will be removed, I'm just testing it
 from collections import OrderedDict
 
@@ -113,4 +113,3 @@ class TestDock(QDockWidget):
         self.view.load(categories)
         self.props = props
         self.colourProp = colourProp
-"""

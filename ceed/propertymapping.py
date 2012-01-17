@@ -1,5 +1,3 @@
-import operator
-
 from collections import OrderedDict
 
 from .qtwidgets import LineEditWithClearButton
@@ -206,7 +204,8 @@ class CEGUIPropertyManager(object):
                                          helpText = helpText,
                                          value = value,
                                          defaultValue = defaultValue,
-                                         readOnly = readOnly
+                                         readOnly = readOnly,
+                                         createComponents = False
                                          )
             innerProperties.append(innerProperty)
 

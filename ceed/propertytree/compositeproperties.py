@@ -129,7 +129,7 @@ class DictionaryProperty(Property):
 
     def componentValueChanged(self, component, reason):
         self.value[component.name] = component.value
-        self.raiseValueChanged(Property.ChangeValueReason.ComponentValueChanged)
+        self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
 
     def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
         # check if our value and our components match

@@ -151,8 +151,8 @@ class PropertyRow(PropertyTreeRow):
         self.valueItem.setEditable(not self.property.readOnly)
         self.valueItem.setText(self.property.valueToString())
 
-        self.property.valueChanged.add(self.propertyValueChanged)
-        self.property.componentsUpdate.add(self.propertyComponentsUpdate)
+        self.property.valueChanged.subscribe(self.propertyValueChanged)
+        self.property.componentsUpdate.subscribe(self.propertyComponentsUpdate)
 
         self.updateStyle()
 
@@ -164,9 +164,8 @@ class PropertyRow(PropertyTreeRow):
                 self.appendChildRow(row)
 
     def finalise(self):
-        # TODO: uncomment below to be safe, it's commented to test execution order
-        #if self.propertyValueChanged in self.property.valueChanged:
-        self.property.valueChanged.remove(self.propertyValueChanged)
+        self.property.componentsUpdate.unsubscribe(self.propertyComponentsUpdate)
+        self.property.valueChanged.unsubscribe(self.propertyValueChanged)
 
         super(PropertyRow, self).finalise()
 
@@ -198,6 +197,7 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
         super(PropertyTreeItemDelegate, self).__init__(propertyTree)
 
         self.registry = editorRegistry
+        self.closeEditor.connect(self.slot_closeEditor)
 
     def getPropertyRow(self, index):
         if index.isValid():
@@ -220,13 +220,22 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
                 wrapperProperty = StringWrapperProperty(row.property)
                 wrapperProperty.editorOptions["string"] = { "validator": StringWrapperValidator(row.property) }
                 row.editor = self.registry.createEditor(wrapperProperty)
+                if row.editor is None:
+                    wrapperProperty.finalise()
+                else:
+                    row.editor.ownsProperty = True
             if row.editor is None:
                 return None
 
         # tell the newly created editor to create its widget
         editWidget = row.editor.createEditWidget(parent)
+        editWidget.delegate_Editor = row.editor
 
         return editWidget
+
+    def slot_closeEditor(self, editWidget, endEditHint):
+        editWidget.delegate_Editor.finalise()
+        del editWidget.delegate_Editor
 
     def setEditorData(self, editWidget, index):
         """Set the value of the editor to the property's value."""
