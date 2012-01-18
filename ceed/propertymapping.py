@@ -12,7 +12,6 @@ from cegui import ceguitypes as ct
 
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
-from PySide.QtGui import QSizePolicy
 
 from PySide.QtCore import QSize
 

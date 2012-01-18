@@ -60,6 +60,7 @@ class PropertyEventSubscription(object):
                     are valid.
                     Has lower priority than 'excludedReasons'
         """
+        assert callable(callback), "Callback argument is not callable."
         self.callback = callback
         self.excludedReasons = excludedReasons
         self.includedReasons = includedReasons

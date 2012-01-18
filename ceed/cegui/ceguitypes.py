@@ -51,6 +51,9 @@ class UDim(Base):
         self.scale = float(scale)
         self.offset = float(offset)
 
+    def __hash__(self):
+        return hash((self.scale, self.offset))
+
     def __eq__(self, other):
         if isinstance(other, UDim):
             return self.scale == other.scale and self.offset == other.offset
@@ -105,6 +108,9 @@ class USize(Base):
     def __init__(self, width=UDim(), height=UDim()):
         self.width = width
         self.height = height
+
+    def __hash__(self):
+        return hash((hash(self.width), hash(self.height)))
 
     def __eq__(self, other):
         if isinstance(other, USize):
