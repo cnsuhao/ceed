@@ -289,24 +289,22 @@ class PropertyTreeView(QTreeView):
         # aaaand restore
         painter.restore()
 
-    def currentChanged(self, currentIndex, previousIndex):
-        """Move the focus to the value item, necessary or the
-        focus can stay on the name item that's not editable and
-        hitting the edit key does nothing.
-        """
-        # call super
-        QTreeView.currentChanged(self, currentIndex, previousIndex)
+class PropertyTreeItemModel(QStandardItemModel):
+
+    def buddy(self, index):
+        """Point to the value item when the user tries to edit the name item."""
         # if on column 0 (the name item)
-        if currentIndex.isValid() and currentIndex.column() == 0:
+        if index.isValid() and index.column() == 0:
             # if it has a sibling (value item), get it
-            valueIndex = currentIndex.sibling(currentIndex.row(), 1)
+            valueIndex = index.sibling(index.row(), 1)
             # if the value item is valid...
             if valueIndex.isValid():
                 flags = valueIndex.flags()
-                # ... and if it is selectable and not disabled
-                if (flags & Qt.ItemIsSelectable) and (flags & Qt.ItemIsEditable) and (flags & Qt.ItemIsEnabled):
-                    # blah
-                    self.setCurrentIndex(valueIndex)
+                # and it is editable but not disabled
+                if (flags & Qt.ItemIsEditable) and (flags & Qt.ItemIsEnabled):
+                    return valueIndex
+
+        return super(PropertyTreeItemModel, self).buddy(index)
 
 class PropertyTreeWidget(QWidget):
     """The property tree widget.
@@ -324,7 +322,7 @@ class PropertyTreeWidget(QWidget):
         super(PropertyTreeWidget, self).__init__(parent)
 
         # create model
-        self.model = QStandardItemModel()
+        self.model = PropertyTreeItemModel()
 
         # finalise rows that are being removed
         def rowsAboutToBeRemoved(parentIndex, start, end):
