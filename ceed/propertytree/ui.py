@@ -78,6 +78,20 @@ class PropertyTreeRow(object):
             self.valueItem.finalise(); self.valueItem = None
             self.finalised = True
 
+    def getName(self):
+        """Return the name of the row (the text of the nameItem usually)."""
+        return self.nameItem.text()
+
+    def getNamePath(self):
+        """Return the path to this item, using its name and the names of its parents separated by a slash."""
+        names = []
+        parentRow = self
+        while parentRow is not None:
+            names.append(parentRow.getName())
+            parentItem = self.nameItem.parent()
+            parentRow = parentItem.propertyTreeRow if parentItem is not None else None 
+        return "/".join(names.reverse())
+
     def childRows(self):
         """Get the child rows; self.nameItem must exist and be valid."""
         return [self.nameItem.child(childRowIndex).propertyTreeRow for childRowIndex in range(0, self.nameItem.rowCount())]
@@ -93,6 +107,45 @@ class PropertyTreeRow(object):
         for row in self.childRows():
             row.finalise()
         self.nameItem.setRowCount(0)
+
+    def getState(self, view):
+        """Return the state of the row and its children as a dictionary.
+        
+        The state includes the expanded state.
+        
+        Sample return value:
+            { "expanded": True, "items": { "item1": <recurse>, "item2": <recurse> } }
+        
+        Note that the "items" key/value pair may be missing if the current row
+        has no children.
+        """
+        state = dict()
+        state["expanded"] = view.isExpanded(self.nameItem.index())
+        if self.nameItem.hasChildren():
+            items = dict()
+            state["items"] = items
+            for row in self.childRows():
+                items[row.getName()] = row.getState(view)
+
+        return state
+
+    def setState(self, view, state):
+        """Restore the state of the row and its children.
+        
+        See getState() for more information.
+        """
+        if state is None:
+            return
+
+        expanded = state.get("expanded", None)
+        if expanded is not None:
+            view.setExpanded(self.nameItem.index(), expanded)
+        
+        items = state.get("items", None)
+        if items is not None and self.nameItem.hasChildren():
+            for row in self.childRows():
+                itemState = items.get(row.getName(), None)
+                row.setState(view, itemState)
 
     def setFilter(self, filterRegEx, view):
         i = 0
@@ -262,6 +315,84 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
 class PropertyTreeView(QTreeView):
     """QTreeView with some modifications for better results."""
 
+    def __init__(self, *args, **kwargs):
+        QTreeView.__init__(self, *args, **kwargs)
+
+        # optional, set by 'setOptimalDefaults()'
+        self.editTriggersForName = None
+        self.editTriggersForValue = None
+
+        self.setRequiredOptions()
+        self.setOptimalDefaults()
+
+    def setRequiredOptions(self):
+        # We work with rows, not columns
+        self.setAllColumnsShowFocus(True)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        # We need our items expandable
+        self.setItemsExpandable(True)
+
+    def setOptimalDefaults(self):
+        #
+        # Behavior
+        #
+        
+        # We don't want 'SelectedClicked' on the name item - it's really annoyng when
+        # you try to end the editing by clicking outside the editor but you hit the name
+        # and then it starts to edit again.
+        # See the re-implemented currentChanged() too.
+        self.editTriggersForName = QAbstractItemView.EditKeyPressed | QAbstractItemView.DoubleClicked
+        self.editTriggersForValue = self.editTriggersForName | QAbstractItemView.SelectedClicked
+        self.setEditTriggers(self.editTriggersForValue)
+        # No tab key because we can already move through the rows using the up/down arrow
+        # keys and since we usually show a ton of rows, getting tabs would make it practically
+        # impossible for the user to move to the next control using tab.
+        self.setTabKeyNavigation(False)
+
+        # No branches on categories but allow expanding/collapsing
+        # using double-click.
+        # Note: We don't show branches on categories because:
+        #    a) Not sure it's better
+        #    b) I couldn't find a way to change the background color
+        #    of the branch to match that of the category of the same
+        #    row; changing the background color of the 'nameItem'
+        #    does not change the background color of the branch.
+        self.setRootIsDecorated(False)
+        self.setExpandsOnDoubleClick(True)
+
+        # No sorting by default because it's ugly until:
+        # TODO: Do custom sorting that only sorts the items inside the
+        # categories but not the categories themselves.
+        self.setSortingEnabled(False)
+
+        # No point in selecting more than one row unless we implement
+        # something like "Copy" that copies the names and/or values
+        # of the selected rows.
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
+
+        #
+        # Visual
+        #
+        self.setAlternatingRowColors(True)
+        #self.setIndentation(20)    # The default indentation is 20
+
+        # Animation off because it plays when we do batch updates
+        # even if setUpdatesEnabled(False) has been called.
+        # (On Linux, at least)
+        self.setAnimated(False)
+        # Optimisation allowed because all of our rows have the same height
+        self.setUniformRowHeights(True)
+
+    def currentChanged(self, currentIndex, previousIndex):
+        """Called when the current index changes."""
+        # See comments in 'setOptimalDefaults()'
+        if self.editTriggersForName is not None and self.editTriggersForValue is not None:
+            if currentIndex.isValid():
+                if (not previousIndex.isValid()) or (previousIndex.column() != currentIndex.column()):
+                    self.setEditTriggers(self.editTriggersForName if currentIndex.column() == 0 else self.editTriggersForValue)
+
+        super(PropertyTreeView, self).currentChanged(currentIndex, previousIndex)
+
     def drawRow(self, painter, option, index):
         """Draws grid lines.
         
@@ -339,18 +470,6 @@ class PropertyTreeWidget(QWidget):
         self.setLayout(layout)
 
         self.view = PropertyTreeView(self)
-        self.view.setEditTriggers(QAbstractItemView.EditKeyPressed | QAbstractItemView.SelectedClicked | QAbstractItemView.DoubleClicked)
-        self.view.setTabKeyNavigation(True)
-        self.view.setAlternatingRowColors(True)
-        self.view.setIndentation(20)
-        self.view.setRootIsDecorated(False)
-        self.view.setItemsExpandable(True)
-        self.view.setSortingEnabled(True)
-        self.view.setAnimated(False)
-        self.view.setExpandsOnDoubleClick(True)
-        self.view.setUniformRowHeights(True)
-        self.view.setAllColumnsShowFocus(True)
-        self.view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.view.setObjectName("view")
         self.view.setModel(self.model)
 
@@ -374,14 +493,98 @@ class PropertyTreeWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Property", "Value"])
 
-    def load(self, categories):
+    def getCurrentPath(self):
+        """Return the name path of the current row, or None."""
+        index = self.view.currentIndex()
+        if index.isValid():
+            row = self.model.itemFromIndex(index).propertyTreeRow
+            return row.getNamePath()
+        return None
+
+    def rowFromPath(self, path):
+        """Find and return the row with the specified name-path, or None."""
+        if not path:
+            return None
+        # TODO: Implement this
+        return None
+
+    def setCurrentPath(self, path):
+        """Set the current row by a name-path and return True
+        on success, False on failure.
+        """
+        row = self.rowFromPath(path)
+        if row is not None:
+            self.view.setCurrentIndex(row.nameItem.index())
+            return True
+        return False
+
+    def getRowsState(self):
+        """Return the current state of the items.
+        
+        See PropertyTreeRow.getState().
+        """
+        state = dict()
+
+        i = 0
+        while i < self.model.rowCount():
+            item = self.model.item(i, 0)
+            categoryRow = item.propertyTreeRow
+            state[categoryRow.getName()] = categoryRow.getState(self.view)
+
+            i += 1
+
+        return state
+
+    def setRowsState(self, state, defaultCategoryExpansion=None):
+        """Restore the state of the items to a saved state.
+        
+        defaultCategoryExpansion -- None, to leave categories that are not in
+                                    the specified 'state' to their current
+                                    expansion state; True to expand them;
+                                    False to collapse them.
+        
+        Note: This does not call self.view.setUpdatesEnabled() before or
+        after changing the items' state; it's left to the caller because
+        this operation may be a part of another that handles updates
+        already.
+        
+        See getRowsState() and PropertyTreeRow.getState().
+        """
+
+        defaultCategoryState = None
+        if defaultCategoryExpansion is not None:
+            defaultCategoryState = { "expanded": defaultCategoryExpansion }
+
+        i = 0
+        while i < self.model.rowCount():
+            item = self.model.item(i, 0)
+            categoryRow = item.propertyTreeRow
+            catState = state.get(categoryRow.getName(), defaultCategoryState)
+            categoryRow.setState(self.view, catState)
+
+            i += 1
+
+    def load(self, categories, resetState=False):
         """Clear tree and load the specified categories into it.
         
         categories -- Dictionary
+        resetState -- False to try to maintain as much of the previous items' state
+                    as possible, True to reset it.
+        
+        Note: This does not change the current filter.
+        
+        See getRowsState() and setRowsState().
         """
         
         # prevent flicker
         self.view.setUpdatesEnabled(False)
+
+        # save current state
+        itemsState = None
+        currentPath = None
+        if not resetState:
+            itemsState = self.getRowsState()
+            currentPath = self.getCurrentPath()
 
         # clear and setup
         self.clear()
@@ -390,12 +593,20 @@ class PropertyTreeWidget(QWidget):
         for category in categories.values():
             self.appendCategory(category)
 
+        # expand categories only by default
         self.view.expandToDepth(0)
+
+        # setup headers size
         self.view.header().setResizeMode(QHeaderView.Stretch)
         #self.view.resizeColumnToContents(0)
 
         # apply the filter
         self.setFilter(self.filter)
+
+        # restore state
+        if itemsState is not None:
+            self.setRowsState(itemsState)
+            self.setCurrentPath(currentPath)
 
         # reset updates
         self.view.setUpdatesEnabled(True)

@@ -24,7 +24,6 @@ class PropertyInspectorWidget(QWidget):
 
     # TODO: Add a way to only show modified (non-default) or recently
     # used properties (filterbox? toggle/radio button? extra categories?)
-    # TODO: Try to keep selection/scroll pos/focus when changing property sets
 
     def __init__(self, parent=None):
         super(PropertyInspectorWidget, self).__init__(parent)
