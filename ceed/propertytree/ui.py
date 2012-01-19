@@ -408,6 +408,8 @@ class PropertyTreeView(QTreeView):
         # Animation off because it plays when we do batch updates
         # even if setUpdatesEnabled(False) has been called.
         # (On Linux, at least)
+        # See qtreeview.cpp, expandToDepth, it calls interruptDelayedItemsLayout()
+        # which sounds promising.
         self.setAnimated(False)
         # Optimisation allowed because all of our rows have the same height
         self.setUniformRowHeights(True)
@@ -448,6 +450,26 @@ class PropertyTreeView(QTreeView):
             painter.drawLine(colX, option.rect.y(), colX, option.rect.bottom())
         # aaaand restore
         painter.restore()
+
+    def expandFromDepth(self, startingDepth):
+        """Expand all items from the startingDepth and below."""
+        model = self.model()
+
+        def expand(item, currentDepth):
+            if currentDepth >= startingDepth:
+                self.setExpanded(item.index(), True)
+            if item.hasChildren():
+                i = 0
+                while i < item.rowCount():
+                    expand(item.child(i), currentDepth + 1)
+                    i += 1
+
+        i=0
+        while i < model.rowCount():
+            item = model.item(i, 0)
+            expand(item, 0)
+            
+            i += 1
 
 class PropertyTreeItemModel(QStandardItemModel):
 
@@ -642,8 +664,12 @@ class PropertyTreeWidget(QWidget):
         for category in categories.values():
             self.appendCategory(category)
 
-        # expand categories only by default
+        # expand categories by default
         self.view.expandToDepth(0)
+        # skip properties (depth == 1) but expand their components
+        # so that when the user expands a property, its components
+        # are expanded.
+        self.view.expandFromDepth(2)
 
         # setup headers size
         self.view.header().setResizeMode(QHeaderView.Stretch)
