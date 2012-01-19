@@ -506,6 +506,7 @@ class PropertyTreeWidget(QWidget):
 
         self.registry = None
         self.filter = ""
+        self.previousPath = None
 
         self.clear()
 
@@ -631,6 +632,8 @@ class PropertyTreeWidget(QWidget):
         if not resetState:
             itemsState = self.getRowsState()
             currentPath = self.getCurrentPath()
+            if currentPath is not None:
+                self.previousPath = currentPath
 
         # clear and setup
         self.clear()
@@ -652,7 +655,7 @@ class PropertyTreeWidget(QWidget):
         # restore state
         if itemsState is not None:
             self.setRowsState(itemsState)
-            self.setCurrentPath(currentPath)
+            self.setCurrentPath(self.previousPath)
 
         # reset updates
         self.view.setUpdatesEnabled(True)
