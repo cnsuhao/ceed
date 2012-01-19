@@ -82,15 +82,44 @@ class PropertyTreeRow(object):
         """Return the name of the row (the text of the nameItem usually)."""
         return self.nameItem.text()
 
+    def getParent(self):
+        parentItem = self.nameItem.parent()
+        if (parentItem is not None) and isinstance(parentItem, PropertyTreeItem):
+                return parentItem.propertyTreeRow
+        return None
+
     def getNamePath(self):
         """Return the path to this item, using its name and the names of its parents separated by a slash."""
         names = []
         parentRow = self
         while parentRow is not None:
             names.append(parentRow.getName())
-            parentItem = self.nameItem.parent()
-            parentRow = parentItem.propertyTreeRow if parentItem is not None else None 
-        return "/".join(names.reverse())
+            parentRow = parentRow.getParent()
+
+        names.reverse()
+        return "/".join(names)
+
+    def rowFromPath(self, path):
+        """Find and return the child row with the specified name-path,
+        searching in children and their children too, or None if not found.
+
+        Return self if the path is empty.
+
+        See getNamePath().
+        """
+        if not path:
+            return self
+
+        # split path in two
+        parts = path.split("/", 1)
+        if len(parts) == 0:
+            return self
+
+        for row in self.childRows():
+            if row.getName() == parts[0]:
+                return row.rowFromPath(parts[1]) if len(parts) == 2 else row
+
+        return None
 
     def childRows(self):
         """Get the child rows; self.nameItem must exist and be valid."""
@@ -502,10 +531,27 @@ class PropertyTreeWidget(QWidget):
         return None
 
     def rowFromPath(self, path):
-        """Find and return the row with the specified name-path, or None."""
+        """Find and return the row with the specified name-path, or None.
+        
+        See PropertyTreeRow.getNamePath()
+        """
         if not path:
             return None
-        # TODO: Implement this
+
+        # split path in two
+        parts = path.split("/", 1)
+        if len(parts) == 0:
+            return None
+
+        i = 0
+        while i < self.model.rowCount():
+            item = self.model.item(i, 0)
+            categoryRow = item.propertyTreeRow
+            if categoryRow.getName() == parts[0]:
+                return categoryRow.rowFromPath(parts[1])
+
+            i += 1
+
         return None
 
     def setCurrentPath(self, path):
