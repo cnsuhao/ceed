@@ -3,7 +3,7 @@
 AstHelper -- Customised Python literal parsing.
 """
 
-import ast
+from ast import Str, Num, Tuple, List, Dict, Name, Expression, parse, BinOp, Add, Sub
 
 from collections import OrderedDict
 
@@ -13,6 +13,9 @@ class AstHelper(object):
     def delegate_literal_eval(node_or_string, convertHook=None):
         """Copied from cpython 2.7 Lib/ast.py @ 74346:66f2bcb47050
         
+        Intentionally made as few changes as possible and marked them
+        so it can be easily upgraded to a later version.
+        
         Allows an optional 'convertHook' function with the signature:
             convertHook(node, converter) -> handled, value
         
@@ -21,40 +24,43 @@ class AstHelper(object):
         Python literal structures: strings, bytes, numbers, tuples, lists, dicts,
         sets, booleans, and None.
         """
+        # avoid making changes to this code (read doc string please)
+        #pylint: disable-msg=C0103,W0141,R0911,R0912
         _safe_names = {'None': None, 'True': True, 'False': False}
         if isinstance(node_or_string, basestring):
-            node_or_string = ast.parse(node_or_string, mode='eval')
-        if isinstance(node_or_string, ast.Expression):
+            node_or_string = parse(node_or_string, mode='eval')
+        if isinstance(node_or_string, Expression):
             node_or_string = node_or_string.body
         def _convert(node):
+            ### Modification start
             if convertHook is not None:
                 handled, value = convertHook(node, _convert)
                 if handled:
                     return value
-
-            if isinstance(node, ast.Str):
+            ### Modification end
+            if isinstance(node, Str):
                 return node.s
-            elif isinstance(node, ast.Num):
+            elif isinstance(node, Num):
                 return node.n
-            elif isinstance(node, ast.Tuple):
+            elif isinstance(node, Tuple):
                 return tuple(map(_convert, node.elts))
-            elif isinstance(node, ast.List):
+            elif isinstance(node, List):
                 return list(map(_convert, node.elts))
-            elif isinstance(node, ast.Dict):
+            elif isinstance(node, Dict):
                 return dict((_convert(k), _convert(v)) for k, v
                             in zip(node.keys, node.values))
-            elif isinstance(node, ast.Name):
+            elif isinstance(node, Name):
                 if node.id in _safe_names:
                     return _safe_names[node.id]
-            elif isinstance(node, ast.BinOp) and \
-                 isinstance(node.op, (ast.Add, ast.Sub)) and \
-                 isinstance(node.right, ast.Num) and \
+            elif isinstance(node, BinOp) and \
+                 isinstance(node.op, (Add, Sub)) and \
+                 isinstance(node.right, Num) and \
                  isinstance(node.right.n, complex) and \
-                 isinstance(node.left, ast.Num) and \
+                 isinstance(node.left, Num) and \
                  isinstance(node.left.n, (int, long, float)):
                 left = node.left.n
                 right = node.right.n
-                if isinstance(node.op, ast.Add):
+                if isinstance(node.op, Add):
                     return left + right
                 else:
                     return left - right
@@ -62,25 +68,28 @@ class AstHelper(object):
         return _convert(node_or_string)
 
     @staticmethod
-    def parseOrderedDict(s, valueReplacements={"true": True, "false": False}):
+    def parseOrderedDict(strValue, valueReplacements=None):
         """Parse a string and return an ordered dictionary; nesting allowed.
         
-        The format is similar to Python's dict literal but it doesn't require
+        The format is similar to Python'strValue dict literal but it doesn't require
         quotes around strings.
         Example: ``{Red:255, Green:0, Blue:0, Awesome: True}``
         
         Values found in the 'valueReplacements' parameter (case insensitive)
-        will be replaced.
+        will be replaced. An example would be:
+            {"true": True, "false": False}
+        so that it would automatically accept 'true' and 'false' (in the string
+        value) without quotes and will convert them to True and False.
         """
-        vr = dict((str(k).lower(), v) for k, v in valueReplacements.items())
+        vr = dict((str(key).lower(), value) for key, value in valueReplacements.items())
         def convertHook(node, convert):
-            if isinstance(node, ast.Dict):
-                return True, OrderedDict((convert(k), convert(v)) for k, v in zip(node.keys, node.values))
-            elif isinstance(node, ast.Name):
+            if isinstance(node, Dict):
+                return True, OrderedDict((convert(key), convert(value)) for key, value in zip(node.keys, node.values))
+            elif isinstance(node, Name):
                 if node.id.lower() in vr:
                     return True, vr[node.id.lower()]
                 else:
                     return True, str(node.id)
             return False, None
 
-        return AstHelper.delegate_literal_eval(s, convertHook)
+        return AstHelper.delegate_literal_eval(strValue, convertHook)

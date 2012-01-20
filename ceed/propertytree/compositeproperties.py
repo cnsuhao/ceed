@@ -37,6 +37,8 @@ class DictionaryProperty(Property):
     """
 
     class StringRepresentationMode(object):
+        #pylint: disable-msg=R0903
+        # too few public methods - it's an enum dammit
         ReadOnly = 0
         EditValuesRestrictTypes = 1
         EditValuesFreeTypes = 2
@@ -44,7 +46,7 @@ class DictionaryProperty(Property):
 
     def __init__(self, name, value=None, category=None, helpText=None, readOnly=False, editorOptions=None,
                  strReprMode=StringRepresentationMode.ReadOnly,
-                 strValueReplacements={"true": True, "false": False}):
+                 strValueReplacements=None):
         super(DictionaryProperty, self).__init__(name = name,
                                                  value = value,
                                                  defaultValue = None,
@@ -115,8 +117,8 @@ class DictionaryProperty(Property):
                     valid = self.value.keys() == value.keys()
                     if valid:
                         # check value types
-                        for k, v in self.value.items():
-                            if type(v) != type(value[k]):
+                        for key, value in self.value.items():
+                            if type(value) != type(value[key]):
                                 valid = False
                                 break
 

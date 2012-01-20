@@ -8,7 +8,7 @@ from .propertytree.properties import MultiPropertyWrapper
 
 from .propertytree.ui import PropertyTreeWidget
 
-from cegui import ceguitypes as ct
+from ceed.cegui import ceguitypes as ct
 
 from PySide.QtGui import QWidget
 from PySide.QtGui import QVBoxLayout
@@ -87,32 +87,29 @@ class CEGUIPropertyManager(object):
     
     _typeMap = {
                 "int": int,
+                "uint": int,
                 "float": float,
                 "bool": bool,
+                "String": unicode,
                 "USize": ct.USize
                 }
-#===============================================================================
-# XXXXX: AspectMode
-# XXXXX: bool
-# XXXXX: float
-# XXXXX: Font*
-# XXXXX: HorizontalAlignment
-# XXXXX: Image*
-# XXXXX: Quaternion
-# XXXXX: String
-# XXXXX: UBox
-# XXXXX: uint
-# XXXXX: Unknown
-# XXXXX: URect
-# XXXXX: USize
-# XXXXX: UVector2
-# XXXXX: VerticalAlignment
-# XXXXX: WindowUpdateMode
-#===============================================================================
+    #===============================================================================
+    # TODO: AspectMode
+    # TODO: Font*
+    # TODO: HorizontalAlignment
+    # TODO: Image*
+    # TODO: Quaternion
+    # TODO: UBox
+    # TODO: Unknown
+    # TODO: URect
+    # TODO: UVector2
+    # TODO: VerticalAlignment
+    # TODO: WindowUpdateMode
+    #===============================================================================
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
-        #print "XXXXX: " + ceguiStrType
+        #print "TODO: " + ceguiStrType
         return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
 
     @staticmethod

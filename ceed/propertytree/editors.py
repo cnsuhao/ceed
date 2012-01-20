@@ -7,6 +7,9 @@ NumericPropertyEditor -- Editor for integers and floating point numbers.
 StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 """
 
+from abc import abstractmethod
+from abc import ABCMeta
+
 from .properties import Property
 
 from PySide import QtGui
@@ -19,6 +22,11 @@ class PropertyEditorRegistry(object):
     # Standard editors place themselves in this set,
     # used by registerStandardEditors().
     _standardEditors = set()
+    
+    @staticmethod
+    def addStandardEditor(editorType):
+        """Add the editor to the list of standard editors."""
+        PropertyEditorRegistry._standardEditors.add(editorType)
 
     def __init__(self, autoRegisterStandardEditors=False):
         """Initialise an empty instance by default.
@@ -81,11 +89,13 @@ class PropertyEditorRegistry(object):
         return None
 
 class PropertyEditor(object):
-    """Base class for a property editor.
+    """Abstract base class for a property editor.
     
     A property editor instance is created when required
     to edit the value of a (supported) property.
     """
+
+    __metaclass__ = ABCMeta
 
     @classmethod
     def getSupportedValueTypes(cls):
@@ -119,6 +129,7 @@ class PropertyEditor(object):
         if self.ownsProperty:
             self.property.finalise()
 
+    @abstractmethod
     def createEditWidget(self, parent):
         """Create and return a widget that will be used
         to edit the property.
@@ -128,13 +139,15 @@ class PropertyEditor(object):
         is not required because a call to setWidgetValue
         will follow.
         """
-        return self.editWidget
+        pass
 
+    @abstractmethod
     def getWidgetValue(self):
         """Read and return a tuple with the current value of the widget
         and a boolean specifying whether it's a valid value or not."""
-        return None, False
+        pass
 
+    @abstractmethod
     def setWidgetValueFromProperty(self):
         """Set the value of the widget to the value of the property.
         
@@ -197,14 +210,13 @@ class StringPropertyEditor(PropertyEditor):
 
         super(StringPropertyEditor, self).setWidgetValueFromProperty()
 
-PropertyEditorRegistry._standardEditors.add(StringPropertyEditor)
+PropertyEditorRegistry.addStandardEditor(StringPropertyEditor)
 
 class NumericPropertyEditor(PropertyEditor):
 
-    class Defaults(object):
-        Decimals = 6
-        Min = -999999
-        Max = 999999
+    DefaultDecimals = 6
+    DefaultMin = -999999
+    DefaultMax = 999999
 
     @classmethod
     def getSupportedValueTypes(cls):
@@ -218,9 +230,9 @@ class NumericPropertyEditor(PropertyEditor):
         options = self.property.getEditorOption("numeric/", {})
 
         # set decimals first because according to the docs setting it can change the range.
-        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else self.Defaults.Decimals))
-        self.editWidget.setRange(options.get("min", self.Defaults.Min),
-                                 options.get("max", self.Defaults.Max));
+        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else self.DefaultDecimals))
+        self.editWidget.setRange(options.get("min", self.DefaultMin),
+                                 options.get("max", self.DefaultMax))
         # make the default step 0.1 if the value range is 1 or less, otherwise 1
         self.editWidget.setSingleStep(options.get("step", 0.1 if abs(self.editWidget.maximum() - self.editWidget.minimum()) <= 1.0 else 1))
         self.editWidget.setWrapping(options.get("wrapping", False))
@@ -241,7 +253,7 @@ class NumericPropertyEditor(PropertyEditor):
 
         super(NumericPropertyEditor, self).setWidgetValueFromProperty()
 
-PropertyEditorRegistry._standardEditors.add(NumericPropertyEditor)
+PropertyEditorRegistry.addStandardEditor(NumericPropertyEditor)
 
 class BoolPropertyEditor(PropertyEditor):
 
@@ -266,7 +278,7 @@ class BoolPropertyEditor(PropertyEditor):
 
         super(BoolPropertyEditor, self).setWidgetValueFromProperty()
 
-PropertyEditorRegistry._standardEditors.add(BoolPropertyEditor)
+PropertyEditorRegistry.addStandardEditor(BoolPropertyEditor)
 
 class StringWrapperValidator(QtGui.QValidator):
     """Validate the edit widget value when editing
@@ -281,6 +293,6 @@ class StringWrapperValidator(QtGui.QValidator):
         super(StringWrapperValidator, self).__init__(parent)
         self.property = swProperty
 
-    def validate(self, inputStr, pos):
+    def validate(self, inputStr, dummyPos):
         _, valid = self.property.tryParse(inputStr)
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable

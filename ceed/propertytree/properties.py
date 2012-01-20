@@ -80,6 +80,7 @@ class PropertyEventSubscription(object):
         reference to the subscription instance.
         """
         return hash(self.callback)
+
     def __eq__(self, other):
         """Return True if this subscription's callback is equal to the
         'other' argument (subscription or callback).
@@ -91,6 +92,7 @@ class PropertyEventSubscription(object):
         if callable(other) and self.callback == other:
             return True
         return False
+
     def __ne__(self, other):
         """Inverted '__eq__'.
         
@@ -122,9 +124,9 @@ class PropertyEvent(object):
         
         Multiple subscriptions with the same callback are not supported.
         """
-        s = PropertyEventSubscription(callback, excludedReasons, includedReasons)
-        self.subscriptions.add(s)
-        return s
+        sub = PropertyEventSubscription(callback, excludedReasons, includedReasons)
+        self.subscriptions.add(sub)
+        return sub
 
     def unsubscribe(self, eventSubOrCallback, safe=True):
         """Remove a subscription.
@@ -148,7 +150,7 @@ class PropertyEvent(object):
             if (self.maxRecursionDepth is not None) and (self.recursionDepth > self.maxRecursionDepth):
                 # if we want assertions
                 if self.assertOnDepthExceeded:
-                    assert False, "Excessive recursion detected ({} when the max is {}).".format(self.recursionCounter, self.maxRecursionDepth)
+                    assert False, "Excessive recursion detected ({} when the max is {}).".format(self.recursionDepth, self.maxRecursionDepth)
                 # bail out
                 return
 
@@ -171,6 +173,8 @@ class Property(object):
     DebugMode = __debug__
 
     class ChangeValueReason(object):
+        #pylint: disable-msg=R0903
+        # too few public methods - it's an enum dammit
         Unknown = "Unknown"
         ComponentValueChanged = "ComponentValueChanged"
         ParentValueChanged = "ParentValueChanged"
@@ -179,6 +183,8 @@ class Property(object):
         WrapperValueChanged = "WrapperValueChanged"
 
     class ComponentsUpdateType(object):
+        #pylint: disable-msg=R0903
+        # too few public methods - it's an enum dammit
         AfterCreate = 0
         BeforeDestroy = 1
 
@@ -242,7 +248,7 @@ class Property(object):
 
     def getComponents(self):
         """Return the OrderedDict of the components, or None."""
-        return None
+        return self.components
 
     def finaliseComponents(self):
         """Clean up components.
@@ -282,6 +288,10 @@ class Property(object):
     def isStringRepresentationEditable(self):
         """Return True if the property supports editing its string representation,
         in addition to editing its components."""
+        #pylint: disable-msg=R0201
+        # "Method could be a function"
+        # No, it couldn't, it's meant to be overriden but provides
+        # the default implementation.
         return False
 
     def tryParse(self, strValue):
@@ -289,7 +299,7 @@ class Property(object):
         a tuple with the parsed value and a boolean
         specifying success or failure.
         """
-        return None, False
+        pass
 
     def setValue(self, value, reason=ChangeValueReason.Unknown):
         """Change the current value to the one specified
@@ -360,6 +370,9 @@ class Property(object):
         
         Return True on success, False on failure.
         """
+        #pylint: disable-msg=W0613,R0201
+        # Unused arguments, method could be a function: This is meant
+        # to be overriden but provides a default implementation.
         return True
 
     def componentValueChanged(self, component, reason):
@@ -392,13 +405,13 @@ class StringWrapperProperty(Property):
                                                     editorOptions = { "instantApply": instantApply }
                                                     )
         self.innerProperty = innerProperty
-        self.innerProperty.valueChanged.subscribe(self.innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
+        self.innerProperty.valueChanged.subscribe(self.cb_innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
 
     def finalise(self):
-        self.innerProperty.valueChanged.unsubscribe(self.innerValueChanged)
+        self.innerProperty.valueChanged.unsubscribe(self.cb_innerValueChanged)
         super(StringWrapperProperty, self).finalise()
 
-    def innerValueChanged(self, innerProperty, reason):
+    def cb_innerValueChanged(self, innerProperty, reason):
         self.setValue(self.innerProperty.valueToString(), Property.ChangeValueReason.InnerValueChanged)
 
     def tryUpdateInner(self, newValue, reason=Property.ChangeValueReason.Unknown):
@@ -466,7 +479,7 @@ class MultiPropertyWrapper(Property):
 
         self.templateProperty = templateProperty
         self.innerProperties = innerProperties
-        self.ownsInnerProperties = True
+        self.ownsInnerProperties = takeOwnership
         self.allValues, self.allDefaultValues = self.gatherValueData(self.innerProperties)
 
         self.templateProperty.setValue(self.allValues[0])
@@ -484,19 +497,19 @@ class MultiPropertyWrapper(Property):
         # subscribe to the valueChanged event of the inner properties
         # to update our value if the value of one of them changes.
         for prop in self.innerProperties:
-            prop.valueChanged.subscribe(self.innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
+            prop.valueChanged.subscribe(self.cb_innerValueChanged, {Property.ChangeValueReason.WrapperValueChanged})
         # subscribe to the valueChanged event of the template property.
-        self.templateProperty.valueChanged.subscribe(self.templateValueChanged, {Property.ChangeValueReason.WrapperValueChanged, Property.ChangeValueReason.ParentValueChanged})
+        self.templateProperty.valueChanged.subscribe(self.cb_templateValueChanged, {Property.ChangeValueReason.WrapperValueChanged, Property.ChangeValueReason.ParentValueChanged})
 
     def finalise(self):
         for prop in self.innerProperties:
-            prop.valueChanged.unsubscribe(self.innerValueChanged)
+            prop.valueChanged.unsubscribe(self.cb_innerValueChanged)
             # if we own it, finalise it
             if self.ownsInnerProperties:
                 prop.finalise()
         self.innerProperties = None
 
-        self.templateProperty.valueChanged.unsubscribe(self.templateValueChanged)
+        self.templateProperty.valueChanged.unsubscribe(self.cb_templateValueChanged)
         self.templateProperty.finalise()
         self.templateProperty = None
 
@@ -535,7 +548,7 @@ class MultiPropertyWrapper(Property):
             return super(MultiPropertyWrapper, self).valueToString()
         return "<multiple values>"
 
-    def templateValueChanged(self, sender, reason):
+    def cb_templateValueChanged(self, sender, reason):
         # The template's value is changed when it's components change
         # or when we change it's value directly to match our own.
         # Unnecessary? if reason == Property.ChangeValueReason.ComponentValueChanged:
@@ -547,7 +560,7 @@ class MultiPropertyWrapper(Property):
 
         return True
 
-    def innerValueChanged(self, innerProperty, reason):
+    def cb_innerValueChanged(self, innerProperty, reason):
         self.allValues, self.allDefaultValues = self.gatherValueData(self.innerProperties)
 
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)

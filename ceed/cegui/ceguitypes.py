@@ -2,27 +2,62 @@
 
 import re
 
+from abc import abstractmethod
+from abc import ABCMeta
+
 from collections import OrderedDict
 
 from ..propertytree.properties import Property
 
 class Base(object):
-    """Base class for all value types."""
+    """Abstract base class for all value types."""
+
+    __metaclass__ = ABCMeta
 
     @classmethod
     def tryParse(cls, strValue, target=None):
-        return None, False
+        """Parse the specified string value and return
+        a tuple with the parsed value and a boolean
+        specifying success or failure.
+        
+        If 'target' is not None, update its attributes
+        with the parse value.
+        """
+        pass
 
     @classmethod
     def fromString(cls, strValue):
+        """Parse the specified string value and return
+        a new instance of this type.
+        Raise a ValueError if the string can't be parsed.
+        """
         value, valid = cls.tryParse(strValue)
         if not valid:
-            raise ValueError("String value '%s' can't be parsed." % strValue)
+            raise ValueError("Could not convert string to %s: '%s'." % (cls.__name__, strValue))
         return value
 
     @classmethod
     def getPropertyType(cls):
-        return None
+        pass
+
+    def parse(self, strValue):
+        return self.__class__.tryParse(strValue, self)[1]
+
+    @abstractmethod
+    def __hash__(self):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    def __ne__(self, other):
+        """Default implementation of __ne__, negates __eq__!"""
+        return not (self.__eq__(other))
 
 class UDim(Base):
     """UDim"""
@@ -48,6 +83,7 @@ class UDim(Base):
         return target, True
 
     def __init__(self, scale=0.0, offset=0.0):
+        super(UDim, self).__init__()
         self.scale = float(scale)
         self.offset = float(offset)
 
@@ -59,16 +95,11 @@ class UDim(Base):
             return self.scale == other.scale and self.offset == other.offset
         return False
 
-    def __ne__(self, other):
-        return not (self == other)
-
     def __repr__(self):
-        #return "{{ {:f}, {:f} }}".format(self.scale, self.offset)
         # use round because we want max x digits but not zero padded
+        # and not in scientific notation
+        #return "{{ {:f}, {:f} }}".format(self.scale, self.offset)
         return "{{ {}, {} }}".format(round(self.scale, 6), round(self.offset, 6))
-
-    def parse(self, strValue):
-        return UDim.tryParse(strValue, self)[1]
 
     @classmethod
     def getPropertyType(cls):
@@ -90,22 +121,23 @@ class USize(Base):
         if match is None:
             return None, False
 
-        width_scale = float(match.group(1))
-        width_offset = float(match.group(2))
-        height_scale = float(match.group(3))
-        height_offset = float(match.group(4))
+        widthScale = float(match.group(1))
+        widthOffset = float(match.group(2))
+        heightScale = float(match.group(3))
+        heightOffset = float(match.group(4))
 
         if target is None:
-            target = cls(UDim(width_scale, width_offset), UDim(height_scale, height_offset))
+            target = cls(UDim(widthScale, widthOffset), UDim(heightScale, heightOffset))
         else:
-            target.width.scale = width_scale
-            target.width.offset = width_offset
-            target.height.scale = height_scale
-            target.height.offset = height_offset
+            target.width.scale = widthScale
+            target.width.offset = widthOffset
+            target.height.scale = heightScale
+            target.height.offset = heightOffset
 
         return target, True
 
     def __init__(self, width=UDim(), height=UDim()):
+        super(USize, self).__init__()
         self.width = width
         self.height = height
 
@@ -117,14 +149,8 @@ class USize(Base):
             return self.width == other.width and self.height == other.height
         return False
 
-    def __ne__(self, other):
-        return not (self == other)
-
     def __repr__(self):
         return "{{ {}, {} }}".format(self.width, self.height)
-
-    def parse(self, strValue):
-        return USize.tryParse(strValue, self)[1]
 
     @classmethod
     def getPropertyType(cls):
@@ -147,24 +173,23 @@ class BaseProperty(Property):
     def getComponents(self):
         return self.components
 
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return None, False
-
     @classmethod
     def getAttrName(cls, componentName):
+        """Get the attribute name from the component name."""
         return componentName[:1].lower() + componentName[1:]
 
     def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
         components = self.getComponents()
         if components is not None:
             for compName, compValue in components.items():
+                # set component value from attribute value
                 compValue.setValue(getattr(self.value, self.getAttrName(compName)), reason)
 
     def componentValueChanged(self, component, reason):
+        # set attribute value from component value
         setattr(self.value, self.getAttrName(component.name), component.value)
+        # trigger our value changed event directly because
+        # we didn't call 'setValue()' to do it for us.
         self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
 
 class UDimProperty(BaseProperty):

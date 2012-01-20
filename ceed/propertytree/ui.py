@@ -74,8 +74,10 @@ class PropertyTreeRow(object):
             # Finalise children before clearing nameItem or we can't get them
             self.destroyChildRows()
 
-            self.nameItem.finalise(); self.nameItem = None
-            self.valueItem.finalise(); self.valueItem = None
+            self.nameItem.finalise()
+            self.nameItem = None
+            self.valueItem.finalise()
+            self.valueItem = None
             self.finalised = True
 
     def getName(self):
@@ -85,7 +87,7 @@ class PropertyTreeRow(object):
     def getParent(self):
         parentItem = self.nameItem.parent()
         if (parentItem is not None) and isinstance(parentItem, PropertyTreeItem):
-                return parentItem.propertyTreeRow
+            return parentItem.propertyTreeRow
         return None
 
     def getNamePath(self):
@@ -233,8 +235,8 @@ class PropertyRow(PropertyTreeRow):
         self.valueItem.setEditable(not self.property.readOnly)
         self.valueItem.setText(self.property.valueToString())
 
-        self.property.valueChanged.subscribe(self.propertyValueChanged)
-        self.property.componentsUpdate.subscribe(self.propertyComponentsUpdate)
+        self.property.valueChanged.subscribe(self.cb_propertyValueChanged)
+        self.property.componentsUpdate.subscribe(self.cb_propertyComponentsUpdate)
 
         self.updateStyle()
 
@@ -246,19 +248,19 @@ class PropertyRow(PropertyTreeRow):
                 self.appendChildRow(row)
 
     def finalise(self):
-        self.property.componentsUpdate.unsubscribe(self.propertyComponentsUpdate)
-        self.property.valueChanged.unsubscribe(self.propertyValueChanged)
+        self.property.componentsUpdate.unsubscribe(self.cb_propertyComponentsUpdate)
+        self.property.valueChanged.unsubscribe(self.cb_propertyValueChanged)
 
         super(PropertyRow, self).finalise()
 
-    def propertyComponentsUpdate(self, senderProperty, updateType):
+    def cb_propertyComponentsUpdate(self, senderProperty, updateType):
         # destroy or recreate child rows as necessary
         if updateType == Property.ComponentsUpdateType.BeforeDestroy:
             self.destroyChildRows()
         elif updateType == Property.ComponentsUpdateType.AfterCreate:
             self.createChildRows()
 
-    def propertyValueChanged(self, senderProperty, reason):
+    def cb_propertyValueChanged(self, senderProperty, dummyReason):
         self.valueItem.setText(self.property.valueToString())
 
         self.updateStyle()
@@ -279,14 +281,18 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
         super(PropertyTreeItemDelegate, self).__init__(propertyTree)
 
         self.registry = editorRegistry
-        self.closeEditor.connect(self.slot_closeEditor)
+
+        def cb_closeEditor(editWidget, dummyEndEditHint):
+            editWidget.delegate_Editor.finalise()
+            del editWidget.delegate_Editor
+        self.closeEditor.connect(cb_closeEditor)
 
     def getPropertyRow(self, index):
         if index.isValid():
             return self.parent().model.itemFromIndex(index).propertyTreeRow
         return None
 
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent, dummyOption, index):
         # get the PropertyRow from the index
         row = self.getPropertyRow(index)
         if row is None:
@@ -316,16 +322,12 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
         editWidget = row.editor.createEditWidget(parent)
         # keep a reference to the editor inside the edit widget
         # so we can finalise the editor when the edit widget
-        # is closed.
+        # is closed. See '__init__/cb_closeEditor'
         editWidget.delegate_Editor = row.editor
 
         return editWidget
 
-    def slot_closeEditor(self, editWidget, endEditHint):
-        editWidget.delegate_Editor.finalise()
-        del editWidget.delegate_Editor
-
-    def setEditorData(self, editWidget, index):
+    def setEditorData(self, dummyEditWidget, index):
         """Set the value of the editor to the property's value."""
         row = self.getPropertyRow(index)
         if row is None:
@@ -333,7 +335,7 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
 
         row.editor.setWidgetValueFromProperty()
 
-    def setModelData(self, editorWidget, model, index):
+    def setModelData(self, dummyEditWidget, dummyModel, index):
         """Set the value of the property to the editor's value."""
         row = self.getPropertyRow(index)
         if row is None:
@@ -464,7 +466,7 @@ class PropertyTreeView(QTreeView):
                     expand(item.child(i), currentDepth + 1)
                     i += 1
 
-        i=0
+        i = 0
         while i < model.rowCount():
             item = model.item(i, 0)
             expand(item, 0)
