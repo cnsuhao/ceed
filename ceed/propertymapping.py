@@ -62,11 +62,6 @@ class PropertyInspectorWidget(QWidget):
         # load them into the tree
         self.ptree.load(categories)
 
-    # FIXME: Decide what to do here.
-    def refresh(self, onlyValues = True):
-        assert False
-        pass
-
 class PropertyMappingEntry(object):
     pass
 
