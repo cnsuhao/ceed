@@ -478,7 +478,12 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
                 widgetPaths.append(widgetPath)
                 undoOldValues[widgetPath] = self.ceguiProperty.get(ceguiSet)
 
-            cmd = undo.PropertyEditCommand(self.visual, self.ceguiProperty.getName(), widgetPaths, undoOldValues, ceguiValue)
+            # create the undoable command
+            # but tell it not to trigger the property changed callback
+            # on first run because our on value has already changed,
+            # we just want to sync the widget value now.
+            cmd = undo.PropertyEditCommand(self.visual, self.ceguiProperty.getName(), widgetPaths, undoOldValues, ceguiValue,
+                                           ignoreNextPropertyManagerCallback = True)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
             # make sure to redraw the scene to preview the property

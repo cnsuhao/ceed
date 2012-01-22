@@ -71,7 +71,9 @@ class MoveCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
             widgetManipulator.update()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"Position", "Area"})
+
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
@@ -79,7 +81,9 @@ class MoveCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
             widgetManipulator.update()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"Position", "Area"})
+
         super(MoveCommand, self).redo()
 
 class ResizeCommand(commands.UndoCommand):
@@ -129,7 +133,9 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
             widgetManipulator.update()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"Size", "Position", "Area"})
+
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
@@ -138,7 +144,9 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator.updateFromWidget()
             # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
             widgetManipulator.update()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"Size", "Position", "Area"})
+
         super(ResizeCommand, self).redo()
 
 class DeleteCommand(commands.UndoCommand):
@@ -286,7 +294,7 @@ class PropertyEditCommand(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
     
-    def __init__(self, visual, propertyName, widgetPaths, oldValues, newValue):
+    def __init__(self, visual, propertyName, widgetPaths, oldValues, newValue, ignoreNextPropertyManagerCallback=False):
         super(PropertyEditCommand, self).__init__()
         
         self.visual = visual
@@ -297,6 +305,8 @@ class PropertyEditCommand(commands.UndoCommand):
         self.newValue = newValue
         
         self.refreshText()
+
+        self.ignoreNextPropertyManagerCallback = ignoreNextPropertyManagerCallback
     
     def refreshText(self):            
         if len(self.widgetPaths) == 1:
@@ -314,7 +324,25 @@ class PropertyEditCommand(commands.UndoCommand):
             return True
         
         return False
+
+    def notifyPropertyManager(self, widgetManipulator, ignoreTarget):
+        if not ignoreTarget:
+            widgetManipulator.triggerPropertyManagerCallback({self.propertyName})
+        # some properties are related to others so that
+        # when one changes, the others change too.
+        # the following ensures that notifications are sent
+        # about the related properties as well.
+        related = None
+        if self.propertyName == "Size":
+            related = { "Area" }
+        elif self.propertyName == "Area":
+            related = { "Position", "Size" }
+        elif self.propertyName == "Position":
+            related = { "Area" }
         
+        if related is not None:
+            widgetManipulator.triggerPropertyManagerCallback(related)
+
     def undo(self):
         super(PropertyEditCommand, self).undo()
         
@@ -322,22 +350,24 @@ class PropertyEditCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.oldValues[widgetPath])
             widgetManipulator.updateFromWidget()
-            
+
+            self.notifyPropertyManager(widgetManipulator, self.ignoreNextPropertyManagerCallback)
+        self.ignoreNextPropertyManagerCallback = False
+
         # make sure to redraw the scene so the changes are visible    
         self.visual.scene.update()
-        # update properties dock widget
-        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
             
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.newValue)
             widgetManipulator.updateFromWidget()
-            
+
+            self.notifyPropertyManager(widgetManipulator, self.ignoreNextPropertyManagerCallback)
+        self.ignoreNextPropertyManagerCallback = False
+
         # make sure to redraw the scene so the changes are visible    
         self.visual.scene.update()
-        # update properties dock widget
-        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
         
         super(PropertyEditCommand, self).redo()
 
@@ -391,13 +421,17 @@ class HorizontalAlignCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setHorizontalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"HorizontalAlignment"})
+
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setHorizontalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"HorizontalAlignment"})
+
         super(HorizontalAlignCommand, self).redo()
 
 class VerticalAlignCommand(commands.UndoCommand):
@@ -450,13 +484,17 @@ class VerticalAlignCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setVerticalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"VerticalAlignment"})
+
     def redo(self):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
             widgetManipulator.widget.setVerticalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
-            
+
+            widgetManipulator.triggerPropertyManagerCallback({"VerticalAlignment"})
+
         super(VerticalAlignCommand, self).redo()
 
 class ReparentCommand(commands.UndoCommand):
@@ -825,6 +863,9 @@ class RenameCommand(commands.UndoCommand):
         widgetManipulator.treeItem.setText(self.oldWidgetName)
         widgetManipulator.treeItem.refreshPathData()
 
+        widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
+
+
     def redo(self):
         widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.oldWidgetPath)
         assert(hasattr(widgetManipulator, "treeItem"))
@@ -833,5 +874,7 @@ class RenameCommand(commands.UndoCommand):
         widgetManipulator.widget.setName(self.newWidgetName)
         widgetManipulator.treeItem.setText(self.newWidgetName)
         widgetManipulator.treeItem.refreshPathData()
+
+        widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
 
         super(RenameCommand, self).redo()

@@ -64,6 +64,7 @@ class PropertyInspectorWidget(QWidget):
 
     # FIXME: Decide what to do here.
     def refresh(self, onlyValues = True):
+        assert False
         pass
 
 class PropertyMappingEntry(object):
@@ -158,6 +159,16 @@ class CEGUIPropertyManager(object):
                                          )
             innerProperties.append(innerProperty)
 
+            # hook the inner callback (the 'cb' function) to
+            # the value changed notification of the cegui propertyset
+            # so that we update our value(s) when the propertyset's
+            # property changes because of another editor (i.e. visual, undo, redo)
+            def makeCallback(cs, cp, ip):
+                def cb():
+                    ip.setValue(valueCreator(cp.get(cs)))
+                return cb
+            ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
+
         templateProperty = propertyType(name = name,
                                         category = category,
                                         helpText = helpText,
@@ -205,6 +216,17 @@ class CEGUIPropertyManager(object):
         cgProps = dict()
 
         for cgSet in cgSets:
+
+            # add a custom attribute to the PropertySet.
+            # this will be filled later on with callbacks (see
+            # 'createProperty'), one for each property that
+            # will be called when the properties of the set change.
+            # it's OK to clear any previous value because we only
+            # use this internally and we only need a max of one 'listener'
+            # for each property.
+            # It's not pretty but it does the job well enough.
+            setattr(cgSet, "propertyManagerCallbacks", dict())
+
             propIt = cgSet.getPropertyIterator()
 
             while not propIt.isAtEnd():

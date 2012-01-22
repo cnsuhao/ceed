@@ -620,3 +620,17 @@ class Manipulator(resizable.ResizableRectItem):
             baseSize = self.getBaseSize()
             self.paintHorizontalGuides(baseSize, painter, option, widget)
             self.paintVerticalGuides(baseSize, painter, option, widget)
+
+    def triggerPropertyManagerCallback(self, propertyNames):
+        """Notify the property manager that the values of the given
+        properties have changed for this widget.
+        """
+        widget = self.widget
+
+        # if the property manager has set callbacks on this widget
+        if hasattr(widget, "propertyManagerCallbacks"):
+            for propertyName in propertyNames:
+                # if there's a callback for this property
+                if propertyName in widget.propertyManagerCallbacks:
+                    # call it
+                    widget.propertyManagerCallbacks[propertyName]()

@@ -249,7 +249,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     def notifyResizeProgress(self, newPos, newRect):
         super(Manipulator, self).notifyResizeProgress(newPos, newRect)
         
-        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
+        self.triggerPropertyManagerCallback({"Size", "Position", "Area"})
     
     def notifyResizeFinished(self, newPos, newRect):
         super(Manipulator, self).notifyResizeFinished(newPos, newRect)
@@ -267,8 +267,8 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             
     def notifyMoveProgress(self, newPos):
         super(Manipulator, self).notifyMoveProgress(newPos)
-        
-        self.visual.propertiesDockWidget.inspector.refresh(onlyValues = True)
+
+        self.triggerPropertyManagerCallback({"Position", "Area"})
 
     def notifyMoveFinished(self, newPos):
         super(Manipulator, self).notifyMoveFinished(newPos)
