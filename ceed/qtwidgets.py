@@ -191,7 +191,7 @@ class KeySequenceButton(QPushButton):
             self.keyCombination.setText(self.keySequence.toString())
             
         def keyPressEvent(self, event):
-            self.setKeySequence(QKeySequence(event.modifiers() + event.key()))
+            self.setKeySequence(QKeySequence(event.modifiers() | event.key()))
     
     keySequenceChanged = Signal(QKeySequence)
     
