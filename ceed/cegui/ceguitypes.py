@@ -192,6 +192,8 @@ class UVector2(Base):
         return target, True
 
     def __init__(self, x=UDim(), y=UDim()):
+        #pylint: disable-msg=C0103
+        # invalid name x and y - we need x and y here
         super(UVector2, self).__init__()
         self.x = x
         self.y = y

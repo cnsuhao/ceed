@@ -1,3 +1,9 @@
+"""Settings for CEGUI properties.
+
+PropertyMappingEntry -- Settings for one property, identified by its origin and name.
+PropertyMap -- PropertyMappingEntry container.
+"""
+
 from collections import OrderedDict
 
 from xml.etree import ElementTree
@@ -21,12 +27,12 @@ class PropertyMappingEntry(object):
         editorSettings = dict()
         for settings in element.findall("settings"):
             name = settings.get("name")
-            t = OrderedDict()
+            entries = OrderedDict()
 
             for setting in settings.findall("setting"):
-                t[setting.get("name")] = setting.get("value")
+                entries[setting.get("name")] = setting.get("value")
 
-            editorSettings[name] = t
+            editorSettings[name] = entries
 
         return cls(propertyOrigin = propertyOrigin,
                    propertyName = propertyName,
@@ -78,9 +84,11 @@ class PropertyMappingEntry(object):
         return element
 
 class PropertyMap(object):
+    """Container for property mapping entries."""
 
     @classmethod
     def fromElement(cls, element):
+        """Create and return an instance from an XML element."""
         assert(element.get("version") == compat.Manager.instance.EditorNativeType)
 
         pmap = cls()
@@ -91,16 +99,23 @@ class PropertyMap(object):
 
     @classmethod
     def fromXMLString(cls, text):
+        """Create and return an instance from an XML string."""
         element = ElementTree.fromstring(text)
         return cls.fromElement(element)
 
     @classmethod
     def fromFile(cls, absolutePath):
+        """Create and return an instance from an XML file path."""
         text = open(absolutePath, "r").read()
         return cls.fromXMLString(text)
 
     @classmethod
     def fromFiles(cls, absolutePaths):
+        """Create and return an instance from a list of XML file paths.
+        
+        Entries from files later in the list replace entries with the same
+        property key from previous files.
+        """
         pmap = cls()
         for absolutePath in absolutePaths:
             pmap.update(cls.fromFile(absolutePath))
@@ -108,9 +123,11 @@ class PropertyMap(object):
         return pmap
 
     def __init__(self):
+        """Initialise an empty property map."""
         self.entries = dict()
 
     def saveToElement(self):
+        """Create and return an XML element for this map instance."""
         element = ElementTree.Element("mappings")
         element.set("version", compat.Manager.instance.EditorNativeType)
 
@@ -121,13 +138,16 @@ class PropertyMap(object):
         return element
 
     def getEntry(self, propertyOrigin, propertyName):
+        """Find and return the entry with the specified origin and name, or None."""
         entry = self.entries.get(PropertyMappingEntry.makeKey(propertyOrigin, propertyName))
         return entry
 
     def setEntry(self, entry):
+        """Set or replace an entry with a new entry."""
         self.entries[entry.getPropertyKey()] = entry
 
     def update(self, pmap):
+        """Update the entries using the entries of another map."""
         self.entries.update(pmap.entries)
 
 from ceed.compatibility import property_mappings as compat

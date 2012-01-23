@@ -6,11 +6,15 @@ PropertyEvent -- Custom event implementation for the Property system.
 PropertyEventSubscription -- A subscription to a PropertyEvent.
 StringWrapperProperty -- Special purpose property to edit the string representation of another property.
 MultiPropertyWrapper -- Special purpose property used to group many properties of the same type in one.
+EnumValue -- Interface for properties that have a predetermined list of possible values, like enums.
 """
 
 import operator
 
 from collections import OrderedDict
+
+from abc import abstractmethod
+from abc import ABCMeta
 
 from . import utility
 
@@ -567,12 +571,17 @@ class MultiPropertyWrapper(Property):
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)
 
 class EnumValue(object):
-    """Mixin-class (interface) for properties that have a predetermined list
+    """Interface for properties that have a predetermined list
     of possible values, like enums.
     
     Used by the EnumValuePropertyEditor (combo box).
     """
+    #pylint: disable-msg=R0903
+    # too few public methods (1/2) - it's an interface
 
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def getEnumValues(self):
         """Return a dictionary of all possible values and their display names."""
         pass

@@ -5,6 +5,7 @@ PropertyEditor -- The base class for all property editors.
 StringPropertyEditor -- Editor for strings.
 NumericPropertyEditor -- Editor for integers and floating point numbers.
 StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
+EnumValuePropertyEditor -- Editor for EnumValue-based values (Combo box).
 """
 
 from abc import abstractmethod
@@ -206,6 +207,10 @@ class StringPropertyEditor(PropertyEditor):
     def getSupportedValueTypes(cls):
         return { str:0, unicode:0 }
 
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
+        super(StringPropertyEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
+        self.mode = "line"
+
     def createEditWidget(self, parent):
         options = self.property.getEditorOption("string/", {})
 
@@ -336,19 +341,19 @@ class StringWrapperValidator(QtGui.QValidator):
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
 
 class EnumValuePropertyEditor(PropertyEditor):
-    """Editor for EnumValue(s) (Combo box)"""
+    """Editor for EnumValue-based values (Combo box)."""
 
     @classmethod
     def getSupportedValueTypes(cls):
         # Support all types that are subclasses of EnumValue.
         vts = set()
         def addSubclasses(baseType):
-            for t in baseType.__subclasses__():
-                vts.add(t)
-                addSubclasses(t)
+            for vt in baseType.__subclasses__():
+                vts.add(vt)
+                addSubclasses(vt)
         addSubclasses(EnumValue)
 
-        return dict((t, -10) for t in vts)
+        return dict((vt, -10) for vt in vts)
 
     def createEditWidget(self, parent):
         self.editWidget = QtGui.QComboBox(parent)
