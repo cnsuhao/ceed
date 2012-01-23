@@ -79,7 +79,7 @@ class PropertyMap(object):
 
     @classmethod
     def fromElement(cls, element):
-        assert(element.get("version") == compatibility.property_mappings.Manager.instance.EditorNativeType)
+        assert(element.get("version") == compat.Manager.instance.EditorNativeType)
 
         pmap = cls()
         for entryElement in element.findall("mapping"):
@@ -110,7 +110,7 @@ class PropertyMap(object):
 
     def saveToElement(self):
         element = ElementTree.Element("mappings")
-        element.set("version", compatibility.property_mappings.Manager.instance.EditorNativeType)
+        element.set("version", compat.Manager.instance.EditorNativeType)
 
         for entry in sorted(self.entries, key = lambda entry: entry.getPropertyKey()):
             eel = entry.saveToElement()
@@ -128,4 +128,4 @@ class PropertyMap(object):
     def update(self, pmap):
         self.entries.update(pmap.entries)
 
-from ceed import compatibility
+from ceed.compatibility import property_mappings as compat

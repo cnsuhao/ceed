@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
         import ceed.editors.bitmap as bitmap_editor
         import ceed.editors.imageset as imageset_editor
         import ceed.editors.layout as layout_editor
-        import ceed.editors.property_mappings as property_mappings_editor
+        #import ceed.editors.property_mappings as property_mappings_editor
         import ceed.editors.text as text_editor
 
         self.editorFactories = [
@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
             bitmap_editor.BitmapTabbedEditorFactory(),
             imageset_editor.ImagesetTabbedEditorFactory(),
             layout_editor.LayoutTabbedEditorFactory(),
-            property_mappings_editor.PropertyMappingsTabbedEditorFactory(),
+            #property_mappings_editor.PropertyMappingsTabbedEditorFactory(),
             text_editor.TextTabbedEditorFactory()
         ]
         # File dialog filters, keep indices in sync with the list above
@@ -104,8 +104,8 @@ class MainWindow(QMainWindow):
             "Bitmap files (%s)" % ("*." + " *.".join(self.editorFactories[1].getFileExtensions())),
             "Imageset files (%s)" % ("*." + " *.".join(self.editorFactories[2].getFileExtensions())),
             "Layout files (%s)" % ("*." + " *.".join(self.editorFactories[3].getFileExtensions())),
-            "Property Mapping files (%s)" % ("*." + " *.".join(self.editorFactories[4].getFileExtensions())),
-            "Text files (%s)" % ("*." + " *.".join(self.editorFactories[5].getFileExtensions()))
+            #"Property Mapping files (%s)" % ("*." + " *.".join(self.editorFactories[4].getFileExtensions())),
+            "Text files (%s)" % ("*." + " *.".join(self.editorFactories[4].getFileExtensions()))
         ]
         allExt = []
         for factory in self.editorFactories:
