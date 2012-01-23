@@ -63,6 +63,9 @@ class PropertyInspectorWidget(QWidget):
         self.ptree.load(categories)
 
 class CEGUIPropertyManager(object):
+    """Builds propertytree properties from CEGUI properties and PropertySets,
+    using a PropertyMap.
+    """
 
     # Maps CEGUI data types (in string form) to Python types
     # TODO: This type mapping may not be necessary if we create our
@@ -81,21 +84,15 @@ class CEGUIPropertyManager(object):
                 "float": float,
                 "bool": bool,
                 "String": unicode,
-                "USize": ct.USize
+                "USize": ct.USize,
+                "UVector2": ct.UVector2,
+                "URect": ct.URect,
+                "AspectMode": ct.AspectMode,
+                "HorizontalAlignment": ct.HorizontalAlignment,
+                "VerticalAlignment": ct.VerticalAlignment,
+                "WindowUpdateMode": ct.WindowUpdateMode
                 }
-    #===============================================================================
-    # TODO: AspectMode
-    # TODO: Font*
-    # TODO: HorizontalAlignment
-    # TODO: Image*
-    # TODO: Quaternion
-    # TODO: UBox
-    # TODO: Unknown
-    # TODO: URect
-    # TODO: UVector2
-    # TODO: VerticalAlignment
-    # TODO: WindowUpdateMode
-    #===============================================================================
+    # TODO: Font*, Image*, Quaternion, UBox?
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
@@ -116,74 +113,12 @@ class CEGUIPropertyManager(object):
     def __init__(self, propertyMap):
         self.propertyMap = propertyMap
 
-    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
-        name = ceguiProperty.getName()
-        category = ceguiProperty.getOrigin()
-        helpText = ceguiProperty.getHelp()
-        readOnly = not ceguiProperty.isWritable()
-
-        propertyDataType = ceguiProperty.getDataType()
-        pmEntry = self.propertyMap.getEntry(category, name)
-        if pmEntry and pmEntry.typeName:
-            propertyDataType = pmEntry.typeName
-
-        pythonDataType = self.getTypeFromCEGUITypeString(propertyDataType)
-
-        valueCreator = None
-        propertyType = None
-        if issubclass(pythonDataType, ct.Base):
-            valueCreator = pythonDataType.fromString
-            propertyType = pythonDataType.getPropertyType()
-        else:
-            valueCreator = pythonDataType
-            propertyType = Property
-
-        value = None
-        defaultValue = None
-
-        innerProperties = []
-        for ceguiSet in ceguiSets:
-            assert ceguiSet.isPropertyPresent(name), "Property '%s' was not found in PropertySet." % name
-            value = valueCreator(ceguiProperty.get(ceguiSet))
-            defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
-
-            innerProperty = propertyType(name = name,
-                                         category = category,
-                                         helpText = helpText,
-                                         value = value,
-                                         defaultValue = defaultValue,
-                                         readOnly = readOnly,
-                                         createComponents = False
-                                         )
-            innerProperties.append(innerProperty)
-
-            # hook the inner callback (the 'cb' function) to
-            # the value changed notification of the cegui propertyset
-            # so that we update our value(s) when the propertyset's
-            # property changes because of another editor (i.e. visual, undo, redo)
-            def makeCallback(cs, cp, ip):
-                def cb():
-                    ip.setValue(valueCreator(cp.get(cs)))
-                return cb
-            ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
-
-        editorOptions = None
-        if pmEntry and pmEntry.editorSettings:
-            editorOptions = pmEntry.editorSettings
-        templateProperty = propertyType(name = name,
-                                        category = category,
-                                        helpText = helpText,
-                                        value = value,
-                                        defaultValue = defaultValue,
-                                        readOnly = readOnly,
-                                        editorOptions = editorOptions
-                                        )
-
-        multiProperty = multiWrapperType(templateProperty, innerProperties, True)
-
-        return multiProperty
-
     def buildCategories(self, ceguiPropertySets):
+        """Create all available properties for all CEGUI PropertySets
+        and categorise them.
+
+        Return the categories, ready to be loaded into an Inspector Widget.
+        """
         propertyList = self.buildProperties(ceguiPropertySets)
         categories = PropertyCategory.categorisePropertyList(propertyList)
 
@@ -197,6 +132,7 @@ class CEGUIPropertyManager(object):
         return categories
 
     def buildProperties(self, ceguiPropertySets):
+        """Create and return all available properties for the specified PropertySets."""
         # short name
         cgSets = ceguiPropertySets
 
@@ -255,3 +191,85 @@ class CEGUIPropertyManager(object):
         ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
 
         return ptProps
+
+    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
+        """Create one MultiPropertyWrapper based property for the CEGUI Property
+        for all of the PropertySets specified.
+        """
+        # get property information
+        name = ceguiProperty.getName()
+        category = ceguiProperty.getOrigin()
+        helpText = ceguiProperty.getHelp()
+        readOnly = not ceguiProperty.isWritable()
+
+        # get the CEGUI data type of the property
+        propertyDataType = ceguiProperty.getDataType()
+        # if the current property map specifies a different type, use that one instead
+        pmEntry = self.propertyMap.getEntry(category, name)
+        if pmEntry and pmEntry.typeName:
+            propertyDataType = pmEntry.typeName
+        # get a native data type for the CEGUI data type, falling back to string
+        pythonDataType = self.getTypeFromCEGUITypeString(propertyDataType)
+
+        # get the callable that creates this data type
+        # and the Property type to use.
+        valueCreator = None
+        propertyType = None
+        if issubclass(pythonDataType, ct.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            valueCreator = pythonDataType.fromString
+            propertyType = pythonDataType.getPropertyType()
+        else:
+            valueCreator = pythonDataType
+            propertyType = Property
+
+        value = None
+        defaultValue = None
+
+        # create the inner properties;
+        # one property for each CEGUI PropertySet
+        innerProperties = []
+        for ceguiSet in ceguiSets:
+            assert ceguiSet.isPropertyPresent(name), "Property '%s' was not found in PropertySet." % name
+            value = valueCreator(ceguiProperty.get(ceguiSet))
+            defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
+
+            innerProperty = propertyType(name = name,
+                                         category = category,
+                                         helpText = helpText,
+                                         value = value,
+                                         defaultValue = defaultValue,
+                                         readOnly = readOnly,
+                                         createComponents = False   # no need for components, the template will provide these
+                                         )
+            innerProperties.append(innerProperty)
+
+            # hook the inner callback (the 'cb' function) to
+            # the value changed notification of the cegui propertyset
+            # so that we update our value(s) when the propertyset's
+            # property changes because of another editor (i.e. visual, undo, redo)
+            def makeCallback(cs, cp, ip):
+                def cb():
+                    ip.setValue(valueCreator(cp.get(cs)))
+                return cb
+            ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
+
+        # create the template property;
+        # this is the property that will create the components
+        # and it will be edited.
+        editorOptions = None
+        if pmEntry and pmEntry.editorSettings:
+            editorOptions = pmEntry.editorSettings
+        templateProperty = propertyType(name = name,
+                                        category = category,
+                                        helpText = helpText,
+                                        value = value,
+                                        defaultValue = defaultValue,
+                                        readOnly = readOnly,
+                                        editorOptions = editorOptions
+                                        )
+
+        # create the multi wrapper
+        multiProperty = multiWrapperType(templateProperty, innerProperties, True)
+
+        return multiProperty

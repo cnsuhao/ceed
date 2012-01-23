@@ -9,6 +9,15 @@
 			<setting name="decimals" value="3" />
 		</settings>
 	</mapping>
+	<!--
+	<mapping propertyOrigin="Element" propertyName="HorizontalAlignment">
+		<settings name="combo">
+			<setting name="Left" value="Left" />
+			<setting name="Centre" value="Centre" />
+			<setting name="Right" value="Right" />
+		</settings>
+	</mapping>
+	-->
 	<!-- End of CEGUI::Element -->
 
 	<!-- CEGUI::NamedElement -->

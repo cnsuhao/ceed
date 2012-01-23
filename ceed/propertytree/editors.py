@@ -14,6 +14,7 @@ from . import utility
 from .properties import Property
 
 from PySide import QtGui
+from ceed.propertytree.properties import EnumValue
 
 class PropertyEditorRegistry(object):
     """The registry contains a (sorted) list of property editor
@@ -182,32 +183,68 @@ class PropertyEditor(object):
         return True
 
 class StringPropertyEditor(PropertyEditor):
+    """Editor for strings.
+    
+    Supports line edit (the default) or combo-box mode.
+    
+    The combo-box mode is activated when the "combo/" editor options are set.
+    For example, to set it via the property mappings:
+        <mapping propertyOrigin="Element" propertyName="HorizontalAlignment">
+            <settings name="combo">
+                <setting name="Left" value="Left" />
+                <setting name="Centre" value="Centre" />
+                <setting name="Right" value="Right" />
+            </settings>
+        </mapping>
+    
+    Note that the EnumValuePropertyEditor has similar functionality but
+    is based on known types and does not take the list of values from
+    the editor options.
+    """
 
     @classmethod
     def getSupportedValueTypes(cls):
         return { str:0, unicode:0 }
 
     def createEditWidget(self, parent):
-        self.editWidget = QtGui.QLineEdit(parent)
-        self.editWidget.textEdited.connect(self.valueChanging)
-
-        # setup options
         options = self.property.getEditorOption("string/", {})
 
-        self.editWidget.setMaxLength(int(options.get("maxLength", self.editWidget.maxLength())))
-        self.editWidget.setPlaceholderText(options.get("placeholderText", self.editWidget.placeholderText()))
-        self.editWidget.setInputMask(options.get("inputMask", self.editWidget.inputMask()))
-        self.editWidget.setValidator(options.get("validator", self.editWidget.validator()))
+        comboOptions = self.property.getEditorOption("combo/", None)
+
+        if comboOptions is None:
+            self.mode = "line"
+            self.editWidget = QtGui.QLineEdit(parent)
+            self.editWidget.textEdited.connect(self.valueChanging)
+
+            # setup options
+            self.editWidget.setMaxLength(int(options.get("maxLength", self.editWidget.maxLength())))
+            self.editWidget.setPlaceholderText(options.get("placeholderText", self.editWidget.placeholderText()))
+            self.editWidget.setInputMask(options.get("inputMask", self.editWidget.inputMask()))
+            self.editWidget.setValidator(options.get("validator", self.editWidget.validator()))
+        else:
+            self.mode = "combo"
+            self.editWidget = QtGui.QComboBox(parent)
+            for name, value in comboOptions.items():
+                self.editWidget.addItem(name, value)
+            self.editWidget.activated.connect(self.valueChanging)
 
         return self.editWidget
 
     def getWidgetValue(self):
-        return (self.editWidget.text(), True) if self.editWidget.hasAcceptableInput() else ("", False)
+        if self.mode == "combo":
+            idx = self.editWidget.currentIndex()
+            return (self.editWidget.itemData(idx), True) if idx != -1 else (None, False)
+        else:
+            return (self.editWidget.text(), True) if self.editWidget.hasAcceptableInput() else ("", False)
 
     def setWidgetValueFromProperty(self):
         value, valid = self.getWidgetValue()
         if (not valid) or (self.property.value != value):
-            self.editWidget.setText(self.property.value)
+            if self.mode == "combo":
+                idx = self.editWidget.findData(self.property.value)
+                self.editWidget.setCurrentIndex(idx)
+            else:
+                self.editWidget.setText(self.property.value)
 
         super(StringPropertyEditor, self).setWidgetValueFromProperty()
 
@@ -297,3 +334,41 @@ class StringWrapperValidator(QtGui.QValidator):
     def validate(self, inputStr, dummyPos):
         _, valid = self.property.tryParse(inputStr)
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
+
+class EnumValuePropertyEditor(PropertyEditor):
+    """Editor for EnumValue(s) (Combo box)"""
+
+    @classmethod
+    def getSupportedValueTypes(cls):
+        # Support all types that are subclasses of EnumValue.
+        vts = set()
+        def addSubclasses(baseType):
+            for t in baseType.__subclasses__():
+                vts.add(t)
+                addSubclasses(t)
+        addSubclasses(EnumValue)
+
+        return dict((t, -10) for t in vts)
+
+    def createEditWidget(self, parent):
+        self.editWidget = QtGui.QComboBox(parent)
+        for data, text in self.property.value.getEnumValues().items():
+            self.editWidget.addItem(text, data)
+        self.editWidget.activated.connect(self.valueChanging)
+
+        return self.editWidget
+
+    def getWidgetValue(self):
+        idx = self.editWidget.currentIndex()
+        return (self.property.valueType()(self.editWidget.itemData(idx)), True) if idx != -1 else (None, False)
+
+    def setWidgetValueFromProperty(self):
+        value, valid = self.getWidgetValue()
+        if (not valid) or (self.property.value != value):
+            idx = self.editWidget.findData(self.property.valueToString())
+            if idx != -1:
+                self.editWidget.setCurrentIndex(idx)
+
+        super(EnumValuePropertyEditor, self).setWidgetValueFromProperty()
+
+PropertyEditorRegistry.addStandardEditor(EnumValuePropertyEditor)

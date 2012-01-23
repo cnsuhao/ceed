@@ -565,3 +565,14 @@ class MultiPropertyWrapper(Property):
         self.allValues, self.allDefaultValues = self.gatherValueData(self.innerProperties)
 
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)
+
+class EnumValue(object):
+    """Mixin-class (interface) for properties that have a predetermined list
+    of possible values, like enums.
+    
+    Used by the EnumValuePropertyEditor (combo box).
+    """
+
+    def getEnumValues(self):
+        """Return a dictionary of all possible values and their display names."""
+        pass

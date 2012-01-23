@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from xml.etree import ElementTree
 
 class PropertyMappingEntry(object):
@@ -19,7 +21,7 @@ class PropertyMappingEntry(object):
         editorSettings = dict()
         for settings in element.findall("settings"):
             name = settings.get("name")
-            t = dict()
+            t = OrderedDict()
 
             for setting in settings.findall("setting"):
                 t[setting.get("name")] = setting.get("value")

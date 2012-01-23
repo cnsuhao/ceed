@@ -456,6 +456,9 @@ class HierarchyDockWidget(QDockWidget):
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
 class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
+    """Overrides the default MultiPropertyWrapper to update the 'inner properties'
+    and then create undo commands to update the CEGUI widgets.
+    """
 
     def __init__(self, templateProperty, innerProperties, takeOwnership, ceguiProperty=None, ceguiSets=None, visual=None):
         super(WidgetMultiPropertyWrapper, self).__init__(templateProperty, innerProperties, takeOwnership)
@@ -494,6 +497,11 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
         return False
 
 class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
+    """Customises the CEGUIPropertyManager by binding to a 'visual'
+    so it can manipulate the widgets via undo commands.
+    
+    It also customises the sorting of the categories.
+    """
 
     def __init__(self, propertyMap, visual):
         super(CEGUIWidgetPropertyManager, self).__init__(propertyMap)
