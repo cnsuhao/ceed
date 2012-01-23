@@ -35,8 +35,8 @@ from ceed.cegui import widgethelpers as cegui_widgethelpers
 from ceed.editors.layout import undo
 from ceed.editors.layout import widgethelpers
 
-from ceed.propertymapping import PropertyInspectorWidget
-from ceed.propertymapping import CEGUIPropertyManager
+from ceed.propertysetinspector import PropertyInspectorWidget
+from ceed.propertysetinspector import CEGUIPropertyManager
 
 import ceed.propertytree as pt
 
@@ -495,7 +495,8 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
 class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
 
-    def __init__(self, visual):
+    def __init__(self, propertyMap, visual):
+        super(CEGUIWidgetPropertyManager, self).__init__(propertyMap)
         self.visual = visual
 
     def createProperty(self, ceguiProperty, ceguiSets):
@@ -1045,9 +1046,8 @@ class VisualEditing(QWidget, mixed.EditMode):
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
     def initialise(self, rootWidget):
-        # old - self.propertiesDockWidget.inspector.setPropertyInspectorManager(mainwindow.MainWindow.instance.project.propertyInspectorManager)
-        # FIXME: singleton?
-        self.propertiesDockWidget.inspector.setPropertyManager(CEGUIWidgetPropertyManager(self))
+        pmap = mainwindow.MainWindow.instance.project.propertyMap
+        self.propertiesDockWidget.inspector.setPropertyManager(CEGUIWidgetPropertyManager(pmap, self))
         
         self.setRootWidget(rootWidget)
         self.createWidgetDockWidget.populate()

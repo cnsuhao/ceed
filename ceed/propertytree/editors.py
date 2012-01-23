@@ -10,6 +10,7 @@ StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 from abc import abstractmethod
 from abc import ABCMeta
 
+from . import utility
 from .properties import Property
 
 from PySide import QtGui
@@ -193,7 +194,7 @@ class StringPropertyEditor(PropertyEditor):
         # setup options
         options = self.property.getEditorOption("string/", {})
 
-        self.editWidget.setMaxLength(options.get("maxLength", self.editWidget.maxLength()))
+        self.editWidget.setMaxLength(int(options.get("maxLength", self.editWidget.maxLength())))
         self.editWidget.setPlaceholderText(options.get("placeholderText", self.editWidget.placeholderText()))
         self.editWidget.setInputMask(options.get("inputMask", self.editWidget.inputMask()))
         self.editWidget.setValidator(options.get("validator", self.editWidget.validator()))
@@ -230,13 +231,13 @@ class NumericPropertyEditor(PropertyEditor):
         options = self.property.getEditorOption("numeric/", {})
 
         # set decimals first because according to the docs setting it can change the range.
-        self.editWidget.setDecimals(options.get("decimals", 0 if self.property.valueType() == int else self.DefaultDecimals))
-        self.editWidget.setRange(options.get("min", self.DefaultMin),
-                                 options.get("max", self.DefaultMax))
+        self.editWidget.setDecimals(float(options.get("decimals", 0 if self.property.valueType() == int else self.DefaultDecimals)))
+        self.editWidget.setRange(float(options.get("min", self.DefaultMin)),
+                                 float(options.get("max", self.DefaultMax)))
         # make the default step 0.1 if the value range is 1 or less, otherwise 1
-        self.editWidget.setSingleStep(options.get("step", 0.1 if abs(self.editWidget.maximum() - self.editWidget.minimum()) <= 1.0 else 1))
-        self.editWidget.setWrapping(options.get("wrapping", False))
-        self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(options.get("buttons", self.editWidget.buttonSymbols())))
+        self.editWidget.setSingleStep(float(options.get("step", 0.1 if abs(self.editWidget.maximum() - self.editWidget.minimum()) <= 1.0 else 1)))
+        self.editWidget.setWrapping(utility.boolFromString(options.get("wrapping", False)))
+        self.editWidget.setButtonSymbols(QtGui.QAbstractSpinBox.ButtonSymbols(int(options.get("buttons", self.editWidget.buttonSymbols()))))
 
         return self.editWidget
 

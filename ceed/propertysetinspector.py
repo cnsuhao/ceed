@@ -1,443 +1,257 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
-#
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+from collections import OrderedDict
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from .qtwidgets import LineEditWithClearButton
 
-# Unix like wildcard matching for property filtering
-import fnmatch, re
+from .propertytree.properties import Property
+from .propertytree.properties import PropertyCategory
+from .propertytree.properties import MultiPropertyWrapper
 
-import ceed.ui.propertysetinspector
+from .propertytree.ui import PropertyTreeWidget
 
-# TODO: I am not entirely happy with this module and will likely rewrite it a bit
+from ceed.cegui import ceguitypes as ct
 
-# !!!
-# All this code assumes that Widget creators aren't stupid and won't try to
-# add 2 different properties with same name and origin to 2 different widgets
-#
-# Name clashes with different origins should be fine
-#
-# TODO: I never do any testing for this!
-# !!!
+from PySide.QtGui import QWidget
+from PySide.QtGui import QVBoxLayout
 
-class PropertyValue(QStandardItem):
-    """Standard item displaying and holding the value.
-    This is displayed next to a PropertyEntry
+from PySide.QtCore import QSize
+
+class PropertyInspectorWidget(QWidget):
+    """Full blown inspector widget for CEGUI PropertySet(s).
+    
+    Requires a call to 'setPropertyManager()' before
+    it can show properties via 'setPropertySets'.
     """
-    
-    def __init__(self, propertyEntry):
-        super(PropertyValue, self).__init__()
-        
-        self.propertyEntry = propertyEntry
-        self.setEditable(True)
-        
-        self.update()
-            
-    def update(self):
-        oldText = self.text()
-        newText = self.propertyEntry.getCurrentValue()
-        
-        if oldText != newText:
-            self.setText(newText)
-            
-            palette = QApplication.palette()
-            
-            if self.propertyEntry.isCurrentValueDefault():
-                font = QFont()
-                font.setItalic(True)
-                
-                self.setFont(font)
-                
-                self.setForeground(QBrush(palette.color(QPalette.Disabled, QPalette.Text)))
-                self.setBackground(QBrush(palette.color(QPalette.Disabled, QPalette.Base)))
-                
-            else:
-                font = QFont()
-                font.setPixelSize(14)
-                
-                self.setFont(font)
-            
-                self.setForeground(QBrush(palette.color(QPalette.Active, QPalette.Text)))
-                self.setBackground(QBrush(palette.color(QPalette.Active, QPalette.Base)))
-        
-class PropertyEntry(QStandardItem):
-    """Standard item displaying the name of a property
-    """
-        
-    def __init__(self, category, propertyName):
-        """category is the parent property category,
-        propertyName is the property name of this entry
-        """
-        
-        super(PropertyEntry, self).__init__()
-        
-        self.category = category
-        self.propertyName = propertyName
-        self.setText(propertyName)
-        self.setEditable(False)
-        
-        font = QFont()
-        font.setPixelSize(13)
-        self.setFont(font)
-        
-        self.setSizeHint(QSize(-1, 30))
-        
-        self.value = PropertyValue(self)
-        
-    def getPropertySets(self):
-        return self.category.getPropertySets()
-    
-    def getCurrentValue(self):
-        value = None
-        missingInSome = False
-        
-        for set in self.getPropertySets():
-            if not set.isPropertyPresent(self.propertyName):
-                missingInSome = True
-                continue
-            
-            if value is None:
-                value = set.getProperty(self.propertyName)
-                continue
 
-            newValue = set.getProperty(self.propertyName)
-            
-            if value != newValue:
-                return "<varies>"
-        
-        return value
-    
-    def getCurrentValues(self):
-        ret = {}
-        missingInSome = False
-        
-        for set in self.getPropertySets():
-            if not set.isPropertyPresent(self.propertyName):
-                missingInSome = True
-                continue
-            
-            ret[set] = set.getProperty(self.propertyName)
-                    
-        return ret
-    
-    def isCurrentValueDefault(self):
-        for set in self.getPropertySets():
-            if set.isPropertyPresent(self.propertyName):
-                if not set.isPropertyDefault(self.propertyName):
-                    return False
-        
-        return True
+    # TODO: Add a way to only show modified (non-default) or recently
+    # used properties (filterbox? toggle/radio button? extra categories?)
 
-    def getPropertyInstance(self):
-        ret = None
-        for set in self.getPropertySets():
-            if set.isPropertyPresent(self.propertyName):
-                if ret is None:
-                    ret = set.getPropertyInstance(self.propertyName)
-                    continue
-                
-                other = set.getPropertyInstance(self.propertyName)
-                
-                # Sanity checks, if these fail, there is a property name clash!
-                assert(ret.getOrigin() == other.getOrigin())
-                assert(ret.getHelp() == other.getHelp())
-                assert(ret.getDataType() == other.getDataType())
-        
-        return ret
+    def __init__(self, parent=None):
+        super(PropertyInspectorWidget, self).__init__(parent)
 
-    def update(self):
-        self.value.update()
-    
-class PropertyCategory(QStandardItem):
-    """Groups properties of the same origin
-    """ 
-    
-    def __init__(self, inspector, origin):
-        """inspector is the parent property inspector (property categories shouldn't be nested),
-        origin is the origin that all the properties in this category have
-        """
-        
-        super(PropertyCategory, self).__init__()
-        
-        self.inspector = inspector
-        
-        label = origin
-        # we strip the CEGUI/ if any because most users only use CEGUI stock widgets and it
-        # would be superfluous for them to display CEGUI/ everywhere
-        if label.startswith("CEGUI/"):
-            label = label[6:]    
-        self.setText(label)
-        
-        self.setEditable(False)
-        
-        palette = QApplication.palette()
-        
-        # we have to set both foreground and background role to prevent issues with various colour
-        # settings on the systems (dark desktop skins vs light desktop skins...)
-        self.setForeground(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)))
-        self.setBackground(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)))
-        
-        font = QFont()
-        font.setBold(True)
-        font.setPixelSize(16)
-        self.setData(font, Qt.FontRole)
-        
-        self.propertyCount = QStandardItem()
-        
-        # see the comment above about foreground and background :-)
-        self.propertyCount.setData(QBrush(palette.color(QPalette.HighlightedText)), Qt.ForegroundRole)
-        self.propertyCount.setData(QBrush(palette.color(QPalette.Highlight)), Qt.BackgroundRole)
-        
-        self.propertyCount.setEditable(False)
-        
-    def getPropertySets(self):
-        return self.inspector.getPropertySets()
-        
-    def setFilterMatched(self, matched):
-        palette = QApplication.palette()
-        
-        if matched:
-            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)), Qt.ForegroundRole)
-            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)), Qt.BackgroundRole)
-        else:
-            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.HighlightedText)), Qt.ForegroundRole)
-            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.Highlight)), Qt.BackgroundRole)
-        
-    def filterProperties(self, filter):
-        toShow = []
-        toHide = []
-        
-        matches = 0
-        regex = re.compile(fnmatch.translate(filter), re.IGNORECASE)
-        
-        i = 0
-        while i < self.rowCount():
-            propertyEntry = self.child(i, 0)
-            
-            if re.match(regex, propertyEntry.text()) is not None:
-                matches += 1
-                toShow.append(propertyEntry)
-            else:
-                toHide.append(propertyEntry)
-            
-            i += 1
- 
-        self.setFilterMatched(matches > 0)
-        if filter != "**":
-            self.propertyCount.setText("%i matches" % matches)
-        else:
-            self.propertyCount.setText("%i properties" % matches)
-            
-        return toShow, toHide
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
 
-class PropertySetInspectorDelegate(QItemDelegate):
-    """Qt model/view delegate that allows delegating editing and viewing to
-    PropertyInspectors
-    """
-    
-    def __init__(self, setInspector):
-        super(PropertySetInspectorDelegate, self).__init__()
-        
-        self.setInspector = setInspector
-    
-    def createEditor(self, parent, option, index):
-        propertyEntry = self.setInspector.getPropertyEntry(index)
-        propertyInstance = propertyEntry.getPropertyInstance()
-        inspector, mapping = self.setInspector.propertyInspectorManager.getInspectorAndMapping(propertyInstance.getOrigin(), propertyInstance.getName())
-        
-        if inspector is None:
-            return None
-        
-        ret = inspector.createEditWidget(parent, propertyEntry, mapping)
-    
-        return ret
-    
-    def setEditorData(self, editorWidget, index):
-        propertyEntry = self.setInspector.getPropertyEntry(index)
-        if propertyEntry is None:
-            return
-
-        editorWidget.inspector.populateEditWidget(editorWidget, propertyEntry, editorWidget.mapping)
-        
-    def setModelData(self, editorWidget, model, index):
-        propertyEntry = self.setInspector.getPropertyEntry(index)
-        if propertyEntry is None:
-            return
-        
-        editorWidget.inspector.notifyEditingEnded(editorWidget, propertyEntry, editorWidget.mapping)
-        propertyEntry.update()
-
-class PropertySetInspector(QWidget):
-    """Allows browsing and editing of any CEGUI::PropertySet derived class"""
-    
-    propertyEditingStarted = Signal(str)
-    propertyEditingProgress = Signal(str, str)
-    propertyEditingEnded = Signal(str, dict, str)
-    
-    def __init__(self, parent = None):
-        super(PropertySetInspector, self).__init__(parent)
-        
-        self.propertyInspectorManager = None
-        
-        self.ui = ceed.ui.propertysetinspector.Ui_PropertySetInspector()
-        self.ui.setupUi(self)
-        
-        self.filterBox = self.findChild(QLineEdit, "filterBox")
+        self.filterBox = LineEditWithClearButton()
+        self.filterBox.setPlaceholderText("Filter")
         self.filterBox.textChanged.connect(self.filterChanged)
-        
-        self.view = self.findChild(QTreeView, "view")
-        self.model = QStandardItemModel()
-        
-        # we store the last used filter to be able to reapply it when inspected property sets change
-        self.lastUsedFilter = ""
 
-        self.setPropertySets([])
-        
-        self.view.setItemDelegate(PropertySetInspectorDelegate(self))
-        self.view.setModel(self.model)
+        self.ptree = PropertyTreeWidget()
 
-    def setPropertyInspectorManager(self, propertyInspectorManager):
-        """You have to set a valid property inspector manager before doing any inspecting.
-        
-        This class handles editing of the individual properties
-        """
-        
-        assert(self.propertySets == [])
-        self.propertyInspectorManager = propertyInspectorManager
+        layout.addWidget(self.filterBox)
+        layout.addWidget(self.ptree)
 
-    def getPropertyEntry(self, index):
-        if not index.parent().isValid():
-            # definitely not a property entry if it doesn't have a parent
-            return None
-        
-        category = self.model.item(index.parent().row(), 0)
-        return category.child(index.row(), 0)
-        
-    def setPropertySets(self, sets):
-        # prevent flicker
-        self.setUpdatesEnabled(False)
-        
-        self.model.clear()
-        self.model.setColumnCount(2)
-        self.model.setHorizontalHeaderLabels(["Name", "Value"])
-        self.propertySets = sets
-        
-        if len(self.propertySets) > 0:
-            assert(self.propertyInspectorManager is not None)
-            
-            propertiesByOrigin = {}
-            
-            for set in self.propertySets:
-                propertyIt = set.getPropertyIterator()
-                
-                while not propertyIt.isAtEnd():
-                    property = propertyIt.getCurrentValue()
-                    propertyName = property.getName()
-                    origin = property.getOrigin()
-                    
-                    # skip over if this property is ignored
-                    if not self.propertyInspectorManager.isPropertyIgnored(origin, propertyName):
-                        if not propertiesByOrigin.has_key(origin):
-                            propertiesByOrigin[origin] = []
-                        
-                        if propertyName not in propertiesByOrigin[origin]:
-                            propertiesByOrigin[origin].append(propertyName)
-                    
-                    propertyIt.next()
-                
-            def sortedPropertiesByOrigin(adict):
-                def getSortKey(t):
-                    origin, _  = t
-                    
-                    if origin == "Element":
-                        origin = "000Element"
-                    elif origin == "NamedElement":
-                        origin = "001NamedElement"
-                    elif origin == "Window":
-                        origin = "002Window"
-                    elif origin.startswith("CEGUI/"):
-                        origin = origin[6:]
-                    elif origin == "Unknown":
-                        origin = "ZZZUnknown"
-                    else:
-                        pass
-                    
-                    return origin
-                
-                items = adict.items()
-                items.sort(key = getSortKey)
-                return [(key, value) for key, value in items]
-                
-            for origin, propertyNames in sortedPropertiesByOrigin(propertiesByOrigin):
-                category = PropertyCategory(self, origin)
-                
-                self.model.appendRow([category, category.propertyCount])
-                
-                propertyCount = 0
-                for propertyName in sorted(propertyNames):
-                    entry = PropertyEntry(category, propertyName)
-                    category.appendRow([entry, entry.value])
-                    propertyCount += 1
-                    
-                category.propertyCount.setText("%i properties" % propertyCount)
-                    
-            self.view.expandAll()
-            self.setEnabled(True)
-            
-        else:
-            self.setEnabled(False)
-            
-        # reapply last filter (we have cleared the whole model, including show/hide state of properties)
-        self.filterChanged(self.lastUsedFilter)
-        self.setUpdatesEnabled(True)
-        
-    def getPropertySets(self):
-        return self.propertySets
-                
-    def refresh(self, onlyValues = False):
-        if onlyValues:
-            for i in range(self.model.rowCount()):
-                category = self.model.item(i)
-                assert(isinstance(category, PropertyCategory))
-                
-                for j in range(category.rowCount()):
-                    propertyEntry = category.child(j)
-                    assert(isinstance(propertyEntry, PropertyEntry))
-                    
-                    propertyEntry.update()
-                
-        else:
-            self.setPropertySets(self.propertySets)
+        # set the minimum size to a reasonable value for this widget
+        self.setMinimumSize(200, 200)
+
+        self.propertyManager = None
+
+    def sizeHint(self):
+        # we'd rather have this size
+        return QSize(400, 600)
+
+    def filterChanged(self, filterText):
+        self.ptree.setFilter(filterText)
+
+    def setPropertyManager(self, propertyManager):
+        self.propertyManager = propertyManager
+
+    def setPropertySets(self, ceguiPropertySets):
+        categories = self.propertyManager.buildCategories(ceguiPropertySets)
+
+        # load them into the tree
+        self.ptree.load(categories)
+
+class CEGUIPropertyManager(object):
+
+    # Maps CEGUI data types (in string form) to Python types
+    # TODO: This type mapping may not be necessary if we create our
+    # own custom PropertyEditor(s) that use these string types directly.
     
-    def filterChanged(self, filter):
-        self.lastUsedFilter = filter
-        # we append star at the beginning and at the end by default (makes property filtering much more practical)
-        filter = "*" + filter + "*"
-        
-        i = 0
-        while i < self.model.rowCount():
-            category = self.model.item(i, 0)
-            toShow, toHide = category.filterProperties(filter)
-            
-            for entry in toShow:
-                self.view.setRowHidden(entry.index().row(), entry.index().parent(), False)
-                
-            for entry in toHide:
-                self.view.setRowHidden(entry.index().row(), entry.index().parent(), True)
-            
-            i += 1
+    # CEGUI properties are accessed via string values.
+    # We can either convert them to our own types here and have the editors
+    # use those types, or have them as strings and make the editors
+    # parse and write the strings as CEGUI expects them.
+    # I think it's the same amount of work - I'd rather create the
+    # types here in Python and those would parse and write the strings.
+    
+    _typeMap = {
+                "int": int,
+                "uint": int,
+                "float": float,
+                "bool": bool,
+                "String": unicode,
+                "USize": ct.USize
+                }
+    #===============================================================================
+    # TODO: AspectMode
+    # TODO: Font*
+    # TODO: HorizontalAlignment
+    # TODO: Image*
+    # TODO: Quaternion
+    # TODO: UBox
+    # TODO: Unknown
+    # TODO: URect
+    # TODO: UVector2
+    # TODO: VerticalAlignment
+    # TODO: WindowUpdateMode
+    #===============================================================================
+
+    @staticmethod
+    def getTypeFromCEGUITypeString(ceguiStrType):
+        #print "TODO: " + ceguiStrType
+        return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
+
+    @staticmethod
+    def getCEGUIPropertyGUID(ceguiProperty):
+        # HACK: The GUID is used as a hash value (to be able
+        # to tell if two properties are the same).
+        # There's currently no way to get this information, apart
+        # from examining the name, datatype, origin etc. of the property
+        # and build a string/hash value out of it.
+        return "/".join([ceguiProperty.getOrigin(),
+                         ceguiProperty.getName(),
+                         ceguiProperty.getDataType()])
+
+    def __init__(self, propertyMap):
+        self.propertyMap = propertyMap
+
+    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
+        name = ceguiProperty.getName()
+        category = ceguiProperty.getOrigin()
+        helpText = ceguiProperty.getHelp()
+        readOnly = not ceguiProperty.isWritable()
+
+        propertyDataType = ceguiProperty.getDataType()
+        pmEntry = self.propertyMap.getEntry(category, name)
+        if pmEntry and pmEntry.typeName:
+            propertyDataType = pmEntry.typeName
+
+        pythonDataType = self.getTypeFromCEGUITypeString(propertyDataType)
+
+        valueCreator = None
+        propertyType = None
+        if issubclass(pythonDataType, ct.Base):
+            valueCreator = pythonDataType.fromString
+            propertyType = pythonDataType.getPropertyType()
+        else:
+            valueCreator = pythonDataType
+            propertyType = Property
+
+        value = None
+        defaultValue = None
+
+        innerProperties = []
+        for ceguiSet in ceguiSets:
+            assert ceguiSet.isPropertyPresent(name), "Property '%s' was not found in PropertySet." % name
+            value = valueCreator(ceguiProperty.get(ceguiSet))
+            defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
+
+            innerProperty = propertyType(name = name,
+                                         category = category,
+                                         helpText = helpText,
+                                         value = value,
+                                         defaultValue = defaultValue,
+                                         readOnly = readOnly,
+                                         createComponents = False
+                                         )
+            innerProperties.append(innerProperty)
+
+            # hook the inner callback (the 'cb' function) to
+            # the value changed notification of the cegui propertyset
+            # so that we update our value(s) when the propertyset's
+            # property changes because of another editor (i.e. visual, undo, redo)
+            def makeCallback(cs, cp, ip):
+                def cb():
+                    ip.setValue(valueCreator(cp.get(cs)))
+                return cb
+            ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
+
+        editorOptions = None
+        if pmEntry and pmEntry.editorSettings:
+            editorOptions = pmEntry.editorSettings
+        templateProperty = propertyType(name = name,
+                                        category = category,
+                                        helpText = helpText,
+                                        value = value,
+                                        defaultValue = defaultValue,
+                                        readOnly = readOnly,
+                                        editorOptions = editorOptions
+                                        )
+
+        multiProperty = multiWrapperType(templateProperty, innerProperties, True)
+
+        return multiProperty
+
+    def buildCategories(self, ceguiPropertySets):
+        propertyList = self.buildProperties(ceguiPropertySets)
+        categories = PropertyCategory.categorisePropertyList(propertyList)
+
+        # sort properties in categories
+        for cat in categories.values():
+            cat.sortProperties()
+
+        # sort categories by name
+        categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
+
+        return categories
+
+    def buildProperties(self, ceguiPropertySets):
+        # short name
+        cgSets = ceguiPropertySets
+
+        if len(cgSets) == 0:
+            return []
+
+        # * A CEGUI property does not have a value, it's similar to a definition
+        #   and we need an object that has that property to be able to get a value.
+        # * Each CEGUI PropertySet (widget, font, others) has it's own list of properties.
+        # * Some properties may be shared across PropertSets but some are not.
+        #
+        # It's pretty simple to map the properties 1:1 when we have only one
+        # set to process. When we have more, however, we need to group the
+        # properties that are shared across sets so we display them as one
+        # property that affects all the sets that have it.
+        # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
+        # are the same. 
+
+        cgProps = dict()
+
+        for cgSet in cgSets:
+
+            # add a custom attribute to the PropertySet.
+            # this will be filled later on with callbacks (see
+            # 'createProperty'), one for each property that
+            # will be called when the properties of the set change.
+            # it's OK to clear any previous value because we only
+            # use this internally and we only need a max of one 'listener'
+            # for each property.
+            # It's not pretty but it does the job well enough.
+            setattr(cgSet, "propertyManagerCallbacks", dict())
+
+            propIt = cgSet.getPropertyIterator()
+
+            while not propIt.isAtEnd():
+                cgProp = propIt.getCurrentValue()
+                guid = self.getCEGUIPropertyGUID(cgProp)
+
+                # if we already know this property, add the current set
+                # to the list.
+                if guid in cgProps:
+                    cgProps[guid][1].append(cgSet)
+                # if it's a new property, check if it can be added
+                else:
+                    # we don't support unreadable properties
+                    if cgProp.isReadable():
+                        #print "XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType())
+                        # check mapping and ignore hidden properties
+                        pmEntry = self.propertyMap.getEntry(cgProp.getOrigin(), cgProp.getName())
+                        if (not pmEntry) or (not pmEntry.hidden):
+                            cgProps[guid] = (cgProp, [cgSet])
+
+                propIt.next()
+
+        # Convert the CEGUI properties with their sets to property tree properties.
+        ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
+
+        return ptProps

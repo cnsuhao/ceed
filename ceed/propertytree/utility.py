@@ -41,3 +41,8 @@ def getDictionaryTreePath(dtree, path, defaultValue=None):
 
     # we've traversed the option tree, return whatever our root is
     return optRoot
+
+def boolFromString(text):
+    if isinstance(text, bool):
+        return text
+    return text.lower() in ("true", "yes", "1") if text else False

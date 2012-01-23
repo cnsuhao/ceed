@@ -26,7 +26,7 @@ import logging
 from xml.etree import ElementTree
 
 from ceed import compatibility
-from ceed import propertyinspector
+from ceed import propertymapping
 from ceed import qtwidgets
 import ceed.compatibility.project as project_compatibility
 
@@ -263,8 +263,8 @@ class Project(QStandardItemModel):
         
         self.changed = True
         
-        self.propertyInspectorManager = propertyinspector.PropertyInspectorManager()
-        self.propertyInspectorManager.loadMappings(os.path.abspath("mappings/Base.pmappings"))
+        pmappings = { "mappings/Base.pmappings" }
+        self.propertyMap = propertymapping.PropertyMap.fromFiles([os.path.abspath(path) for path in pmappings])
 
     def getSupportedDropActions(self):
         return Qt.MoveAction

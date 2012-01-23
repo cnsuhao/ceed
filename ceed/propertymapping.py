@@ -1,247 +1,131 @@
-from collections import OrderedDict
-
-from .qtwidgets import LineEditWithClearButton
-
-from .propertytree.properties import Property
-from .propertytree.properties import PropertyCategory
-from .propertytree.properties import MultiPropertyWrapper
-
-from .propertytree.ui import PropertyTreeWidget
-
-from ceed.cegui import ceguitypes as ct
-
-from PySide.QtGui import QWidget
-from PySide.QtGui import QVBoxLayout
-
-from PySide.QtCore import QSize
-
-class PropertyInspectorWidget(QWidget):
-    """Full blown inspector widget for CEGUI PropertySet(s).
-    
-    Requires a call to 'setPropertyManager()' before
-    it can show properties via 'setPropertySets'.
-    """
-
-    # TODO: Add a way to only show modified (non-default) or recently
-    # used properties (filterbox? toggle/radio button? extra categories?)
-
-    def __init__(self, parent=None):
-        super(PropertyInspectorWidget, self).__init__(parent)
-
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-
-        self.filterBox = LineEditWithClearButton()
-        self.filterBox.setPlaceholderText("Filter")
-        self.filterBox.textChanged.connect(self.filterChanged)
-
-        self.ptree = PropertyTreeWidget()
-
-        layout.addWidget(self.filterBox)
-        layout.addWidget(self.ptree)
-
-        # set the minimum size to a reasonable value for this widget
-        self.setMinimumSize(200, 200)
-
-        self.propertyManager = None
-
-    def sizeHint(self):
-        # we'd rather have this size
-        return QSize(400, 600)
-
-    def filterChanged(self, filterText):
-        self.ptree.setFilter(filterText)
-
-    def setPropertyManager(self, propertyManager):
-        self.propertyManager = propertyManager
-
-    def setPropertySets(self, ceguiPropertySets):
-        categories = self.propertyManager.buildCategories(ceguiPropertySets)
-
-        # load them into the tree
-        self.ptree.load(categories)
+from xml.etree import ElementTree
 
 class PropertyMappingEntry(object):
-    pass
+    """Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
+    to allow its viewing and editing.
+    
+    If target inspector name is \"\" then this mapping means that the property should
+    be ignored in the property set inspector listing.
+    """
+
+    @classmethod
+    def fromElement(cls, element):
+        propertyOrigin = element.get("propertyOrigin")
+        propertyName = element.get("propertyName")
+        typeName = element.get("typeName")
+        hidden = element.get("hidden", "False").lower() in ("true", "yes", "1")
+        editorName = element.get("editorName")
+
+        editorSettings = dict()
+        for settings in element.findall("settings"):
+            name = settings.get("name")
+            t = dict()
+
+            for setting in settings.findall("setting"):
+                t[setting.get("name")] = setting.get("value")
+
+            editorSettings[name] = t
+
+        return cls(propertyOrigin = propertyOrigin,
+                   propertyName = propertyName,
+                   typeName = typeName,
+                   hidden = hidden,
+                   editorName = editorName,
+                   editorSettings = editorSettings)
+
+    @classmethod
+    def makeKey(cls, propertyOrigin, propertyName):
+        return "/".join((propertyOrigin, propertyName)) 
+
+    def __init__(self, propertyOrigin, propertyName,
+                 typeName = None, hidden = False,
+                 editorName = None, editorSettings = None):
+
+        self.propertyOrigin = propertyOrigin
+        self.propertyName = propertyName
+        self.typeName = typeName
+        self.hidden = hidden
+        self.editorName = editorName
+        self.editorSettings = editorSettings if editorSettings is not None else dict()
+
+    def getPropertyKey(self):
+        return self.makeKey(self.propertyOrigin, self.propertyName) 
+
+    def saveToElement(self):
+        element = ElementTree.Element("mapping")
+
+        element.set("propertyOrigin", self.propertyOrigin)
+        element.set("propertyName", self.propertyName)
+        if self.typeName:
+            element.set("typeName", self.typeName)
+        if self.hidden:
+            element.set("hidden", True)
+        if self.editorName:
+            element.set("editorName", self.editorName)
+
+        for name, value in self.editorSettings:
+            settings = ElementTree.Element("settings")
+            settings.set("name", name)
+            for sname, svalue in value:
+                setting = ElementTree.Element("setting")
+                setting.set("name", sname)
+                setting.set("value", svalue)
+                element.append(setting)
+            element.append(settings)
+
+        return element
 
 class PropertyMap(object):
-    pass
 
-class CEGUIPropertyManager(object):
+    @classmethod
+    def fromElement(cls, element):
+        assert(element.get("version") == compatibility.property_mappings.Manager.instance.EditorNativeType)
 
-    # Maps CEGUI data types (in string form) to Python types
-    # TODO: This type mapping may not be necessary if we create our
-    # own custom PropertyEditor(s) that use these string types directly.
-    
-    # CEGUI properties are accessed via string values.
-    # We can either convert them to our own types here and have the editors
-    # use those types, or have them as strings and make the editors
-    # parse and write the strings as CEGUI expects them.
-    # I think it's the same amount of work - I'd rather create the
-    # types here in Python and those would parse and write the strings.
-    
-    _typeMap = {
-                "int": int,
-                "uint": int,
-                "float": float,
-                "bool": bool,
-                "String": unicode,
-                "USize": ct.USize
-                }
-    #===============================================================================
-    # TODO: AspectMode
-    # TODO: Font*
-    # TODO: HorizontalAlignment
-    # TODO: Image*
-    # TODO: Quaternion
-    # TODO: UBox
-    # TODO: Unknown
-    # TODO: URect
-    # TODO: UVector2
-    # TODO: VerticalAlignment
-    # TODO: WindowUpdateMode
-    #===============================================================================
+        pmap = cls()
+        for entryElement in element.findall("mapping"):
+            entry = PropertyMappingEntry.fromElement(entryElement)
+            pmap.setEntry(entry)
+        return pmap
 
-    @staticmethod
-    def getTypeFromCEGUITypeString(ceguiStrType):
-        #print "TODO: " + ceguiStrType
-        return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
+    @classmethod
+    def fromXMLString(cls, text):
+        element = ElementTree.fromstring(text)
+        return cls.fromElement(element)
 
-    @staticmethod
-    def getCEGUIPropertyGUID(ceguiProperty):
-        # HACK: The GUID is used as a hash value (to be able
-        # to tell if two properties are the same).
-        # There's currently no way to get this information, apart
-        # from examining the name, datatype, origin etc. of the property
-        # and build a string/hash value out of it.
-        return "/".join([ceguiProperty.getOrigin(),
-                         ceguiProperty.getName(),
-                         ceguiProperty.getDataType()])
+    @classmethod
+    def fromFile(cls, absolutePath):
+        text = open(absolutePath, "r").read()
+        return cls.fromXMLString(text)
 
-    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
-        pythonDataType = self.getTypeFromCEGUITypeString(ceguiProperty.getDataType())
+    @classmethod
+    def fromFiles(cls, absolutePaths):
+        pmap = cls()
+        for absolutePath in absolutePaths:
+            pmap.update(cls.fromFile(absolutePath))
 
-        valueCreator = None
-        propertyType = None
-        if issubclass(pythonDataType, ct.Base):
-            valueCreator = pythonDataType.fromString
-            propertyType = pythonDataType.getPropertyType()
-        else:
-            valueCreator = pythonDataType
-            propertyType = Property
+        return pmap
 
-        name = ceguiProperty.getName()
-        category = ceguiProperty.getOrigin()
-        helpText = ceguiProperty.getHelp()
-        readOnly = not ceguiProperty.isWritable()
-        value = None
-        defaultValue = None
+    def __init__(self):
+        self.entries = dict()
 
-        innerProperties = []
-        for ceguiSet in ceguiSets:
-            assert ceguiSet.isPropertyPresent(name), "Property '%s' what not found in PropertySet." % name
-            value = valueCreator(ceguiProperty.get(ceguiSet))
-            defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
+    def saveToElement(self):
+        element = ElementTree.Element("mappings")
+        element.set("version", compatibility.property_mappings.Manager.instance.EditorNativeType)
 
-            innerProperty = propertyType(name = name,
-                                         category = category,
-                                         helpText = helpText,
-                                         value = value,
-                                         defaultValue = defaultValue,
-                                         readOnly = readOnly,
-                                         createComponents = False
-                                         )
-            innerProperties.append(innerProperty)
+        for entry in sorted(self.entries, key = lambda entry: entry.getPropertyKey()):
+            eel = entry.saveToElement()
+            element.append(eel)
 
-            # hook the inner callback (the 'cb' function) to
-            # the value changed notification of the cegui propertyset
-            # so that we update our value(s) when the propertyset's
-            # property changes because of another editor (i.e. visual, undo, redo)
-            def makeCallback(cs, cp, ip):
-                def cb():
-                    ip.setValue(valueCreator(cp.get(cs)))
-                return cb
-            ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
+        return element
 
-        templateProperty = propertyType(name = name,
-                                        category = category,
-                                        helpText = helpText,
-                                        value = value,
-                                        defaultValue = defaultValue,
-                                        readOnly = readOnly
-                                        )
+    def getEntry(self, propertyOrigin, propertyName):
+        entry = self.entries.get(PropertyMappingEntry.makeKey(propertyOrigin, propertyName))
+        return entry
 
-        multiProperty = multiWrapperType(templateProperty, innerProperties, True)
+    def setEntry(self, entry):
+        self.entries[entry.getPropertyKey()] = entry
 
-        return multiProperty
+    def update(self, pmap):
+        self.entries.update(pmap.entries)
 
-    def buildCategories(self, ceguiPropertySets):
-        propertyList = self.buildProperties(ceguiPropertySets)
-        categories = PropertyCategory.categorisePropertyList(propertyList)
-
-        # sort properties in categories
-        for cat in categories.values():
-            cat.sortProperties()
-
-        # sort categories by name
-        categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
-
-        return categories
-
-    def buildProperties(self, ceguiPropertySets):
-        # short name
-        cgSets = ceguiPropertySets
-
-        if len(cgSets) == 0:
-            return []
-
-        # * A CEGUI property does not have a value, it's similar to a definition
-        #   and we need an object that has that property to be able to get a value.
-        # * Each CEGUI PropertySet (widget, font, others) has it's own list of properties.
-        # * Some properties may be shared across PropertSets but some are not.
-        #
-        # It's pretty simple to map the properties 1:1 when we have only one
-        # set to process. When we have more, however, we need to group the
-        # properties that are shared across sets so we display them as one
-        # property that affects all the sets that have it.
-        # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
-        # are the same. 
-
-        cgProps = dict()
-
-        for cgSet in cgSets:
-
-            # add a custom attribute to the PropertySet.
-            # this will be filled later on with callbacks (see
-            # 'createProperty'), one for each property that
-            # will be called when the properties of the set change.
-            # it's OK to clear any previous value because we only
-            # use this internally and we only need a max of one 'listener'
-            # for each property.
-            # It's not pretty but it does the job well enough.
-            setattr(cgSet, "propertyManagerCallbacks", dict())
-
-            propIt = cgSet.getPropertyIterator()
-
-            while not propIt.isAtEnd():
-                cgProp = propIt.getCurrentValue()
-                guid = self.getCEGUIPropertyGUID(cgProp)
-
-                # if we already know this property, add the current set
-                # to the list.
-                if guid in cgProps:
-                    cgProps[guid][1].append(cgSet)
-                # if it's a new property, check if it can be added
-                else:
-                    # we don't support unreadable properties
-                    # TODO: check if hidden by the current mapping
-                    if cgProp.isReadable():
-                        cgProps[guid] = (cgProp, [cgSet])
-
-                propIt.next()
-
-        # Convert the CEGUI properties with their sets to property tree properties.
-        ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
-
-        return ptProps
+from ceed import compatibility

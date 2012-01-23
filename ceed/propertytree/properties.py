@@ -491,7 +491,8 @@ class MultiPropertyWrapper(Property):
                                                    helpText = self.templateProperty.helpText,
                                                    value = self.templateProperty.value,
                                                    defaultValue = self.templateProperty.defaultValue,
-                                                   readOnly = self.templateProperty.readOnly
+                                                   readOnly = self.templateProperty.readOnly,
+                                                   editorOptions = self.templateProperty.editorOptions
                                                    )
 
         # subscribe to the valueChanged event of the inner properties
