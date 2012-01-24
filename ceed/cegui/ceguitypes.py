@@ -362,6 +362,8 @@ class WindowUpdateMode(EnumBase):
 
 class Quaternion(Base):
     """Quaternion"""
+    #pylint: disable-msg=C0103
+    # invalid name x,y,z etc.
 
     pattern = '(?:\s*w\s*:' + Base.floatPattern + '\s+)?' + \
               '\s*x\s*:' + Base.floatPattern + \
@@ -394,12 +396,12 @@ class Quaternion(Base):
                 target.z = z
                 target.w = w
             else:
-                (target.w, target.x, target.y, target.z) = Quaternion.convertDegrees(x, y, z)
+                (target.w, target.x, target.y, target.z) = Quaternion.convertEulerDegreesToQuaternion(x, y, z)
 
         return target, True
 
     @staticmethod
-    def convertRadians(x, y, z):
+    def convertEulerRadiansToQuaternion(x, y, z):
         """Convert the x, y, z angles (in radians) to w, x, y, z (quaternion).
 
         The order of rotation: 1) around Z 2) around Y 3) around X
@@ -421,10 +423,65 @@ class Quaternion(Base):
                 sin_z_2 * cos_y_2 * cos_x_2 - cos_z_2 * sin_y_2 * sin_x_2)
 
     @staticmethod
-    def convertDegrees(x, y, z):
-        d2r = (4.0 * math.atan2(1.0, 1.0)) / 180.0
+    def convertEulerDegreesToQuaternion(x, y, z):
+        d2r = math.pi / 180.0
 
-        return Quaternion.convertRadians(x * d2r, y * d2r, z * d2r)
+        return Quaternion.convertEulerRadiansToQuaternion(x * d2r, y * d2r, z * d2r)
+
+    @staticmethod
+    def machineEpsilon(func=float):
+        """http://en.wikipedia.org/wiki/Machine_epsilon#Approximation_using_Python"""
+        machine_epsilon = func(1)
+        while func(1)+func(machine_epsilon) != func(1):
+            machine_epsilon_last = machine_epsilon
+            machine_epsilon = func(machine_epsilon) / func(2)
+        return machine_epsilon_last
+
+    @staticmethod
+    def convertQuaternionToYPR(w, x, y, z):
+        """Return a tuple of yaw, pitch, roll.
+        
+        Ported from http://stackoverflow.com/a/1031235
+        
+        Note: This is probably wrong but it's a start.
+        """
+        # FIXME: Please fix me! (See above)
+        w2 = w * w
+        x2 = x * x
+        y2 = y * y
+        z2 = z * z
+        unitLength = w2 + x2 + y2 + z2      # Normalised == 1, otherwise correction divisor.
+        abcd = w * x + y * z
+        eps = Quaternion.machineEpsilon()
+        pi = math.pi
+
+        yaw = 0
+        pitch = 0
+        roll = 0
+
+        if abcd > (0.5 - eps) * unitLength:
+            yaw = 2 * math.atan2(y, w)
+            pitch = pi
+            roll = 0
+        elif abcd < (-0.5 + eps) * unitLength:
+            yaw = -2 * math.atan2(y, w)
+            pitch = -pi
+            roll = 0
+        else:
+            adbc = w * z - x * y
+            acbd = w * y - x * z
+            yaw = math.atan2(2 * adbc, 1 - 2 * (z2 + x2))
+            pitch = math.asin(2 * abcd / unitLength)
+            roll = math.atan2(2 * acbd, 1 - 2 * (y2 + x2))
+
+        return (yaw, pitch, roll)
+
+    @staticmethod
+    def convertQuaternionToDegrees(w, x, y, z):
+        r2d = 180.0 / math.pi
+
+        (z, x, y) = Quaternion.convertQuaternionToYPR(w, x, y, z)
+        return (x * r2d, y * r2d, z * r2d)
 
     def __init__(self, x=0.0, y=0.0, z=0.0, w=1.0):
         super(Quaternion, self).__init__()
@@ -434,7 +491,7 @@ class Quaternion(Base):
             self.z = float(z)
             self.w = float(w)
         else:
-            (self.w, self.x, self.y, self.z) = self.convertDegrees(x, y, z)
+            (self.w, self.x, self.y, self.z) = self.convertEulerDegreesToQuaternion(x, y, z)
 
     def __hash__(self):
         return hash((self.x, self.y, self.z, self.w))
@@ -450,9 +507,69 @@ class Quaternion(Base):
             return "{:.12f}".format(value).rstrip("0").rstrip(".")
         return "w:{} x:{} y:{} z:{}".format(fmt(self.w), fmt(self.x), fmt(self.y), fmt(self.z))
 
+    def toDegrees(self):
+        return self.convertQuaternionToDegrees(self.w, self.x, self.y, self.z)
+
     @classmethod
     def getPropertyType(cls):
         return QuaternionProperty
+
+class XYZRotation(Base):
+    #pylint: disable-msg=C0103
+    # invalid name x,y,z etc.
+
+    pattern = '\s*x\s*:' + Base.floatPattern + \
+              '\s+' + \
+              '\s*y\s*:' + Base.floatPattern + \
+              '\s+' + \
+              '\s*z\s*:' + Base.floatPattern
+    rex = re.compile(pattern, re.IGNORECASE)
+
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        match = re.match(cls.rex, strValue)
+        if match is None:
+            return None, False
+
+        x = float(match.group(1))
+        y = float(match.group(2))
+        z = float(match.group(3))
+
+        if target is None:
+            target = cls(x, y, z)
+        else:
+            target.x = x
+            target.y = y
+            target.z = z
+
+        return target, True
+
+    @classmethod
+    def fromQuaternion(cls, quat):
+        x, y, z = quat.toDegrees()
+        return cls(x, y, z)
+
+    def __init__(self, x=0.0, y=0.0, z=0.0):
+        super(XYZRotation, self).__init__()
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.x == other.x and self.y == other.y and self.z == other.z
+        return False
+
+    def __repr__(self):
+        def fmt(value):
+            # no scientific notation, 6 digits precision, remove trailing zeroes
+            return "{:.6f}".format(value).rstrip("0").rstrip(".")
+        return "x:{} y:{} z:{}".format(fmt(self.x), fmt(self.y), fmt(self.z))
+
+
 
 class BaseProperty(Property):
     """Base class for all Property types.
@@ -570,6 +687,8 @@ class QuaternionProperty(BaseProperty):
 
     def createComponents(self):
         self.components = OrderedDict()
+
+        # TODO: Set min/max/step for W, X, Y, Z. See how it's done on XYZRotationProperty.
         self.components["W"] = Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["X"] = Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
@@ -579,10 +698,59 @@ class QuaternionProperty(BaseProperty):
         self.components["Z"] = Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
 
+        self.components["Degrees"] = XYZRotationProperty(name="Degrees",
+                                                         value=XYZRotation.fromQuaternion(self.value),
+                                                         defaultValue=XYZRotation.fromQuaternion(self.defaultValue),
+                                                         readOnly=self.readOnly,
+                                                         editorOptions=self.editorOptions)
+
         super(QuaternionProperty, self).createComponents()
+
+    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+        components = self.getComponents()
+        if components is not None:
+            components["W"].setValue(self.value.w, reason)
+            components["X"].setValue(self.value.x, reason)
+            components["Y"].setValue(self.value.y, reason)
+            components["Z"].setValue(self.value.z, reason)
+            components["Degrees"].setValue(XYZRotation.fromQuaternion(self.value), reason)
+
+    def componentValueChanged(self, component, reason):
+        if component.name == "Degrees":
+            (wv, xv, yv, zv) = Quaternion.convertEulerDegreesToQuaternion(component.value.x, component.value.y, component.value.z)
+            self.components["W"].setValue(wv)
+            self.components["X"].setValue(xv)
+            self.components["Y"].setValue(yv)
+            self.components["Z"].setValue(zv)
+            self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
+        else:
+            super(QuaternionProperty, self).componentValueChanged(component, reason)
 
     def isStringRepresentationEditable(self):
         return True
 
     def tryParse(self, strValue):
         return Quaternion.tryParse(strValue)
+
+class XYZRotationProperty(BaseProperty):
+    """Property for XYZRotation values."""
+
+    def createComponents(self):
+        editorOptions = { "numeric": { "min": -360, "max": 360, "wrapping": True } }
+        
+        self.components = OrderedDict()
+        
+        self.components["X"] = Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
+                                            readOnly=self.readOnly, editorOptions=editorOptions)
+        self.components["Y"] = Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
+                                            readOnly=self.readOnly, editorOptions=editorOptions)
+        self.components["Z"] = Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
+                                            readOnly=self.readOnly, editorOptions=editorOptions)
+
+        super(XYZRotationProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return XYZRotation.tryParse(strValue)
