@@ -1,6 +1,7 @@
 """Lightweight CEGUI property value types that can parse and write text."""
 
 import re
+import math
 
 from abc import abstractmethod
 from abc import ABCMeta
@@ -14,6 +15,8 @@ class Base(object):
     """Abstract base class for all value types."""
 
     __metaclass__ = ABCMeta
+
+    floatPattern = '\s*(-?\d+(?:\.\d+)?)\s*'
 
     @classmethod
     def tryParse(cls, strValue, target=None):
@@ -63,7 +66,11 @@ class Base(object):
 class UDim(Base):
     """UDim"""
 
-    pattern = '\s*\{\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\}\s*'
+    pattern = '\s*\{' + \
+              Base.floatPattern + \
+              ',' + \
+              Base.floatPattern + \
+              '\}\s*'
     rex = re.compile(pattern)
 
     @classmethod
@@ -97,10 +104,10 @@ class UDim(Base):
         return False
 
     def __repr__(self):
-        # use round because we want max x digits but not zero padded
-        # and not in scientific notation
-        #return "{{ {:f}, {:f} }}".format(self.scale, self.offset)
-        return "{{{}, {}}}".format(round(self.scale, 6), round(self.offset, 6))
+        def fmt(value):
+            # no scientific notation, 6 digits precision, remove trailing zeroes
+            return "{:.6f}".format(value).rstrip("0").rstrip(".")
+        return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
     @classmethod
     def getPropertyType(cls):
@@ -353,7 +360,99 @@ class WindowUpdateMode(EnumBase):
     def __init__(self, value="Always"):
         super(WindowUpdateMode, self).__init__(value)
 
+class Quaternion(Base):
+    """Quaternion"""
 
+    pattern = '(?:\s*w\s*:' + Base.floatPattern + '\s+)?' + \
+              '\s*x\s*:' + Base.floatPattern + \
+              '\s+' + \
+              '\s*y\s*:' + Base.floatPattern + \
+              '\s+' + \
+              '\s*z\s*:' + Base.floatPattern
+    rex = re.compile(pattern, re.IGNORECASE)
+
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        match = re.match(cls.rex, strValue)
+        if match is None:
+            return None, False
+
+        w = None
+        if match.group(1) is not None:
+            # we have the 'w' component
+            w = float(match.group(1))
+        x = float(match.group(2))
+        y = float(match.group(3))
+        z = float(match.group(4))
+
+        if target is None:
+            target = cls(x, y, z, w)
+        else:
+            if w is not None:
+                target.x = x
+                target.y = y
+                target.z = z
+                target.w = w
+            else:
+                (target.w, target.x, target.y, target.z) = Quaternion.convertDegrees(x, y, z)
+
+        return target, True
+
+    @staticmethod
+    def convertRadians(x, y, z):
+        """Convert the x, y, z angles (in radians) to w, x, y, z (quaternion).
+
+        The order of rotation: 1) around Z 2) around Y 3) around X
+        
+        Copied from CEGUI, Quaternion.cpp
+        """
+
+        sin_z_2 = math.sin(0.5 * z)
+        sin_y_2 = math.sin(0.5 * y)
+        sin_x_2 = math.sin(0.5 * x)
+
+        cos_z_2 = math.cos(0.5 * z)
+        cos_y_2 = math.cos(0.5 * y)
+        cos_x_2 = math.cos(0.5 * x)
+
+        return (cos_z_2 * cos_y_2 * cos_x_2 + sin_z_2 * sin_y_2 * sin_x_2,
+                cos_z_2 * cos_y_2 * sin_x_2 - sin_z_2 * sin_y_2 * cos_x_2,
+                cos_z_2 * sin_y_2 * cos_x_2 + sin_z_2 * cos_y_2 * sin_x_2,
+                sin_z_2 * cos_y_2 * cos_x_2 - cos_z_2 * sin_y_2 * sin_x_2)
+
+    @staticmethod
+    def convertDegrees(x, y, z):
+        d2r = (4.0 * math.atan2(1.0, 1.0)) / 180.0
+
+        return Quaternion.convertRadians(x * d2r, y * d2r, z * d2r)
+
+    def __init__(self, x=0.0, y=0.0, z=0.0, w=1.0):
+        super(Quaternion, self).__init__()
+        if w is not None:
+            self.x = float(x)
+            self.y = float(y)
+            self.z = float(z)
+            self.w = float(w)
+        else:
+            (self.w, self.x, self.y, self.z) = self.convertDegrees(x, y, z)
+
+    def __hash__(self):
+        return hash((self.x, self.y, self.z, self.w))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.x == other.x and self.y == other.y and self.z == other.z and self.w == other.w
+        return False
+
+    def __repr__(self):
+        def fmt(value):
+            # no scientific notation, 12 digits precision, remove trailing zeroes
+            return "{:.12f}".format(value).rstrip("0").rstrip(".")
+        return "w:{} x:{} y:{} z:{}".format(fmt(self.w), fmt(self.x), fmt(self.y), fmt(self.z))
+
+    @classmethod
+    def getPropertyType(cls):
+        return QuaternionProperty
 
 class BaseProperty(Property):
     """Base class for all Property types.
@@ -465,3 +564,25 @@ class URectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return URect.tryParse(strValue)
+
+class QuaternionProperty(BaseProperty):
+    """Property for Quaternion values."""
+
+    def createComponents(self):
+        self.components = OrderedDict()
+        self.components["W"] = Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["X"] = Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["Y"] = Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["Z"] = Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
+                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+
+        super(QuaternionProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return Quaternion.tryParse(strValue)

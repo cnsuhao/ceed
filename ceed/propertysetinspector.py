@@ -90,7 +90,8 @@ class CEGUIPropertyManager(object):
                 "AspectMode": ct.AspectMode,
                 "HorizontalAlignment": ct.HorizontalAlignment,
                 "VerticalAlignment": ct.VerticalAlignment,
-                "WindowUpdateMode": ct.WindowUpdateMode
+                "WindowUpdateMode": ct.WindowUpdateMode,
+                "Quaternion": ct.Quaternion
                 }
     # TODO: Font*, Image*, Quaternion, UBox?
 
