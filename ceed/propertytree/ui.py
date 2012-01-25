@@ -1,6 +1,6 @@
 ################################################################################
 #   propertytree - A Qt property editor
-#   Copyright © 2012 Pavlos Touboulidis <pav256@gmail.com>
+#   Copyright (C) 2012 Pavlos Touboulidis <pav256@gmail.com>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -197,7 +197,11 @@ class PropertyTreeRow(object):
                 row.setState(view, itemState)
 
     def setFilter(self, filterRegEx, view):
+        """Filter children using the specified regular expression
+        and return the count of children left visible.
+        """
         i = 0
+        visibleCount = 0
         while i < self.nameItem.rowCount():
             nameItem = self.nameItem.child(i, 0)
 
@@ -206,6 +210,9 @@ class PropertyTreeRow(object):
             view.setRowHidden(nameItem.index().row(), nameItem.index().parent(), not matched)
 
             i += 1
+            if matched:
+                visibleCount += 1
+        return visibleCount
 
 class PropertyCategoryRow(PropertyTreeRow):
     """Special tree items placed at the root of the tree."""
@@ -723,6 +730,9 @@ class PropertyTreeWidget(QWidget):
         i = 0
         while i < self.model.rowCount():
             categoryRow = self.model.item(i, 0).propertyTreeRow
-            categoryRow.setFilter(regex, self.view)
+            visibleItemsLeft = categoryRow.setFilter(regex, self.view)
+            # if no items are visible in the category after applying the filter,
+            # hide it, otherwise show it
+            self.view.setRowHidden(i, QModelIndex(), True if visibleItemsLeft == 0 else False)
 
             i += 1
