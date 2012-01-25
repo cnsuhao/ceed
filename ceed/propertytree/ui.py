@@ -617,7 +617,7 @@ class PropertyTreeWidget(QWidget):
             item = self.model.item(i, 0)
             categoryRow = item.propertyTreeRow
             if categoryRow.getName() == parts[0]:
-                return categoryRow.rowFromPath(parts[1])
+                return categoryRow.rowFromPath(parts[1]) if len(parts) == 2 else categoryRow
 
             i += 1
 
