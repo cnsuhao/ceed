@@ -22,9 +22,6 @@ class PropertyInspectorWidget(QWidget):
     it can show properties via 'setPropertySets'.
     """
 
-    # TODO: Add a way to only show modified (non-default) or recently
-    # used properties (filterbox? toggle/radio button? extra categories?)
-
     def __init__(self, parent=None):
         super(PropertyInspectorWidget, self).__init__(parent)
 
@@ -32,8 +29,10 @@ class PropertyInspectorWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
+        # if the filter starts with this, we only show modified properties
+        self.modifiedFilterPrefix = "*"
         self.filterBox = LineEditWithClearButton()
-        self.filterBox.setPlaceholderText("Filter")
+        self.filterBox.setPlaceholderText("Filter (prefix with '{}' to show modified)".format(self.modifiedFilterPrefix))
         self.filterBox.textChanged.connect(self.filterChanged)
 
         self.ptree = PropertyTreeWidget()
@@ -51,7 +50,10 @@ class PropertyInspectorWidget(QWidget):
         return QSize(400, 600)
 
     def filterChanged(self, filterText):
-        self.ptree.setFilter(filterText)
+        if filterText and filterText.startswith(self.modifiedFilterPrefix):
+            self.ptree.setFilter(filterText[len(self.modifiedFilterPrefix):], True)
+        else:
+            self.ptree.setFilter(filterText)
 
     def setPropertyManager(self, propertyManager):
         self.propertyManager = propertyManager

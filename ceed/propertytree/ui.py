@@ -196,9 +196,23 @@ class PropertyTreeRow(object):
                 itemState = items.get(row.getName(), None)
                 row.setState(view, itemState)
 
-    def setFilter(self, filterRegEx, view):
+    def isModified(self):
+        #pylint: disable-msg=R0201
+        # "Method could be a function"
+        # No, it couldn't, it's meant to be overriden but provides the default implementation.
+        return False
+
+    def setFilter(self, view, filterRegEx, hideUnmodified=False):
         """Filter children using the specified regular expression
         and return the count of children left visible.
+        
+        view -- The Tree View that manages the visibility state
+        filterRegEx -- A regular expression that will be matched
+                    against the names of the children. Only those
+                    that match the regular expression will remain
+                    visible.
+        hideUnmodified -- If True, hide all children that have
+                    their default values (haven't been modified).
         """
         i = 0
         visibleCount = 0
@@ -206,6 +220,8 @@ class PropertyTreeRow(object):
             nameItem = self.nameItem.child(i, 0)
 
             matched = re.match(filterRegEx, nameItem.text()) is not None
+            if hideUnmodified and not nameItem.propertyTreeRow.isModified():
+                matched = False
 
             view.setRowHidden(nameItem.index().row(), nameItem.index().parent(), not matched)
 
@@ -277,6 +293,9 @@ class PropertyRow(PropertyTreeRow):
         self.property.valueChanged.unsubscribe(self.cb_propertyValueChanged)
 
         super(PropertyRow, self).finalise()
+
+    def isModified(self):
+        return not self.property.hasDefaultValue()
 
     def cb_propertyComponentsUpdate(self, senderProperty, updateType):
         # destroy or recreate child rows as necessary
@@ -554,7 +573,7 @@ class PropertyTreeWidget(QWidget):
         layout.addWidget(self.view)
 
         self.registry = None
-        self.filter = ""
+        self.filterSettings = ("", False)
         self.previousPath = None
 
         self.clear()
@@ -703,7 +722,7 @@ class PropertyTreeWidget(QWidget):
         #self.view.resizeColumnToContents(0)
 
         # apply the filter
-        self.setFilter(self.filter)
+        self.setFilter(self.filterSettings[0], self.filterSettings[1])
 
         # restore state
         if itemsState is not None:
@@ -719,9 +738,9 @@ class PropertyTreeWidget(QWidget):
         # make the category name span two columns (all)
         self.view.setFirstColumnSpanned(self.model.rowCount() - 1, QModelIndex(), True)
 
-    def setFilter(self, filterText=""):
+    def setFilter(self, filterText="", hideUnmodified=False):
         # we store the filter to be able to reapply it when our data changes
-        self.filter = filterText
+        self.filterSettings = (filterText, hideUnmodified)
 
         # we append star at the beginning and at the end by default (makes property filtering much more practical)
         filterText = "*" + filterText + "*"
@@ -730,7 +749,7 @@ class PropertyTreeWidget(QWidget):
         i = 0
         while i < self.model.rowCount():
             categoryRow = self.model.item(i, 0).propertyTreeRow
-            visibleItemsLeft = categoryRow.setFilter(regex, self.view)
+            visibleItemsLeft = categoryRow.setFilter(self.view, regex, hideUnmodified)
             # if no items are visible in the category after applying the filter,
             # hide it, otherwise show it
             self.view.setRowHidden(i, QModelIndex(), True if visibleItemsLeft == 0 else False)
