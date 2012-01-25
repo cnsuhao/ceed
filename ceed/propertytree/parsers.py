@@ -21,6 +21,9 @@
 AstHelper -- Customised Python literal parsing.
 """
 
+# Imports left as-is to avoid making changes to the code in
+# delegate_literal_eval for easier maintaining/updating from
+# upstream.
 from ast import Str, Num, Tuple, List, Dict, Name, Expression, parse, BinOp, Add, Sub
 
 from collections import OrderedDict

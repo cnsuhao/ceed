@@ -1,20 +1,17 @@
 """Lightweight CEGUI property value types that can parse and write text."""
 
+import abc
 import re
 import math
 
-from abc import abstractmethod
-from abc import ABCMeta
-
 from collections import OrderedDict
 
-from ..propertytree.properties import Property
-from ceed.propertytree.properties import EnumValue
+from ceed.propertytree import properties
 
 class Base(object):
     """Abstract base class for all value types."""
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
     floatPattern = '\s*(-?\d+(?:\.\d+)?)\s*'
 
@@ -47,15 +44,15 @@ class Base(object):
     def parse(self, strValue):
         return self.__class__.tryParse(strValue, self)[1]
 
-    @abstractmethod
+    @abc.abstractmethod
     def __hash__(self):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def __eq__(self, other):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def __repr__(self):
         pass
 
@@ -285,7 +282,7 @@ class URect(Base):
     def getPropertyType(cls):
         return URectProperty
 
-class EnumBase(Base, EnumValue):
+class EnumBase(Base, properties.EnumValue):
     """Base class for types that have a predetermined list of possible values."""
 
     # key-value pairs of allowed values
@@ -602,7 +599,7 @@ class XYZRotation(Base):
 
 
 
-class BaseProperty(Property):
+class BaseProperty(properties.Property):
     """Base class for all Property types.
     
     Note that, by default, it expects the components to map
@@ -623,7 +620,7 @@ class BaseProperty(Property):
         """Get the attribute name from the component name."""
         return componentName[:1].lower() + componentName[1:]
 
-    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+    def updateComponents(self, reason=properties.Property.ChangeValueReason.Unknown):
         components = self.getComponents()
         if components is not None:
             for compName, compValue in components.items():
@@ -635,16 +632,16 @@ class BaseProperty(Property):
         setattr(self.value, self.getAttrName(component.name), component.value)
         # trigger our value changed event directly because
         # we didn't call 'setValue()' to do it for us.
-        self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
+        self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
 
 class UDimProperty(BaseProperty):
     """Property for UDim values."""
 
     def createComponents(self):
         self.components = OrderedDict()
-        self.components["Scale"] = Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
+        self.components["Scale"] = properties.Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Offset"] = Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
+        self.components["Offset"] = properties.Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         super(UDimProperty, self).createComponents()
@@ -720,13 +717,13 @@ class QuaternionProperty(BaseProperty):
         self.components = OrderedDict()
 
         # TODO: Set min/max/step for W, X, Y, Z. See how it's done on XYZRotationProperty.
-        self.components["W"] = Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
+        self.components["W"] = properties.Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["X"] = Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
+        self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Y"] = Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
+        self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Z"] = Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
+        self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
                                             readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         self.components["Degrees"] = XYZRotationProperty(name="Degrees",
@@ -737,7 +734,7 @@ class QuaternionProperty(BaseProperty):
 
         super(QuaternionProperty, self).createComponents()
 
-    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+    def updateComponents(self, reason=properties.Property.ChangeValueReason.Unknown):
         components = self.getComponents()
         if components is not None:
             components["W"].setValue(self.value.w, reason)
@@ -753,7 +750,7 @@ class QuaternionProperty(BaseProperty):
             self.components["X"].setValue(xv)
             self.components["Y"].setValue(yv)
             self.components["Z"].setValue(zv)
-            self.valueChanged.trigger(self, Property.ChangeValueReason.ComponentValueChanged)
+            self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
         else:
             super(QuaternionProperty, self).componentValueChanged(component, reason)
 
@@ -771,11 +768,11 @@ class XYZRotationProperty(BaseProperty):
         
         self.components = OrderedDict()
         
-        self.components["X"] = Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
+        self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
                                             readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Y"] = Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
+        self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
                                             readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Z"] = Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
+        self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
                                             readOnly=self.readOnly, editorOptions=editorOptions)
 
         super(XYZRotationProperty, self).createComponents()

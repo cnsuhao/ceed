@@ -26,14 +26,13 @@ StringWrapperValidator -- Edit widget validator for the StringWrapperProperty.
 EnumValuePropertyEditor -- Editor for EnumValue-based values (Combo box).
 """
 
-from abc import abstractmethod
-from abc import ABCMeta
+import abc
 
 from . import utility
 from .properties import Property
+from .properties import EnumValue
 
 from PySide import QtGui
-from ceed.propertytree.properties import EnumValue
 
 class PropertyEditorRegistry(object):
     """The registry contains a (sorted) list of property editor
@@ -116,7 +115,7 @@ class PropertyEditor(object):
     to edit the value of a (supported) property.
     """
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
     @classmethod
     def getSupportedValueTypes(cls):
@@ -150,7 +149,7 @@ class PropertyEditor(object):
         if self.ownsProperty:
             self.property.finalise()
 
-    @abstractmethod
+    @abc.abstractmethod
     def createEditWidget(self, parent):
         """Create and return a widget that will be used
         to edit the property.
@@ -162,13 +161,13 @@ class PropertyEditor(object):
         """
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def getWidgetValue(self):
         """Read and return a tuple with the current value of the widget
         and a boolean specifying whether it's a valid value or not."""
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def setWidgetValueFromProperty(self):
         """Set the value of the widget to the value of the property.
         

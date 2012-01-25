@@ -27,12 +27,10 @@ MultiPropertyWrapper -- Special purpose property used to group many properties o
 EnumValue -- Interface for properties that have a predetermined list of possible values, like enums.
 """
 
+import abc
 import operator
 
 from collections import OrderedDict
-
-from abc import abstractmethod
-from abc import ABCMeta
 
 from . import utility
 
@@ -597,9 +595,9 @@ class EnumValue(object):
     #pylint: disable-msg=R0903
     # too few public methods (1/2) - it's an interface
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
-    @abstractmethod
+    @abc.abstractmethod
     def getEnumValues(self):
         """Return a dictionary of all possible values and their display names."""
         pass

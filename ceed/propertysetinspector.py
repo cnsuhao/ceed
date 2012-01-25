@@ -2,20 +2,15 @@ from collections import OrderedDict
 
 from .qtwidgets import LineEditWithClearButton
 
-from .propertytree.properties import Property
-from .propertytree.properties import PropertyCategory
-from .propertytree.properties import MultiPropertyWrapper
-
-from .propertytree.ui import PropertyTreeWidget
+from .propertytree import properties
+from .propertytree import ui as ptUi
 
 from ceed.cegui import ceguitypes as ct
 
-from PySide.QtGui import QWidget
-from PySide.QtGui import QVBoxLayout
+from PySide import QtGui
+from PySide import QtCore
 
-from PySide.QtCore import QSize
-
-class PropertyInspectorWidget(QWidget):
+class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
     
     Requires a call to 'setPropertyManager()' before
@@ -25,7 +20,7 @@ class PropertyInspectorWidget(QWidget):
     def __init__(self, parent=None):
         super(PropertyInspectorWidget, self).__init__(parent)
 
-        layout = QVBoxLayout()
+        layout = QtGui.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
@@ -35,7 +30,7 @@ class PropertyInspectorWidget(QWidget):
         self.filterBox.setPlaceholderText("Filter (prefix with '{}' to show modified)".format(self.modifiedFilterPrefix))
         self.filterBox.textChanged.connect(self.filterChanged)
 
-        self.ptree = PropertyTreeWidget()
+        self.ptree = ptUi.PropertyTreeWidget()
 
         layout.addWidget(self.filterBox)
         layout.addWidget(self.ptree)
@@ -47,7 +42,7 @@ class PropertyInspectorWidget(QWidget):
 
     def sizeHint(self):
         # we'd rather have this size
-        return QSize(400, 600)
+        return QtCore.QSize(400, 600)
 
     def filterChanged(self, filterText):
         if filterText and filterText.startswith(self.modifiedFilterPrefix):
@@ -127,7 +122,7 @@ class CEGUIPropertyManager(object):
         Return the categories, ready to be loaded into an Inspector Widget.
         """
         propertyList = self.buildProperties(ceguiPropertySets)
-        categories = PropertyCategory.categorisePropertyList(propertyList)
+        categories = properties.PropertyCategory.categorisePropertyList(propertyList)
 
         # sort properties in categories
         for cat in categories.values():
@@ -199,7 +194,7 @@ class CEGUIPropertyManager(object):
 
         return ptProps
 
-    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=MultiPropertyWrapper):
+    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=properties.MultiPropertyWrapper):
         """Create one MultiPropertyWrapper based property for the CEGUI Property
         for all of the PropertySets specified.
         """
@@ -228,7 +223,7 @@ class CEGUIPropertyManager(object):
             propertyType = pythonDataType.getPropertyType()
         else:
             valueCreator = pythonDataType
-            propertyType = Property
+            propertyType = properties.Property
 
         value = None
         defaultValue = None

@@ -34,32 +34,16 @@ from .properties import Property
 from .properties import StringWrapperProperty
 from .editors import StringWrapperValidator
 
-from PySide.QtGui import QStandardItem
-from PySide.QtGui import QApplication
-from PySide.QtGui import QPalette
-from PySide.QtGui import QColor
-from PySide.QtGui import QPen
-from PySide.QtGui import QStyleHintReturn
-from PySide.QtGui import QTreeView
-from PySide.QtGui import QStyledItemDelegate
-from PySide.QtGui import QStyle
-from PySide.QtGui import QWidget
-from PySide.QtGui import QStandardItemModel
-from PySide.QtGui import QAbstractItemView
-from PySide.QtGui import QVBoxLayout
-from PySide.QtGui import QHeaderView
+from PySide import QtGui
+from PySide import QtCore
 
-from PySide.QtCore import Qt
-from PySide.QtCore import QModelIndex
-from PySide.QtCore import QSize
-
-class PropertyTreeItem(QStandardItem):
+class PropertyTreeItem(QtGui.QStandardItem):
     """Base item for all items."""
 
     def __init__(self, propertyTreeRow):
         super(PropertyTreeItem, self).__init__()
 
-        self.setSizeHint(QSize(-1, 24))
+        self.setSizeHint(QtCore.QSize(-1, 24))
         self.propertyTreeRow = propertyTreeRow
 
         self.finalised = False
@@ -248,9 +232,9 @@ class PropertyCategoryRow(PropertyTreeRow):
         self.valueItem.setEditable(False)
 
         # Change default colours
-        palette = QApplication.palette()
-        self.nameItem.setForeground(palette.brush(QPalette.Normal, QPalette.BrightText))
-        self.nameItem.setBackground(palette.brush(QPalette.Normal, QPalette.Dark))
+        palette = QtGui.QApplication.palette()
+        self.nameItem.setForeground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.BrightText))
+        self.nameItem.setBackground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.Dark))
 
     def createChildRows(self):
         for prop in self.category.properties.values():
@@ -315,7 +299,7 @@ class PropertyRow(PropertyTreeRow):
         """
         self.nameItem.setBold(not self.property.hasDefaultValue())
 
-class PropertyTreeItemDelegate(QStyledItemDelegate):
+class PropertyTreeItemDelegate(QtGui.QStyledItemDelegate):
     """Facilitates editing of the rows' values."""
 
     # Sample delegate
@@ -387,11 +371,11 @@ class PropertyTreeItemDelegate(QStyledItemDelegate):
 
         row.editor.setPropertyValueFromWidget()
 
-class PropertyTreeView(QTreeView):
+class PropertyTreeView(QtGui.QTreeView):
     """QTreeView with some modifications for better results."""
 
     def __init__(self, *args, **kwargs):
-        QTreeView.__init__(self, *args, **kwargs)
+        QtGui.QTreeView.__init__(self, *args, **kwargs)
 
         # optional, set by 'setOptimalDefaults()'
         self.editTriggersForName = None
@@ -403,7 +387,7 @@ class PropertyTreeView(QTreeView):
     def setRequiredOptions(self):
         # We work with rows, not columns
         self.setAllColumnsShowFocus(True)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         # We need our items expandable
         self.setItemsExpandable(True)
 
@@ -416,8 +400,8 @@ class PropertyTreeView(QTreeView):
         # you try to end the editing by clicking outside the editor but you hit the name
         # and then it starts to edit again.
         # See the re-implemented currentChanged() too.
-        self.editTriggersForName = QAbstractItemView.EditKeyPressed | QAbstractItemView.DoubleClicked
-        self.editTriggersForValue = self.editTriggersForName | QAbstractItemView.SelectedClicked
+        self.editTriggersForName = QtGui.QAbstractItemView.EditKeyPressed | QtGui.QAbstractItemView.DoubleClicked
+        self.editTriggersForValue = self.editTriggersForName | QtGui.QAbstractItemView.SelectedClicked
         self.setEditTriggers(self.editTriggersForValue)
         # No tab key because we can already move through the rows using the up/down arrow
         # keys and since we usually show a ton of rows, getting tabs would make it practically
@@ -443,7 +427,7 @@ class PropertyTreeView(QTreeView):
         # No point in selecting more than one row unless we implement
         # something like "Copy" that copies the names and/or values
         # of the selected rows.
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
         #
         # Visual
@@ -478,11 +462,11 @@ class PropertyTreeView(QTreeView):
         super(PropertyTreeView, self).drawRow(painter, option, index)
 
         # get color for grid lines from the style
-        returnData = QStyleHintReturn()
-        gridHint = self.style().styleHint(QStyle.SH_Table_GridLineColor, option, self, returnData)
-        gridColor = QColor(gridHint & 0xFFFFFF)
+        returnData = QtGui.QStyleHintReturn()
+        gridHint = self.style().styleHint(QtGui.QStyle.SH_Table_GridLineColor, option, self, returnData)
+        gridColor = QtGui.QColor(gridHint & 0xFFFFFF)
         # setup a pen
-        gridPen = QPen(gridColor)
+        gridPen = QtGui.QPen(gridColor)
         # x coordinate to draw the vertical line (between the first and the second column)
         colX = self.columnViewportPosition(1) - 1
         # do not draw verticals on spanned rows (i.e. categories)
@@ -517,7 +501,7 @@ class PropertyTreeView(QTreeView):
             
             i += 1
 
-class PropertyTreeItemModel(QStandardItemModel):
+class PropertyTreeItemModel(QtGui.QStandardItemModel):
 
     def buddy(self, index):
         """Point to the value item when the user tries to edit the name item."""
@@ -529,12 +513,12 @@ class PropertyTreeItemModel(QStandardItemModel):
             if valueIndex.isValid():
                 flags = valueIndex.flags()
                 # and it is editable but not disabled
-                if (flags & Qt.ItemIsEditable) and (flags & Qt.ItemIsEnabled):
+                if (flags & QtCore.Qt.ItemIsEditable) and (flags & QtCore.Qt.ItemIsEnabled):
                     return valueIndex
 
         return super(PropertyTreeItemModel, self).buddy(index)
 
-class PropertyTreeWidget(QWidget):
+class PropertyTreeWidget(QtGui.QWidget):
     """The property tree widget.
     
     Sets up any options necessary.
@@ -562,7 +546,7 @@ class PropertyTreeWidget(QWidget):
                     row.finalise()
         self.model.rowsAboutToBeRemoved.connect(rowsAboutToBeRemoved)
 
-        layout = QVBoxLayout()
+        layout = QtGui.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
@@ -718,7 +702,7 @@ class PropertyTreeWidget(QWidget):
         self.view.expandFromDepth(2)
 
         # setup headers size
-        self.view.header().setResizeMode(QHeaderView.Stretch)
+        self.view.header().setResizeMode(QtGui.QHeaderView.Stretch)
         #self.view.resizeColumnToContents(0)
 
         # apply the filter
@@ -736,7 +720,7 @@ class PropertyTreeWidget(QWidget):
         row = PropertyCategoryRow(category)
         self.model.appendRow([row.nameItem, row.valueItem])
         # make the category name span two columns (all)
-        self.view.setFirstColumnSpanned(self.model.rowCount() - 1, QModelIndex(), True)
+        self.view.setFirstColumnSpanned(self.model.rowCount() - 1, QtCore.QModelIndex(), True)
 
     def setFilter(self, filterText="", hideUnmodified=False):
         # we store the filter to be able to reapply it when our data changes
@@ -752,6 +736,6 @@ class PropertyTreeWidget(QWidget):
             visibleItemsLeft = categoryRow.setFilter(self.view, regex, hideUnmodified)
             # if no items are visible in the category after applying the filter,
             # hide it, otherwise show it
-            self.view.setRowHidden(i, QModelIndex(), True if visibleItemsLeft == 0 else False)
+            self.view.setRowHidden(i, QtCore.QModelIndex(), True if visibleItemsLeft == 0 else False)
 
             i += 1
