@@ -91,13 +91,17 @@ class CEGUIPropertyManager(object):
                 "HorizontalAlignment": ct.HorizontalAlignment,
                 "VerticalAlignment": ct.VerticalAlignment,
                 "WindowUpdateMode": ct.WindowUpdateMode,
-                "Quaternion": ct.Quaternion
+                "Quaternion": ct.Quaternion,
+                "HorizontalTextFormatting": ct.HorizontalTextFormatting,
+                "VerticalTextFormatting": ct.VerticalTextFormatting,
+                "SortMode": ct.SortMode
                 }
-    # TODO: Font*, Image*, Quaternion, UBox?
+    # TODO: Font*, Image*, ColourRect, UBox? 
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
-        #print "TODO: " + ceguiStrType
+        #if not ceguiStrType in CEGUIPropertyManager._typeMap:
+        #    print "TODO: " + ceguiStrType
         return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
 
     @staticmethod

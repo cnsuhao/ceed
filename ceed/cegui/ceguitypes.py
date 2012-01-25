@@ -352,6 +352,29 @@ class VerticalAlignment(EnumBase):
     def __init__(self, value="Top"):
         super(VerticalAlignment, self).__init__(value)
 
+class HorizontalTextFormatting(EnumBase):
+    """HorizontalTextFormatting"""
+
+    enumValues = OrderedDict([("LeftAligned", "Left"),
+                              ("CentreAligned", "Centre"),
+                              ("RightAligned", "Right"),
+                              ("Justified", "Justified"),
+                              ("WordWrapLeftAligned", "Word-Wrap Left"),
+                              ("WordWrapCentreAligned", "Word-Wrap Centre"),
+                              ("WordWrapRightAligned", "Word-Wrap Right"),
+                              ("WordWrapJustified", "Word-Wrap Justified") ])
+
+    def __init__(self, value="Left"):
+        super(HorizontalTextFormatting, self).__init__(value)
+
+class VerticalTextFormatting(EnumBase):
+    """VerticalTextFormatting"""
+
+    enumValues = OrderedDict([("TopAligned", "Top"), ("CentreAligned", "Centre"), ("BottomAligned", "Bottom") ])
+
+    def __init__(self, value="Top"):
+        super(VerticalTextFormatting, self).__init__(value)
+
 class WindowUpdateMode(EnumBase):
     """WindowUpdateMode"""
 
@@ -359,6 +382,14 @@ class WindowUpdateMode(EnumBase):
 
     def __init__(self, value="Always"):
         super(WindowUpdateMode, self).__init__(value)
+
+class SortMode(EnumBase):
+    """ItemListBase::SortMode"""
+
+    enumValues = OrderedDict([ ("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort") ])
+
+    def __init__(self, value="Ascending"):
+        super(SortMode, self).__init__(value)
 
 class Quaternion(Base):
     """Quaternion"""
