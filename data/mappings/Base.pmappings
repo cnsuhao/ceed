@@ -1,3 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Using a combobox for any property:
+		Any property can be mapped to a combobox by setting it's "typeName" to "String"
+		and adding "combo" settings. The "name" attribute specifies the label that appears
+		on the combobox and the "value" the value that will be used.
+
+		The following example shows how HorizontalAlignment could be mapped, if it
+		wasn't a built-in type that was already handled:
+
+		<mapping propertyOrigin="Element" propertyName="HorizontalAlignment" typeName="String">
+			<settings name="combo">
+				<setting name="Left" value="Left" />
+				<setting name="Centre" value="Centre" />
+				<setting name="Right" value="Right" />
+			</settings>
+		</mapping>
+
+		This will make the Visible property appear as a combobox instead of a checkbox:
+
+		<mapping propertyOrigin="Window" propertyName="Visible" typeName="String">
+			<settings name="combo">
+				<setting name="Yes" value="True" />
+				<setting name="No" value="False" />
+			</settings>
+		</mapping>
+-->
 <mappings version="CEED Property Mappings 1">
 
 	<!-- CEGUI::Element -->
@@ -9,15 +36,6 @@
 			<setting name="decimals" value="3" />
 		</settings>
 	</mapping>
-	<!--
-	<mapping propertyOrigin="Element" propertyName="HorizontalAlignment">
-		<settings name="combo">
-			<setting name="Left" value="Left" />
-			<setting name="Centre" value="Centre" />
-			<setting name="Right" value="Right" />
-		</settings>
-	</mapping>
-	-->
 	<!-- End of CEGUI::Element -->
 
 	<!-- CEGUI::NamedElement -->
