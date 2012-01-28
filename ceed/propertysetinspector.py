@@ -91,9 +91,11 @@ class CEGUIPropertyManager(object):
                 "Quaternion": ct.Quaternion,
                 "HorizontalTextFormatting": ct.HorizontalTextFormatting,
                 "VerticalTextFormatting": ct.VerticalTextFormatting,
-                "SortMode": ct.SortMode
+                "SortMode": ct.SortMode,
+                "Colour": ct.Colour,
+                "ColourRect": ct.ColourRect
                 }
-    # TODO: Font*, Image*, ColourRect, UBox? 
+    # TODO: Font*, Image*, UBox? 
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):

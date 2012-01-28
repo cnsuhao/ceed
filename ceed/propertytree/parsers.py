@@ -21,6 +21,8 @@
 AstHelper -- Customised Python literal parsing.
 """
 
+import re
+
 # Imports left as-is to avoid making changes to the code in
 # delegate_literal_eval for easier maintaining/updating from
 # upstream.
@@ -114,3 +116,51 @@ class AstHelper(object):
             return False, None
 
         return AstHelper.delegate_literal_eval(strValue, convertHook)
+
+def parseNamedValues(strValue, allowedNames=None, requiredNames=None, ignoreCase=True):
+    """Parse a string with names and values.
+    
+    The format is similar to a dictionary and is the following:
+        'name:value name2:value with spaces allowed name3:some other value'
+    """
+    if not strValue:
+        return None
+
+    strValue = strValue.strip()
+
+    if ignoreCase:
+        strValue = strValue.lower()
+        if allowedNames is not None:
+            allowedNames = set([name.lower() for name in allowedNames])
+        if requiredNames is not None:
+            requiredNames = set([name.lower() for name in requiredNames])
+
+    # assume the worst, like: 'test: 5  name : this is multiword q:one-word b :multi word again'
+    # remote extra spaces
+    _ = re.sub("\s*:\s*", ":", strValue)
+    # replace spaces before keys with ':'
+    _ = re.sub("\s(\w+):", r":\1:", _)
+    # split by ':", with return name, value, name, value, ...
+    _ = _.split(":")
+    # convert to dictionary (even elements are names, odd are values)
+    pairs = OrderedDict(zip(_[::2], _[1::2]))
+
+    # check required and allowed names
+    if not ignoreCase:
+        if requiredNames is not None:
+            if not requiredNames.issubset(pairs):
+                return None
+        if allowedNames is not None:
+            pNames = set(pairs.keys())
+            if not pNames.issubset(allowedNames):
+                return None
+    else:
+        pNames = set([name.lower() for name in pairs])
+        if requiredNames is not None:
+            if not requiredNames.issubset(pNames):
+                return None
+        if allowedNames is not None:
+            if not pNames.issubset(allowedNames):
+                return None
+
+    return pairs

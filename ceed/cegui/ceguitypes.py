@@ -7,6 +7,9 @@ import math
 from collections import OrderedDict
 
 from ceed.propertytree import properties
+from ceed.propertytree import parsers
+
+from PySide import QtGui
 
 class Base(object):
     """Abstract base class for all value types."""
@@ -24,7 +27,7 @@ class Base(object):
         If 'target' is not None, update its attributes
         with the parse value.
         """
-        pass
+        raise NotImplementedError("'tryParse()' not implemented for class '%s'" % cls.__name__)
 
     @classmethod
     def fromString(cls, strValue):
@@ -39,7 +42,7 @@ class Base(object):
 
     @classmethod
     def getPropertyType(cls):
-        pass
+        raise NotImplementedError("'getPropertyType()' not implemented for class '%s'" % cls.__name__)
 
     def parse(self, strValue):
         return self.__class__.tryParse(strValue, self)[1]
@@ -597,6 +600,182 @@ class XYZRotation(Base):
             return "{:.6f}".format(value).rstrip("0").rstrip(".")
         return "x:{} y:{} z:{}".format(fmt(self.x), fmt(self.y), fmt(self.z))
 
+    @classmethod
+    def getPropertyType(cls):
+        return XYZRotationProperty
+
+class Colour(Base):
+    """Colour
+    
+    Can parse hex strings like:
+        [#]RGB
+        [#]RRGGBB
+        [#]AARRGGBB
+    and named colors like 'green', 'skyblue', 'whitesmoke' using QtGui.Color.
+    """
+
+    pattern = '\s*#?(?:[0-9a-fA-F]+)\s*'
+    rex = re.compile(pattern, re.IGNORECASE)
+
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        alpha = 0xFF
+        red = 0
+        green = 0
+        blue = 0
+
+        match = re.match(cls.rex, strValue)
+        if match is None:
+            if QtGui.QColor.isValidColor(strValue):
+                qtColor = QtGui.QColor(strValue)
+                alpha = qtColor.alpha()
+                red = qtColor.red()
+                green = qtColor.green()
+                blue = qtColor.blue()
+            else:
+                return None, False
+        else:
+            value = match.group(0)
+            if len(value) == 3:
+                # short CSS style RGB
+                red = int(value[0] * 2, 16)
+                green = int(value[1] * 2, 16)
+                blue = int(value[2] * 2, 16)
+            elif len(value) == 6:
+                # CSS RGB
+                red = int(value[0:2], 16)
+                green = int(value[2:4], 16)
+                blue = int(value[4:6], 16)
+            elif len(value) == 8:
+                # ARGB
+                alpha = int(value[0:2], 16)
+                red = int(value[2:4], 16)
+                green = int(value[4:6], 16)
+                blue = int(value[6:8], 16)
+            else:
+                return None, False
+
+        if target is None:
+            target = cls(red, green, blue, alpha)
+        else:
+            target.red = red
+            target.green = green
+            target.blue = blue
+            target.alpha = alpha
+
+        return target, True
+
+    @classmethod
+    def fromQColor(cls, qtColor):
+        return cls(qtColor.red(), qtColor.green(), qtColor.blue(), qtColor.alpha())
+
+    @classmethod
+    def fromColour(cls, other):
+        return cls(other.red, other.green, other.blue, other.alpha)
+
+    def __init__(self, red=0, green=0, blue=0, alpha=255):
+        super(Colour, self).__init__()
+        self.red = int(red)
+        self.green = int(green)
+        self.blue = int(blue)
+        self.alpha = int(alpha)
+
+    def getARGB(self):
+        return self.blue | (self.green << 8) | (self.red << 16) | (self.alpha << 24)
+
+    def __hash__(self):
+        return hash(self.getARGB())
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.getARGB() == other.getARGB()
+        return False
+
+    def __repr__(self):
+        return "{:08X}".format(self.getARGB())
+
+    @classmethod
+    def getPropertyType(cls):
+        return ColourProperty
+
+class ColourRect(Base):
+    """ColourRect
+    
+    Can parse strings like:
+        colour
+        or
+        tl:colour tr:colour bl:colour br:colour
+        
+        where colour is:
+            [#]RGB
+            [#]RRGGBB
+            [#]AARRGGBB
+            or a named color like 'green', 'skyblue', 'whitesmoke'
+    """
+
+    pattern = '\s*#?(?:[0-9a-fA-F]+)\s*'
+    rex = re.compile(pattern, re.IGNORECASE)
+
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        if not strValue:
+            return None, False
+
+        # try to parse as full ColourRect
+        values = parsers.parseNamedValues(strValue,
+                                             { "tl", "tr", "bl", "br" },
+                                             { "tl", "tr", "bl", "br" })
+        if values is not None:
+            for name, value in values.items():
+                colour, valid = Colour.tryParse(value)
+                if not valid:
+                    return None, False
+                values[name] = colour
+        else:
+            # try to parse as one Colour
+            colour, valid = Colour.tryParse(strValue)
+            if not valid:
+                return None, False
+            # assign to all values of ColourRect
+            # make copies or else all Colour components will be
+            # the same and changing one will change all.
+            values = {"tl": Colour.fromColour(colour),
+                      "tr": Colour.fromColour(colour),
+                      "bl": Colour.fromColour(colour),
+                      "br": Colour.fromColour(colour) }
+
+        if target is None:
+            target = cls(values["tl"], values["tr"], values["bl"], values["br"])
+        else:
+            target.topLeft = values["tl"]
+            target.topRight = values["tr"]
+            target.bottomLeft = values["bl"]
+            target.bottomRight = values["br"]
+
+        return target, True
+
+    def __init__(self, tl=Colour(), tr=Colour(), bl=Colour(), br=Colour()):
+        super(ColourRect, self).__init__()
+        self.topLeft = tl
+        self.topRight = tr
+        self.bottomLeft = bl
+        self.bottomRight = br
+
+    def __hash__(self):
+        return hash((hash(self.topLeft), hash(self.topRight), hash(self.bottomLeft), hash(self.bottomRight)))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.topLeft == other.topLeft and self.topRight == other.topRight and self.bottomLeft == other.bottomLeft and self.bottomRight == other.bottomRight
+        return False
+
+    def __repr__(self):
+        return "tl:{} tr:{} bl:{} br:{}".format(self.topLeft, self.topRight, self.bottomLeft, self.bottomRight)
+
+    @classmethod
+    def getPropertyType(cls):
+        return ColourRectProperty
+
 
 
 class BaseProperty(properties.Property):
@@ -782,3 +961,51 @@ class XYZRotationProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return XYZRotation.tryParse(strValue)
+
+class ColourProperty(BaseProperty):
+    """Property for Colour values."""
+
+    def createComponents(self):
+        editorOptions = { "numeric": { "min": 0, "max": 255 } }
+        
+        self.components = OrderedDict()
+        
+        self.components["Alpha"] = properties.Property(name="Alpha", value=self.value.alpha, defaultValue=self.defaultValue.alpha,
+                                                       readOnly=self.readOnly, editorOptions=editorOptions)
+        self.components["Red"] = properties.Property(name="Red", value=self.value.red, defaultValue=self.defaultValue.red,
+                                                     readOnly=self.readOnly, editorOptions=editorOptions)
+        self.components["Green"] = properties.Property(name="Green", value=self.value.green, defaultValue=self.defaultValue.green,
+                                                       readOnly=self.readOnly, editorOptions=editorOptions)
+        self.components["Blue"] = properties.Property(name="Blue", value=self.value.blue, defaultValue=self.defaultValue.blue,
+                                                      readOnly=self.readOnly, editorOptions=editorOptions)
+
+        super(ColourProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return Colour.tryParse(strValue)
+
+class ColourRectProperty(BaseProperty):
+    """Property for ColourRect values."""
+
+    def createComponents(self):
+        self.components = OrderedDict()
+        
+        self.components["TopLeft"] = ColourProperty(name="TopLeft", value=self.value.topLeft, defaultValue=self.defaultValue.topLeft,
+                                                    readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["TopRight"] = ColourProperty(name="TopRight", value=self.value.topRight, defaultValue=self.defaultValue.topRight,
+                                                     readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["BottomLeft"] = ColourProperty(name="BottomLeft", value=self.value.bottomLeft, defaultValue=self.defaultValue.bottomLeft,
+                                                       readOnly=self.readOnly, editorOptions=self.editorOptions)
+        self.components["BottomRight"] = ColourProperty(name="BottomRight", value=self.value.bottomRight, defaultValue=self.defaultValue.bottomRight,
+                                                        readOnly=self.readOnly, editorOptions=self.editorOptions)
+
+        super(ColourRectProperty, self).createComponents()
+
+    def isStringRepresentationEditable(self):
+        return True
+
+    def tryParse(self, strValue):
+        return ColourRect.tryParse(strValue)

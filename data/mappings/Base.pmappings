@@ -74,4 +74,8 @@
 	</mapping>
 	<!-- End of CEGUI::Window -->
 
+	<!-- Testing -->
+	<mapping propertyOrigin="Unknown" propertyName="NormalTextColour" typeName="Colour" />
+	<mapping propertyOrigin="Unknown" propertyName="NormalBackgroundColours" typeName="ColourRect" />
+
 </mappings>
