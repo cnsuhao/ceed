@@ -339,7 +339,43 @@ Imageset editing
 \end_layout
 
 \begin_layout Standard
-[stub]
+Imageset is practically a texture atlas, a technique used to put many smaller
+ images on one texture to drastically speed up rendering (texture switching
+ is still a very expensive operation, even on today's hardware).
+ Each imageset has a name, underlying image (what to load the texture from),
+ knows whether it's autoscaled and its native resolution if it is so and
+ a set of 'images'.
+ By 'image' I basically mean rectangle selection of the underlying image
+ in artist's eyes.
+ Each of these 'images' has position (x, y), width, height and offset (x,
+ y).
+ Offset allows you to move the virtual 'pivot point' of the image, which
+ is useful for crosshairs for example (because by default the 'pivot point'
+ is top left).
+\end_layout
+
+\begin_layout Standard
+Opening existing imageset for editing doesn't require you to have a project
+ opened - the underlying image is sought after in the same directory the
+ .imageset file resides in in that case.
+ If a project file is opened, the appropriate resource directory is used
+ to search for the files instead.
+ Upon opening the imageset, a dock widget containing basic imageset properties
+ (all editable), list of images shows up.
+ The centre part of the editor shows the underlying image and rectangles
+ describing geometry of the images.
+ Image rectangles can be selected (including multiple selection).
+ Selection works in both the image list and the centre part (rubber band
+ selection).
+ Both selections are synchronised.
+ When selected, you can move the images by dragging (including multiple
+ selection) or using keyboard (WSAD scheme moves the images one pixel in
+ each of the directions, pressing CTRL moves them 10 pixels in each of the
+ directions).
+ You can also resize the images by pressing SHIFT and one of the WSAD keys,
+ this moves just the bottom right 'vertex' of the image rectangle.
+ You can delete a selection of images by selecting and pressing DELETE (this
+ is of course undoable).
 \end_layout
 
 \begin_layout Section
@@ -347,7 +383,34 @@ Layout editing
 \end_layout
 
 \begin_layout Standard
-[stub]
+The word layout has 2 meanings in the CEGUI world so I will first disambiguate
+ it.
+ The first meaning is a hierarchy of widgets (the layout describes the way
+ widgets are laid out).
+ The other meaning is a widget able to lay out its child widgets during
+ runtime (more precisely called Layout Container).
+ I will use the word 'layout' with the first meaning in the rest of this
+ section unless stated otherwise.
+ Each layout starts with the root widget (and can only have exactly one
+ root widget, if you need more root widgets, just put them into DefaultWidget
+ and use the DefaultWidget as the root widget).
+ When loading the layout you always get this root widget back.
+ Widgets always have a name that must be unique in the context of it's parent.
+ When I say widget 'Parent/Child/SubChild' I mean a widget that is a child
+ of the 'Child' widget and 'Child' widget is a child of 'Parent' widget.
+ I will call this notation the 'widget path'.
+\end_layout
+
+\begin_layout Subsection
+Custom widgets
+\end_layout
+
+\begin_layout Standard
+The editor loads all schemes in the project so standard widgets get registered
+ if you have them in your scheme.
+ The scheme will be able to load a custom widget set module.
+ The custom widget set module is able to add widget factories so you can
+ even add custom made widgets and have the editor edit them.
 \end_layout
 
 \begin_layout Section
@@ -355,7 +418,11 @@ Animation list editing
 \end_layout
 
 \begin_layout Standard
-[stub]
+Animations are composed of Affectors and can work on any PropertySet based
+ class (Widget, MouseCursor, …).
+ Each Affector affects exactly one property.
+ Affector has keyframes where each keyframe has value and a progression
+ (if the 'time' should accelerate towards it, decelerate or be linear).
 \end_layout
 
 \end_body
