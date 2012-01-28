@@ -1,0 +1,362 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+CEGUI Unified Editor user manual
+\end_layout
+
+\begin_layout Author
+Martin Preisler
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Prerequisites
+\end_layout
+
+\begin_layout Section
+Hardware and software requirements
+\end_layout
+
+\begin_layout Standard
+Operating system:
+\end_layout
+
+\begin_layout Itemize
+GNU/Linux system with X11
+\end_layout
+
+\begin_layout Itemize
+Windows XP and newer
+\end_layout
+
+\begin_layout Itemize
+MacOS X (unofficially)
+\end_layout
+
+\begin_layout Standard
+Hardware:
+\end_layout
+
+\begin_layout Itemize
+at least Intel Pentium 4 or AMD Athlon XP (just a baseline, it may work
+ on older hardware)
+\end_layout
+
+\begin_layout Itemize
+512 MB RAM
+\end_layout
+
+\begin_layout Itemize
+Graphics card capable of running CEGUI (accelerated OpenGL with FBO support),
+ NVIDIA GeForce 4 or ATI/AMD equivalent
+\end_layout
+
+\begin_layout Standard
+Dependencies:
+\end_layout
+
+\begin_layout Itemize
+Python 2.7
+\end_layout
+
+\begin_layout Itemize
+Qt 4.7 or 4.8
+\end_layout
+
+\begin_layout Itemize
+PySide – python bindings for Qt
+\end_layout
+
+\begin_layout Itemize
+CEGUI 0.8
+\end_layout
+
+\begin_layout Itemize
+PyCEGUI 0.8
+\end_layout
+
+\begin_layout Section
+Knowledge prerequisites
+\end_layout
+
+\begin_layout Standard
+To use the Unified Editor, you have to have some basic knowledge of how
+ GUI systems work in general.
+ It would be best if you were familiar with how CEGUI works but Qt or GTK
+ knowledge can be transferred without problems.
+\end_layout
+
+\begin_layout Standard
+To edit assets in 
+\emph on
+code mode
+\emph default
+ you should understand the format in question, the editor makes no effort
+ to make code editing easier.
+\end_layout
+
+\begin_layout Section
+Installation
+\end_layout
+
+\begin_layout Standard
+The application is currently distributed as a source tarball that works
+ on all supported platforms (if you install dependencies) or a ZIP archive
+ with standalone executable for Win32 (needs no dependencies).
+ Just extracting and starting it should be enough.
+\end_layout
+
+\begin_layout Subsection
+Source tarball
+\end_layout
+
+\begin_layout Standard
+First, make sure you have all dependencies.
+ Refer to guides of the dependencies on how to install them.
+\end_layout
+
+\begin_layout Standard
+Download the tarball, extract it.
+ You should end up with a folder called 
+\emph on
+CEED-${version}
+\emph default
+.
+ Go into this folder in CLI (terminal emulator on UNIXes, cmd.exe on Windows)
+ and call 
+\emph on
+python setup.py install
+\emph default
+ as administrator.
+ This should trigger the installation.
+ After the installation finishes, run 
+\emph on
+ceed-gui
+\emph default
+ to start the application.
+\end_layout
+
+\begin_layout Subsection
+Standalone executable (Win32)
+\end_layout
+
+\begin_layout Standard
+You don't have to install anything in this case (all dependencies are bundled),
+ just unzipping the archive and running 
+\emph on
+ceed-gui.exe
+\emph default
+ will make the application start.
+ If this is not the case, please report it as a bug.
+\end_layout
+
+\begin_layout Part
+Working with the application
+\end_layout
+
+\begin_layout Section
+The basics
+\end_layout
+
+\begin_layout Subsection
+Main interface
+\end_layout
+
+\begin_layout Standard
+This interface hosts all the tabbed editors and provides some functionality
+ that is shared by all the editors.
+ It consist of an interface surrounding the application.
+\end_layout
+
+\begin_layout Subsection
+Multi tab editing
+\end_layout
+
+\begin_layout Standard
+The centre of the application consists of tabs, each tab represents one
+ opened file.
+ Any of the tabs can be closed on user's request.
+ Reordering them is also possible.
+ The interface including dock widgets, toolbars, etc...
+ may change when switching tabs.
+\end_layout
+
+\begin_layout Subsection
+Multi mode editing
+\end_layout
+
+\begin_layout Standard
+For some file types (mostly .imageset and .layout), it makes sense to edit
+ in both visual mode (WYSIWYG more or less) as well as XML (editing plain
+ text XML code).
+ Undo and redo is transparent between mode switching as mode switching counts
+ as an undo action.
+ You can switch modes by clicking on the bottom tab pane.
+ All files are by default opened in Visual mode and XML is regarded as a
+ clutch mechanism, a tool to make tedious mass changes or work around problems
+ with Visual mode.
+\end_layout
+
+\begin_layout Subsection
+Project manager
+\end_layout
+
+\begin_layout Standard
+Allows user to manage a project (project is a set of related files), browse
+ through files, open any file for editing, add new or existing files to
+ the project and remove files from the project.
+ Most of the project managing takes place in the 'Project Manager' dock
+ widget.
+ The dock widgets lists all files currently in the project and allows user
+ to edit/view them by double clicking them.
+ Right clicking brings up a context menu with the ability to add files to
+ the project or remove currently selected files from the project.
+ The main reason for project management is to have CEGUI resource path settings
+ shared for all the files in the project.
+ The project files are designed to be committed to a repository and used
+ on different computers for as robust and trouble-free workflow as possible,
+ so all paths are relative to the project file (even though you may see
+ absolute paths in the editor itself, they get converted to relative paths
+ in the end).
+\end_layout
+
+\begin_layout Subsection
+File manager
+\end_layout
+
+\begin_layout Standard
+In addition to the project manager, CEED allows you to browse filesystem
+ and simply open files for quick editing.
+ Please note that this will only work for some file types (it can't work
+ for schemes and layouts because CEGUI paths aren't set if project isn't
+ loaded).
+ This is again realised through a dock widget that hosts the functionality.
+ It has a very simplistic interface, displaying current path, allowing the
+ user to go one level up the hierarchy and simply listing files and folder
+ in the current path.
+\end_layout
+
+\begin_layout Standard
+Double clicking a file opens it for editing.
+\end_layout
+
+\begin_layout Subsection
+Resizable rectangle
+\end_layout
+
+\begin_layout Standard
+[stub]
+\end_layout
+
+\begin_layout Subsection
+Undo and Redo functionality
+\end_layout
+
+\begin_layout Standard
+Since most tabbed editors allow undo and redo, the main interface allows
+ you to perform these actions via shared means in the top toolbar.
+ Undo & Redo are per-file, so whenever you switch tabs, the undo stack gets
+ changed to a completely different stack (all stacks are independent).
+ If you for example do changes to file A, then switch to file B, do some
+ changes and keep pressing Undo, only changes to file B gets undone, you
+ have to switch to A again and undo there.
+ Selections aren't undoable as they don't count as undo actions.
+ Switching editing mode is an undoable action though as the changes of XML
+ code don't make sense in visual code (even though just switching to XML
+ mode doesn't change the file at all).
+\end_layout
+
+\begin_layout Section
+Imageset editing
+\end_layout
+
+\begin_layout Standard
+[stub]
+\end_layout
+
+\begin_layout Section
+Layout editing
+\end_layout
+
+\begin_layout Standard
+[stub]
+\end_layout
+
+\begin_layout Section
+Animation list editing
+\end_layout
+
+\begin_layout Standard
+[stub]
+\end_layout
+
+\end_body
+\end_document
