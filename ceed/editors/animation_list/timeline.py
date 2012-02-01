@@ -155,6 +155,9 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
         self.setBrush(QBrush(QColor(Qt.GlobalColor.lightGray)))
         
+        self.moveInProgress = False
+        self.oldPosition = None
+        
     def setKeyFrame(self, keyFrame):
         self.keyFrame = keyFrame
         
@@ -192,17 +195,18 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         
         elif change == QGraphicsItem.ItemPositionChange:
             newPosition = max(0, min(value.x() / pixelsPerSecond, self.keyFrame.getParent().getParent().getDuration()))
-                        
+            
+            if not self.moveInProgress:
+                self.moveInProgress = True
+                self.oldPosition = self.keyFrame.getPosition()
+            
             while self.keyFrame.getParent().hasKeyFrameAtPosition(newPosition):
                 # FIXME: we want newPosition * epsilon, but how do we get epsilon in python?
                 newPosition += 0.00001
             
             self.timelineSection.prepareGeometryChange()
-            oldPosition = self.keyFrame.getPosition()
             self.keyFrame.moveToPosition(newPosition)
-
-            self.timelineSection.timeline.keyFrameMoved.emit(oldPosition, newPosition)
-
+            
             return QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
         return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
@@ -420,7 +424,7 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
     # old timeline position, new timeline position
     timePositionChanged = Signal(float, float)
     # old position, new position
-    keyFrameMoved = Signal(float, float)
+    keyFramesMoved = Signal(list)
     
     def __init__(self, parentItem = None, animation = None):
         # we only inherit from QObject to be able to define QtCore.Signals in our class
@@ -552,4 +556,19 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
             
         finally:
             self.ignoreTimelineChanges = False
+            
+    def notifyMouseReleased(self):
+        """Called when mouse is released, grabs all moved keyframes
+        and makes a list of old and new positions for them.
+        """
+        
+        # list of tuples, each tuple is (oldPosition, newPosition)
+        movedKeyFrames = []
+        for item in self.scene().selectedItems():
+            if isinstance(item, AffectorTimelineKeyFrame):
+                if item.moveInProgress:
+                    movedKeyFrames.append((item.oldPosition, item.keyFrame.getPosition()))
+                    item.moveInProgress = False
+                    
+        self.keyFramesMoved.emit(movedKeyFrames)
         

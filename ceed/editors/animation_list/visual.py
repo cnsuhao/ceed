@@ -27,7 +27,6 @@ from ceed.editors.animation_list import timeline
 from ceed.editors.animation_list import undo
 
 import ceed.ui.editors.animation_list.animationlistdockwidget
-import ceed.ui.editors.animation_list.timelinedockwidget
 import ceed.ui.editors.animation_list.visualediting
 
 from xml.etree import ElementTree
@@ -60,6 +59,17 @@ class AnimationListDockWidget(QDockWidget):
         cmd = undo.ChangeCurrentAnimationDefinition(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
         
+class TimelineGraphicsView(QGraphicsView):
+    def __init__(self, parent = None):
+        super(TimelineGraphicsView, self).__init__(parent)
+        
+        self.dockWidget = None
+        
+    def mouseReleaseEvent(self, event):
+        super(TimelineGraphicsView, self).mouseReleaseEvent(event)
+        
+        self.dockWidget.timeline.notifyMouseReleased()
+        
 class TimelineDockWidget(QDockWidget):
     """Shows a timeline of currently selected animation (from the animation list dock widget)
     """
@@ -74,9 +84,12 @@ class TimelineDockWidget(QDockWidget):
         
         self.zoomLevel = 1
         
-        self.view = self.findChild(QGraphicsView, "view")
+        self.view = self.findChild(TimelineGraphicsView, "view")
+        self.view.dockWidget = self
+        
         self.scene = QGraphicsScene()
         self.timeline = timeline.AnimationTimeline()
+        self.timeline.keyFramesMoved.connect(self.slot_keyFramesMoved)
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
         
@@ -110,6 +123,12 @@ class TimelineDockWidget(QDockWidget):
         self.timeline.notifyZoomChanged(self.zoomLevel)
         
         return True
+        
+    def slot_keyFramesMoved(self, moved):
+        #cmd = undo.MoveKeyFrames(self.visual, moved)
+        
+        #self.visual.tabbedEditor.undoStack.push(cmd)
+        pass
         
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.
@@ -341,5 +360,6 @@ class VisualEditing(QWidget, mixed.EditMode):
         
     def zoomReset(self):
         return self.timelineDockWidget.zoomReset()
-    
+
+import ceed.ui.editors.animation_list.timelinedockwidget
 from ceed import mainwindow
