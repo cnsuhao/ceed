@@ -18,11 +18,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 # Unix like wildcard matching for property filtering
-import fnmatch, re
+import fnmatch
+import re
 
 import ceed.ui.propertysetinspector
 
@@ -37,7 +38,7 @@ import ceed.ui.propertysetinspector
 # TODO: I never do any testing for this!
 # !!!
 
-class PropertyValue(QStandardItem):
+class PropertyValue(QtGui.QStandardItem):
     """Standard item displaying and holding the value.
     This is displayed next to a PropertyEntry
     """
@@ -57,27 +58,27 @@ class PropertyValue(QStandardItem):
         if oldText != newText:
             self.setText(newText)
             
-            palette = QApplication.palette()
+            palette = QtGui.QApplication.palette()
             
             if self.propertyEntry.isCurrentValueDefault():
-                font = QFont()
+                font = QtGui.QFont()
                 font.setItalic(True)
                 
                 self.setFont(font)
                 
-                self.setForeground(QBrush(palette.color(QPalette.Disabled, QPalette.Text)))
-                self.setBackground(QBrush(palette.color(QPalette.Disabled, QPalette.Base)))
+                self.setForeground(QtGui.QBrush(palette.color(QtGui.QPalette.Disabled, QtGui.QPalette.Text)))
+                self.setBackground(QtGui.QBrush(palette.color(QtGui.QPalette.Disabled, QtGui.QPalette.Base)))
                 
             else:
-                font = QFont()
+                font = QtGui.QFont()
                 font.setPixelSize(14)
                 
                 self.setFont(font)
             
-                self.setForeground(QBrush(palette.color(QPalette.Active, QPalette.Text)))
-                self.setBackground(QBrush(palette.color(QPalette.Active, QPalette.Base)))
+                self.setForeground(QtGui.QBrush(palette.color(QtGui.QPalette.Active, QtGui.QPalette.Text)))
+                self.setBackground(QtGui.QBrush(palette.color(QtGui.QPalette.Active, QtGui.QPalette.Base)))
         
-class PropertyEntry(QStandardItem):
+class PropertyEntry(QtGui.QStandardItem):
     """Standard item displaying the name of a property
     """
         
@@ -93,11 +94,11 @@ class PropertyEntry(QStandardItem):
         self.setText(propertyName)
         self.setEditable(False)
         
-        font = QFont()
+        font = QtGui.QFont()
         font.setPixelSize(13)
         self.setFont(font)
         
-        self.setSizeHint(QSize(-1, 30))
+        self.setSizeHint(QtCore.QSize(-1, 30))
         
         self.value = PropertyValue(self)
         
@@ -165,7 +166,7 @@ class PropertyEntry(QStandardItem):
     def update(self):
         self.value.update()
     
-class PropertyCategory(QStandardItem):
+class PropertyCategory(QtGui.QStandardItem):
     """Groups properties of the same origin
     """ 
     
@@ -187,23 +188,23 @@ class PropertyCategory(QStandardItem):
         
         self.setEditable(False)
         
-        palette = QApplication.palette()
+        palette = QtGui.QApplication.palette()
         
         # we have to set both foreground and background role to prevent issues with various colour
         # settings on the systems (dark desktop skins vs light desktop skins...)
-        self.setForeground(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)))
-        self.setBackground(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)))
+        self.setForeground(QtGui.QBrush(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.HighlightedText)))
+        self.setBackground(QtGui.QBrush(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.Highlight)))
         
-        font = QFont()
+        font = QtGui.QFont()
         font.setBold(True)
         font.setPixelSize(16)
-        self.setData(font, Qt.FontRole)
+        self.setData(font, QtCore.Qt.FontRole)
         
-        self.propertyCount = QStandardItem()
+        self.propertyCount = QtGui.QStandardItem()
         
         # see the comment above about foreground and background :-)
-        self.propertyCount.setData(QBrush(palette.color(QPalette.HighlightedText)), Qt.ForegroundRole)
-        self.propertyCount.setData(QBrush(palette.color(QPalette.Highlight)), Qt.BackgroundRole)
+        self.propertyCount.setData(QtGui.QBrush(palette.color(QtGui.QPalette.HighlightedText)), QtCore.Qt.ForegroundRole)
+        self.propertyCount.setData(QtGui.QBrush(palette.color(QtGui.QPalette.Highlight)), QtCore.Qt.BackgroundRole)
         
         self.propertyCount.setEditable(False)
         
@@ -211,14 +212,14 @@ class PropertyCategory(QStandardItem):
         return self.inspector.getPropertySets()
         
     def setFilterMatched(self, matched):
-        palette = QApplication.palette()
+        palette = QtGui.QApplication.palette()
         
         if matched:
-            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.HighlightedText)), Qt.ForegroundRole)
-            self.setData(QBrush(palette.color(QPalette.Normal, QPalette.Highlight)), Qt.BackgroundRole)
+            self.setData(QtGui.QBrush(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.HighlightedText)), QtCore.Qt.ForegroundRole)
+            self.setData(QtGui.QBrush(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.Highlight)), QtCore.Qt.BackgroundRole)
         else:
-            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.HighlightedText)), Qt.ForegroundRole)
-            self.setData(QBrush(palette.color(QPalette.Disabled, QPalette.Highlight)), Qt.BackgroundRole)
+            self.setData(QtGui.QBrush(palette.color(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText)), QtCore.Qt.ForegroundRole)
+            self.setData(QtGui.QBrush(palette.color(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight)), QtCore.Qt.BackgroundRole)
         
     def filterProperties(self, filter):
         toShow = []
@@ -247,7 +248,7 @@ class PropertyCategory(QStandardItem):
             
         return toShow, toHide
 
-class PropertySetInspectorDelegate(QItemDelegate):
+class PropertySetInspectorDelegate(QtGui.QItemDelegate):
     """Qt model/view delegate that allows delegating editing and viewing to
     PropertyInspectors
     """
@@ -284,12 +285,12 @@ class PropertySetInspectorDelegate(QItemDelegate):
         editorWidget.inspector.notifyEditingEnded(editorWidget, propertyEntry, editorWidget.mapping)
         propertyEntry.update()
 
-class PropertySetInspector(QWidget):
+class PropertySetInspector(QtGui.QWidget):
     """Allows browsing and editing of any CEGUI::PropertySet derived class"""
     
-    propertyEditingStarted = Signal(str)
-    propertyEditingProgress = Signal(str, str)
-    propertyEditingEnded = Signal(str, dict, str)
+    propertyEditingStarted = QtCore.Signal(str)
+    propertyEditingProgress = QtCore.Signal(str, str)
+    propertyEditingEnded = QtCore.Signal(str, dict, str)
     
     def __init__(self, parent = None):
         super(PropertySetInspector, self).__init__(parent)
@@ -299,11 +300,11 @@ class PropertySetInspector(QWidget):
         self.ui = ceed.ui.propertysetinspector.Ui_PropertySetInspector()
         self.ui.setupUi(self)
         
-        self.filterBox = self.findChild(QLineEdit, "filterBox")
+        self.filterBox = self.findChild(QtGui.QLineEdit, "filterBox")
         self.filterBox.textChanged.connect(self.filterChanged)
         
-        self.view = self.findChild(QTreeView, "view")
-        self.model = QStandardItemModel()
+        self.view = self.findChild(QtGui.QTreeView, "view")
+        self.model = QtGui.QStandardItemModel()
         
         # we store the last used filter to be able to reapply it when inspected property sets change
         self.lastUsedFilter = ""

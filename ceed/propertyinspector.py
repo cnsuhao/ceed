@@ -18,8 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 from xml.etree import ElementTree
 
@@ -91,7 +91,7 @@ class LineEditPropertyInspector(PropertyInspector):
         return "LineEdit"
     
     def impl_createEditWidget(self, parent, propertyEntry, mapping):
-        ret = QLineEdit(parent)
+        ret = QtGui.QLineEdit(parent)
         ret.setAutoFillBackground(True)
         
         def slot_textChanged(newValue):
@@ -120,7 +120,7 @@ class TextEditPropertyInspector(PropertyInspector):
         return "TextEdit"
     
     def impl_createEditWidget(self, parent, propertyEntry, mapping):
-        ret = QTextEdit(parent)
+        ret = QtGui.QTextEdit(parent)
         ret.setAutoFillBackground(True)
     
         def slot_textChanged():
@@ -148,7 +148,7 @@ class CheckBoxPropertyInspector(PropertyInspector):
         return "CheckBox"
     
     def impl_createEditWidget(self, parent, propertyEntry, mapping):
-        ret = QCheckBox(parent)
+        ret = QtGui.QCheckBox(parent)
         ret.setAutoFillBackground(True)
         
         def slot_stateChanged(state):
@@ -176,9 +176,9 @@ class SliderPropertyInspector(PropertyInspector):
         return "Slider"
     
     def impl_createEditWidget(self, parent, propertyEntry, mapping):
-        slider = QSlider(parent)
+        slider = QtGui.QSlider(parent)
         slider.setAutoFillBackground(True)
-        slider.setOrientation(Qt.Horizontal)
+        slider.setOrientation(QtCore.Qt.Horizontal)
         
         minimum = int(mapping.targetInspectorSettings["minimum"])
         maximum = int(mapping.targetInspectorSettings["maximum"])
@@ -208,7 +208,7 @@ class SliderPropertyInspector(PropertyInspector):
         
         return str(ret)
 
-class PropertyInspectorMapping(QStandardItem):
+class PropertyInspectorMapping(QtGui.QStandardItem):
     """Maps a CEGUI::Property (by origin and name) to a PropertyInspector to allow
     its viewing and editing.
     
@@ -225,10 +225,10 @@ class PropertyInspectorMapping(QStandardItem):
         self.targetInspectorName = targetInspectorName
         self.targetInspectorSettings = targetInspectorSettings
         
-        self.setFlags(Qt.ItemIsSelectable |
-                      Qt.ItemIsDragEnabled |
-                      Qt.ItemIsEnabled |
-                      Qt.ItemIsEditable)
+        self.setFlags(QtCore.Qt.ItemIsSelectable |
+                      QtCore.Qt.ItemIsDragEnabled |
+                      QtCore.Qt.ItemIsEnabled |
+                      QtCore.Qt.ItemIsEditable)
         
     def getColumnData(self, column, role):
         if column == 0:
@@ -282,15 +282,15 @@ class PropertyInspectorMapping(QStandardItem):
             
         return element
 
-class PropertyInspectorMappingList(QStandardItemModel):
+class PropertyInspectorMappingList(QtGui.QStandardItemModel):
     def __init__(self):
         super(PropertyInspectorMappingList, self).__init__()
         
         self.setHorizontalHeaderLabels(["Origin", "Property", "Inspector"])
         self.setItemPrototype(PropertyInspectorMapping())
     
-    def data(self, index, role = Qt.DisplayRole):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+    def data(self, index, role = QtCore.Qt.DisplayRole):
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             item = self.item(index.row(), 0)
         
             return item.getColumnData(index.column(), role)
@@ -298,8 +298,8 @@ class PropertyInspectorMappingList(QStandardItemModel):
         else:
             return super(PropertyInspectorMappingList, self).data(index, role)
     
-    def setData(self, index, value, role = Qt.EditRole):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+    def setData(self, index, value, role = QtCore.Qt.EditRole):
+        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             item = self.item(index.row(), 0)
         
             return item.setColumnData(index.column(), value, role)

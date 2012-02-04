@@ -20,8 +20,7 @@
 
 # Stefan Stammberger is the original author of this file
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtGui
 
 class RecentlyUsed(object):
     """This class can be used to store pointers to Items like files and images for later reuse within the application.
@@ -194,7 +193,7 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
 
         i = 1
         for f in items:
-            actionRP = QAction(self.menu)
+            actionRP = QtGui.QAction(self.menu)
             text = self.trimItemName(f)
             if i <= 10:
                 text = "&" + str(i % 10) + ". " + text
