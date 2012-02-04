@@ -77,6 +77,9 @@ class MainWindow(QtGui.QMainWindow):
 
         self.app = app
 
+        # whether the app was maximized before going fullscreen
+        self.wasMaximized = False
+
         # we have to construct ActionManager before settings interface (as it alters the settings declaration)!
         self.actionManager = action.ActionManager(self, self.app.settings)
 
