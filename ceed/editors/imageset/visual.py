@@ -18,9 +18,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
-from PySide.QtOpenGL import QGLWidget
+from PySide import QtCore
+from PySide import QtGui
+from PySide import QtOpenGL
 
 import fnmatch, re
 
@@ -34,7 +34,7 @@ from ceed.editors.imageset import undo
 import ceed.ui.editors.imageset.dockwidget
 import cPickle
 
-class ImageEntryItemDelegate(QItemDelegate):
+class ImageEntryItemDelegate(QtGui.QItemDelegate):
     """The only reason for this is to track when we are editing.
     
     We need this to discard key events when editor is open.
@@ -55,7 +55,7 @@ class ImageEntryItemDelegate(QItemDelegate):
         
         self.editing = False
 
-class ImagesetEditorDockWidget(QDockWidget):
+class ImagesetEditorDockWidget(QtGui.QDockWidget):
     """Provides list of images, property editing of currently selected image and create/delete
     """
     
@@ -67,25 +67,25 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.ui = ceed.ui.editors.imageset.dockwidget.Ui_DockWidget()
         self.ui.setupUi(self)
         
-        self.name = self.findChild(QLineEdit, "name")
+        self.name = self.findChild(QtGui.QLineEdit, "name")
         self.name.textEdited.connect(self.slot_nameEdited)
         self.image = self.findChild(qtwidgets.FileLineEdit, "image")
         # nasty, but at this point tabbedEditor.mainWindow isn't set yet
         project = mainwindow.MainWindow.instance.project
         self.image.startDirectory = lambda: project.getResourceFilePath("", "imagesets") if project is not None else ""
-        self.imageLoad = self.findChild(QPushButton, "imageLoad")
+        self.imageLoad = self.findChild(QtGui.QPushButton, "imageLoad")
         self.imageLoad.clicked.connect(self.slot_imageLoadClicked)
-        self.autoScaled = self.findChild(QCheckBox, "autoScaled")
+        self.autoScaled = self.findChild(QtGui.QCheckBox, "autoScaled")
         self.autoScaled.stateChanged.connect(self.slot_autoScaledChanged)
-        self.nativeHorzRes = self.findChild(QLineEdit, "nativeHorzRes")
+        self.nativeHorzRes = self.findChild(QtGui.QLineEdit, "nativeHorzRes")
         self.nativeHorzRes.textEdited.connect(self.slot_nativeResolutionEdited)
-        self.nativeVertRes = self.findChild(QLineEdit, "nativeVertRes")
+        self.nativeVertRes = self.findChild(QtGui.QLineEdit, "nativeVertRes")
         self.nativeVertRes.textEdited.connect(self.slot_nativeResolutionEdited)
         
-        self.filterBox = self.findChild(QLineEdit, "filterBox")
+        self.filterBox = self.findChild(QtGui.QLineEdit, "filterBox")
         self.filterBox.textChanged.connect(self.filterChanged)
         
-        self.list = self.findChild(QListWidget, "list")
+        self.list = self.findChild(QtGui.QListWidget, "list")
         self.list.setItemDelegate(ImageEntryItemDelegate())
         self.list.itemSelectionChanged.connect(self.slot_itemSelectionChanged)
         self.list.itemChanged.connect(self.slot_itemChanged)
@@ -93,23 +93,23 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.selectionUnderway = False
         self.selectionSynchronisationUnderway = False
         
-        self.positionX = self.findChild(QLineEdit, "positionX")
-        self.positionX.setValidator(QIntValidator(0, 9999999, self))
+        self.positionX = self.findChild(QtGui.QLineEdit, "positionX")
+        self.positionX.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.positionX.textChanged.connect(self.slot_positionXChanged)
-        self.positionY = self.findChild(QLineEdit, "positionY")
-        self.positionY.setValidator(QIntValidator(0, 9999999, self))
+        self.positionY = self.findChild(QtGui.QLineEdit, "positionY")
+        self.positionY.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.positionY.textChanged.connect(self.slot_positionYChanged)
-        self.width = self.findChild(QLineEdit, "width")
-        self.width.setValidator(QIntValidator(0, 9999999, self))
+        self.width = self.findChild(QtGui.QLineEdit, "width")
+        self.width.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.width.textChanged.connect(self.slot_widthChanged)
-        self.height = self.findChild(QLineEdit, "height")
-        self.height.setValidator(QIntValidator(0, 9999999, self))
+        self.height = self.findChild(QtGui.QLineEdit, "height")
+        self.height.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.height.textChanged.connect(self.slot_heightChanged)
-        self.offsetX = self.findChild(QLineEdit, "offsetX")
-        self.offsetX.setValidator(QIntValidator(-9999999, 9999999, self))
+        self.offsetX = self.findChild(QtGui.QLineEdit, "offsetX")
+        self.offsetX.setValidator(QtGui.QIntValidator(-9999999, 9999999, self))
         self.offsetX.textChanged.connect(self.slot_offsetXChanged)
-        self.offsetY = self.findChild(QLineEdit, "offsetY")
-        self.offsetY.setValidator(QIntValidator(-9999999, 9999999, self))
+        self.offsetY = self.findChild(QtGui.QLineEdit, "offsetY")
+        self.offsetY.setValidator(QtGui.QIntValidator(-9999999, 9999999, self))
         self.offsetY.textChanged.connect(self.slot_offsetYChanged)
         
         self.setActiveImageEntry(None)
@@ -146,11 +146,11 @@ class ImagesetEditorDockWidget(QDockWidget):
         self.nativeVertRes.setText(str(self.imagesetEntry.nativeVertRes))
         
         for imageEntry in self.imagesetEntry.imageEntries:
-            item = QListWidgetItem()
+            item = QtGui.QListWidgetItem()
             item.dockWidget = self
-            item.setFlags(Qt.ItemIsSelectable |
-                          Qt.ItemIsEditable |
-                          Qt.ItemIsEnabled)
+            item.setFlags(QtCore.Qt.ItemIsSelectable |
+                          QtCore.Qt.ItemIsEditable |
+                          QtCore.Qt.ItemIsEnabled)
             
             item.imageEntry = imageEntry
             imageEntry.listItem = item
@@ -212,7 +212,7 @@ class ImagesetEditorDockWidget(QDockWidget):
         # (delete means delete character, not delete image entry in this context)
         
         if not self.list.itemDelegate().editing:
-            if event.key() == Qt.Key_Delete:
+            if event.key() == QtCore.Qt.Key_Delete:
                 selection = self.visual.scene().selectedItems()
                 
                 handled = self.visual.deleteImageEntries(selection)
@@ -294,7 +294,7 @@ class ImagesetEditorDockWidget(QDockWidget):
         
     def slot_autoScaledChanged(self, newState):
         oldAutoScaled = self.imagesetEntry.autoScaled
-        newAutoScaled = self.autoScaled.checkState() == Qt.Checked
+        newAutoScaled = self.autoScaled.checkState() == QtCore.Qt.Checked
         
         if oldAutoScaled == newAutoScaled:
             return
@@ -364,11 +364,11 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
         self.lastMousePosition = None
         
-        scene = QGraphicsScene()
+        scene = QtGui.QGraphicsScene()
         self.setScene(scene)
         
-        self.setFocusPolicy(Qt.ClickFocus)
-        self.setFrameStyle(QFrame.NoFrame)
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.setFrameStyle(QtGui.QFrame.NoFrame)
         
         if settings.getEntry("imageset/visual/partial_updates").value:
             # the commented lines are possible optimisation, I found out that they don't really
@@ -377,7 +377,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
             #self.setOptimizationFlag(QGraphicsView.DontSavePainterState, True)
             #self.setOptimizationFlag(QGraphicsView.DontAdjustForAntialiasing, True)
             #self.setCacheMode(QGraphicsView.CacheBackground)
-            self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+            self.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
             #self.setRenderHint(QPainter.Antialiasing, False)
             #self.setRenderHint(QPainter.TextAntialiasing, False)
             #self.setRenderHint(QPainter.SmoothPixmapTransform, False)
@@ -385,15 +385,15 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         else:
             # use OpenGL for view redrawing
             # depending on the platform and hardware this may be faster or slower
-            self.setViewport(QGLWidget())
-            self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+            self.setViewport(QtOpenGL.QGLWidget())
+            self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
         
         self.scene().selectionChanged.connect(self.slot_selectionChanged)
         
         self.tabbedEditor = tabbedEditor
 
-        self.setDragMode(QGraphicsView.RubberBandDrag)
-        self.setBackgroundBrush(QBrush(Qt.lightGray))
+        self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
+        self.setBackgroundBrush(QtGui.QBrush(QtCore.Qt.lightGray))
         
         self.imagesetEntry = None
         
@@ -419,8 +419,8 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.focusImageListFilterBoxAction = action.getAction("imageset/focus_image_list_filter_box")
         self.connectionGroup.add(self.focusImageListFilterBoxAction, receiver = lambda: self.focusImageListFilterBox())
         
-        self.toolBar = QToolBar("Imageset")
-        self.toolBar.setIconSize(QSize(32, 32))
+        self.toolBar = QtGui.QToolBar("Imageset")
+        self.toolBar.setIconSize(QtCore.QSize(32, 32))
         
         self.toolBar.addAction(self.createImageAction)
         self.toolBar.addAction(self.duplicateSelectedImagesAction)
@@ -428,9 +428,9 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.toolBar.addAction(self.editOffsetsAction)
         self.toolBar.addAction(self.cycleOverlappingAction)
         
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         
-        self.contextMenu = QMenu(self)
+        self.contextMenu = QtGui.QMenu(self)
         self.customContextMenuRequested.connect(self.slot_customContextMenu)
         
         self.contextMenu.addAction(self.createImageAction)
@@ -739,7 +739,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
     def mousePressEvent(self, event): 
         super(VisualEditing, self).mousePressEvent(event) 
         
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & QtCore.Qt.LeftButton:
             for selectedItem in self.scene().selectedItems():
                 # selectedItem could be ImageEntry or ImageOffset!                    
                 selectedItem.potentialMove = True
@@ -844,7 +844,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         
         handled = False
         
-        if event.key() in [Qt.Key_A, Qt.Key_D, Qt.Key_W, Qt.Key_S]:
+        if event.key() in [QtCore.Qt.Key_A, QtCore.Qt.Key_D, QtCore.Qt.Key_W, QtCore.Qt.Key_S]:
             selection = []
             
             for item in self.scene().selectedItems():
@@ -860,29 +860,29 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
                         selection.append(parent)
             
             if len(selection) > 0:
-                delta = QPointF()
+                delta = QtCore.QPointF()
                 
-                if event.key() == Qt.Key_A:
-                    delta += QPointF(-1, 0)
-                elif event.key() == Qt.Key_D:
-                    delta += QPointF(1, 0)
-                elif event.key() == Qt.Key_W:
-                    delta += QPointF(0, -1)
-                elif event.key() == Qt.Key_S:
-                    delta += QPointF(0, 1)
+                if event.key() == QtCore.Qt.Key_A:
+                    delta += QtCore.QPointF(-1, 0)
+                elif event.key() == QtCore.Qt.Key_D:
+                    delta += QtCore.QPointF(1, 0)
+                elif event.key() == QtCore.Qt.Key_W:
+                    delta += QtCore.QPointF(0, -1)
+                elif event.key() == QtCore.Qt.Key_S:
+                    delta += QtCore.QPointF(0, 1)
                 
-                if event.modifiers() & Qt.ControlModifier:
+                if event.modifiers() & QtCore.Qt.ControlModifier:
                     delta *= 10
                 
-                if event.modifiers() & Qt.ShiftModifier:
-                    handled = self.resizeImageEntries(selection, QPointF(0, 0), delta)
+                if event.modifiers() & QtCore.Qt.ShiftModifier:
+                    handled = self.resizeImageEntries(selection, QtCore.QPointF(0, 0), delta)
                 else:
                     handled = self.moveImageEntries(selection, delta)
                 
-        elif event.key() == Qt.Key_Q:
+        elif event.key() == QtCore.Qt.Key_Q:
             handled = self.cycleOverlappingImages()
         
-        elif event.key() == Qt.Key_Delete:
+        elif event.key() == QtCore.Qt.Key_Delete:
             handled = self.deleteSelectedImageEntries()           
             
         if not handled:
@@ -954,14 +954,14 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         imageData.append(copyRects)
         imageData.append(copyOffsets)
 
-        data = QMimeData()
-        data.setData("application/x-ceed-imageset-image-list", QByteArray(cPickle.dumps(imageData)))
-        QApplication.clipboard().setMimeData(data)
+        data = QtCore.QMimeData()
+        data.setData("application/x-ceed-imageset-image-list", QtCore.QByteArray(cPickle.dumps(imageData)))
+        QtGui.QApplication.clipboard().setMimeData(data)
 
         return True
 
     def performPaste(self):
-        data = QApplication.clipboard().mimeData()
+        data = QtGui.QApplication.clipboard().mimeData()
         if not data.hasFormat("application/x-ceed-imageset-image-list"):
             return False
 
