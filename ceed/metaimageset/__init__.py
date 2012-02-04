@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,7 +16,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 """
 This module provides all metaimageset API core functionality (except editing)

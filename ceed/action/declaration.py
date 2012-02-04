@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,7 +16,14 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
+
+"""Provides API to declare actions that are remapable
+(shortcuts can be changed) using the settings interface
+
+All actions in the application should be declared using this API, unless
+there are serious reasons not to do that. 
+"""
 
 from PySide.QtCore import Qt
 from PySide.QtGui import QAction, QKeySequence, QIcon
@@ -26,7 +35,9 @@ class Action(QAction):
     While it isn't needed/required to use this everywhere where QAction is used, it is recommended.
     """
 
-    def __init__(self, category, name, label = None, help = "", icon = QIcon(), defaultShortcut = QKeySequence(), settingsLabel = None, menuRole = QAction.TextHeuristicRole):
+    def __init__(self, category, name, label = None, help = "", icon = QIcon(),
+                 defaultShortcut = QKeySequence(), settingsLabel = None,
+                 menuRole = QAction.TextHeuristicRole):
         if label is None:
             label = name
         if settingsLabel is None:
@@ -114,6 +125,10 @@ class ActionCategory(object):
         self.settingsSection = category.createSection(name = self.name, label = self.label)
 
 class ActionManager(object):
+    """Usually a singleton that manages all action categories and therefore
+    actions within them.
+    """
+    
     def __init__(self, mainWindow, settings):
         self.mainWindow = mainWindow
         self.settings = settings

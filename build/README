@@ -4,4 +4,4 @@ make much sense.
 It makes sense to bundle python, used libraries and the app into a group of
 files that are portable and standalone.
 
-This folder contains cx_frozen version of the application.
+This folder contains cx_Frozen version of the application.

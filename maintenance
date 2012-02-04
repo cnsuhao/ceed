@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -15,7 +18,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 """This is a utility toolset script allowing various maintenance tasks
 to be performed with CEED codebase
@@ -30,7 +33,8 @@ import argparse
 import subprocess
 
 def get_temporary_directory_path():
-    temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.join("maintenance-temp")))
+    temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                       "maintenance-temp"))
     
     if not os.path.exists(temp_directory_path):
         os.mkdir(temp_directory_path)
@@ -45,7 +49,8 @@ def fetch_datafiles():
     
     try:
         temp_directory_path = get_temporary_directory_path()
-        sample_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.join("data", "samples")))
+        sample_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                             os.path.join("data", "samples")))
         v0_7_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles0_7")
         v0_8_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles0_8")
         
@@ -57,7 +62,10 @@ def fetch_datafiles():
             subprocess.call(["hg", "pull", "-u"])
             os.chdir(temp_directory_path)
         else:
-            subprocess.call(["hg", "clone", "http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/cegui_mk2", "cegui_mk2"])
+            subprocess.call(["hg", "clone",
+                             "http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/cegui_mk2",
+                             "cegui_mk2"])
+            
         print("*** cegui_mk2 is up to date now!")
             
         os.chdir("cegui_mk2")
@@ -100,9 +108,13 @@ def archive():
         
     os.mkdir(target_temp_directory_path)
     
-    shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"), ignore = shutil.ignore_patterns("*~", "runwrapper.sh"))
-    shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"), ignore = shutil.ignore_patterns("*~", "*.pyc", "*.pyo"))
-    shutil.copytree("data", os.path.join(target_temp_directory_path, "data"), ignore = shutil.ignore_patterns("*~"))
+    shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"),
+                    ignore = shutil.ignore_patterns("*~", "runwrapper.sh"))
+    shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"),
+                    ignore = shutil.ignore_patterns("*~", "*.pyc", "*.pyo"))
+    shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
+                    ignore = shutil.ignore_patterns("*~"))
+    
     # we don't copy doc for now, there is almost nothing there
     shutil.copy("AUTHORS", target_temp_directory_path)
     shutil.copy("LICENSE", target_temp_directory_path)
@@ -127,7 +139,8 @@ def clean():
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
     
-    parser.add_argument("task", type = str, help = "Which task do you want to perform? (valid choices: fetch-datafiles, archive, clean)")
+    parser.add_argument("task", type = str,
+                        help = "Which task do you want to perform? (valid choices: fetch-datafiles, archive, clean)")
     
     args = parser.parse_args()
     

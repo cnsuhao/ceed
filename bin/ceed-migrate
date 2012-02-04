@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -15,9 +18,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-# Data migration command line tool
+"""Data migration command line tool
+"""
 
 import sys
 import argparse
@@ -25,12 +29,17 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description = "Migrate given files using compatibility layers of the editor")
     
-    parser.add_argument("category", type = str, help = "Which compatibility category to use ('imageset', 'layout').")
-    parser.add_argument("--sourceType", type = str, default = "Auto", required = False, help = "What is the source type of the data, if omitted, the type will be guessed")
-    parser.add_argument("--targetType", type = str, default = "Native", required = False, help = "What should the target type be. If omitted, editor's native type is used")
+    parser.add_argument("category", type = str,
+                        help = "Which compatibility category to use ('imageset', 'layout').")
+    parser.add_argument("--sourceType", type = str, default = "Auto", required = False,
+                        help = "What is the source type of the data, if omitted, the type will be guessed")
+    parser.add_argument("--targetType", type = str, default = "Native", required = False,
+                        help = "What should the target type be. If omitted, editor's native type is used")
     
-    parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"), help = "Input file to be processed.")
-    parser.add_argument("output", metavar = "OUTPUT_FILE", type = argparse.FileType("w"), help = "Output / target file path.")
+    parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
+                        help = "Input file to be processed.")
+    parser.add_argument("output", metavar = "OUTPUT_FILE", type = argparse.FileType("w"),
+                        help = "Output / target file path.")
     
     args = parser.parse_args()
     
