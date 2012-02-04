@@ -24,8 +24,8 @@ import os.path
 from ceed.metaimageset import rectanglepacking
 import ceed.compatibility.imageset as imageset_compatibility
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 class ImageInstance(object):
     def __init__(self, x, y, image):
@@ -104,17 +104,17 @@ class CompilerInstance(object):
         print("Correct texture side size found after %i iterations" % (i))
         
         print("Rendering the underlying image...")    
-        underlyingImage = QImage(sideSize, sideSize, QImage.Format_ARGB32)
+        underlyingImage = QtGui.QImage(sideSize, sideSize, QtGui.QImage.Format_ARGB32)
         underlyingImage.fill(0)
         
-        painter = QPainter()
+        painter = QtGui.QPainter()
         painter.begin(underlyingImage)
         
         for imageInstance in imageInstances:
             # TODO: borders
             
             # and then draw the real image on top
-            painter.drawImage(QPointF(imageInstance.x, imageInstance.y),
+            painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y),
                               imageInstance.image.qimage)
             
         painter.end()

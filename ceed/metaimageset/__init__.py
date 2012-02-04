@@ -25,9 +25,8 @@ This module provides all metaimageset API core functionality (except editing)
 import ceed.editors.imageset.elements as imageset_elements
 import ceed.compatibility.imageset as imageset_compatibility
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from PySide.QtSvg import *
+from PySide import QtGui
+from PySide import QtSvg
 
 import os
 from xml.etree import ElementTree
@@ -144,7 +143,7 @@ class Bitmap(Input):
             pathSplit = path.rsplit(".", 1)
             name = os.path.basename(pathSplit[0])
             
-            image = Image(name, QImage(path), self.xoffset, self.yoffset)
+            image = Image(name, QtGui.QImage(path), self.xoffset, self.yoffset)
             self.images.append(image)
     
     def saveToElement(self):
@@ -181,10 +180,10 @@ class SVG(Input):
             pathSplit = path.rsplit(".", 1)
             name = os.path.basename(pathSplit[0])
             
-            svgRenderer = QSvgRenderer(path)
-            qimage = QImage(svgRenderer.defaultSize().width(), svgRenderer.defaultSize().height(), QImage.Format_ARGB32)
+            svgRenderer = QtSvg.QSvgRenderer(path)
+            qimage = QtGui.QImage(svgRenderer.defaultSize().width(), svgRenderer.defaultSize().height(), QtGui.QImage.Format_ARGB32)
             qimage.fill(0)
-            painter = QPainter()
+            painter = QtGui.QPainter()
             painter.begin(qimage)
             svgRenderer.render(painter)
             painter.end()
