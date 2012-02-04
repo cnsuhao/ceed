@@ -18,8 +18,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide import QtGui
 
 import PyCEGUI
 
@@ -33,7 +32,7 @@ import ceed.ui.editors.animation_list.visualediting
 
 from xml.etree import ElementTree
 
-class AnimationListDockWidget(QDockWidget):
+class AnimationListDockWidget(QtGui.QDockWidget):
     """Lists animations in the currently opened animation list XML
     """
     
@@ -45,7 +44,7 @@ class AnimationListDockWidget(QDockWidget):
         self.ui = ceed.ui.editors.animation_list.animationlistdockwidget.Ui_AnimationListDockWidget()
         self.ui.setupUi(self)
         
-        self.list = self.findChild(QListWidget, "list")
+        self.list = self.findChild(QtGui.QListWidget, "list")
         self.list.currentItemChanged.connect(self.slot_currentItemChanged)
         
     def fillWithAnimations(self, animationWrappers):
@@ -61,7 +60,7 @@ class AnimationListDockWidget(QDockWidget):
         cmd = undo.ChangeCurrentAnimationDefinition(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
         
-class TimelineGraphicsView(QGraphicsView):
+class TimelineGraphicsView(QtGui.QGraphicsView):
     def __init__(self, parent = None):
         super(TimelineGraphicsView, self).__init__(parent)
         
@@ -72,7 +71,7 @@ class TimelineGraphicsView(QGraphicsView):
         
         self.dockWidget.timeline.notifyMouseReleased()
         
-class TimelineDockWidget(QDockWidget):
+class TimelineDockWidget(QtGui.QDockWidget):
     """Shows a timeline of currently selected animation (from the animation list dock widget)
     """
     
@@ -89,17 +88,17 @@ class TimelineDockWidget(QDockWidget):
         self.view = self.findChild(TimelineGraphicsView, "view")
         self.view.dockWidget = self
         
-        self.scene = QGraphicsScene()
+        self.scene = QtGui.QGraphicsScene()
         self.timeline = timeline.AnimationTimeline()
         self.timeline.keyFramesMoved.connect(self.slot_keyFramesMoved)
         self.scene.addItem(self.timeline)
         self.view.setScene(self.scene)
         
-        self.playButton = self.findChild(QPushButton, "playButton")
+        self.playButton = self.findChild(QtGui.QPushButton, "playButton")
         self.playButton.clicked.connect(lambda: self.timeline.play())
-        self.pauseButton = self.findChild(QPushButton, "pauseButton")
+        self.pauseButton = self.findChild(QtGui.QPushButton, "pauseButton")
         self.pauseButton.clicked.connect(lambda: self.timeline.pause())
-        self.stopButton = self.findChild(QPushButton, "stopButton")
+        self.stopButton = self.findChild(QtGui.QPushButton, "stopButton")
         self.stopButton.clicked.connect(lambda: self.timeline.stop())
         
     def zoomIn(self):
@@ -178,7 +177,7 @@ class AnimationDefinitionWrapper(object):
         
         return ret
 
-class VisualEditing(QWidget, mixed.EditMode):
+class VisualEditing(QtGui.QWidget, mixed.EditMode):
     """This is the default visual editing mode for animation lists
     
     see editors.mixed.EditMode
@@ -214,12 +213,12 @@ class VisualEditing(QWidget, mixed.EditMode):
         
         self.rootPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "RootPreviewWidget")
         
-        self.previewWidgetSelector = self.findChild(QComboBox, "previewWidgetSelector")
+        self.previewWidgetSelector = self.findChild(QtGui.QComboBox, "previewWidgetSelector")
         self.previewWidgetSelector.currentIndexChanged.connect(self.slot_previewWidgetSelectorChanged)
         self.populateWidgetSelector()
-        self.ceguiPreview = self.findChild(QWidget, "ceguiPreview")
+        self.ceguiPreview = self.findChild(QtGui.QWidget, "ceguiPreview")
         
-        layout = QVBoxLayout(self.ceguiPreview)
+        layout = QtGui.QVBoxLayout(self.ceguiPreview)
         layout.setContentsMargins(0, 0, 0, 0)
         self.ceguiPreview.setLayout(layout)        
         
@@ -315,7 +314,8 @@ class VisualEditing(QWidget, mixed.EditMode):
                 self.currentPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow(widgetType, "PreviewWidget")
                 
             except Exception as ex:
-                QMessageBox.warning(self, "Unable to comply!", "Your selected preview widget of type '%s' can't be used as a preview widget, error occured ('%s')." % (widgetType, ex))
+                QtGui.QMessageBox.warning(self, "Unable to comply!",
+                                          "Your selected preview widget of type '%s' can't be used as a preview widget, error occured ('%s')." % (widgetType, ex))
                 self.currentPreviewWidget = None
                 self.synchInstanceAndWidget()
                 return

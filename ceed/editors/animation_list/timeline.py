@@ -18,8 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 import PyCEGUI
 
@@ -28,7 +28,7 @@ import time
 # default amount of pixels per second for 100% zoom
 pixelsPerSecond = 1000
 
-class TimecodeLabel(QGraphicsRectItem):
+class TimecodeLabel(QtGui.QGraphicsRectItem):
     """Simply displays time position labels depending on the zoom level
     """
     
@@ -40,12 +40,12 @@ class TimecodeLabel(QGraphicsRectItem):
         
         self.range = 1
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable)
         
     def _setRange(self, range):
         assert(range > 0)
         
-        self.setRect(QRectF(0, 0, range * pixelsPerSecond, 15))
+        self.setRect(QtCore.QRectF(0, 0, range * pixelsPerSecond, 15))
     
     def _getRange(self):
         return self.rect().width() / pixelsPerSecond
@@ -119,21 +119,21 @@ class TimecodeLabel(QGraphicsRectItem):
                     timeLabels[i] = True
             
             painter.scale(1.0 / xScale, 1)
-            font = QFont()
+            font = QtGui.QFont()
             font.setPixelSize(8)
             painter.setFont(font)
-            painter.setPen(QPen())
+            painter.setPen(QtGui.QPen())
             
             for key, value in timeLabels.iteritems():
                 if value:
                     # round(key, 6) because we want at most 6 digits, %g to display it as compactly as possible
-                    painter.drawText(key * pixelsPerSecond * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, Qt.AlignHCenter | Qt.AlignBottom, "%g" % (round(key, 6)))
-                    painter.drawLine(QPointF(key * pixelsPerSecond * xScale, 10), QPointF(pixelsPerSecond * key * xScale, 15))
+                    painter.drawText(key * pixelsPerSecond * xScale - minLabelWidth * 0.5, 0, minLabelWidth, 10, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom, "%g" % (round(key, 6)))
+                    painter.drawLine(QtCore.QPointF(key * pixelsPerSecond * xScale, 10), QtCore.QPointF(pixelsPerSecond * key * xScale, 15))
             
         finally:
             painter.restore()
         
-class AffectorTimelineKeyFrame(QGraphicsRectItem):
+class AffectorTimelineKeyFrame(QtGui.QGraphicsRectItem):
     keyFrame = property(lambda self: self.data(0),
                         lambda self, value: self.setData(0, value))
     
@@ -144,18 +144,18 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
 
         self.setKeyFrame(keyFrame)
         
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIgnoresTransformations |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable |
+                      QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemIgnoresTransformations |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         
         # the parts between keyframes are z-value 0 so this makes key frames always "stand out"
         self.setZValue(1)
         self.setRect(0, 1, 15, 29)
         
-        palette = QApplication.palette()
-        self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
-        self.setBrush(QBrush(QColor(Qt.GlobalColor.lightGray)))
+        #palette = QApplication.palette()
+        self.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.GlobalColor.transparent)))
+        self.setBrush(QtGui.QBrush(QtGui.QColor(QtCore.Qt.GlobalColor.lightGray)))
         
         self.moveInProgress = False
         self.oldPosition = None
@@ -173,7 +173,7 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
         painter.save()
         
         try:
-            palette = QApplication.palette()
+            palette = QtGui.QApplication.palette()
             
             painter.setPen(self.pen())
             painter.setBrush(self.brush())
@@ -181,21 +181,21 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
             painter.drawRect(self.rect())
                 
             # draw the circle representing the keyframe
-            self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
-            painter.setBrush(QBrush(palette.color(QPalette.Normal, QPalette.ButtonText)))
-            painter.drawEllipse(QPointF(7.5, 14.5), 4, 4)
+            self.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.GlobalColor.transparent)))
+            painter.setBrush(QtGui.QBrush(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.ButtonText)))
+            painter.drawEllipse(QtCore.QPointF(7.5, 14.5), 4, 4)
             
         finally:
             painter.restore()
 
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemSelectedHasChanged:
-            palette = QApplication.palette()
-            self.setBrush(QColor(114, 159, 207) if value else QColor(Qt.GlobalColor.lightGray))
+        if change == QtGui.QGraphicsItem.ItemSelectedHasChanged:
+            #palette = QApplication.palette()
+            self.setBrush(QtGui.QColor(114, 159, 207) if value else QtGui.QColor(QtCore.Qt.GlobalColor.lightGray))
             self.parentItem().prepareGeometryChange()
             return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
         
-        elif change == QGraphicsItem.ItemPositionChange:
+        elif change == QtGui.QGraphicsItem.ItemPositionChange:
             newPosition = max(0, min(value.x() / pixelsPerSecond, self.keyFrame.getParent().getParent().getDuration()))
             
             if not self.moveInProgress:
@@ -209,21 +209,21 @@ class AffectorTimelineKeyFrame(QGraphicsRectItem):
             self.timelineSection.prepareGeometryChange()
             self.keyFrame.moveToPosition(newPosition)
             
-            return QPointF(newPosition * pixelsPerSecond, self.pos().y())
+            return QtCore.QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
         return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
 
-class AffectorTimelineSection(QGraphicsRectItem):
+class AffectorTimelineSection(QtGui.QGraphicsRectItem):
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineSection, self).__init__(timeline)
         
         self.timeline = timeline
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable)
         
-        palette = QApplication.palette()
-        self.setPen(QPen(QColor(Qt.GlobalColor.lightGray)))
-        self.setBrush(QBrush(QColor(Qt.GlobalColor.transparent)))
+        #palette = QApplication.palette()
+        self.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.GlobalColor.lightGray)))
+        self.setBrush(QtGui.QBrush(QtGui.QColor(QtCore.Qt.GlobalColor.transparent)))
         
         self.setAffector(affector)
         
@@ -257,20 +257,20 @@ class AffectorTimelineSection(QGraphicsRectItem):
         painter.save()
         
         try:
-            palette = QApplication.palette()
+            #palette = QApplication.palette()
             
             transform = painter.worldTransform()
             xScale = transform.m11()
             
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, True)
             
             if self.affector.getNumKeyFrames() == 0:
                 return
             
             def drawArrow(x, y):
-                painter.setPen(Qt.SolidLine)
-                painter.drawLine(QPointF(x, y), QPointF(x - 3 / xScale, y - 3))
-                painter.drawLine(QPointF(x, y), QPointF(x - 3 / xScale, y + 3))
+                painter.setPen(QtCore.Qt.SolidLine)
+                painter.drawLine(QtCore.QPointF(x, y), QtCore.QPointF(x - 3 / xScale, y - 3))
+                painter.drawLine(QtCore.QPointF(x, y), QtCore.QPointF(x - 3 / xScale, y + 3))
             
             previousKeyFrame = self.affector.getKeyFrameAtIdx(0)
             i = 1
@@ -290,43 +290,42 @@ class AffectorTimelineSection(QGraphicsRectItem):
                         selected = item.isSelected()
                         break
                 
-                painter.setPen(QColor(Qt.GlobalColor.transparent))
-                painter.setBrush(QBrush(QColor(114, 159, 207) if selected else QColor(255, 255, 255)))
-                painter.drawRect(QRectF(previousPosition, 1, span, 29))
-                painter.setBrush(QBrush())
+                painter.setPen(QtGui.QColor(QtCore.Qt.GlobalColor.transparent))
+                painter.setBrush(QtGui.QBrush(QtGui.QColor(114, 159, 207) if selected else QtGui.QColor(255, 255, 255)))
+                painter.drawRect(QtCore.QRectF(previousPosition, 1, span, 29))
+                painter.setBrush(QtGui.QBrush())
             
                 lineStartPosition = min(previousPosition + 15 / xScale, currentPosition)                
                 
                 if keyFrame.getProgression() == PyCEGUI.KeyFrame.P_Linear:
                     # just a straight line in this case
-                    painter.setPen(Qt.DashLine)
-                    painter.drawLine(QPointF(lineStartPosition, 15), QPointF(currentPosition, 15))
+                    painter.setPen(QtCore.Qt.DashLine)
+                    painter.drawLine(QtCore.QPointF(lineStartPosition, 15), QtCore.QPointF(currentPosition, 15))
                     drawArrow(currentPosition, 15)
                     
                 elif keyFrame.getProgression() == PyCEGUI.KeyFrame.P_QuadraticAccelerating:
-                    path = QPainterPath()
+                    path = QtGui.QPainterPath()
                     path.moveTo(lineStartPosition, 27)
                     path.quadTo(previousPosition + span * 3/4, 30, currentPosition, 5)
-                    painter.setPen(Qt.DashLine)
+                    painter.setPen(QtCore.Qt.DashLine)
                     painter.drawPath(path)
                     
                     drawArrow(currentPosition, 5)
                     
                 elif keyFrame.getProgression() == PyCEGUI.KeyFrame.P_QuadraticDecelerating:
-                    
-                    path = QPainterPath()
+                    path = QtGui.QPainterPath()
                     path.moveTo(lineStartPosition, 3)
                     path.quadTo(previousPosition + span * 3/4, 0, currentPosition, 25)
-                    painter.setPen(Qt.DashLine)
+                    painter.setPen(QtCore.Qt.DashLine)
                     painter.drawPath(path)
                     
                     drawArrow(currentPosition, 25)
                     
                 elif keyFrame.getProgression() == PyCEGUI.KeyFrame.P_Discrete:
-                    painter.setPen(Qt.DashLine)
-                    painter.drawLine(QPointF(lineStartPosition, 27), QPointF(previousPosition + span / 2, 27))
-                    painter.drawLine(QPointF(previousPosition + span / 2, 5), QPointF(previousPosition + span / 2, 27))
-                    painter.drawLine(QPointF(previousPosition + span / 2, 5), QPointF(currentPosition, 5))
+                    painter.setPen(QtCore.Qt.DashLine)
+                    painter.drawLine(QtCore.QPointF(lineStartPosition, 27), QtCore.QPointF(previousPosition + span / 2, 27))
+                    painter.drawLine(QtCore.QPointF(previousPosition + span / 2, 5), QtCore.QPointF(previousPosition + span / 2, 27))
+                    painter.drawLine(QtCore.QPointF(previousPosition + span / 2, 5), QtCore.QPointF(currentPosition, 5))
                     
                     drawArrow(currentPosition, 5)
                 else:
@@ -339,14 +338,14 @@ class AffectorTimelineSection(QGraphicsRectItem):
         finally:
             painter.restore()
 
-class AffectorTimelineLabel(QGraphicsProxyWidget):
+class AffectorTimelineLabel(QtGui.QGraphicsProxyWidget):
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineLabel, self).__init__(timeline)
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable |
-                      QGraphicsItem.ItemIgnoresTransformations)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable |
+                      QtGui.QGraphicsItem.ItemIgnoresTransformations)
         
-        self.widget = QComboBox()
+        self.widget = QtGui.QComboBox()
         self.widget.setEditable(True)
         self.widget.resize(150, 25)
         self.setWidget(self.widget)
@@ -361,31 +360,31 @@ class AffectorTimelineLabel(QGraphicsProxyWidget):
     def refresh(self):
         self.widget.setEditText(self.affector.getTargetProperty())
 
-class TimelinePositionBar(QGraphicsRectItem):
+class TimelinePositionBar(QtGui.QGraphicsRectItem):
     def __init__(self, timeline):
         super(TimelinePositionBar, self).__init__(timeline)
         
         self.timeline = timeline
         
-        self.setFlags(QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIgnoresTransformations |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemIgnoresTransformations |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         
-        self.setPen(QPen(QColor(Qt.GlobalColor.transparent)))
-        self.setBrush(QBrush(QColor(255, 0, 0, 128)))
+        self.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.GlobalColor.transparent)))
+        self.setBrush(QtGui.QBrush(QtGui.QColor(255, 0, 0, 128)))
         
         # keep on top of everything
         self.setZValue(1)
         
         self.setHeight(1)
         
-        self.setCursor(QCursor(Qt.SplitHCursor))
+        self.setCursor(QtGui.QCursor(QtCore.Qt.SplitHCursor))
         
     def setHeight(self, height):
-        self.setRect(QRectF(-1, 6, 3, height - 6))
+        self.setRect(QtCore.QRectF(-1, 6, 3, height - 6))
     
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemPositionChange:
+        if change == QtGui.QGraphicsItem.ItemPositionChange:
             oldPosition = self.pos().x() / pixelsPerSecond
             newPosition = value.x() / pixelsPerSecond
             
@@ -394,7 +393,7 @@ class TimelinePositionBar(QGraphicsRectItem):
             newPosition = max(0, min(newPosition, animationDuration))
             
             self.timeline.timePositionChanged.emit(oldPosition, newPosition)
-            return QPointF(newPosition * pixelsPerSecond, self.pos().y())
+            return QtCore.QPointF(newPosition * pixelsPerSecond, self.pos().y())
         
         return super(TimelinePositionBar, self).itemChange(change, value)
     
@@ -406,41 +405,42 @@ class TimelinePositionBar(QGraphicsRectItem):
         try:
             painter.setPen(self.pen())
             painter.setBrush(self.brush())
-            painter.drawConvexPolygon([QPointF(-6, 0), QPointF(6, 0), QPointF(1, 6), QPointF(-1, 6)])
+            painter.drawConvexPolygon([QtCore.QPointF(-6, 0), QtCore.QPointF(6, 0),
+                                       QtCore.QPointF(1, 6), QtCore.QPointF(-1, 6)])
             
         finally:
             painter.restore()
         
     def shape(self):
-        ret = QPainterPath()
+        ret = QtGui.QPainterPath()
         # the arrow on top so that it's easier to grab for for usability
-        ret.addRect(QRectF(-6, 0, 12, 6))
+        ret.addRect(QtCore.QRectF(-6, 0, 12, 6))
         # the rest
         ret.addRect(self.rect())
         
         return ret
         
-class AnimationTimeline(QGraphicsRectItem, QObject):
+class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
     """A timeline widget for just one CEGUI animation"""
     
     # old timeline position, new timeline position
-    timePositionChanged = Signal(float, float)
+    timePositionChanged = QtCore.Signal(float, float)
     # old position, new position
-    keyFramesMoved = Signal(list)
+    keyFramesMoved = QtCore.Signal(list)
     
     def __init__(self, parentItem = None, animation = None):
         # we only inherit from QObject to be able to define QtCore.Signals in our class
-        QObject.__init__(self)
-        QGraphicsRectItem.__init__(self, parentItem)
+        QtCore.QObject.__init__(self)
+        QtGui.QGraphicsRectItem.__init__(self, parentItem)
         
         self.playDelta = 1.0 / 60.0
         self.lastPlayInjectTime = time.time()
         self.playing = True
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable)
         
         self.timecode = TimecodeLabel(self)
-        self.timecode.setPos(QPointF(0, 0))
+        self.timecode.setPos(QtCore.QPointF(0, 0))
         self.timecode.range = 1
         
         self.positionBar = TimelinePositionBar(self)
@@ -495,7 +495,7 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
             label.setZValue(1)
             
             section = AffectorTimelineSection(self, affector)
-            section.setPos(QPointF(0, 17 + i * 32))
+            section.setPos(QtCore.QPointF(0, 17 + i * 32))
             
             i += 1
             
@@ -528,7 +528,7 @@ class AnimationTimeline(QGraphicsRectItem, QObject):
         # end of abuses! :D     
         
         self.lastPlayInjectTime = time.time()
-        QTimer.singleShot(self.playDelta * 1000, lambda: self.playTick())
+        QtCore.QTimer.singleShot(self.playDelta * 1000, lambda: self.playTick())
         
     def play(self):
         self.playing = True

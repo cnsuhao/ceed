@@ -18,8 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 from ceed import editors
 import ceed.compatibility.animation_list as animation_list_compatibility
@@ -76,12 +76,12 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
             # fly out of this method
             if os.path.getsize(self.filePath) > 2:
                 # the file contains more than just CR LF
-                QMessageBox.question(self,
-                                     "Can't parse given animation list!",
-                                     "Parsing '%s' failed, it's most likely not a valid XML file. "
-                                     "Constructing empty animation list instead (if you save you will override the invalid data!). "
-                                     "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
-                                     QMessageBox.Ok)
+                QtGui.QMessageBox.question(self,
+                                           "Can't parse given animation list!",
+                                           "Parsing '%s' failed, it's most likely not a valid XML file. "
+                                           "Constructing empty animation list instead (if you save you will override the invalid data!). "
+                                           "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
+                                           QtGui.QMessageBox.Ok)
             
             # we construct the minimal empty imageset    
             root = ElementTree.Element("Animations")
@@ -96,9 +96,9 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
     def activate(self):
         super(AnimationListTabbedEditor, self).activate()
         
-        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.animationListDockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.animationListDockWidget)
         self.visual.animationListDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.visual.timelineDockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.visual.timelineDockWidget)
         self.visual.timelineDockWidget.setVisible(True)
         
     def deactivate(self):
