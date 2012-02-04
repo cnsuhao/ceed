@@ -18,11 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from PySide.QtOpenGL import *
+from PySide import QtCore
+from PySide import QtGui
+from PySide import QtOpenGL
 
-from OpenGL.GL import *
+from OpenGL import GL
 
 import time
 import math
@@ -31,7 +31,7 @@ import PyCEGUI
 from ceed import resizable
 from ceed import cegui
 
-class GraphicsScene(QGraphicsScene):
+class GraphicsScene(QtGui.QGraphicsScene):
     """A scene that draws CEGUI as it's background.
     
     Subclass this to be able to show Qt graphics items and widgets
@@ -55,8 +55,8 @@ class GraphicsScene(QGraphicsScene):
         
     def setCEGUIDisplaySize(self, width, height, lazyUpdate = True):
         self.ceguiDisplaySize = PyCEGUI.Sizef(width, height)
-        self.setSceneRect(QRectF(-self.scenePadding, -self.scenePadding,
-                                 width + 2 * self.scenePadding, height + 2 * self.scenePadding))
+        self.setSceneRect(QtCore.QRectF(-self.scenePadding, -self.scenePadding,
+                                        width + 2 * self.scenePadding, height + 2 * self.scenePadding))
         
         if not lazyUpdate:
             # FIXME: Change when multi root is in CEGUI core
@@ -76,10 +76,10 @@ class GraphicsScene(QGraphicsScene):
             return
         
         painterType = painter.paintEngine().type()
-        if painterType != QPaintEngine.OpenGL and painterType != QPaintEngine.OpenGL2:
-            qWarning("cegui.GraphicsScene: drawBackground needs a "
-                     "QGLWidget to be set as viewport on the "
-                     "graphics view")
+        if painterType != QtGui.QPaintEngine.OpenGL and painterType != QtGui.QPaintEngine.OpenGL2:
+            QtCore.qWarning("cegui.GraphicsScene: drawBackground needs a "
+                            "QGLWidget to be set as viewport on the "
+                            "graphics view")
             
             return
 
@@ -101,21 +101,21 @@ class GraphicsScene(QGraphicsScene):
         # references in the rendering code for some versions of CEGUI.
         system.signalRedraw()
         
-        glClearColor(0.3, 0.3, 0.3, 1)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        GL.glClearColor(0.3, 0.3, 0.3, 1)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         # we have to render to FBO and then scale/translate that since CEGUI doesn't allow
         # scaling the whole rendering root directly
         
         # this makes sure the FBO is the correct size
         if not self.fbo:
-            desiredSize = QSize(math.ceil(self.ceguiDisplaySize.d_width), math.ceil(self.ceguiDisplaySize.d_height))
-            self.fbo = QGLFramebufferObject(desiredSize, GL_TEXTURE_2D)
+            desiredSize = QtCore.QSize(math.ceil(self.ceguiDisplaySize.d_width), math.ceil(self.ceguiDisplaySize.d_height))
+            self.fbo = QtOpenGL.QGLFramebufferObject(desiredSize, GL.GL_TEXTURE_2D)
             
         self.fbo.bind()
         
-        glClearColor(0, 0, 0, 1)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        GL.glClearColor(0, 0, 0, 1)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         system.renderGUI()
         
@@ -123,44 +123,44 @@ class GraphicsScene(QGraphicsScene):
 
         # the stretch and translation should be done automatically by QPainter at this point so just
         # this code will do
-        if bool(glActiveTexture):
-            glActiveTexture(GL_TEXTURE0)
+        if bool(GL.glActiveTexture):
+            GL.glActiveTexture(GL.GL_TEXTURE0)
         
-        glEnable(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D, self.fbo.texture())
+        GL.glEnable(GL.GL_TEXTURE_2D)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, self.fbo.texture())
 
         # TODO: I was told that this is the slowest method to draw with OpenGL, with which I certainly agree
         #       no profiling has been done at all and I don't suspect this to be a painful performance problem.
         #       However changing this to a less pathetic rendering method would be great.
 
-        glBegin(GL_TRIANGLES)
+        GL.glBegin(GL.GL_TRIANGLES)
         
         # top left
-        glTexCoord2f(0, 1)
-        glVertex3f(0, 0, 0)
+        GL.glTexCoord2f(0, 1)
+        GL.glVertex3f(0, 0, 0)
         
         # top right
-        glTexCoord2f(1, 1)
-        glVertex3f(self.fbo.size().width(), 0, 0)
+        GL.glTexCoord2f(1, 1)
+        GL.glVertex3f(self.fbo.size().width(), 0, 0)
         
         # bottom right
-        glTexCoord2f(1, 0)
-        glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
+        GL.glTexCoord2f(1, 0)
+        GL.glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
         
         # bottom right
-        glTexCoord2f(1, 0)
-        glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
+        GL.glTexCoord2f(1, 0)
+        GL.glVertex3f(self.fbo.size().width(), self.fbo.size().height(), 0)
         
         # bottom left
-        glTexCoord2f(0, 0)
-        glVertex3f(0, self.fbo.size().height(), 0)
+        GL.glTexCoord2f(0, 0)
+        GL.glVertex3f(0, self.fbo.size().height(), 0)
         
         # top left
-        glTexCoord2f(0, 1)
-        glVertex3f(0, 0, 0)
+        GL.glTexCoord2f(0, 1)
+        GL.glVertex3f(0, 0, 0)
         system.signalRedraw()
         
-        glEnd()
+        GL.glEnd()
         
         painter.endNativePainting()
 
@@ -172,15 +172,15 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     def __init__(self, parent = None):
         resizable.GraphicsView.__init__(self, parent)
 
-        self.setViewport(QGLWidget())
+        self.setViewport(QtOpenGL.QGLWidget())
         # OpenGL doesn't do partial redraws (it isn't practical anyways)
-        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
         
         self.injectInput = False
         # we might want mouse events
         self.setMouseTracking(True)
         # we might want key events
-        self.setFocusPolicy(Qt.ClickFocus)
+        self.setFocusPolicy(QtCore.Qt.ClickFocus)
         
         # if True, we render always (possibly capped to some FPS) - suitable for live preview
         # if False, we render only when update() is called - suitable for visual editing
@@ -201,8 +201,8 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             else:
                 # * 1000 because QTimer thinks in milliseconds
                 lastDelta = self.scene().lastDelta if self.scene() is not None else 0
-                QTimer.singleShot(max(0, ((1.0 / self.continuousRenderingTargetFPS) - lastDelta) * 1000),
-                                  lambda: self.updateSelfAndScene())
+                QtCore.QTimer.singleShot(max(0, ((1.0 / self.continuousRenderingTargetFPS) - lastDelta) * 1000),
+                                         lambda: self.updateSelfAndScene())
         
         else:
             # we don't mark ourselves as dirty if user didn't request continuous rendering
@@ -219,7 +219,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         handled = False
         
         if self.injectInput:
-            point = self.mapToScene(QPoint(event.x(), event.y()))
+            point = self.mapToScene(QtCore.QPoint(event.x(), event.y()))
             handled = PyCEGUI.System.getSingleton().injectMousePosition(point.x(), point.y())
         
         if not handled:    
@@ -228,9 +228,9 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     def translateQtMouseButton(self, button):
         ret = None
         
-        if button == Qt.LeftButton:
+        if button == QtCore.Qt.LeftButton:
             ret = PyCEGUI.MouseButton.LeftButton
-        if button == Qt.RightButton:
+        if button == QtCore.Qt.RightButton:
             ret = PyCEGUI.MouseButton.RightButton
             
         return ret
@@ -265,81 +265,81 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     def translateQtKeyboardButton(self, button):
         # Shame this isn't standardised :-/ Was a pain to write down
         
-        if button == Qt.Key_Escape:
+        if button == QtCore.Qt.Key_Escape:
             return PyCEGUI.Key.Escape
-        elif button == Qt.Key_Tab:
+        elif button == QtCore.Qt.Key_Tab:
             return PyCEGUI.Key.Tab
         # missing Backtab
-        elif button == Qt.Key_Backspace:
+        elif button == QtCore.Qt.Key_Backspace:
             return PyCEGUI.Key.Backspace
-        elif button in [Qt.Key_Return, Qt.Key_Enter]:
+        elif button in [QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter]:
             return PyCEGUI.Key.Return
-        elif button == Qt.Key_Insert:
+        elif button == QtCore.Qt.Key_Insert:
             return PyCEGUI.Key.Insert
-        elif button == Qt.Key_Delete:
+        elif button == QtCore.Qt.Key_Delete:
             return PyCEGUI.Key.Delete
-        elif button == Qt.Key_Pause:
+        elif button == QtCore.Qt.Key_Pause:
             return PyCEGUI.Key.Pause
         # missing Print
-        elif button == Qt.Key_SysReq:
+        elif button == QtCore.Qt.Key_SysReq:
             return PyCEGUI.Key.SysRq
-        elif button == Qt.Key_Home:
+        elif button == QtCore.Qt.Key_Home:
             return PyCEGUI.Key.Home
-        elif button == Qt.Key_End:
+        elif button == QtCore.Qt.Key_End:
             return PyCEGUI.Key.End
-        elif button == Qt.Key_Left:
+        elif button == QtCore.Qt.Key_Left:
             return PyCEGUI.Key.ArrowLeft
-        elif button == Qt.Key_Up:
+        elif button == QtCore.Qt.Key_Up:
             return PyCEGUI.Key.ArrowUp
-        elif button == Qt.Key_Right:
+        elif button == QtCore.Qt.Key_Right:
             return PyCEGUI.Key.ArrowRight
-        elif button == Qt.Key_Down:
+        elif button == QtCore.Qt.Key_Down:
             return PyCEGUI.Key.ArrowDownGraphicsScene
-        elif button == Qt.Key_PageUp:
+        elif button == QtCore.Qt.Key_PageUp:
             return PyCEGUI.Key.PageUp
-        elif button == Qt.Key_PageDown:
+        elif button == QtCore.Qt.Key_PageDown:
             return PyCEGUI.Key.PageDown
-        elif button == Qt.Key_Shift:
+        elif button == QtCore.Qt.Key_Shift:
             return PyCEGUI.Key.LeftShift
-        elif button == Qt.Key_Control:
+        elif button == QtCore.Qt.Key_Control:
             return PyCEGUI.Key.LeftControl
-        elif button == Qt.Key_Meta:
+        elif button == QtCore.Qt.Key_Meta:
             return PyCEGUI.Key.LeftWindows
-        elif button == Qt.Key_Alt:
+        elif button == QtCore.Qt.Key_Alt:
             return PyCEGUI.Key.LeftAlt
         # missing AltGr
         # missing CapsLock
         # missing NumLock
         # missing ScrollLock
-        elif button == Qt.Key_F1:
+        elif button == QtCore.Qt.Key_F1:
             return PyCEGUI.Key.F1
-        elif button == Qt.Key_F2:
+        elif button == QtCore.Qt.Key_F2:
             return PyCEGUI.Key.F2
-        elif button == Qt.Key_F3:
+        elif button == QtCore.Qt.Key_F3:
             return PyCEGUI.Key.F3
-        elif button == Qt.Key_F4:
+        elif button == QtCore.Qt.Key_F4:
             return PyCEGUI.Key.F4
-        elif button == Qt.Key_F5:
+        elif button == QtCore.Qt.Key_F5:
             return PyCEGUI.Key.F5
-        elif button == Qt.Key_F6:
+        elif button == QtCore.Qt.Key_F6:
             return PyCEGUI.Key.F6
-        elif button == Qt.Key_F7:
+        elif button == QtCore.Qt.Key_F7:
             return PyCEGUI.Key.F7
-        elif button == Qt.Key_F8:
+        elif button == QtCore.Qt.Key_F8:
             return PyCEGUI.Key.F8
-        elif button == Qt.Key_F9:
+        elif button == QtCore.Qt.Key_F9:
             return PyCEGUI.Key.F9
-        elif button == Qt.Key_F10:
+        elif button == QtCore.Qt.Key_F10:
             return PyCEGUI.Key.F10
-        elif button == Qt.Key_F11:
+        elif button == QtCore.Qt.Key_F11:
             return PyCEGUI.Key.F11
-        elif button == Qt.Key_F12:
+        elif button == QtCore.Qt.Key_F12:
             return PyCEGUI.Key.F12
-        elif button == Qt.Key_F13:
+        elif button == QtCore.Qt.Key_F13:
             return PyCEGUI.Key.F13
-        elif button == Qt.Key_F14:
+        elif button == QtCore.Qt.Key_F14:
             return PyCEGUI.Key.F14
-        elif button == Qt.Key_F15:
+        elif button == QtCore.Qt.Key_F15:
             return PyCEGUI.Key.F15
         # missing F16 - F35
         # Qt::Key_Super_L    0x01000053     
@@ -350,7 +350,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         # Qt::Key_Help    0x01000058     
         # Qt::Key_Direction_L    0x01000059     
         # Qt::Key_Direction_R    0x01000060
-        elif button == Qt.Key_Space:
+        elif button == QtCore.Qt.Key_Space:
             return PyCEGUI.Key.Space
         # missing Exclam
         # Qt::Key_QuoteDbl    0x22     
@@ -358,102 +358,102 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         # Qt::Key_Dollar    0x24     
         # Qt::Key_Percent    0x25     
         # Qt::Key_Ampersand    0x26     
-        elif button == Qt.Key_Apostrophe:
+        elif button == QtCore.Qt.Key_Apostrophe:
             return PyCEGUI.Key.Apostrophe     
         # Qt::Key_ParenLeft    0x28     
         # Qt::Key_ParenRight    0x29
         # Qt::Key_Asterisk    0x2a     
         # Qt::Key_Plus    0x2b
-        elif button == Qt.Key_Comma:
+        elif button == QtCore.Qt.Key_Comma:
             return PyCEGUI.Key.Comma
-        elif button == Qt.Key_Minus:
+        elif button == QtCore.Qt.Key_Minus:
             return PyCEGUI.Key.Minus
-        elif button == Qt.Key_Period:
+        elif button == QtCore.Qt.Key_Period:
             return PyCEGUI.Key.Period
-        elif button == Qt.Key_Slash:
+        elif button == QtCore.Qt.Key_Slash:
             return PyCEGUI.Key.Slash
-        elif button == Qt.Key_0:
+        elif button == QtCore.Qt.Key_0:
             return PyCEGUI.Key.Zero
-        elif button == Qt.Key_1:
+        elif button == QtCore.Qt.Key_1:
             return PyCEGUI.Key.One
-        elif button == Qt.Key_2:
+        elif button == QtCore.Qt.Key_2:
             return PyCEGUI.Key.Two
-        elif button == Qt.Key_3:
+        elif button == QtCore.Qt.Key_3:
             return PyCEGUI.Key.Three
-        elif button == Qt.Key_4:
+        elif button == QtCore.Qt.Key_4:
             return PyCEGUI.Key.Four
-        elif button == Qt.Key_5:
+        elif button == QtCore.Qt.Key_5:
             return PyCEGUI.Key.Five
-        elif button == Qt.Key_6:
+        elif button == QtCore.Qt.Key_6:
             return PyCEGUI.Key.Six
-        elif button == Qt.Key_7:
+        elif button == QtCore.Qt.Key_7:
             return PyCEGUI.Key.Seven
-        elif button == Qt.Key_8:
+        elif button == QtCore.Qt.Key_8:
             return PyCEGUI.Key.Eight
-        elif button == Qt.Key_9:
+        elif button == QtCore.Qt.Key_9:
             return PyCEGUI.Key.Nine
-        elif button == Qt.Key_Colon:
+        elif button == QtCore.Qt.Key_Colon:
             return PyCEGUI.Key.Colon
-        elif button == Qt.Key_Semicolon:
+        elif button == QtCore.Qt.Key_Semicolon:
             return PyCEGUI.Key.Semicolon
         # missing Key_Less
-        elif button == Qt.Key_Equal:
+        elif button == QtCore.Qt.Key_Equal:
             return PyCEGUI.Key.Equals
         # missing Key_Greater
         # missing Key_Question
-        elif button == Qt.Key_At:
+        elif button == QtCore.Qt.Key_At:
             return PyCEGUI.Key.At
-        elif button == Qt.Key_A:
+        elif button == QtCore.Qt.Key_A:
             return PyCEGUI.Key.A
-        elif button == Qt.Key_B:
+        elif button == QtCore.Qt.Key_B:
             return PyCEGUI.Key.B
-        elif button == Qt.Key_C:
+        elif button == QtCore.Qt.Key_C:
             return PyCEGUI.Key.C
-        elif button == Qt.Key_D:
+        elif button == QtCore.Qt.Key_D:
             return PyCEGUI.Key.D
-        elif button == Qt.Key_E:
+        elif button == QtCore.Qt.Key_E:
             return PyCEGUI.Key.E
-        elif button == Qt.Key_F:
+        elif button == QtCore.Qt.Key_F:
             return PyCEGUI.Key.F
-        elif button == Qt.Key_G:
+        elif button == QtCore.Qt.Key_G:
             return PyCEGUI.Key.G
-        elif button == Qt.Key_H:
+        elif button == QtCore.Qt.Key_H:
             return PyCEGUI.Key.H
-        elif button == Qt.Key_I:
+        elif button == QtCore.Qt.Key_I:
             return PyCEGUI.Key.I
-        elif button == Qt.Key_J:
+        elif button == QtCore.Qt.Key_J:
             return PyCEGUI.Key.J
-        elif button == Qt.Key_K:
+        elif button == QtCore.Qt.Key_K:
             return PyCEGUI.Key.K
-        elif button == Qt.Key_L:
+        elif button == QtCore.Qt.Key_L:
             return PyCEGUI.Key.L
-        elif button == Qt.Key_M:
+        elif button == QtCore.Qt.Key_M:
             return PyCEGUI.Key.M
-        elif button == Qt.Key_N:
+        elif button == QtCore.Qt.Key_N:
             return PyCEGUI.Key.N
-        elif button == Qt.Key_O:
+        elif button == QtCore.Qt.Key_O:
             return PyCEGUI.Key.O
-        elif button == Qt.Key_P:
+        elif button == QtCore.Qt.Key_P:
             return PyCEGUI.Key.P
-        elif button == Qt.Key_Q:
+        elif button == QtCore.Qt.Key_Q:
             return PyCEGUI.Key.Q
-        elif button == Qt.Key_R:
+        elif button == QtCore.Qt.Key_R:
             return PyCEGUI.Key.R
-        elif button == Qt.Key_S:
+        elif button == QtCore.Qt.Key_S:
             return PyCEGUI.Key.S
-        elif button == Qt.Key_T:
+        elif button == QtCore.Qt.Key_T:
             return PyCEGUI.Key.T
-        elif button == Qt.Key_U:
+        elif button == QtCore.Qt.Key_U:
             return PyCEGUI.Key.U
-        elif button == Qt.Key_V:
+        elif button == QtCore.Qt.Key_V:
             return PyCEGUI.Key.V
-        elif button == Qt.Key_W:
+        elif button == QtCore.Qt.Key_W:
             return PyCEGUI.Key.W
-        elif button == Qt.Key_X:
+        elif button == QtCore.Qt.Key_X:
             return PyCEGUI.Key.X
-        elif button == Qt.Key_Y:
+        elif button == QtCore.Qt.Key_Y:
             return PyCEGUI.Key.Y
-        elif button == Qt.Key_Z:
+        elif button == QtCore.Qt.Key_Z:
             return PyCEGUI.Key.Z
         
         # The rest are weird keys I refuse to type here

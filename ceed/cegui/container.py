@@ -18,19 +18,16 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from PySide.QtOpenGL import *
-from PySide.QtWebKit import *
-
-from OpenGL.GL import *
+from PySide import QtCore
+from PySide import QtGui
+from PySide import QtWebKit
 
 from ceed.cegui import qtgraphics
 
 import ceed.ui.ceguidebuginfo
 import PyCEGUI
 
-class DebugInfo(QDialog):
+class DebugInfo(QtGui.QDialog):
     """A debugging/info widget about the embedded CEGUI instance"""
     
     # This will allow us to view logs in Qt in the future
@@ -40,7 +37,7 @@ class DebugInfo(QDialog):
         
         self.setVisible(False)
         
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         
         self.containerWidget = containerWidget
         # update FPS and render time very second
@@ -49,22 +46,22 @@ class DebugInfo(QDialog):
         self.ui = ceed.ui.ceguidebuginfo.Ui_CEGUIWidgetInfo()
         self.ui.setupUi(self)
         
-        self.currentFPSBox = self.findChild(QLineEdit, "currentFPSBox")
-        self.currentRenderTimeBox = self.findChild(QLineEdit, "currentRenderTimeBox")
+        self.currentFPSBox = self.findChild(QtGui.QLineEdit, "currentFPSBox")
+        self.currentRenderTimeBox = self.findChild(QtGui.QLineEdit, "currentRenderTimeBox")
         
         self.errors = 0
-        self.errorsBox = self.findChild(QLineEdit, "errorsBox")
+        self.errorsBox = self.findChild(QtGui.QLineEdit, "errorsBox")
         
         self.warnings = 0
-        self.warningsBox = self.findChild(QLineEdit, "warningsBox")
+        self.warningsBox = self.findChild(QtGui.QLineEdit, "warningsBox")
         
         self.others = 0
-        self.othersBox = self.findChild(QLineEdit, "othersBox")
+        self.othersBox = self.findChild(QtGui.QLineEdit, "othersBox")
         
-        self.logViewArea = self.findChild(QWidget, "logViewArea")
-        self.logViewAreaLayout = QVBoxLayout()
+        self.logViewArea = self.findChild(QtGui.QWidget, "logViewArea")
+        self.logViewAreaLayout = QtGui.QVBoxLayout()
         
-        self.logView = QWebView()
+        self.logView = QtWebKit.QWebView()
         self.logViewAreaLayout.addWidget(self.logView)
         
         self.logViewArea.setLayout(self.logViewAreaLayout)
@@ -127,12 +124,12 @@ font-size: 10px;
             
         self.currentFPSBox.setText("%0.6f" % (1.0 / lastRenderDelta))
         
-        QTimer.singleShot(500, lambda: self.updateFPSTick())
+        QtCore.QTimer.singleShot(500, lambda: self.updateFPSTick())
         
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
 
-class ContainerWidget(QWidget):
+class ContainerWidget(QtGui.QWidget):
     """
     This widget is what you should use (alongside your GraphicsScene derived class) to
     put CEGUI inside parts of the editor.
@@ -153,13 +150,13 @@ class ContainerWidget(QWidget):
         self.debugInfo = DebugInfo(self)
         self.view = self.findChild(qtgraphics.GraphicsView, "view")
         self.ceguiInstance.setGLContextProvider(self.view)
-        self.view.setBackgroundRole(QPalette.Dark)
+        self.view.setBackgroundRole(QtGui.QPalette.Dark)
         self.view.containerWidget = self
         
-        self.resolutionBox = self.findChild(QComboBox, "resolutionBox")
+        self.resolutionBox = self.findChild(QtGui.QComboBox, "resolutionBox")
         self.resolutionBox.editTextChanged.connect(self.slot_resolutionBoxChanged)
         
-        self.debugInfoButton = self.findChild(QPushButton, "debugInfoButton")
+        self.debugInfoButton = self.findChild(QtGui.QPushButton, "debugInfoButton")
         self.debugInfoButton.clicked.connect(self.slot_debugInfoButton)
     
     def enableInput(self):

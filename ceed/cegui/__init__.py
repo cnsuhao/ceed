@@ -18,11 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from PySide.QtOpenGL import *
+from PySide import QtCore
+from PySide import QtGui
+from PySide import QtOpenGL
 
-from OpenGL.GL import *
+from OpenGL import GL
 
 import os.path
 import time
@@ -171,8 +171,8 @@ class Instance(object):
         """Synchronises the instance with given project, respecting it's paths and resources
         """
 
-        progress = QProgressDialog(mainWindow)
-        progress.setWindowModality(Qt.WindowModal)
+        progress = QtGui.QProgressDialog(mainWindow)
+        progress.setWindowModality(QtCore.Qt.WindowModal)
         progress.setWindowTitle("Synchronising embedded CEGUI with the project")
         progress.setCancelButton(None)
         progress.resize(400, 100)
@@ -196,14 +196,14 @@ class Instance(object):
 
         progress.setLabelText("Purging all resources...")
         progress.setValue(0)
-        QApplication.instance().processEvents()
+        QtGui.QApplication.instance().processEvents()
 
         # destroy all previous resources (if any)
         self.cleanCEGUIResources()
 
         progress.setLabelText("Setting resource paths...")
         progress.setValue(1)
-        QApplication.instance().processEvents()
+        QtGui.QApplication.instance().processEvents()
 
         self.setResourceGroupDirectory("imagesets", project.getAbsolutePathOf(project.imagesetsPath))
         self.setResourceGroupDirectory("fonts", project.getAbsolutePathOf(project.fontsPath))
@@ -214,7 +214,7 @@ class Instance(object):
 
         progress.setLabelText("Recreating all schemes...")
         progress.setValue(2)
-        QApplication.instance().processEvents()
+        QtGui.QApplication.instance().processEvents()
 
         # we will load resources manually to be able to use the compatibility layer machinery
         PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(False)
@@ -229,7 +229,7 @@ class Instance(object):
                     progress.setValue(progress.value() + 1)
                     progress.setLabelText("Recreating all schemes... (%s)\n\n%s" % (schemeFile, message))
 
-                    QApplication.instance().processEvents()
+                    QtGui.QApplication.instance().processEvents()
 
                 updateProgress("Parsing the scheme file")
                 schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
@@ -240,14 +240,14 @@ class Instance(object):
                     rawDataType = scheme_compatibility.Manager.instance.guessType(rawData, schemeFilePath)
 
                 except compatibility.NoPossibleTypesError:
-                    QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
+                    QtGui.QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
                     return
 
                 except compatibility.MultiplePossibleTypesError as e:
                     suitableVersion = scheme_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                     if suitableVersion not in e.possibleTypes:
-                        QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
+                        QtGui.QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
                         return
 
                     rawDataType = suitableVersion
@@ -282,14 +282,14 @@ class Instance(object):
                         looknfeelRawDataType = looknfeel_compatibility.Manager.instance.guessType(looknfeelRawData, looknfeelFilePath)
 
                     except compatibility.NoPossibleTypesError:
-                        QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
+                        QtGui.QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
                         return
 
                     except compatibility.MultiplePossibleTypesError as e:
                         suitableVersion = looknfeel_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                         if suitableVersion not in e.possibleTypes:
-                            QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
+                            QtGui.QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
                             return
 
                         looknfeelRawDataType = suitableVersion
@@ -317,7 +317,7 @@ class Instance(object):
             PyCEGUI.SchemeManager.getSingleton().setAutoLoadResources(True)
 
             progress.reset()
-            QApplication.instance().processEvents()
+            QtGui.QApplication.instance().processEvents()
 
     def getAvailableSkins(self):
         """Retrieves skins (as strings representing their names) that are available
@@ -418,7 +418,7 @@ class Instance(object):
         # fake update to ensure everything is set
         widgetInstance.update(1)
 
-        temporaryFBO = QGLFramebufferObject(previewWidth, previewHeight, GL_TEXTURE_2D)
+        temporaryFBO = QtOpenGL.QGLFramebufferObject(previewWidth, previewHeight, GL.GL_TEXTURE_2D)
         temporaryFBO.bind()
 
         renderingSurface.invalidate()
