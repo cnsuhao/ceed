@@ -18,13 +18,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-
 ##
 # This module contains interfaces needed to run editors tabs (multi-file editing)
 # Also groups all the editors together to avoid cluttering the root directory
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 import os.path
 from ceed import compatibility
@@ -33,17 +32,17 @@ import ceed.ui.editors.notypedetected
 import ceed.ui.editors.multipletypesdetected
 import ceed.ui.editors.multiplepossiblefactories
 
-class NoTypeDetectedDialog(QDialog):
+class NoTypeDetectedDialog(QtGui.QDialog):
     def __init__(self, compatibilityManager):
         super(NoTypeDetectedDialog, self).__init__()
 
         self.ui = ceed.ui.editors.notypedetected.Ui_NoTypeDetectedDialog()
         self.ui.setupUi(self)
         
-        self.typeChoice = self.findChild(QListWidget, "typeChoice")
+        self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
         
         for type in compatibilityManager.getKnownTypes():
-            item = QListWidgetItem()
+            item = QtGui.QListWidgetItem()
             item.setText(type)
             
             # TODO: We should give a better feedback about what's compatible with what
@@ -51,21 +50,21 @@ class NoTypeDetectedDialog(QDialog):
             
             self.typeChoice.addItem(item)
 
-class MultipleTypesDetectedDialog(QDialog):
+class MultipleTypesDetectedDialog(QtGui.QDialog):
     def __init__(self, compatibilityManager, possibleTypes):
         super(MultipleTypesDetectedDialog, self).__init__()
         
         self.ui = ceed.ui.editors.multipletypesdetected.Ui_MultipleTypesDetectedDialog()
         self.ui.setupUi(self)
         
-        self.typeChoice = self.findChild(QListWidget, "typeChoice")
+        self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
         
         for type in compatibilityManager.getKnownTypes():
-            item = QListWidgetItem()
+            item = QtGui.QListWidgetItem()
             item.setText(type)
             
             if type in possibleTypes:
-                font = QFont()
+                font = QtGui.QFont()
                 font.setBold(True)
                 item.setFont(font)
             
@@ -74,19 +73,19 @@ class MultipleTypesDetectedDialog(QDialog):
             
             self.typeChoice.addItem(item)
 
-class MultiplePossibleFactoriesDialog(QDialog):
+class MultiplePossibleFactoriesDialog(QtGui.QDialog):
     def __init__(self, possibleFactories):
         super(MultiplePossibleFactoriesDialog, self).__init__()
         
         self.ui = ceed.ui.editors.multiplepossiblefactories.Ui_MultiplePossibleFactoriesDialog()
         self.ui.setupUi(self)
         
-        self.factoryChoice = self.findChild(QListWidget, "factoryChoice")
+        self.factoryChoice = self.findChild(QtGui.QListWidget, "factoryChoice")
         
         for factory in possibleFactories:
-            item = QListWidgetItem()
+            item = QtGui.QListWidgetItem()
             item.setText(factory.getName())
-            item.setData(Qt.UserRole, factory)
+            item.setData(QtCore.Qt.UserRole, factory)
             
             self.factoryChoice.addItem(item)
 
@@ -138,15 +137,15 @@ class TabbedEditor(object):
         # pop-ups will appear. Prevent that with a switch.
         if not self.displayingReloadAlert:
             self.displayingReloadAlert = True
-            ret = QMessageBox.question(self.mainWindow,
-                                       "File has been modified externally!",
-                                       "The file that you have currently opened has been modified outside the CEGUI Unified Editor.\n\nReload the file?\n\nIf you select Yes, ALL UNDO HISTORY WILL BE DESTROYED!",
-                                       QMessageBox.No | QMessageBox.Yes,
-                                       QMessageBox.No) # defaulting to No is safer IMO
+            ret = QtGui.QMessageBox.question(self.mainWindow,
+                                             "File has been modified externally!",
+                                             "The file that you have currently opened has been modified outside the CEGUI Unified Editor.\n\nReload the file?\n\nIf you select Yes, ALL UNDO HISTORY WILL BE DESTROYED!",
+                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
+                                             QtGui.QMessageBox.No) # defaulting to No is safer IMO
 
             self.fileChangedByExternalProgram = False
 
-            if ret == QMessageBox.Yes:
+            if ret == QtGui.QMessageBox.Yes:
                 # FIXME: This is a messy way of reloading a file. Need a
                 # reinitialise(self) method.
                 # When the file is reloaded, CEED switches to another tab for
@@ -154,7 +153,7 @@ class TabbedEditor(object):
                 self.initialised = False
                 self.initialise(self.mainWindow)
             
-            elif ret == QMessageBox.No:
+            elif ret == QtGui.QMessageBox.No:
                 # FIXME: We should somehow make CEED think that we have changes :-/
                 #        That is hard to do because CEED relies on QUndoStack to get that info
                 pass
@@ -204,7 +203,7 @@ class TabbedEditor(object):
                     rawDataType = self.compatibilityManager.EditorNativeType
                     self.nativeData = ""
                     
-                    if result == QDialog.Accepted:
+                    if result == QtGui.QDialog.Accepted:
                         selection = dialog.typeChoice.selectedItems()
                         
                         if len(selection) == 1:
@@ -220,7 +219,7 @@ class TabbedEditor(object):
                         rawDataType = self.compatibilityManager.EditorNativeType
                         self.nativeData = ""
                         
-                        if result == QDialog.Accepted:
+                        if result == QtGui.QDialog.Accepted:
                             selection = dialog.typeChoice.selectedItems()
                             
                             if len(selection) == 1:
@@ -355,9 +354,9 @@ class TabbedEditor(object):
             return
         
         if hasChanges:
-            self.mainWindow.tabs.setTabIcon(self.mainWindow.tabs.indexOf(self.tabWidget), QIcon("icons/tabs/has_changes.png"))
+            self.mainWindow.tabs.setTabIcon(self.mainWindow.tabs.indexOf(self.tabWidget), QtGui.QIcon("icons/tabs/has_changes.png"))
         else:
-            self.mainWindow.tabs.setTabIcon(self.mainWindow.tabs.indexOf(self.tabWidget), QIcon())
+            self.mainWindow.tabs.setTabIcon(self.mainWindow.tabs.indexOf(self.tabWidget), QtGui.QIcon())
 
     def saveAs(self, targetPath, updateCurrentPath = True):
         """Causes the tabbed editor to save all it's progress to the file.
@@ -380,12 +379,9 @@ class TabbedEditor(object):
             # The rest of the code is skipped, so be sure to turn file
             # monitoring back on
             self.addFileMonitor(self.filePath)
-            QMessageBox.critical(self, "Error saving file!", 
-                    "CEED encountered "
-                    "an error trying to save the file.  Do you have the "
-                    "proper permissions?\n\n[ " + e.strerror + " ]")
+            QtGui.QMessageBox.critical(self, "Error saving file!", 
+                                       "CEED encountered an error trying to save the file.\n\n(exception details: %s)" % (e))
             return False
-            
         
         if updateCurrentPath:
             # changes current path to the path we saved to
@@ -405,7 +401,7 @@ class TabbedEditor(object):
         """Adds a file monitor to the specified file so CEED will alert the
         user that an external change happened to the file"""
         if self.fileMonitor is None:
-            self.fileMonitor = QFileSystemWatcher(self.mainWindow)
+            self.fileMonitor = QtCore.QFileSystemWatcher(self.mainWindow)
             self.fileMonitor.fileChanged.connect(self.slot_fileChangedByExternalProgram)
         self.fileMonitor.addPath(path)
 
@@ -521,7 +517,7 @@ class UndoStackTabbedEditor(TabbedEditor):
     def __init__(self, compatibilityManager, filePath):
         super(UndoStackTabbedEditor, self).__init__(compatibilityManager, filePath)
         
-        self.undoStack = QUndoStack()
+        self.undoStack = QtGui.QUndoStack()
         
         self.undoStack.setUndoLimit(settings.getEntry("global/undo/limit").value)
         self.undoStack.setClean()
@@ -632,7 +628,7 @@ class MessageTabbedEditor(TabbedEditor):
         super(MessageTabbedEditor, self).__init__(None, filePath)
         
         self.message = message
-        self.tabWidget = QLabel(self.message)
+        self.tabWidget = QtGui.QLabel(self.message)
         self.tabWidget.setWordWrap(True)
         
     def hasChanges(self):
