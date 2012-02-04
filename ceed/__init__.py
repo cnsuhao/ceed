@@ -22,9 +22,9 @@
 
 from ceed import version
 
-__author__ = "Martin Preisler <preisler.m@gmail.com>"
+__author__ = "Martin Preisler <preisler.m@gmail.com> and contributing authors (see AUTHORS file)"
 __version__ = version.CEED
-__copyright__ = "Martin Preisler <preisler.m@gmail.com>"
+__copyright__ = __author__
 __email__ = "preisler.m@gmail.com"
 __license__ = "GPLv3+"
 
