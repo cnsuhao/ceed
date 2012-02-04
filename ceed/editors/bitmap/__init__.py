@@ -18,20 +18,17 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
+from PySide import QtGui
 from ceed import editors
 import ceed.ui.bitmapeditor
 
-##
-# A simple external bitmap editor starter/image viewer
-class BitmapTabbedEditor(editors.TabbedEditor, QWidget):
+class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
+    """A simple external bitmap editor starter/image viewer
+    """
+
     def __init__(self, filePath):
-        # TODO: maybe I am doing this wrong since I am not using super,
-        #       I need to pass 2 different argument sets so I am doing it explicit
-        #super(BitmapTabbedEditor, self).__init__(filePath)
-        
         editors.TabbedEditor.__init__(self, None, filePath)
-        QWidget.__init__(self)
+        QtGui.QWidget.__init__(self)
         
         self.ui = ceed.ui.bitmapeditor.Ui_BitmapEditor()
         self.ui.setupUi(self)
@@ -41,8 +38,8 @@ class BitmapTabbedEditor(editors.TabbedEditor, QWidget):
     def initialise(self, mainWindow):
         super(BitmapTabbedEditor, self).initialise(mainWindow)
             
-        self.preview = self.findChild(QLabel, "preview")
-        self.preview.setPixmap(QPixmap(self.filePath))
+        self.preview = self.findChild(QtGui.QLabel, "preview")
+        self.preview.setPixmap(QtGui.QPixmap(self.filePath))
     
     def finalise(self):
         super(BitmapTabbedEditor, self).finalise()
