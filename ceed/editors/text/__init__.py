@@ -18,27 +18,28 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
+from PySide import QtGui
 from ceed import editors
 
-##
-# Multi purpose text editor
-#
 # TODO: This could get replaced by QScintilla once PySide guys get it to work.
 #       Scintilla would probably be overkill though, I can't imagine anyone
 #       doing any serious text editing in this application
+
 class TextTabbedEditor(editors.TabbedEditor):
+    """Multi purpose text editor
+    """
+    
     def __init__(self, filePath):
         
         super(TextTabbedEditor, self).__init__(None, filePath)
         
-        self.tabWidget = QTextEdit()
+        self.tabWidget = QtGui.QTextEdit()
     
     def initialise(self, mainWindow):
         super(TextTabbedEditor, self).initialise(mainWindow)
             
         file_ = open(self.filePath, "r")
-        self.textDocument = QTextDocument()
+        self.textDocument = QtGui.QTextDocument()
         self.textDocument.setPlainText(file_.read())
         file_.close()
         

@@ -18,7 +18,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
+from PySide import QtGui
 
 from ceed import editors
 from ceed import propertyinspector
@@ -33,10 +33,10 @@ class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
         
         super(PropertyMappingsTabbedEditor, self).__init__(property_mappings_compatibility.Manager.instance, filePath)
         
-        self.tabWidget = QTableView()
-        self.tabWidget.setDragDropMode(QAbstractItemView.InternalMove)
+        self.tabWidget = QtGui.QTableView()
+        self.tabWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.tabWidget.setDragDropOverwriteMode(False)
-        self.tabWidget.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        self.tabWidget.setSelectionBehavior(QtGui.QTableView.SelectionBehavior.SelectRows)
         #self.tabWidget.setRootIsDecorated(False)
         
         self.propertyMappingList = None
