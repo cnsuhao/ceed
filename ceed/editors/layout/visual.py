@@ -18,8 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide import QtCore
+from PySide import QtGui
 
 from ceed.editors import mixed
 from ceed import propertysetinspector
@@ -35,7 +35,7 @@ import ceed.ui.editors.layout.propertiesdockwidget
 import cPickle
 import os
 
-class WidgetHierarchyItem(QStandardItem):
+class WidgetHierarchyItem(QtGui.QStandardItem):
     def __init__(self, manipulator):
         self.manipulator = manipulator
         
@@ -49,17 +49,17 @@ class WidgetHierarchyItem(QStandardItem):
             #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
             #self.setData(0, Qt.UserRole, manipulator)
             # interlink them so we can react on selection changes
-            self.setData(manipulator.widget.getNamePath(), Qt.UserRole)
+            self.setData(manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
             manipulator.treeItem = self
         
         else:
             super(WidgetHierarchyItem, self).__init__("<No widget>")
         
-        self.setFlags(Qt.ItemIsEnabled |
-                      Qt.ItemIsSelectable |
-                      Qt.ItemIsEditable |
-                      Qt.ItemIsDropEnabled |
-                      Qt.ItemIsDragEnabled)
+        self.setFlags(QtCore.Qt.ItemIsEnabled |
+                      QtCore.Qt.ItemIsSelectable |
+                      QtCore.Qt.ItemIsEditable |
+                      QtCore.Qt.ItemIsDropEnabled |
+                      QtCore.Qt.ItemIsDragEnabled)
         
     def clone(self):
         ret = WidgetHierarchyItem(self.manipulator)
@@ -69,25 +69,25 @@ class WidgetHierarchyItem(QStandardItem):
         """Updates the stored path data for the item and its children
         """
         if self.manipulator is not None:
-            self.setData(self.manipulator.widget.getNamePath(), Qt.UserRole)
+            self.setData(self.manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
             childrenCount = self.rowCount()
             i = 0
             while i < childrenCount:
                 self.child(i).refreshPathData()
                 i += 1
 
-class WidgetHierarchyTreeModel(QStandardItemModel):
+class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
     def __init__(self, dockWidget):
         super(WidgetHierarchyTreeModel, self).__init__()
         
         self.dockWidget = dockWidget
         self.setItemPrototype(WidgetHierarchyItem(None))
         
-    def data(self, index, role = Qt.DisplayRole):
+    def data(self, index, role = QtCore.Qt.DisplayRole):
         return super(WidgetHierarchyTreeModel, self).data(index, role)
 
-    def setData(self, index, value, role = Qt.EditRole):
-        if role == Qt.EditRole:
+    def setData(self, index, value, role = QtCore.Qt.EditRole):
+        if role == QtCore.Qt.EditRole:
             item = self.itemFromIndex(index)
 
             # if the new name is the same, cancel
@@ -97,18 +97,18 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
             # validate the new name, cancel if invalid
             value = widgethelpers.Manipulator.getValidWidgetName(value)
             if not value:
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 msgBox.setText("The name was not changed because the new name is invalid.")
-                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.setIcon(QtGui.QMessageBox.Warning)
                 msgBox.exec_()
                 return False
 
             # check if the new name is unique in the parent, cancel if not 
             parentWidget = item.manipulator.widget.getParent()
             if parentWidget is not None and parentWidget.isChild(value):
-                msgBox = QMessageBox()
+                msgBox = QtGui.QMessageBox()
                 msgBox.setText("The name was not changed because the new name is in use by a sibling widget.")
-                msgBox.setIcon(QMessageBox.Warning)
+                msgBox.setIcon(QtGui.QMessageBox.Warning)
                 msgBox.exec_()
                 return False
 
@@ -181,9 +181,9 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
                 
         data = []
         for item in topItems:
-            data.append(item.data(Qt.UserRole))
+            data.append(item.data(QtCore.Qt.UserRole))
             
-        ret = QMimeData()
+        ret = QtCore.QMimeData()
         ret.setData("application/x-ceed-widget-paths", cPickle.dumps(data))
         
         return ret
@@ -201,7 +201,7 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
             if newParent is None:
                 return False
 
-            newParentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(newParent.data(Qt.UserRole))
+            newParentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(newParent.data(QtCore.Qt.UserRole))
             
             usedNames = set()
             for widgetPath in widgetPaths:
@@ -231,7 +231,7 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
                             # the 'while' loops.
                             suggestedName = tempName + str(counter)
                             counter += 1
-                            error = "Widget name is in use by another widget being " + ("copied" if action == Qt.CopyAction else "moved")
+                            error = "Widget name is in use by another widget being " + ("copied" if action == QtCore.Qt.CopyAction else "moved")
                         
                         # if we had no collision, we can keep this name!
                         if counter == 2:
@@ -245,11 +245,11 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
                     # Ask the user to confirm our suggested name or enter a new one
                     # We do this in a loop because we validate the user input
                     while True:
-                        suggestedName, ok = QInputDialog.getText(
+                        suggestedName, ok = QtGui.QInputDialog.getText(
                                             self.dockWidget,
                                             error,
                                             "New name for '" + oldWidgetName + "':",
-                                            QLineEdit.Normal,
+                                            QtGui.QLineEdit.Normal,
                                             suggestedName)
                         # Abort everything if the user cancels the dialog
                         if not ok:
@@ -261,16 +261,16 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
                         error = "Invalid name, please try again"
                 
                 usedNames.add(suggestedName)
-                targetWidgetPaths.append(newParent.data(Qt.UserRole) + "/" + suggestedName)
+                targetWidgetPaths.append(newParent.data(QtCore.Qt.UserRole) + "/" + suggestedName)
                 
-            if action == Qt.MoveAction:
+            if action == QtCore.Qt.MoveAction:
                 cmd = undo.ReparentCommand(self.dockWidget.visual, widgetPaths, targetWidgetPaths)
                 # FIXME: unreadable
                 self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
         
                 return True
             
-            elif action == Qt.CopyAction:
+            elif action == QtCore.Qt.CopyAction:
                 # FIXME: TODO
                 return False
             
@@ -279,7 +279,7 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
             parentItem = self.itemFromIndex(parent)
             # if the drop was at empty space (parentItem is None) the parentItemPath
             # should be "" if no root item exists, otherwise the name of the root item
-            parentItemPath = parentItem.data(Qt.UserRole) if parentItem is not None else self.dockWidget.visual.scene.rootManipulator.widget.getName() if self.dockWidget.visual.scene.rootManipulator is not None else ""
+            parentItemPath = parentItem.data(QtCore.Qt.UserRole) if parentItem is not None else self.dockWidget.visual.scene.rootManipulator.widget.getName() if self.dockWidget.visual.scene.rootManipulator is not None else ""
             parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItemPath) if parentItemPath else None
             uniqueName = parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]) if parentManipulator is not None else widgetType.rsplit("/", 1)[-1]
             
@@ -290,7 +290,7 @@ class WidgetHierarchyTreeModel(QStandardItemModel):
         
         return False
 
-class WidgetHierarchyTreeView(QTreeView):
+class WidgetHierarchyTreeView(QtGui.QTreeView):
     """The actual widget hierarchy tree widget - what a horrible name
     This is a Qt widget that does exactly the same as QTreeWidget for now,
     it is a placeholder that will be put to use once the need arises - and it will.
@@ -317,7 +317,7 @@ class WidgetHierarchyTreeView(QTreeView):
             item = self.model().itemFromIndex(index)
             
             if isinstance(item, WidgetHierarchyItem):
-                manipulatorPath = item.data(Qt.UserRole)
+                manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
                     manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
@@ -329,7 +329,7 @@ class WidgetHierarchyTreeView(QTreeView):
             item = self.model().itemFromIndex(index)
 
             if isinstance(item, WidgetHierarchyItem):
-                manipulatorPath = item.data(Qt.UserRole)
+                manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
                     manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
@@ -340,9 +340,9 @@ class WidgetHierarchyTreeView(QTreeView):
         self.dockWidget.visual.scene.ignoreSelectionChanges = False
 
     def setupContextMenu(self):
-        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
 
-        self.contextMenu = QMenu(self)
+        self.contextMenu = QtGui.QMenu(self)
 
         self.renameAction = action.getAction("layout/rename")
         self.contextMenu.addAction(self.renameAction)
@@ -401,9 +401,9 @@ class WidgetHierarchyTreeView(QTreeView):
         if len(paths) > 0:
             # sort (otherwise the order is the item selection order)
             paths.sort()
-            QApplication.clipboard().setText(os.linesep.join(paths))
+            QtGui.QApplication.clipboard().setText(os.linesep.join(paths))
 
-class HierarchyDockWidget(QDockWidget):
+class HierarchyDockWidget(QtGui.QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
     """
     
@@ -439,7 +439,7 @@ class HierarchyDockWidget(QDockWidget):
         self.setRootWidgetManipulator(self.rootWidgetManipulator)
 
     def keyReleaseEvent(self, event):
-        if event.key() == Qt.Key_Delete:
+        if event.key() == QtCore.Qt.Key_Delete:
             handled = self.visual.scene.deleteSelectedWidgets()
             
             if handled:
@@ -447,7 +447,7 @@ class HierarchyDockWidget(QDockWidget):
         
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
-class PropertiesDockWidget(QDockWidget):
+class PropertiesDockWidget(QtGui.QDockWidget):
     """Lists and allows editing of properties of the selected widget(s). Uses the PropertySetInspector machinery.
     """
     
@@ -486,7 +486,7 @@ class PropertiesDockWidget(QDockWidget):
         # we create the undo command immediately in propertyEditingProgress
         pass
 
-class WidgetTypeTreeWidget(QTreeWidget):
+class WidgetTypeTreeWidget(QtGui.QTreeWidget):
     """Represents a single available widget for creation (it has a mapping in the scheme or is
     a stock special widget - like DefaultWindow).
     
@@ -512,26 +512,26 @@ class WidgetTypeTreeWidget(QTreeWidget):
         else:
             look = ""
 
-        mimeData = QMimeData()
+        mimeData = QtCore.QMimeData()
         
-        mimeData.setData("application/x-ceed-widget-type", QByteArray(str(look + "/" + widgetType if look else widgetType)))
+        mimeData.setData("application/x-ceed-widget-type", QtCore.QByteArray(str(look + "/" + widgetType if look else widgetType)))
 
-        pixmap = QPixmap(75,40)
-        painter = QPainter(pixmap)
+        pixmap = QtGui.QPixmap(75,40)
+        painter = QtGui.QPainter(pixmap)
         painter.eraseRect(0, 0, 75, 40)
-        painter.setBrush(Qt.DiagCrossPattern)
+        painter.setBrush(QtCore.Qt.DiagCrossPattern)
         painter.drawRect(0, 0, 74, 39)
         painter.end()
         
-        drag = QDrag(self)
+        drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         drag.setPixmap(pixmap)
-        drag.setHotSpot(QPoint(0, 0))
+        drag.setHotSpot(QtCore.QPoint(0, 0))
 
-        drag.exec_(Qt.CopyAction)
+        drag.exec_(QtCore.Qt.CopyAction)
         
     def viewportEvent(self, event):
-        if event.type() == QEvent.ToolTip:
+        if event.type() == QtCore.QEvent.ToolTip:
             # TODO: The big question is whether to reuse cached previews or always render them again.
             #       I always render them again for now to avoid all sorts of caching issues
             #       (when scheme/looknfeel editing is in place, etc...)
@@ -552,9 +552,9 @@ class WidgetTypeTreeWidget(QTreeWidget):
                         tooltipText = "Can't render a preview as this is an auto widgetType, requires parent to be rendered."
                         
                     else:
-                        ba = QByteArray()
-                        buffer = QBuffer(ba)
-                        buffer.open(QIODevice.WriteOnly)
+                        ba = QtCore.QByteArray()
+                        buffer = QtCore.QBuffer(ba)
+                        buffer.open(QtCore.QIODevice.WriteOnly)
                         
                         mainwindow.MainWindow.instance.ceguiInstance.getWidgetPreviewImage(fullWidgetType).save(buffer, "PNG")
                         
@@ -567,7 +567,7 @@ class WidgetTypeTreeWidget(QTreeWidget):
                 
         return super(WidgetTypeTreeWidget, self).viewportEvent(event)
 
-class CreateWidgetDockWidget(QDockWidget):
+class CreateWidgetDockWidget(QtGui.QDockWidget):
     """This lists available widgets you can create and allows their creation (by drag N drop)
     """
     
@@ -593,16 +593,16 @@ class CreateWidgetDockWidget(QDockWidget):
             if skin == "__no_skin__":
                 skinItem = self.tree.invisibleRootItem()
             else:
-                skinItem = QTreeWidgetItem()
+                skinItem = QtGui.QTreeWidgetItem()
                 skinItem.setText(0, skin)
                 # this makes sure the skin item isn't draggable
-                skinItem.setFlags(Qt.ItemIsEnabled)
+                skinItem.setFlags(QtCore.Qt.ItemIsEnabled)
                 self.tree.addTopLevelItem(skinItem)
                 
             # skinItem now represents the skin node, we add all widgets in that skin to it
             
             for widget in widgets:
-                widgetItem = QTreeWidgetItem()
+                widgetItem = QtGui.QTreeWidgetItem()
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
 
@@ -769,7 +769,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             for item in selection:
                 if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
-                        self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QItemSelectionModel.Select)
+                        self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
             
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
         
@@ -830,7 +830,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
     def keyReleaseEvent(self, event):
         handled = False
         
-        if event.key() == Qt.Key_Delete:
+        if event.key() == QtCore.Qt.Key_Delete:
             handled = self.deleteSelectedWidgets()           
             
         if not handled:
@@ -890,7 +890,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             else:
                 event.ignore()
         
-class VisualEditing(QWidget, mixed.EditMode):
+class VisualEditing(QtGui.QWidget, mixed.EditMode):
     """This is the default visual editing mode
     
     see ceed.editors.mixed.EditMode
@@ -905,7 +905,7 @@ class VisualEditing(QWidget, mixed.EditMode):
         self.propertiesDockWidget = PropertiesDockWidget(self)
         self.createWidgetDockWidget = CreateWidgetDockWidget(self)
         
-        layout = QVBoxLayout(self)
+        layout = QtGui.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         
@@ -948,8 +948,8 @@ class VisualEditing(QWidget, mixed.EditMode):
 
         
     def setupToolBar(self):
-        self.toolBar = QToolBar("Layout")
-        self.toolBar.setIconSize(QSize(32, 32))
+        self.toolBar = QtGui.QToolBar("Layout")
+        self.toolBar.setIconSize(QtCore.QSize(32, 32))
         
         self.toolBar.addAction(self.alignHLeftAction)
         self.toolBar.addAction(self.alignHCentreAction)
@@ -1120,14 +1120,14 @@ class VisualEditing(QWidget, mixed.EditMode):
             
             topMostSerialisationData.append(serialisationData)
             
-        data = QMimeData()
-        data.setData("application/x-ceed-widget-hierarchy-list", QByteArray(cPickle.dumps(topMostSerialisationData)))
-        QApplication.clipboard().setMimeData(data)
+        data = QtCore.QMimeData()
+        data.setData("application/x-ceed-widget-hierarchy-list", QtCore.QByteArray(cPickle.dumps(topMostSerialisationData)))
+        QtGui.QApplication.clipboard().setMimeData(data)
     
         return True
     
     def performPaste(self):
-        data = QApplication.clipboard().mimeData()
+        data = QtGui.QApplication.clipboard().mimeData()
         
         if not data.hasFormat("application/x-ceed-widget-hierarchy-list"):
             return False

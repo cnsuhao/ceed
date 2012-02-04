@@ -18,7 +18,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
+from PySide import QtGui
 
 def declare(settings):
     category = settings.createCategory(name = "layout", label = "Layout editing")
@@ -36,24 +36,24 @@ def declare(settings):
                        defaultValue = False, widgetHint = "checkbox",
                        sortingWeight = 0)
 
-    visual.createEntry(name = "normal_outline", type = QPen, label = "Normal outline",
+    visual.createEntry(name = "normal_outline", type = QtGui.QPen, label = "Normal outline",
                        help="Pen for normal outline.",
-                       defaultValue = QPen(QColor(255, 255, 255, 150)), widgetHint = "pen",
+                       defaultValue = QtGui.QPen(QtGui.QColor(255, 255, 255, 150)), widgetHint = "pen",
                        sortingWeight = 1)
 
-    visual.createEntry(name = "hover_outline", type = QPen, label = "Hover outline",
+    visual.createEntry(name = "hover_outline", type = QtGui.QPen, label = "Hover outline",
                        help="Pen for hover outline.",
-                       defaultValue = QPen(QColor(0, 255, 255, 255)), widgetHint = "pen",
+                       defaultValue = QtGui.QPen(QtGui.QColor(0, 255, 255, 255)), widgetHint = "pen",
                        sortingWeight = 2)
 
-    visual.createEntry(name = "resizing_outline", type = QPen, label = "Outline while resizing",
+    visual.createEntry(name = "resizing_outline", type = QtGui.QPen, label = "Outline while resizing",
                        help="Pen for resizing outline.",
-                       defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
+                       defaultValue = QtGui.QPen(QtGui.QColor(255, 0, 255, 255)), widgetHint = "pen",
                        sortingWeight = 3)
 
-    visual.createEntry(name = "moving_outline", type = QPen, label = "Outline while moving",
+    visual.createEntry(name = "moving_outline", type = QtGui.QPen, label = "Outline while moving",
                        help="Pen for moving outline.",
-                       defaultValue = QPen(QColor(255, 0, 255, 255)), widgetHint = "pen",
+                       defaultValue = QtGui.QPen(QtGui.QColor(255, 0, 255, 255)), widgetHint = "pen",
                        sortingWeight = 4)
 
     visual.createEntry(name = "snap_grid_x", type = float, label = "Snap grid cell width (X)",
@@ -66,12 +66,12 @@ def declare(settings):
                        defaultValue = 5, widgetHint = "float",
                        sortingWeight = 6)
 
-    visual.createEntry(name = "snap_grid_point_colour", type = QColor, label = "Snap grid point colour",
+    visual.createEntry(name = "snap_grid_point_colour", type = QtGui.QColor, label = "Snap grid point colour",
                        help="Color of snap grid points.",
-                       defaultValue = QColor(255, 255, 255, 192), widgetHint = "colour",
+                       defaultValue = QtGui.QColor(255, 255, 255, 192), widgetHint = "colour",
                        sortingWeight = 7)
 
-    visual.createEntry(name = "snap_grid_point_shadow_colour", type = QColor, label = "Snap grid point shadow colour",
+    visual.createEntry(name = "snap_grid_point_shadow_colour", type = QtGui.QColor, label = "Snap grid point shadow colour",
                        help="Color of snap grid points (shadows).",
-                       defaultValue = QColor(64, 64, 64, 192), widgetHint = "colour",
+                       defaultValue = QtGui.QColor(64, 64, 64, 192), widgetHint = "colour",
                        sortingWeight = 8)

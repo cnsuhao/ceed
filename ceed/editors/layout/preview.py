@@ -18,14 +18,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide import QtGui
 
 from ceed.editors import mixed
 
 import PyCEGUI
 
-class LayoutPreviewer(QWidget, mixed.EditMode):
+class LayoutPreviewer(QtGui.QWidget, mixed.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """
@@ -36,7 +35,7 @@ class LayoutPreviewer(QWidget, mixed.EditMode):
         self.tabbedEditor = tabbedEditor
         self.rootWidget = None
         
-        layout = QVBoxLayout(self)
+        layout = QtGui.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
