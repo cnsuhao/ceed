@@ -25,7 +25,6 @@ from PySide import QtGui
 import cPickle
 import os
 
-
 import PyCEGUI
 
 from ceed import resizable
@@ -541,7 +540,7 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
 
         return categories
 
-class PropertiesDockWidget(QDockWidget):
+class PropertiesDockWidget(QtGui.QDockWidget):
     """Lists and allows editing of properties of the selected widget(s).
     """
     
@@ -552,7 +551,7 @@ class PropertiesDockWidget(QDockWidget):
 
         self.setWindowTitle("Selection Properties")
         # Make the dock take as much space as it can vertically
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
 
         self.inspector = PropertyInspectorWidget()
         self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))

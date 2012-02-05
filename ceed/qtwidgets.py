@@ -223,7 +223,7 @@ class KeySequenceButton(QtGui.QPushButton):
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.keySequence = dialog.keySequence
 
-class LineEditWithClearButton(QLineEdit):
+class LineEditWithClearButton(QtGui.QLineEdit):
     """A QLineEdit with an inline clear button.
     
     Hitting Escape in the line edit clears it.
@@ -234,24 +234,24 @@ class LineEditWithClearButton(QLineEdit):
     def __init__(self, parent=None):
         super(LineEditWithClearButton, self).__init__(parent)
 
-        btn = self.button = QToolButton(self)
-        icon = QPixmap("icons/widgets/edit-clear.png")
+        btn = self.button = QtGui.QToolButton(self)
+        icon = QtGui.QPixmap("icons/widgets/edit-clear.png")
         btn.setIcon(icon)
         btn.setIconSize(icon.size())
-        btn.setCursor(Qt.ArrowCursor)
+        btn.setCursor(QtCore.Qt.ArrowCursor)
         btn.setStyleSheet("QToolButton { border: none; padding: 0px; }")
         btn.hide()
 
         btn.clicked.connect(self.clear)
         self.textChanged.connect(self.updateCloseButton)
 
-        clearAction = QAction(self)
-        clearAction.setShortcut(QKeySequence("Esc"))
-        clearAction.setShortcutContext(Qt.ShortcutContext.WidgetShortcut)
+        clearAction = QtGui.QAction(self)
+        clearAction.setShortcut(QtGui.QKeySequence("Esc"))
+        clearAction.setShortcutContext(QtCore.Qt.ShortcutContext.WidgetShortcut)
         clearAction.triggered.connect(self.clear)
         self.addAction(clearAction)
 
-        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
         self.setStyleSheet("QLineEdit { padding-right: %ipx; }" % (btn.sizeHint().width() + frameWidth + 1))
 
         minSizeHint = self.minimumSizeHint()
@@ -260,7 +260,7 @@ class LineEditWithClearButton(QLineEdit):
 
     def resizeEvent(self, event):
         sz = self.button.sizeHint()
-        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        frameWidth = self.style().pixelMetric(QtGui.QStyle.PM_DefaultFrameWidth)
         self.button.move(self.rect().right() - frameWidth - sz.width(),
                          (self.rect().bottom() + 1 - sz.height()) / 2)
 

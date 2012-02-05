@@ -27,8 +27,7 @@ from .propertytree import ui as ptUi
 
 from ceed.cegui import ceguitypes as ct
 
-from PySide import QtGui
-from PySide import QtCore
+from collections import OrderedDict
 
 class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
