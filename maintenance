@@ -85,6 +85,12 @@ def fetch_datafiles():
             print("*** Datafiles from branch '%s' are up to date in CEED working copy!" % (branch))
         
         copy_datafiles(v0_7_branch, v0_7_sample_datafiles_path)
+        # fix up the 0.7 schemes, some of them are duplicated
+        print("*** Deleting duplicate schemes from 0.7 datafiles")
+        for scheme in ["Demo8", "TaharezLookWidgetAliases", "TaharezLookWidgets", "WindowsLookWidgets"]:
+            os.remove(os.path.join(v0_7_sample_datafiles_path, "schemes", "%s.scheme" % (scheme)))
+        print("*** Done")
+        
         copy_datafiles(v0_8_branch, v0_8_sample_datafiles_path)
     
     finally:
