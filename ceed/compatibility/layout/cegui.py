@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,7 +16,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 from ceed import compatibility
 from xml.etree import ElementTree
@@ -149,14 +151,31 @@ class Layout3To4Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
-        windowType = element.get("Type")
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
+        if windowType is None:
+            windowType = element.get("Type")
+            if windowType is None:
+                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
 
         # convert the properties that had 'Unified' prefix
         for property in element.findall(tag):
             name = property.get(nameAttribute, "")
             
-            if name == "UnifiedAreaRect":
+            if name == "ZOrderChangeEnabled":
+                name = "ZOrderingEnabled"
+                
+            elif name == "MouseButtonDownAutoRepeat":
+                name = "MouseAutoRepeatEnabled"
+            
+            elif name == "CustomTooltipType":
+                name = "TooltipType"
+            elif name == "Tooltip":
+                name = "TooltipText"
+                
+            elif name == "RiseOnClick":
+                name = "RiseOnClickEnabled"
+            
+            elif name == "UnifiedAreaRect":
                 name = "Area"
             elif name == "UnifiedPosition":
                 name = "Position"
@@ -181,7 +200,9 @@ class Layout3To4Layer(compatibility.Layer):
             def convertImagePropertyToName(property):
                 value = property.get(valueAttribute)
                 split = value.split("image:", 1)
-                assert(len(split) == 2)
+                if len(split) != 2:
+                    raise RuntimeError("Failed parsing value '%s' as 0.7 image reference" % (value))
+                
                 split[0] = split[0][4:] # get rid of "set:"
                 
                 # strip both of whitespaces left and right
@@ -189,14 +210,33 @@ class Layout3To4Layer(compatibility.Layer):
                 split[1] = split[1].strip()
                 
                 property.set(valueAttribute, "%s/%s" % (split[0], split[1]))
-        
-            if windowType is None or windowType.endswith("StaticImage"):
+            
+            if windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToName(property)
                     
-            elif windowType is None or windowType.endswith("ImageButton"):
+            elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
                     convertImagePropertyToName(property)
+                    
+            elif windowType.endswith("FrameWindow"):
+                if name.endswith("SizingCursorImage"):
+                    convertImagePropertyToName(property)
+                    
+            elif windowType.endswith("ListHeaderSegment"):
+                if name in ["MovingCursorImage", "SizingCursorImage"]:
+                    convertImagePropertyToName(property)
+                    
+            else:
+                # we have done all explicit migrations, at this point the best we can do is guess
+                # if a property name ends with Image, it is most likely an image
+                if name.endswith("Image"):
+                    try:
+                        convertImagePropertyToName(property)
+                        
+                    except:
+                        # best effort only, we don't have enough info
+                        pass
     
     def applyChangesRecursively(self, window):
         ret = ""
@@ -262,14 +302,31 @@ class Layout4To3Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
-        windowType = element.get("Type")
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
+        if windowType is None:
+            windowType = element.get("Type")
+            if windowType is None:
+                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
         
         # convert the properties that had 'Unified' prefix in 0.7
         for property in element.findall(tag):
             name = property.get(nameAttribute, "")
             
-            if name == "Area":
+            if name == "ZOrderingEnabled":
+                name = "ZOrderChangeEnabled"
+                
+            elif name == "MouseAutoRepeatEnabled":
+                name = "MouseButtonDownAutoRepeat"
+            
+            elif name == "TooltipType":
+                name = "CustomTooltipType"
+            elif name == "TooltipText":
+                name = "Tooltip"
+                
+            elif name == "RiseOnClickEnabled":
+                name = "RiseOnClick"
+
+            elif name == "Area":
                 name = "UnifiedAreaRect"
             elif name == "Position":
                 name = "UnifiedPosition"
@@ -294,17 +351,38 @@ class Layout4To3Layer(compatibility.Layer):
             def convertImagePropertyToImagesetImage(property):
                 value = property.get(valueAttribute)
                 split = value.split("/", 1)
-                assert(len(split) == 2)
+                if len(split) != 2:
+                    raise RuntimeError("Failed parsing value '%s' as 0.8 image reference" % (value))
                 property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
         
-            if windowType is None or windowType.endswith("StaticImage"):
+            if windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToImagesetImage(property)
                     
-            elif windowType is None or windowType.endswith("ImageButton"):
+            elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
                     convertImagePropertyToImagesetImage(property)
+                    return
     
+            elif windowType.endswith("FrameWindow"):
+                if name.endswith("SizingCursorImage"):
+                    convertImagePropertyToImagesetImage(property)
+                    
+            elif windowType.endswith("ListHeaderSegment"):
+                if name in ["MovingCursorImage", "SizingCursorImage"]:
+                    convertImagePropertyToImagesetImage(property)
+                    
+            else:
+                # we have done all explicit migrations, at this point the best we can do is guess
+                # if a property name ends with Image, it is most likely an image
+                if name.endswith("Image"):
+                    try:
+                        convertImagePropertyToImagesetImage(property)
+                        
+                    except:
+                        # best effort only, we don't have enough info
+                        pass
+
     def applyChangesRecursively(self, window):
         ret = ""
         

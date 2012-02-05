@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,17 +16,17 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide import QtCore
+from PySide import QtGui
 
 from xml.etree import ElementTree
 import os
 
 from ceed import resizable
 
-class ImageLabel(QGraphicsTextItem):
+class ImageLabel(QtGui.QGraphicsTextItem):
     """Text item showing image's label when the image is hovered or selected.
     You should not use this directly! Use ImageEntry.name instead to get the name.    
     """
@@ -34,7 +36,7 @@ class ImageLabel(QGraphicsTextItem):
         
         self.imageEntry = imageEntry
         
-        self.setFlags(QGraphicsItem.ItemIgnoresTransformations)
+        self.setFlags(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setOpacity(0.8)
         
         self.setPlainText("Unknown")
@@ -49,9 +51,9 @@ class ImageLabel(QGraphicsTextItem):
         self.setVisible(False)
         
     def paint(self, painter, option, widget):
-        palette = QApplication.palette()
+        palette = QtGui.QApplication.palette()
         
-        painter.fillRect(self.boundingRect(), palette.color(QPalette.Normal, QPalette.Base))
+        painter.fillRect(self.boundingRect(), palette.color(QtGui.QPalette.Normal, QtGui.QPalette.Base))
         painter.drawRect(self.boundingRect())
         
         super(ImageLabel, self).paint(painter, option, widget)
@@ -66,7 +68,7 @@ class ImageLabel(QGraphicsTextItem):
 
         super(ImageLabel, self).hoverLeaveEvent(event)
 
-class ImageOffset(QGraphicsPixmapItem):
+class ImageOffset(QtGui.QGraphicsPixmapItem):
     """A crosshair showing where the imaginary (0, 0) point of the image is. The actual offset
     is just a negated vector of the crosshair's position but this is easier to work with from
     the artist's point of view.    
@@ -77,14 +79,14 @@ class ImageOffset(QGraphicsPixmapItem):
         
         self.imageEntry = imageEntry
         
-        self.setFlags(QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIsSelectable | 
-                      QGraphicsItem.ItemIgnoresTransformations |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemIsSelectable | 
+                      QtGui.QGraphicsItem.ItemIgnoresTransformations |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         
-        self.setCursor(Qt.OpenHandCursor)
+        self.setCursor(QtCore.Qt.OpenHandCursor)
         
-        self.setPixmap(QPixmap("icons/imageset_editing/offset_crosshair.png"))
+        self.setPixmap(QtGui.QPixmap("icons/imageset_editing/offset_crosshair.png"))
         # the crosshair pixmap is 15x15, (7, 7) is the centre pixel of it,
         # we want that to be the (0, 0) point of the crosshair
         self.setOffset(-7, -7)
@@ -102,11 +104,11 @@ class ImageOffset(QGraphicsPixmapItem):
         # by default Qt considers parts of the image with alpha = 0 not part of the image,
         # that would make it very hard to move the crosshair, we consider the whole
         # bounding rectangle to be part of the image
-        self.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
+        self.setShapeMode(QtGui.QGraphicsPixmapItem.BoundingRectShape)
         self.setVisible(False)
         
     def itemChange(self, change, value):    
-        if change == QGraphicsItem.ItemPositionChange:
+        if change == QtGui.QGraphicsItem.ItemPositionChange:
             if self.potentialMove and not self.oldPosition:
                 self.oldPosition = self.pos()
             
@@ -118,7 +120,7 @@ class ImageOffset(QGraphicsPixmapItem):
 
             return newPosition
         
-        elif change == QGraphicsItem.ItemSelectedChange:
+        elif change == QtGui.QGraphicsItem.ItemSelectedChange:
             if not value:
                 if not self.imageEntry.isSelected():
                     self.setVisible(False)
@@ -152,9 +154,9 @@ class ImageEntry(resizable.ResizableRectItem):
     ypos = property(lambda self: int(self.pos().y()),
                     lambda self, value: self.setPos(self.pos().x(), value))
     width = property(lambda self: int(self.rect().width()),
-                     lambda self, value: self.setRect(QRectF(0, 0, value, self.height)))
+                     lambda self, value: self.setRect(QtCore.QRectF(0, 0, value, self.height)))
     height = property(lambda self: int(self.rect().height()),
-                      lambda self, value: self.setRect(QRectF(0, 0, self.width, value)))
+                      lambda self, value: self.setRect(QtCore.QRectF(0, 0, self.width, value)))
     
     xoffset = property(lambda self: int(-(self.offset.pos().x() - 0.5)),
                        lambda self, value: self.offset.setX(-float(value) + 0.5))
@@ -174,9 +176,9 @@ class ImageEntry(resizable.ResizableRectItem):
         self.oldPosition = None
         self.resized = False
         
-        self.setFlags(QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemIsSelectable |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
 
         self.setVisible(True)
         
@@ -194,8 +196,8 @@ class ImageEntry(resizable.ResizableRectItem):
         # NOTE: Imageset as such might support floating point pixels but it's never what you
         #       really want, image quality deteriorates a lot
         
-        rect = QRectF(QPointF(round(rect.topLeft().x()), round(rect.topLeft().y())),
-                      QPointF(round(rect.bottomRight().x()), round(rect.bottomRight().y())))
+        rect = QtCore.QRectF(QtCore.QPointF(round(rect.topLeft().x()), round(rect.topLeft().y())),
+                             QtCore.QPointF(round(rect.bottomRight().x()), round(rect.bottomRight().y())))
         
         return super(ImageEntry, self).constrainResizeRect(rect, oldRect)
         
@@ -248,16 +250,17 @@ class ImageEntry(resizable.ResizableRectItem):
         previewWidth = 24
         previewHeight = 24
         
-        preview = QPixmap(previewWidth, previewHeight)
-        preview.fill(Qt.transparent)
-        painter = QPainter(preview)
-        scaledPixmap = self.getPixmap().scaled(QSize(previewWidth, previewHeight), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        preview = QtGui.QPixmap(previewWidth, previewHeight)
+        preview.fill(QtCore.Qt.transparent)
+        painter = QtGui.QPainter(preview)
+        scaledPixmap = self.getPixmap().scaled(QtCore.QSize(previewWidth, previewHeight),
+                                               QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         painter.drawPixmap((previewWidth - scaledPixmap.width()) / 2,
                            (previewHeight - scaledPixmap.height()) / 2,
                            scaledPixmap)
         painter.end()
         
-        self.listItem.setIcon(QIcon(preview))
+        self.listItem.setIcon(QtGui.QIcon(preview))
 
     def updateListItemSelection(self):
         """Synchronises the selection in the dock widget's list. This makes sure that when you select
@@ -296,7 +299,7 @@ class ImageEntry(resizable.ResizableRectItem):
             dockWidget.refreshActiveImageEntry()
 
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemSelectedHasChanged:
+        if change == QtGui.QGraphicsItem.ItemSelectedHasChanged:
             if value:
                 if settings.getEntry("imageset/visual/overlay_image_labels").value:
                     self.label.setVisible(True)
@@ -316,7 +319,7 @@ class ImageEntry(resizable.ResizableRectItem):
                 
             self.updateListItemSelection()
 
-        elif change == QGraphicsItem.ItemPositionChange:
+        elif change == QtGui.QGraphicsItem.ItemPositionChange:
             if self.potentialMove and not self.oldPosition:
                 self.oldPosition = self.pos()
                 # hide label when moving so user can see edges clearly
@@ -392,10 +395,10 @@ class ImageEntry(resizable.ResizableRectItem):
         
         # to be more visible, we draw yellow rect over the usual dashed double colour rect
         if self.isSelected():
-            painter.setPen(QColor(255, 255, 0, 255))
+            painter.setPen(QtGui.QColor(255, 255, 0, 255))
             painter.drawRect(self.rect())
         
-class ImagesetEntry(QGraphicsPixmapItem):
+class ImagesetEntry(QtGui.QGraphicsPixmapItem):
     """This is the whole imageset containing all the images (ImageEntries).
     
     The main reason for this is not to have multiple imagesets editing at once but rather
@@ -411,30 +414,30 @@ class ImagesetEntry(QGraphicsPixmapItem):
         self.nativeVertRes = 600
         self.autoScaled = False
         
-        self.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
-        self.setCursor(Qt.ArrowCursor)
+        self.setShapeMode(QtGui.QGraphicsPixmapItem.BoundingRectShape)
+        self.setCursor(QtCore.Qt.ArrowCursor)
         
         self.visual = visual
         self.imageEntries = []
         
         self.showOffsets = False
         
-        self.transparencyBackground = QGraphicsRectItem()
+        self.transparencyBackground = QtGui.QGraphicsRectItem()
         self.transparencyBackground.setParentItem(self)
-        self.transparencyBackground.setFlags(QGraphicsItem.ItemStacksBehindParent)
+        self.transparencyBackground.setFlags(QtGui.QGraphicsItem.ItemStacksBehindParent)
         
-        transparentBrush = QBrush()
-        transparentTexture = QPixmap(10, 10)
-        transparentPainter = QPainter(transparentTexture)
-        transparentPainter.fillRect(0, 0, 5, 5, QColor(Qt.darkGray))
-        transparentPainter.fillRect(5, 5, 5, 5, QColor(Qt.darkGray))
-        transparentPainter.fillRect(5, 0, 5, 5, QColor(Qt.gray))
-        transparentPainter.fillRect(0, 5, 5, 5, QColor(Qt.gray))
+        transparentBrush = QtGui.QBrush()
+        transparentTexture = QtGui.QPixmap(10, 10)
+        transparentPainter = QtGui.QPainter(transparentTexture)
+        transparentPainter.fillRect(0, 0, 5, 5, QtGui.QColor(QtCore.Qt.darkGray))
+        transparentPainter.fillRect(5, 5, 5, 5, QtGui.QColor(QtCore.Qt.darkGray))
+        transparentPainter.fillRect(5, 0, 5, 5, QtGui.QColor(QtCore.Qt.gray))
+        transparentPainter.fillRect(0, 5, 5, 5, QtGui.QColor(QtCore.Qt.gray))
         transparentPainter.end()
         transparentBrush.setTexture(transparentTexture)
         
         self.transparencyBackground.setBrush(transparentBrush)
-        self.transparencyBackground.setPen(QPen(QColor(Qt.transparent)))
+        self.transparencyBackground.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.transparent)))
 
         # Allocate space for monitoring the image, but don't load anything since
         # nothing has been loaded yet
@@ -465,7 +468,7 @@ class ImagesetEntry(QGraphicsPixmapItem):
         timer back."""
 
         if self.imageRefreshTimer is None:
-            self.imageRefreshTimer = QTimer()
+            self.imageRefreshTimer = QtCore.QTimer()
             self.imageRefreshTimer.timeout.connect(self.slot_imageRefreshTimer)
             self.imageRefreshTimer.setSingleShot(True)
         else:
@@ -474,13 +477,13 @@ class ImagesetEntry(QGraphicsPixmapItem):
         self.imageRefreshTimer.start(500)
 
         # Keep track of the file size to be sure the image is ready to be read
-        self.imageSizeMonitor = QFileInfo(self.getAbsoluteImageFile()).size()
+        self.imageSizeMonitor = QtCore.QFileInfo(self.getAbsoluteImageFile()).size()
 
     def slot_imageRefreshTimer(self):
         """When the image is done being written, reload it."""
         
         # This shouldn't fail, but just to be sure, make sure the file sizes match
-        assert(self.imageSizeMonitor == QFileInfo(self.getAbsoluteImageFile()).size())
+        assert(self.imageSizeMonitor == QtCore.QFileInfo(self.getAbsoluteImageFile()).size())
         self.loadImage(self.imageFile)
 
     def loadImage(self, relativeImagePath):
@@ -499,7 +502,7 @@ class ImagesetEntry(QGraphicsPixmapItem):
             self.imageMonitor.removePath(self.getAbsoluteImageFile())
 
         self.imageFile = relativeImagePath
-        self.setPixmap(QPixmap(self.getAbsoluteImageFile()))
+        self.setPixmap(QtGui.QPixmap(self.getAbsoluteImageFile()))
         self.transparencyBackground.setRect(self.boundingRect())
         
         # go over all image entries and set their position to force them to be constrained
@@ -512,7 +515,7 @@ class ImagesetEntry(QGraphicsPixmapItem):
 
         # If imageMonitor is null, allocate and watch the loaded file
         if self.imageMonitor == None:
-            self.imageMonitor = QFileSystemWatcher(None)
+            self.imageMonitor = QtCore.QFileSystemWatcher(None)
             self.imageMonitor.fileChanged.connect(self.slot_imageChangedByExternalProgram)
         self.imageMonitor.addPath(self.getAbsoluteImageFile())
     

@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
@@ -66,20 +68,20 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         
         # if snap grid wasn't created yet or if it's parameters changed, create it anew!
         if (cls.snapGridBrush is None) or (cls.snapGridX != snapGridX) or (cls.snapGridY != snapGridY) or (cls.snapGridPointColour != snapGridPointColour) or (cls.snapGridPointShadowColour != snapGridPointShadowColour):
-            cls.snapGridBrush = QBrush()
+            cls.snapGridBrush = QtGui.QBrush()
             
             cls.snapGridX = snapGridX
             cls.snapGridY = snapGridY
             cls.snapGridPointColour = snapGridPointColour
             cls.snapGridPointShadowColour = snapGridPointShadowColour
             
-            texture = QPixmap(snapGridX, snapGridY)
-            texture.fill(QColor(Qt.transparent))
+            texture = QtGui.QPixmap(snapGridX, snapGridY)
+            texture.fill(QtGui.QColor(QtCore.Qt.transparent))
             
-            painter = QPainter(texture)
-            painter.setPen(QPen(snapGridPointColour))
+            painter = QtGui.QPainter(texture)
+            painter.setPen(QtGui.QPen(snapGridPointColour))
             painter.drawPoint(0, 0)
-            painter.setPen(QPen(snapGridPointShadowColour))
+            painter.setPen(QtGui.QPen(snapGridPointShadowColour))
             painter.drawPoint(1, 0)
             painter.drawPoint(1, 1)
             painter.drawPoint(0, 1)
@@ -173,8 +175,8 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         return ret
     """
     def getDragAcceptableHintPen(self):
-        ret = QPen()
-        ret.setColor(QColor(255, 255, 0))
+        ret = QtGui.QPen()
+        ret.setColor(QtGui.QColor(255, 255, 0))
         
         return ret
         
@@ -289,7 +291,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         
         if self.drawSnapGrid and self.snapGridAction.isChecked():
             childRect = self.widget.getChildContentArea(self.snapGridNonClientArea).get()
-            qChildRect = QRectF(childRect.d_min.d_x, childRect.d_min.d_y, childRect.getWidth(), childRect.getHeight())
+            qChildRect = QtCore.QRectF(childRect.d_min.d_x, childRect.d_min.d_y, childRect.getWidth(), childRect.getHeight())
             qChildRect.translate(-self.scenePos())
             
             painter.save()
@@ -329,7 +331,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
                 parent = self
                 
             if isinstance(parent, Manipulator):
-                point = QPointF(parent.snapXCoordToGrid(point.x()), parent.snapYCoordToGrid(point.y()))
+                point = QtCore.QPointF(parent.snapXCoordToGrid(point.x()), parent.snapYCoordToGrid(point.y()))
         
         point = super(Manipulator, self).constrainMovePoint(point)
         

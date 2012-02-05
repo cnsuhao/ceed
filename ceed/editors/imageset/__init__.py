@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 import os
 import sys
@@ -83,12 +85,12 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
             # fly out of this method
             if os.path.getsize(self.filePath) > 2:
                 # the file contains more than just CR LF
-                QMessageBox.question(self,
-                                     "Can't parse given imageset!",
-                                     "Parsing '%s' failed, it's most likely not a valid XML file. "
-                                     "Constructing empty imageset instead (if you save you will override the invalid data!). "
-                                     "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
-                                     QMessageBox.Ok)
+                QtGui.QMessageBox.question(self,
+                                           "Can't parse given imageset!",
+                                           "Parsing '%s' failed, it's most likely not a valid XML file. "
+                                           "Constructing empty imageset instead (if you save you will override the invalid data!). "
+                                           "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
+                                           QtGui.QMessageBox.Ok)
             
             # we construct the minimal empty imageset    
             root = ElementTree.Element("Imageset")
@@ -114,16 +116,16 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     def activate(self):
         super(ImagesetTabbedEditor, self).activate()
         
-        self.mainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
+        self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
         
-        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.dockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.dockWidget)
         self.visual.dockWidget.setVisible(True)
 
     def updateToolbarSize(self, size):
         if size < 16:
             size = 16
-        self.visual.toolBar.setIconSize(QSize(size, size))
+        self.visual.toolBar.setIconSize(QtCore.QSize(size, size))
 
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.dockWidget)

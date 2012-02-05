@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,12 +16,12 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
-class GraphicsView(QGraphicsView):
+class GraphicsView(QtGui.QGraphicsView):
     """If you plan to use ResizableGraphicsRectItems, make sure you view them
     via a GraphicsView that is inherited from this exact class.
     
@@ -55,7 +57,7 @@ class GraphicsView(QGraphicsView):
                 item.scaleChanged(sx, sy)
     
     def performZoom(self):
-        transform = QTransform()
+        transform = QtGui.QTransform()
         transform.scale(self.zoomFactor, self.zoomFactor)
         self.setTransform(transform)
     
@@ -93,7 +95,7 @@ class GraphicsView(QGraphicsView):
             super(GraphicsView, self).wheelEvent(event)
     
     def mousePressEvent(self, event): 
-        if self.middleButtonDragScrollEnabled and (event.buttons() == Qt.MiddleButton):
+        if self.middleButtonDragScrollEnabled and (event.buttons() == QtCore.Qt.MiddleButton):
             self.lastDragScrollMousePosition = event.pos()
             
         else:
@@ -115,7 +117,7 @@ class GraphicsView(QGraphicsView):
         super(GraphicsView, self).mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event): 
-        if self.middleButtonDragScrollEnabled and (event.buttons() == Qt.MiddleButton): 
+        if self.middleButtonDragScrollEnabled and (event.buttons() == QtCore.Qt.MiddleButton): 
             horizontal = self.horizontalScrollBar()
             horizontal.setSliderPosition(horizontal.sliderPosition() - (event.pos().x() - self.lastDragScrollMousePosition.x()))
             vertical = self.verticalScrollBar()
@@ -126,7 +128,7 @@ class GraphicsView(QGraphicsView):
             
         self.lastDragScrollMousePosition = event.pos() 
 
-class ResizingHandle(QGraphicsRectItem):
+class ResizingHandle(QtGui.QGraphicsRectItem):
     """A rectangle that when moved resizes the parent resizable rect item.
     
     The reason to go with a child GraphicsRectItem instead of just overriding mousePressEvent et al
@@ -138,9 +140,9 @@ class ResizingHandle(QGraphicsRectItem):
         super(ResizingHandle, self).__init__(parent)
         self.parentResizable = parent
         
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsSelectable |
+                      QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         
         self.setAcceptHoverEvents(True)
         
@@ -169,19 +171,19 @@ class ResizingHandle(QGraphicsRectItem):
         """This overriden method does most of the resize work
         """
         
-        if change == QGraphicsItem.ItemSelectedChange:
+        if change == QtGui.QGraphicsItem.ItemSelectedChange:
             if self.parentResizable.isSelected():
                 # we disallow multi-selecting a resizable item and one of it's handles,
                 return False
             
-        elif change == QGraphicsItem.ItemSelectedHasChanged:
+        elif change == QtGui.QGraphicsItem.ItemSelectedHasChanged:
             # if we have indeed been selected, make sure all our sibling handles are unselected
             # we allow multi-selecting multiple handles but only one handle per resizable is allowed
             
             self.unselectAllSiblingHandles()
             self.parentResizable.notifyHandleSelected(self)
         
-        elif change == QGraphicsItem.ItemPositionChange:
+        elif change == QtGui.QGraphicsItem.ItemPositionChange:
             # this is the money code
             # changing position of the handle resizes the whole resizable
             if not self.parentResizable.resizeInProgress and not self.ignoreGeometryChanges:
@@ -198,7 +200,7 @@ class ResizingHandle(QGraphicsRectItem):
                 ret = self.performResizing(value)
                 
                 newPos = self.parentResizable.pos() + self.parentResizable.rect().topLeft()
-                newRect = QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
+                newRect = QtCore.QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
 
                 self.parentResizable.notifyResizeProgress(newPos, newRect)
                 
@@ -217,7 +219,7 @@ class ResizingHandle(QGraphicsRectItem):
             self.parentResizable.setPen(self.parentResizable.getHoverPen() if self.parentResizable.mouseOver else self.parentResizable.getNormalPen())
             
             newPos = self.parentResizable.pos() + self.parentResizable.rect().topLeft()
-            newRect = QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
+            newRect = QtCore.QRectF(0, 0, self.parentResizable.rect().width(), self.parentResizable.rect().height())
             
             self.parentResizable.notifyResizeFinished(newPos, newRect)
 
@@ -257,84 +259,84 @@ class TopEdgeResizingHandle(EdgeResizingHandle):
     def __init__(self, parent):
         super(TopEdgeResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeVerCursor)
+        self.setCursor(QtCore.Qt.SizeVerCursor)
         
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta, 0, 0)
 
-        return QPointF(self.pos().x(), dy1 + self.pos().y())
+        return QtCore.QPointF(self.pos().x(), dy1 + self.pos().y())
 
     def scaleChanged(self, sx, sy):
         super(TopEdgeResizingHandle, self).scaleChanged(sx, sy)
 
         transform = self.transform()
-        transform = QTransform(1.0, transform.m12(), transform.m13(),
-                               transform.m21(), 1.0 / sy, transform.m23(),
-                               transform.m31(), transform.m32(), transform.m33())
+        transform = QtGui.QTransform(1.0, transform.m12(), transform.m13(),
+                                     transform.m21(), 1.0 / sy, transform.m23(),
+                                     transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
 class BottomEdgeResizingHandle(EdgeResizingHandle):
     def __init__(self, parent):
         super(BottomEdgeResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeVerCursor)
+        self.setCursor(QtCore.Qt.SizeVerCursor)
         
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, 0, delta)
             
-        return QPointF(self.pos().x(), dy2 + self.pos().y())
+        return QtCore.QPointF(self.pos().x(), dy2 + self.pos().y())
 
     def scaleChanged(self, sx, sy):
         super(BottomEdgeResizingHandle, self).scaleChanged(sx, sy)
 
         transform = self.transform()
-        transform = QTransform(1.0, transform.m12(), transform.m13(),
-                               transform.m21(), 1.0 / sy, transform.m23(),
-                               transform.m31(), transform.m32(), transform.m33())
+        transform = QtGui.QTransform(1.0, transform.m12(), transform.m13(),
+                                     transform.m21(), 1.0 / sy, transform.m23(),
+                                     transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
 class LeftEdgeResizingHandle(EdgeResizingHandle):
     def __init__(self, parent):
         super(LeftEdgeResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeHorCursor)
+        self.setCursor(QtCore.Qt.SizeHorCursor)
         
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta, 0, 0, 0)
             
-        return QPointF(dx1 + self.pos().x(), self.pos().y())
+        return QtCore.QPointF(dx1 + self.pos().x(), self.pos().y())
 
     def scaleChanged(self, sx, sy):
         super(LeftEdgeResizingHandle, self).scaleChanged(sx, sy)
 
         transform = self.transform()
-        transform = QTransform(1.0 / sx, transform.m12(), transform.m13(),
-                               transform.m21(), 1.0, transform.m23(),
-                               transform.m31(), transform.m32(), transform.m33())
+        transform = QtGui.QTransform(1.0 / sx, transform.m12(), transform.m13(),
+                                     transform.m21(), 1.0, transform.m23(),
+                                     transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
 class RightEdgeResizingHandle(EdgeResizingHandle):
     def __init__(self, parent):
         super(RightEdgeResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeHorCursor)
+        self.setCursor(QtCore.Qt.SizeHorCursor)
         
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta, 0)
             
-        return QPointF(dx2 + self.pos().x(), self.pos().y())
+        return QtCore.QPointF(dx2 + self.pos().x(), self.pos().y())
 
     def scaleChanged(self, sx, sy):
         super(RightEdgeResizingHandle, self).scaleChanged(sx, sy)
 
         transform = self.transform()
-        transform = QTransform(1.0 / sx, transform.m12(), transform.m13(),
-                               transform.m21(), 1.0, transform.m23(),
-                               transform.m31(), transform.m32(), transform.m33())
+        transform = QtGui.QTransform(1.0 / sx, transform.m12(), transform.m13(),
+                                     transform.m21(), 1.0, transform.m23(),
+                                     transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
 class CornerResizingHandle(ResizingHandle):
@@ -353,9 +355,9 @@ class CornerResizingHandle(ResizingHandle):
         super(CornerResizingHandle, self).scaleChanged(sx, sy)
 
         transform = self.transform()
-        transform = QTransform(1.0 / sx, transform.m12(), transform.m13(),
-                               transform.m21(), 1.0 / sy, transform.m23(),
-                               transform.m31(), transform.m32(), transform.m33())
+        transform = QtGui.QTransform(1.0 / sx, transform.m12(), transform.m13(),
+                                     transform.m21(), 1.0 / sy, transform.m23(),
+                                     transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
     def hoverEnterEvent(self, event):
@@ -372,55 +374,55 @@ class TopRightCornerResizingHandle(CornerResizingHandle):
     def __init__(self, parent):
         super(TopRightCornerResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeBDiagCursor)
+        self.setCursor(QtCore.Qt.SizeBDiagCursor)
         
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta_y, delta_x, 0)
 
-        return QPointF(dx2 + self.pos().x(), dy1 + self.pos().y())
+        return QtCore.QPointF(dx2 + self.pos().x(), dy1 + self.pos().y())
 
 class BottomRightCornerResizingHandle(CornerResizingHandle):
     def __init__(self, parent):
         super(BottomRightCornerResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeFDiagCursor)
+        self.setCursor(QtCore.Qt.SizeFDiagCursor)
         
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta_x, delta_y)
         
-        return QPointF(dx2 + self.pos().x(), dy2 + self.pos().y())
+        return QtCore.QPointF(dx2 + self.pos().x(), dy2 + self.pos().y())
 
 class BottomLeftCornerResizingHandle(CornerResizingHandle):
     def __init__(self, parent):
         super(BottomLeftCornerResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeBDiagCursor)
+        self.setCursor(QtCore.Qt.SizeBDiagCursor)
         
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, 0, 0, delta_y)
         
-        return QPointF(dx1 + self.pos().x(), dy2 + self.pos().y())
+        return QtCore.QPointF(dx1 + self.pos().x(), dy2 + self.pos().y())
 
 class TopLeftCornerResizingHandle(CornerResizingHandle):
     def __init__(self, parent):
         super(TopLeftCornerResizingHandle, self).__init__(parent)
         
-        self.setCursor(Qt.SizeFDiagCursor)
+        self.setCursor(QtCore.Qt.SizeFDiagCursor)
         
     def performResizing(self, value):
         delta_x = value.x() - self.pos().x()
         delta_y = value.y() - self.pos().y()
         dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, delta_y, 0, 0)
         
-        return QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
+        return QtCore.QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
 
-class ResizableRectItem(QGraphicsRectItem):
+class ResizableRectItem(QtGui.QGraphicsRectItem):
     """Rectangle that can be resized by dragging it's handles.
     
     Inherit from this class to gain resizing and moving capabilities.
@@ -432,8 +434,8 @@ class ResizableRectItem(QGraphicsRectItem):
     def __init__(self, parentItem = None):
         super(ResizableRectItem, self).__init__(parentItem)
         
-        self.setFlags(QGraphicsItem.ItemSendsGeometryChanges |
-                      QGraphicsItem.ItemIsMovable)
+        self.setFlags(QtGui.QGraphicsItem.ItemSendsGeometryChanges |
+                      QtGui.QGraphicsItem.ItemIsMovable)
         
         self.setAcceptsHoverEvents(True)
         self.mouseOver = False
@@ -465,11 +467,11 @@ class ResizableRectItem(QGraphicsRectItem):
         self.setOuterHandleSize(15)
         self.setInnerHandleSize(10)
     
-        self.setCursor(Qt.OpenHandCursor)
+        self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setPen(self.getNormalPen())
     
     def getMinSize(self):
-        ret = QSizeF(1, 1)
+        ret = QtCore.QSizeF(1, 1)
         
         return ret
         
@@ -477,53 +479,53 @@ class ResizableRectItem(QGraphicsRectItem):
         return None
         
     def getNormalPen(self):
-        ret = QPen()
-        ret.setColor(QColor(255, 255, 255, 150))
-        ret.setStyle(Qt.DotLine)
+        ret = QtGui.QPen()
+        ret.setColor(QtGui.QColor(255, 255, 255, 150))
+        ret.setStyle(QtCore.Qt.DotLine)
         
         return ret
     
     def getHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
+        ret = QtGui.QPen()
+        ret.setColor(QtGui.QColor(0, 255, 255, 255))
         
         return ret
     
     def getPenWhileResizing(self):
-        ret = QPen(QColor(255, 0, 255, 255))
+        ret = QtGui.QPen(QtGui.QColor(255, 0, 255, 255))
         
         return ret
     
     def getPenWhileMoving(self):
-        ret = QPen(QColor(255, 0, 255, 255))
+        ret = QtGui.QPen(QtGui.QColor(255, 0, 255, 255))
         
         return ret
     
     def getEdgeResizingHandleHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
+        ret = QtGui.QPen()
+        ret.setColor(QtGui.QColor(0, 255, 255, 255))
         ret.setWidth(2)
         ret.setCosmetic(True)
         
         return ret
     
     def getEdgeResizingHandleHiddenPen(self):
-        ret = QPen()
-        ret.setColor(Qt.transparent)
+        ret = QtGui.QPen()
+        ret.setColor(QtCore.Qt.transparent)
         
         return ret
     
     def getCornerResizingHandleHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
+        ret = QtGui.QPen()
+        ret.setColor(QtGui.QColor(0, 255, 255, 255))
         ret.setWidth(2)
         ret.setCosmetic(True)
         
         return ret    
     
     def getCornerResizingHandleHiddenPen(self):
-        ret = QPen()
-        ret.setColor(Qt.transparent)
+        ret = QtGui.QPen()
+        ret.setColor(QtCore.Qt.transparent)
         
         return ret
     
@@ -549,10 +551,10 @@ class ResizableRectItem(QGraphicsRectItem):
         maxSize = self.getMaxSize()
         
         if minSize:
-            minRect = QRectF(rect.center() - QPointF(0.5 * minSize.width(), 0.5 * minSize.height()), minSize)
+            minRect = QtCore.QRectF(rect.center() - QtCore.QPointF(0.5 * minSize.width(), 0.5 * minSize.height()), minSize)
             rect = rect.united(minRect)
         if maxSize:
-            maxRect = QRectF(rect.center() - QPointF(0.5 * maxSize.width(), 0.5 * maxSize.height()), maxSize)
+            maxRect = QtCore.QRectF(rect.center() - QtCore.QPointF(0.5 * maxSize.width(), 0.5 * maxSize.height()), maxSize)
             rect.intersected(maxRect)
             
         return rect
@@ -665,7 +667,7 @@ class ResizableRectItem(QGraphicsRectItem):
             self.leftEdgeHandle.ignoreGeometryChanges = False
             
             self.rightEdgeHandle.ignoreGeometryChanges = True
-            self.rightEdgeHandle.setPos(QPointF(self.rect().width(), 0))
+            self.rightEdgeHandle.setPos(QtCore.QPointF(self.rect().width(), 0))
             self.rightEdgeHandle.setRect(0, 0,
                                        self.innerHandleSize,
                                        self.rect().height())
@@ -715,14 +717,14 @@ class ResizableRectItem(QGraphicsRectItem):
             self.bottomEdgeHandle.ignoreGeometryChanges = False
             
             self.leftEdgeHandle.ignoreGeometryChanges = True
-            self.leftEdgeHandle.setPos(QPointF(0, 0))
+            self.leftEdgeHandle.setPos(QtCore.QPointF(0, 0))
             self.leftEdgeHandle.setRect(0, 0,
                                        self.outerHandleSize,
                                        self.rect().height())
             self.leftEdgeHandle.ignoreGeometryChanges = False
             
             self.rightEdgeHandle.ignoreGeometryChanges = True
-            self.rightEdgeHandle.setPos(QPointF(self.rect().width(), 0))
+            self.rightEdgeHandle.setPos(QtCore.QPointF(self.rect().width(), 0))
             self.rightEdgeHandle.setRect(-self.outerHandleSize, 0,
                                        self.outerHandleSize,
                                        self.rect().height())
@@ -794,13 +796,13 @@ class ResizableRectItem(QGraphicsRectItem):
         self.ensureHandlesUpdated()
         
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemSelectedHasChanged:
+        if change == QtGui.QGraphicsItem.ItemSelectedHasChanged:
             if value:
                 self.unselectAllHandles()
             else:
                 self.hideAllHandles()
         
-        elif change == QGraphicsItem.ItemPositionChange:
+        elif change == QtGui.QGraphicsItem.ItemPositionChange:
             value = self.constrainMovePoint(value)
             
             if not self.moveInProgress and not self.ignoreGeometryChanges:

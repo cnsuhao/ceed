@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,12 +16,11 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 # Stefan Stammberger is the original author of this file
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtGui
 
 class RecentlyUsed(object):
     """This class can be used to store pointers to Items like files and images for later reuse within the application.
@@ -192,7 +193,7 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
 
         i = 1
         for f in items:
-            actionRP = QAction(self.menu)
+            actionRP = QtGui.QAction(self.menu)
             text = self.trimItemName(f)
             if i <= 10:
                 text = "&" + str(i % 10) + ". " + text

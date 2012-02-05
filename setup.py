@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -15,7 +18,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 import os
 import os.path
@@ -37,11 +40,11 @@ def get_packages():
     
     ret = ["ceed"]
     
-    for dirpath, dirs, files in os.walk("ceed"):
+    for dirpath, _, files in os.walk("ceed"):
         if "__init__.py" in files:
             ret.append(dirpath.replace(os.path.sep, "."))
             
-    return ret    
+    return ret
 
 def get_directoryfilepairs(directory, base = "data", install_base = paths.system_data_dir):
     ret = []
@@ -55,7 +58,7 @@ def get_directoryfilepairs(directory, base = "data", install_base = paths.system
             files.append(os.path.join(base, directory, path))
             
         else:
-            print("[W] I don't know that '%s' is (checked for file or directory)" % (full_path))
+            print("[W] I don't know what '%s' is (checked for file or directory)" % (full_path))
             
     ret.append((os.path.join(install_base, directory), files))
 

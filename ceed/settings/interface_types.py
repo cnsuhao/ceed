@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 from ceed import qtwidgets
 
@@ -32,7 +34,7 @@ from ceed import qtwidgets
 
 # Wrapper: Entry types
 # - One for each 'widgetHint'.
-class InterfaceEntry(QHBoxLayout):
+class InterfaceEntry(QtGui.QHBoxLayout):
     def __init__(self, entry, parent):
         super(InterfaceEntry, self).__init__()
         self.entry = entry
@@ -44,9 +46,9 @@ class InterfaceEntry(QHBoxLayout):
 
     def _buildResetButton(self):
         self.entryWidget.slot_resetToDefault = self.resetToDefaultValue
-        ret = QPushButton()
-        ret.setIcon(QIcon("icons/settings/reset_entry_to_default.png"))
-        ret.setIconSize(QSize(16, 16))
+        ret = QtGui.QPushButton()
+        ret.setIcon(QtGui.QIcon("icons/settings/reset_entry_to_default.png"))
+        ret.setIconSize(QtCore.QSize(16, 16))
         ret.setToolTip("Reset this settings entry to the default value")
         ret.clicked.connect(self.entryWidget.slot_resetToDefault)
         return ret
@@ -67,7 +69,7 @@ class InterfaceEntry(QHBoxLayout):
 class InterfaceEntryString(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryString, self).__init__(entry, parent)
-        self.entryWidget = QLineEdit()
+        self.entryWidget = QtGui.QLineEdit()
         self.entryWidget.setText(entry.value)
         self.entryWidget.setToolTip(entry.help)
         self.entryWidget.textEdited.connect(self.onChange)
@@ -84,7 +86,7 @@ class InterfaceEntryString(InterfaceEntry):
 class InterfaceEntryInt(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryInt, self).__init__(entry, parent)
-        self.entryWidget = QLineEdit()
+        self.entryWidget = QtGui.QLineEdit()
         self.entryWidget.setText(str(entry.value))
         self.entryWidget.setToolTip(entry.help)
         self.entryWidget.textEdited.connect(self.onChange)
@@ -112,7 +114,7 @@ class InterfaceEntryInt(InterfaceEntry):
 class InterfaceEntryFloat(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryFloat, self).__init__(entry, parent)
-        self.entryWidget = QLineEdit()
+        self.entryWidget = QtGui.QLineEdit()
         self.entryWidget.setText(str(entry.value))
         self.entryWidget.setToolTip(entry.help)
         self.entryWidget.textEdited.connect(self.onChange)
@@ -139,7 +141,7 @@ class InterfaceEntryFloat(InterfaceEntry):
 class InterfaceEntryCheckbox(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryCheckbox, self).__init__(entry, parent)
-        self.entryWidget = QCheckBox()
+        self.entryWidget = QtGui.QCheckBox()
         self.entryWidget.setChecked(entry.value)
         self.entryWidget.setToolTip(entry.help)
         self.entryWidget.stateChanged.connect(self.onChange)
@@ -231,7 +233,7 @@ class InterfaceEntryKeySequence(InterfaceEntry):
 class InterfaceEntryCombobox(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryCombobox, self).__init__(entry, parent)
-        self.entryWidget = QComboBox()
+        self.entryWidget = QtGui.QComboBox()
         # optionList should be a list of lists where the first item is the key (data) and the second is the label 
         for option in entry.optionList:
             self.entryWidget.addItem(option[1], option[0])
@@ -284,7 +286,7 @@ def _InterfaceEntryFactory(entry, parent):
         raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
 
 # Wrapper: Section
-class InterfaceSection(QGroupBox):
+class InterfaceSection(QtGui.QGroupBox):
     def __init__(self, section, parent):
         super(InterfaceSection, self).__init__()
         self.section = section
@@ -293,10 +295,10 @@ class InterfaceSection(QGroupBox):
 
         self.setTitle(section.label)
 
-        self.layout = QFormLayout()
+        self.layout = QtGui.QFormLayout()
 
         for entry in section.entries:
-            lw = QLabel(entry.label)
+            lw = QtGui.QLabel(entry.label)
             lw.setMinimumWidth(200)
             lw.setWordWrap(True)
             self.layout.addRow(lw, _InterfaceEntryFactory(entry, self))
@@ -326,15 +328,15 @@ class InterfaceSection(QGroupBox):
         self.modifiedEntries = []
 
 # Wrapper: Category
-class InterfaceCategory(QScrollArea):
+class InterfaceCategory(QtGui.QScrollArea):
     def __init__(self, category, parent):
         super(InterfaceCategory, self).__init__()
         self.category = category
         self.parent = parent
         self.modifiedSections = []
 
-        self.inner = QWidget()
-        self.layout = QVBoxLayout()
+        self.inner = QtGui.QWidget()
+        self.layout = QtGui.QVBoxLayout()
 
         addWidget = self.layout.addWidget
         [addWidget(InterfaceSection(section, self)) for section in category.sections]
@@ -346,13 +348,14 @@ class InterfaceCategory(QScrollArea):
         self.setWidgetResizable(True)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.Wheel:
+        if event.type() == QtCore.QEvent.Wheel:
             if event.delta() < 0:
-                self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepAdd)
+                self.verticalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderSingleStepAdd)
             else:
-                self.verticalScrollBar().triggerAction(QAbstractSlider.SliderSingleStepSub)
+                self.verticalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderSingleStepSub)
             return True
-        return QObject.eventFilter(self, obj, event)
+        
+        return super(InterfaceCategory, self).eventFilter(obj, event)
 
     def discardChanges(self):
         [section.discardChanges() for section in self.modifiedSections]

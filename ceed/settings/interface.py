@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,24 +16,24 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
+
+from PySide import QtCore
+from PySide import QtGui
+
+from ceed.settings import interface_types
 
 class SettingsInterface(object):
     def __init__(self, settings):
         self.settings = settings
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-
-from ceed.settings import interface_types
-
-class QtSettingsInterface(SettingsInterface, QDialog):
+class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
     def __init__(self, settings):
         SettingsInterface.__init__(self, settings)
-        QDialog.__init__(self)
+        QtGui.QDialog.__init__(self)
 
         self.setWindowTitle(self.settings.label)
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.createUI()
 
@@ -40,14 +42,14 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         self.settings.sort()
 
         # the basic UI
-        self.layout = QVBoxLayout()
+        self.layout = QtGui.QVBoxLayout()
 
-        self.label = QLabel(self.settings.help)
+        self.label = QtGui.QLabel(self.settings.help)
         self.label.setWordWrap(True)
         self.layout.addWidget(self.label)
 
-        self.tabs = QTabWidget()
-        self.tabs.setTabPosition(QTabWidget.North)
+        self.tabs = QtGui.QTabWidget()
+        self.tabs.setTabPosition(QtGui.QTabWidget.North)
         self.layout.addWidget(self.tabs)
 
         self.setLayout(self.layout)
@@ -57,14 +59,14 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         [addTab(interface_types.InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
 
         # apply, cancel, etc...
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Apply | QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
         self.buttonBox.clicked.connect(self.slot_buttonBoxClicked)
         self.layout.addWidget(self.buttonBox)
 
         # Restart required
-        self.needRestart = QMessageBox()
+        self.needRestart = QtGui.QMessageBox()
         self.needRestart.setWindowTitle("CEED")
-        self.needRestart.setIcon(QMessageBox.Warning)
+        self.needRestart.setIcon(QtGui.QMessageBox.Warning)
         self.needRestart.setText("Restart is required for the changes to "
                                  "take effect.")
 
@@ -80,20 +82,20 @@ class QtSettingsInterface(SettingsInterface, QDialog):
         return
 
     def slot_buttonBoxClicked(self, button):
-        if self.buttonBox.buttonRole(button) == QDialogButtonBox.ApplyRole:
+        if self.buttonBox.buttonRole(button) == QtGui.QDialogButtonBox.ApplyRole:
             self.settings.applyChanges()
 
             # Check if restart required
             self.restartRequired()
 
-        elif self.buttonBox.buttonRole(button) == QDialogButtonBox.AcceptRole:
+        elif self.buttonBox.buttonRole(button) == QtGui.QDialogButtonBox.AcceptRole:
             self.settings.applyChanges()
             self.accept()
 
             # Check if restart required
             self.restartRequired()
 
-        elif self.buttonBox.buttonRole(button) == QDialogButtonBox.RejectRole:
+        elif self.buttonBox.buttonRole(button) == QtGui.QDialogButtonBox.RejectRole:
             self.settings.discardChanges()
             self.reject()
 

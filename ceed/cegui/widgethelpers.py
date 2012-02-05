@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 from ceed import resizable
 from ceed.cegui import qtgraphics
@@ -137,10 +139,10 @@ class Manipulator(resizable.ResizableRectItem):
         
         super(Manipulator, self).__init__(parent)
         
-        self.setFlags(QGraphicsItem.ItemIsFocusable | 
-                      QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable | 
+                      QtGui.QGraphicsItem.ItemIsSelectable |
+                      QtGui.QGraphicsItem.ItemIsMovable |
+                      QtGui.QGraphicsItem.ItemSendsGeometryChanges)
 
         self.widget = widget
         self.updateFromWidget()
@@ -239,8 +241,8 @@ class Manipulator(resizable.ResizableRectItem):
             pos -= parentUnclippedOuterRect.getPosition()
         
         self.ignoreGeometryChanges = True
-        self.setPos(QPointF(pos.d_x, pos.d_y))
-        self.setRect(QRectF(0, 0, size.d_width, size.d_height))
+        self.setPos(QtCore.QPointF(pos.d_x, pos.d_y))
+        self.setRect(QtCore.QRectF(0, 0, size.d_width, size.d_height))
         self.ignoreGeometryChanges = False
         
         for item in self.childItems():
@@ -267,7 +269,7 @@ class Manipulator(resizable.ResizableRectItem):
             parentItem.moveToFront()
             
     def itemChange(self, change, value):    
-        if change == QGraphicsItem.ItemSelectedHasChanged:
+        if change == QtGui.QGraphicsItem.ItemSelectedHasChanged:
             if value:
                 self.moveToFront()
         
@@ -283,14 +285,14 @@ class Manipulator(resizable.ResizableRectItem):
             minPixelSize = PyCEGUI.CoordConverter.asAbsolute(self.widget.getMinSize(),
                                                              PyCEGUI.System.getSingleton().getRenderer().getDisplaySize())
             
-            return QSizeF(minPixelSize.d_width, minPixelSize.d_height)
+            return QtCore.QSizeF(minPixelSize.d_width, minPixelSize.d_height)
     
     def getMaxSize(self):
         if self.widget:
             maxPixelSize = PyCEGUI.CoordConverter.asAbsolute(self.widget.getMaxSize(),
                                                              PyCEGUI.System.getSingleton().getRenderer().getDisplaySize())
             
-            return QSizeF(maxPixelSize.d_width, maxPixelSize.d_height)
+            return QtCore.QSizeF(maxPixelSize.d_width, maxPixelSize.d_height)
     
     def getBaseSize(self):
         if self.widget.getParent() is not None and not self.widget.isNonClient():
@@ -428,7 +430,7 @@ class Manipulator(resizable.ResizableRectItem):
     def boundingClipPath(self):
         """Retrieves clip path containing the bounding rectangle"""
         
-        ret = QPainterPath()
+        ret = QtGui.QPainterPath()
         ret.addRect(self.boundingRect())
         
         return ret
@@ -471,17 +473,17 @@ class Manipulator(resizable.ResizableRectItem):
         else:
             assert(False)
             
-        midXPoint = startXPoint - QPointF(offsetXInPixels, 0)
-        endXPoint = midXPoint - QPointF(scaleXInPixels, 0)
-        xOffset = QPointF(0, 1) if scaleXInPixels * offsetXInPixels < 0 else QPointF(0, 0)
+        midXPoint = startXPoint - QtCore.QPointF(offsetXInPixels, 0)
+        endXPoint = midXPoint - QtCore.QPointF(scaleXInPixels, 0)
+        xOffset = QtCore.QPointF(0, 1) if scaleXInPixels * offsetXInPixels < 0 else QtCore.QPointF(0, 0)
 
-        pen = QPen()
+        pen = QtGui.QPen()
         # 0 means 1px size no matter the transformation
         pen.setWidth(0)
-        pen.setColor(QColor(0, 255, 0, 255))
+        pen.setColor(QtGui.QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startXPoint, midXPoint)
-        pen.setColor(QColor(255, 0, 0, 255))
+        pen.setColor(QtGui.QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(midXPoint + xOffset, endXPoint + xOffset)
         
@@ -496,18 +498,18 @@ class Manipulator(resizable.ResizableRectItem):
         else:
             assert(False)
 
-        midWPoint = startWPoint + QPointF(scaleWidthInPixels, 0)
-        endWPoint = midWPoint + QPointF(offsetWidthInPixels, 0)
+        midWPoint = startWPoint + QtCore.QPointF(scaleWidthInPixels, 0)
+        endWPoint = midWPoint + QtCore.QPointF(offsetWidthInPixels, 0)
         # FIXME: epicly unreadable
-        wOffset = QPointF(0, -1 if vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM else 1) if scaleWidthInPixels * offsetWidthInPixels < 0 else QPointF(0, 0)
+        wOffset = QtCore.QPointF(0, -1 if vAlignment == PyCEGUI.VerticalAlignment.VA_BOTTOM else 1) if scaleWidthInPixels * offsetWidthInPixels < 0 else QtCore.QPointF(0, 0)
         
-        pen = QPen()
+        pen = QtGui.QPen()
         # 0 means 1px size no matter the transformation
         pen.setWidth(0)
-        pen.setColor(QColor(255, 0, 0, 255))
+        pen.setColor(QtGui.QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startWPoint, midWPoint)
-        pen.setColor(QColor(0, 255, 0, 255))
+        pen.setColor(QtGui.QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(midWPoint + wOffset, endWPoint + wOffset)
         
@@ -536,17 +538,17 @@ class Manipulator(resizable.ResizableRectItem):
         else:
             assert(False)
             
-        midYPoint = startYPoint - QPointF(0, offsetYInPixels)
-        endYPoint = midYPoint - QPointF(0, scaleYInPixels)
-        yOffset = QPointF(1, 0) if scaleYInPixels * offsetYInPixels < 0 else QPointF(0, 0)
+        midYPoint = startYPoint - QtCore.QPointF(0, offsetYInPixels)
+        endYPoint = midYPoint - QtCore.QPointF(0, scaleYInPixels)
+        yOffset = QtCore.QPointF(1, 0) if scaleYInPixels * offsetYInPixels < 0 else QtCore.QPointF(0, 0)
 
-        pen = QPen()
+        pen = QtGui.QPen()
         # 0 means 1px size no matter the transformation
         pen.setWidth(0)
-        pen.setColor(QColor(0, 255, 0, 255))
+        pen.setColor(QtGui.QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startYPoint, midYPoint)
-        pen.setColor(QColor(255, 0, 0, 255))
+        pen.setColor(QtGui.QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(midYPoint + yOffset, endYPoint + yOffset)
 
@@ -561,18 +563,18 @@ class Manipulator(resizable.ResizableRectItem):
         else:
             assert(False)
 
-        midHPoint = startHPoint + QPointF(0, scaleHeightInPixels)
-        endHPoint = midHPoint + QPointF(0, offsetHeightInPixels)
+        midHPoint = startHPoint + QtCore.QPointF(0, scaleHeightInPixels)
+        endHPoint = midHPoint + QtCore.QPointF(0, offsetHeightInPixels)
         # FIXME: epicly unreadable
-        hOffset = QPointF(-1 if hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT else 1, 0) if scaleHeightInPixels * offsetHeightInPixels < 0 else QPointF(0, 0)
+        hOffset = QtCore.QPointF(-1 if hAlignment == PyCEGUI.HorizontalAlignment.HA_RIGHT else 1, 0) if scaleHeightInPixels * offsetHeightInPixels < 0 else QtCore.QPointF(0, 0)
         
-        pen = QPen()
+        pen = QtGui.QPen()
         # 0 means 1px size no matter the transformation
         pen.setWidth(0)
-        pen.setColor(QColor(255, 0, 0, 255))
+        pen.setColor(QtGui.QColor(255, 0, 0, 255))
         painter.setPen(pen)
         painter.drawLine(startHPoint, midHPoint)
-        pen.setColor(QColor(0, 255, 0, 255))
+        pen.setColor(QtGui.QColor(0, 255, 0, 255))
         painter.setPen(pen)
         painter.drawLine(midHPoint + hOffset, endHPoint + hOffset)
 
@@ -593,8 +595,8 @@ class Manipulator(resizable.ResizableRectItem):
             # We are drawing the outlines after CEGUI has already been rendered so he have to clip overlapping parts
             # we basically query all items colliding with ourselves and if that's a manipulator and is over us we subtract
             # that from the clipped path.
-            clipPath = QPainterPath()
-            clipPath.addRect(QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
+            clipPath = QtGui.QPainterPath()
+            clipPath.addRect(QtCore.QRectF(-self.scenePos().x(), -self.scenePos().y(), self.scene().sceneRect().width(), self.scene().sceneRect().height()))
             # FIXME: I used self.collidingItems() but that seems way way slower than just going over everything on the scene
             #        in reality we need siblings of ancestors recursively up to the top
             #

@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,13 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
-from recentlyused import RecentlyUsedMenuEntry
-
-import ceed.ui.mainwindow
+from PySide import QtCore
+from PySide import QtGui
 
 import os
 
@@ -34,10 +33,13 @@ from ceed import filesystembrowser
 import ceed.cegui.container as cegui_container
 from ceed import editors
 
-from ceed import help
+#from ceed import help
+from ceed import recentlyused
 from ceed import about
 
-class MainWindow(QMainWindow):
+import ceed.ui.mainwindow
+
+class MainWindow(QtGui.QMainWindow):
     """The central window of the application.
 
     This is a singleton class, it is assured to only be constructed once during runtime.
@@ -75,13 +77,16 @@ class MainWindow(QMainWindow):
 
         self.app = app
 
+        # whether the app was maximized before going fullscreen
+        self.wasMaximized = False
+
         # we have to construct ActionManager before settings interface (as it alters the settings declaration)!
         self.actionManager = action.ActionManager(self, self.app.settings)
 
         self.settingsInterface = settings.interface.QtSettingsInterface(self.app.settings)
 
-        self.recentlyUsedProjects = RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
-        self.recentlyUsedFiles = RecentlyUsedMenuEntry(self.app.qsettings, "Files")
+        self.recentlyUsedProjects = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
+        self.recentlyUsedFiles = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Files")
 
         import ceed.editors.animation_list as animation_list_editor
         import ceed.editors.bitmap as bitmap_editor
@@ -126,13 +131,13 @@ class MainWindow(QMainWindow):
         self.ceguiInstance = cegui.Instance()
         self.ceguiContainerWidget = cegui_container.ContainerWidget(self.ceguiInstance)
 
-        self.tabs = self.centralWidget().findChild(QTabWidget, "tabs")
+        self.tabs = self.centralWidget().findChild(QtGui.QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)
         self.tabs.tabCloseRequested.connect(self.slot_tabCloseRequested)
         # TODO: this is potentially nasty since the tabBar method is protected
         # we need this to implement the context menu when you right click on the tab bar
         self.tabBar = self.tabs.tabBar()
-        self.tabBar.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tabBar.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tabBar.customContextMenuRequested.connect(self.slot_tabBarCustomContextMenuRequested)
 
         # stores all active tab editors
@@ -140,16 +145,16 @@ class MainWindow(QMainWindow):
 
         self.projectManager = project.ProjectManager()
         self.projectManager.fileOpenRequested.connect(self.slot_openFile)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.projectManager)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.projectManager)
 
         self.fileSystemBrowser = filesystembrowser.FileSystemBrowser()
         self.fileSystemBrowser.setVisible(False)
         self.fileSystemBrowser.fileOpenRequested.connect(self.slot_openFile)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.fileSystemBrowser)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.fileSystemBrowser)
 
         self.undoViewer = commands.UndoViewer()
         self.undoViewer.setVisible(False)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.undoViewer)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.undoViewer)
 
         #import propertytree
         #test = propertytree.TestDock()
@@ -279,15 +284,14 @@ class MainWindow(QMainWindow):
         self.reportBugAction = self.actionManager.getAction("general/report_bug")
         self.connectionGroup.add(self.reportBugAction, receiver = self.slot_reportBug)
 
-        # TODO: Log viewer
-        #self.viewLogAction = self.actionManager.getAction("general/view_log")
-        #self.connectionGroup.add(self.viewLogAction, receiver = self.slot_viewLog)
+        self.ceguiDebugInfoAction = self.actionManager.getAction("general/cegui_debug_info")
+        self.connectionGroup.add(self.ceguiDebugInfoAction, receiver = self.slot_ceguiDebugInfo)
 
         self.viewLicenseAction = self.actionManager.getAction("general/view_license")
         self.connectionGroup.add(self.viewLicenseAction, receiver = self.slot_license)
 
         self.aboutQtAction = self.actionManager.getAction("general/about_qt")
-        self.connectionGroup.add(self.aboutQtAction, receiver = QApplication.aboutQt)
+        self.connectionGroup.add(self.aboutQtAction, receiver = QtGui.QApplication.aboutQt)
 
         self.aboutAction = self.actionManager.getAction("general/about")
         self.connectionGroup.add(self.aboutAction, receiver = self.slot_about)
@@ -312,9 +316,9 @@ class MainWindow(QMainWindow):
         #
         # Construct File menu
         #
-        self.fileMenu = QMenu("&File")
+        self.fileMenu = QtGui.QMenu("&File")
         self.menuBar().addMenu(self.fileMenu)
-        menu = QMenu("&New")
+        menu = QtGui.QMenu("&New")
         # sorted, generic "file" last
         menu.addActions([self.newImagesetAction, self.newLayoutAction, self.newFileAction])
         menu.addSeparator()
@@ -330,10 +334,10 @@ class MainWindow(QMainWindow):
         #self.fileMenu.addSeparator()
         #self.fileMenu.addAction(self.revertAction)
         self.fileMenu.addSeparator()
-        menu = QMenu("&Recent Files")
+        menu = QtGui.QMenu("&Recent Files")
         self.fileMenu.addMenu(menu)
         self.recentlyUsedFiles.setParentMenu(menu, self.slot_openRecentFile, self.clearRecentFilesAction)
-        menu = QMenu("&Recent Projects")
+        menu = QtGui.QMenu("&Recent Projects")
         self.fileMenu.addMenu(menu)
         self.recentlyUsedProjects.setParentMenu(menu, self.slot_openRecentProject, self.clearRecentProjectsAction)
         self.fileMenu.addSeparator()
@@ -342,7 +346,7 @@ class MainWindow(QMainWindow):
         #
         # Construct Edit menu
         #
-        self.editMenu = QMenu("&Edit")
+        self.editMenu = QtGui.QMenu("&Edit")
         self.menuBar().addMenu(self.editMenu)
         self.editMenu.addActions([self.undoAction, self.redoAction])
         self.editMenu.addSeparator()
@@ -353,7 +357,7 @@ class MainWindow(QMainWindow):
         #
         # Construct View menu
         #
-        self.viewMenu = QMenu("&View")
+        self.viewMenu = QtGui.QMenu("&View")
         self.menuBar().addMenu(self.viewMenu)
 
         # the first menu item of the view menu is "Docks & Toolbars"
@@ -389,7 +393,7 @@ class MainWindow(QMainWindow):
         #
         # Construct Project menu
         #
-        self.projectMenu = QMenu("&Project")
+        self.projectMenu = QtGui.QMenu("&Project")
         self.menuBar().addMenu(self.projectMenu)
         self.projectMenu.addAction(self.projectReloadResourcesAction)
         self.projectMenu.addSeparator()
@@ -400,7 +404,7 @@ class MainWindow(QMainWindow):
         # This is disabled & hidden by default
         # and it's managed by the active editor
         #
-        self.editorMenu = QMenu("EditorMenu")
+        self.editorMenu = QtGui.QMenu("EditorMenu")
         self.editorMenu.menuAction().setEnabled(False)
         self.editorMenu.menuAction().setVisible(False)
         self.menuBar().addMenu(self.editorMenu)
@@ -408,7 +412,7 @@ class MainWindow(QMainWindow):
         #
         # Construct Tabs menu
         #
-        self.tabsMenu = QMenu("&Tabs")
+        self.tabsMenu = QtGui.QMenu("&Tabs")
         self.menuBar().addMenu(self.tabsMenu)
         self.tabsMenu.addActions([self.previousTabAction, self.nextTabAction])
         self.tabsMenu.addSeparator()
@@ -439,7 +443,7 @@ class MainWindow(QMainWindow):
                     name = "&%i. %s" % (counter % 10, name)
                 counter += 1
                 # create the action object
-                action = QAction(name, self.tabsMenu)
+                action = QtGui.QAction(name, self.tabsMenu)
                 action.setData(editor.filePath)
                 action.triggered.connect(self.slot_tabsMenuActivateTab)
                 actions.append(action)
@@ -456,11 +460,11 @@ class MainWindow(QMainWindow):
         #
         # Construct Help menu
         #
-        self.helpMenu = QMenu("&Help")
+        self.helpMenu = QtGui.QMenu("&Help")
         self.menuBar().addMenu(self.helpMenu)
         self.helpMenu.addAction(self.helpContentsAction)
         self.helpMenu.addSeparator()
-        self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction]) #, self.viewLogAction])
+        self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction, self.ceguiDebugInfoAction])
         self.helpMenu.addSeparator()
         self.helpMenu.addActions([self.viewLicenseAction, self.aboutQtAction])
         self.helpMenu.addSeparator()
@@ -468,13 +472,14 @@ class MainWindow(QMainWindow):
 
     def setupToolbars(self):
         def createToolbar(name):
-            tb = QToolBar(name, self)
+            tb = QtGui.QToolBar(name, self)
+            tb.setObjectName("%s toolbar" % (name))
             tbIconSizeEntry = self.app.settings.getEntry("global/ui/toolbar_icon_size")
 
             def updateToolbarIconSize(toolbar, size):
                 if size < 16:
                     size = 16
-                toolbar.setIconSize(QSize(size, size))
+                toolbar.setIconSize(QtCore.QSize(size, size))
 
             updateToolbarIconSize(tb, tbIconSizeEntry.value)
             tbIconSizeEntry.subscribe(lambda value: updateToolbarIconSize(tb, value))
@@ -485,12 +490,12 @@ class MainWindow(QMainWindow):
         # Standard toolbar
         #
         tbar = self.globalToolbar = createToolbar("Standard")
-        newMenuButton = QToolButton(tbar)
+        newMenuButton = QtGui.QToolButton(tbar)
         newMenuButton.setText("New")
         newMenuButton.setToolTip("New File")
-        newMenuButton.setIcon(QIcon("icons/actions/new_file.png"))
+        newMenuButton.setIcon(QtGui.QIcon("icons/actions/new_file.png"))
         newMenuButton.setMenu(self.fileNewMenu)
-        newMenuButton.setPopupMode(QToolButton.InstantPopup)
+        newMenuButton.setPopupMode(QtGui.QToolButton.InstantPopup)
         tbar.addWidget(newMenuButton)
         tbar.addActions([self.openFileAction, self.openProjectAction])
         tbar.addSeparator()
@@ -536,7 +541,7 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             if indicateErrorsWithDialogs:
-                QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
+                QtGui.QMessageBox.warning(self, "Failed to synchronise embedded CEGUI to your project",
 """An attempt was made to load resources related to the project being opened, for some reason the loading didn't succeed so all resources were destroyed! The most likely reason is that the resource directories are wrong, this can be very easily remedied in the project settings.
 
 This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets).
@@ -553,7 +558,7 @@ Details of this error: %s""" % (e))
         
         except IOError as e:
             if indicateErrorsWithDialogs:
-                QMessageBox.warning(self, "At least one of project's resource directories is invalid",
+                QtGui.QMessageBox.warning(self, "At least one of project's resource directories is invalid",
 """Project's resource directory paths didn't pass the sanity check, please check projects settings.
 
 Details of this error: %s""" % (e))
@@ -581,7 +586,7 @@ Details of this error: %s""" % (e))
         try:
             self.project.load(path)
         except IOError:
-            QMessageBox.critical(self, "Error when opening project", "It seems project at path '%s' doesn't exist or you don't have rights to open it." % (path))
+            QtGui.QMessageBox.critical(self, "Error when opening project", "It seems project at path '%s' doesn't exist or you don't have rights to open it." % (path))
 
             self.project = None
             return
@@ -702,11 +707,11 @@ Details of this error: %s""" % (e))
                     dialog = editors.MultiplePossibleFactoriesDialog(possibleFactories)
                     result = dialog.exec_()
 
-                    if result == QDialog.Accepted:
+                    if result == QtGui.QDialog.Accepted:
                         selection = dialog.factoryChoice.selectedItems()
 
                         if len(selection) == 1:
-                            factory = selection[0].data(Qt.UserRole)
+                            factory = selection[0].data(QtCore.Qt.UserRole)
 
                 if factory is None:
                     ret = editors.MessageTabbedEditor(absolutePath,
@@ -775,36 +780,34 @@ Details of this error: %s""" % (e))
 
     def saveSettings(self):
         """Saves geometry and state of this window to QSettings.
-        
-        FIXME: This is not currently used for reasons I am not sure of!
         """
         
-        #self.qsettings.setValue("geometry", self.saveGeometry())
-        #self.qsettings.setValue("state", self.saveState())
-        pass
-
+        try:
+            self.app.qsettings.setValue("window-geometry", self.saveGeometry())
+            self.app.qsettings.setValue("window-state", self.saveState())
+            
+        except:
+            # we don't really care if this fails
+            pass
+        
     def restoreSettings(self):
         """Restores geometry and state of this window from QSettings.
-        
-        FIXME: This is not currently used for reasons I am not sure of!
         """
         
-        #if self.qsettings.contains("geometry"):
-        #    self.restoreGeometry(self.qsettings.value("geometry"))
-        #if self.qsettings.contains("state"):
-        #    self.restoreState(self.qsettings.value("state"))
-        return
-
+        try:
+            if self.app.qsettings.contains("window-geometry"):
+                self.restoreGeometry(self.app.qsettings.value("window-geometry"))
+            if self.app.qsettings.contains("window-state"):
+                self.restoreState(self.app.qsettings.value("window-state"))
+                
+        except:
+            # we don't really care if this fails
+            pass
+        
     def quit(self):
         """Safely quits the editor, prompting user to save changes to files and the project."""
 
         self.saveSettings()
-
-        if self.project is not None:
-            # if the slot returned False, user pressed Cancel
-            if not self.slot_closeProject():
-                # in case user pressed cancel the entire quitting processed has to be terminated
-                return False
 
         # we remember last tab we closed to check whether user pressed Cancel in any of the dialogs
         lastTab = None
@@ -817,6 +820,13 @@ Details of this error: %s""" % (e))
             lastTab = currentTab
 
             self.slot_tabCloseRequested(0)
+
+        # Close project after all tabs have been closed, there may be tabs requiring a project opened!
+        if self.project is not None:
+            # if the slot returned False, user pressed Cancel
+            if not self.slot_closeProject():
+                # in case user pressed cancel the entire quitting processed has to be terminated
+                return False
 
         self.app.quit()
 
@@ -846,20 +856,21 @@ Details of this error: %s""" % (e))
     def slot_newProject(self):
         if self.project:
             # another project is already opened!
-            result = QMessageBox.question(self,
-                                          "Another project already opened!",
-                                          "Before creating a new project, you must close the one currently opened. "
-                                          "Do you want to close currently opened project? (all unsaved changes will be lost!)",
-                                          QMessageBox.Yes | QMessageBox.Cancel,
-                                          QMessageBox.Cancel)
+            result = QtGui.QMessageBox.question(self,
+                                                "Another project already opened!",
+                                                "Before creating a new project, you must close the one currently opened. "
+                                                "Do you want to close currently opened project? (all unsaved changes will be lost!)",
+                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel,
+                                                QtGui.QMessageBox.Cancel)
 
-            if result != QMessageBox.Yes:
+            if result != QtGui.QMessageBox.Yes:
                 return
+            
             # don't close the project yet, close it after the user
             # accepts the New Project dialog below because they may cancel 
 
         newProjectDialog = project.NewProjectDialog()
-        if newProjectDialog.exec_() != QDialog.Accepted:
+        if newProjectDialog.exec_() != QtGui.QDialog.Accepted:
             return
 
         # The dialog was accepted, close any open project
@@ -869,7 +880,7 @@ Details of this error: %s""" % (e))
         newProject = newProjectDialog.createProject()
         newProject.save()
 
-        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+        if newProjectDialog.createResourceDirs.checkState() == QtCore.Qt.Checked:
             try:
                 # FIXME: This should be changed to use os.path.join
                 
@@ -887,7 +898,7 @@ Details of this error: %s""" % (e))
                 if not os.path.exists(path+"xml_schemas"):
                     os.mkdir(path+"xml_schemas")
             except OSError:
-                QMessageBox.critical(self, "Cannot create resource \
+                QtGui.QMessageBox.critical(self, "Cannot create resource \
 directories!", "There was a problem creating the resource \
 directories.  Do you have the proper permissions on the \
 parent directory?")
@@ -896,7 +907,7 @@ parent directory?")
         # directories, there's no need to bring up the settings activity.
         # If the user doesn't want CEED to create the default resource
         # directories, additional information needs to be entered.
-        if newProjectDialog.createResourceDirs.checkState() == Qt.Checked:
+        if newProjectDialog.createResourceDirs.checkState() == QtCore.Qt.Checked:
             self.openProject(path = newProject.projectFilePath)
         else:
             self.openProject(path = newProject.projectFilePath, openSettings = True)
@@ -907,23 +918,23 @@ parent directory?")
     def slot_openProject(self):
         if self.project:
             # another project is already opened!
-            result = QMessageBox.question(self,
-                                          "Another project already opened!",
-                                          "Before opening a project, you must close the one currently opened. "
-                                          "Do you want to close currently opened project? (all unsaved changes will be lost!)",
-                                          QMessageBox.Yes | QMessageBox.Cancel,
-                                          QMessageBox.Cancel)
+            result = QtGui.QMessageBox.question(self,
+                                                "Another project already opened!",
+                                                "Before opening a project, you must close the one currently opened. "
+                                                "Do you want to close currently opened project? (all unsaved changes will be lost!)",
+                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel,
+                                                QtGui.QMessageBox.Cancel)
 
-            if result == QMessageBox.Yes:
+            if result == QtGui.QMessageBox.Yes:
                 self.closeProject()
             else:
                 # User selected cancel, NOOP
                 return
 
-        file, filter = QFileDialog.getOpenFileName(self,
-                                           "Open existing project file",
-                                           "",
-                                           "Project files (*.project)")
+        file, _ = QtGui.QFileDialog.getOpenFileName(self,
+                                                         "Open existing project file",
+                                                         "",
+                                                         "Project files (*.project)")
 
         if file != "":
             # user actually selected something ;-)
@@ -937,18 +948,18 @@ parent directory?")
         assert(self.project)
 
         if self.project.hasChanges():
-            result = QMessageBox.question(self,
-                                          "Project file has changes!",
-                                          "There are unsaved changes in the project file "
-                                          "Do you want to save them? "
-                                          "(Pressing Discard will discard the changes!)",
-                                          QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                                          QMessageBox.Save)
+            result = QtGui.QMessageBox.question(self,
+                                                "Project file has changes!",
+                                                "There are unsaved changes in the project file "
+                                                "Do you want to save them? "
+                                                "(Pressing Discard will discard the changes!)",
+                                                QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel,
+                                                QtGui.QMessageBox.Save)
 
-            if result == QMessageBox.Save:
+            if result == QtGui.QMessageBox.Save:
                 self.saveProject()
 
-            elif result == QMessageBox.Cancel:
+            elif result == QtGui.QMessageBox.Cancel:
                 return False
 
         self.closeProject()
@@ -959,15 +970,15 @@ parent directory?")
         # we should definitely unload all tabs that rely on it to prevent segfaults and other
         # nasty phenomena
         if not self.closeAllTabsRequiringProject():
-            QMessageBox.information(self,
-                                    "Project dependent tabs still open!",
-                                    "You can't alter project's settings while having tabs that "
-                                    "depend on the project and its resources opened!")
+            QtGui.QMessageBox.information(self,
+                                          "Project dependent tabs still open!",
+                                          "You can't alter project's settings while having tabs that "
+                                          "depend on the project and its resources opened!")
             return
         
         dialog = project.ProjectSettingsDialog(self.project)
 
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec_() == QtGui.QDialog.Accepted:
             dialog.apply(self.project)
             self.performProjectDirectoriesSanityCheck()
             self.syncProjectToCEGUIInstance()
@@ -977,10 +988,10 @@ parent directory?")
         # we should definitely unload all tabs that rely on it to prevent segfaults and other
         # nasty phenomena
         if not self.closeAllTabsRequiringProject():
-            QMessageBox.information(self,
-                                    "Project dependent tabs still open!",
-                                    "You can't reload project's resources while having tabs that "
-                                    "depend on the project and its resources opened!")
+            QtGui.QMessageBox.information(self,
+                                          "Project dependent tabs still open!",
+                                          "You can't reload project's resources while having tabs that "
+                                          "depend on the project and its resources opened!")
             return
         
         self.performProjectDirectoriesSanityCheck()
@@ -996,30 +1007,29 @@ parent directory?")
         # HACK: We handle this differently depending on whether a default suffix is required
 
         if filtersList is None or len(filtersList) == 0 or not autoSuffix:
-            fileName, selectedFilter = QFileDialog.getSaveFileName(self,
-                                                       title,
-                                                       defaultDir,
-                                                       ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
-                                                       filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None)
+            fileName, selectedFilter = QtGui.QFileDialog.getSaveFileName(self,
+                                                                         title,
+                                                                         defaultDir,
+                                                                         ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
+                                                                         filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None)
             if fileName:
                 try:
                     f = open(fileName, "w")
                     f.close()
                 except IOError as e:
-                    QMessageBox.critical(self, "Error creating file!", 
-                            "CEED encountered "
-                            "an error trying to create a new file.  Do you have the "
-                            "proper permissions?\n\n[ " + e.strerror + " ]")
+                    QtGui.QMessageBox.critical(self, "Error creating file!", 
+                                                     "CEED encountered an error trying to create a new file.\n\n(exception details: %s)" % (e))
                     return
+                
                 self.openEditorTab(fileName)
         else:
             while True:
-                fileName, selectedFilter = QFileDialog.getSaveFileName(self,
-                                                           title,
-                                                           defaultDir,
-                                                           ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
-                                                           filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None,
-                                                           QFileDialog.DontConfirmOverwrite)
+                fileName, selectedFilter = QtGui.QFileDialog.getSaveFileName(self,
+                                                                             title,
+                                                                             defaultDir,
+                                                                             ";;".join(filtersList) if filtersList is not None and len(filtersList) > 0 else None,
+                                                                             filtersList[selectedFilterIndex] if filtersList is not None and len(filtersList) > selectedFilterIndex else None,
+                                                                             QtGui.QFileDialog.DontConfirmOverwrite)
                 if not fileName:
                     break
 
@@ -1045,24 +1055,23 @@ parent directory?")
                 # and now test & confirm overwrite
                 try:
                     if os.path.exists(fileName):
-                        msgBox = QMessageBox(self)
+                        msgBox = QtGui.QMessageBox(self)
                         msgBox.setText("A file named \"%s\" already exists in \"%s\"." % (os.path.basename(fileName), os.path.dirname(fileName)))
                         msgBox.setInformativeText("Do you want to replace it, overwriting its contents?")
-                        msgBox.addButton(QMessageBox.Cancel)
-                        replaceButton = msgBox.addButton("&Replace", QMessageBox.YesRole)
+                        msgBox.addButton(QtGui.QMessageBox.Cancel)
+                        replaceButton = msgBox.addButton("&Replace", QtGui.QMessageBox.YesRole)
                         msgBox.setDefaultButton(replaceButton)
-                        msgBox.setIcon(QMessageBox.Question)
+                        msgBox.setIcon(QtGui.QMessageBox.Question)
                         msgBox.exec_()
                         if msgBox.clickedButton() != replaceButton:
                             continue
                     f = open(fileName, "w")
                     f.close()
                 except IOError as e:
-                    QMessageBox.critical(self, "Error creating file!", 
-                            "CEED encountered "
-                            "an error trying to create a new file.  Do you have the "
-                            "proper permissions?\n\n[ " + e.strerror + " ]")
+                    QtGui.QMessageBox.critical(self, "Error creating file!", 
+                                                     "CEED encountered an error trying to create a new file.\n\n(exception details: %s)" % (e))
                     return
+                
                 self.openEditorTab(fileName)
                 break
 
@@ -1084,11 +1093,11 @@ parent directory?")
         if self.project:
             defaultDir = self.project.getAbsolutePathOf("")
 
-        fileName, selectedFilter = QFileDialog.getOpenFileName(self,
-                                                               "Open File",
-                                                               defaultDir,
-                                                               ";;".join(self.editorFactoryFileFilters),
-                                                               self.editorFactoryFileFilters[0])
+        fileName, _ = QtGui.QFileDialog.getOpenFileName(self,
+                                                       "Open File",
+                                                       defaultDir,
+                                                       ";;".join(self.editorFactoryFileFilters),
+                                                       self.editorFactoryFileFilters[0])
         if fileName:
             self.openEditorTab(fileName)
 
@@ -1100,13 +1109,13 @@ parent directory?")
         if index is None:
             index = -1
             
-        elif isinstance(index, QWidget):
+        elif isinstance(index, QtGui.QWidget):
             for i in range(0, self.tabs.count()):
                 if index is self.tabs.widget(i):
                     index = i
                     break
                    
-            assert(not isinstance(index, QWidget)) 
+            assert(not isinstance(index, QtGui.QWidget)) 
         # END OF FIXME
 
         wdt = self.tabs.widget(index)
@@ -1157,15 +1166,15 @@ parent directory?")
 
         else:
             # we have changes, lets ask the user whether we should dump them or save them
-            result = QMessageBox.question(self,
-                                          "Unsaved changes!",
-                                          "There are unsaved changes in '%s'. "
-                                          "Do you want to save them? "
-                                          "(Pressing Discard will discard the changes!)" % (editor.filePath),
-                                          QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
-                                          QMessageBox.Save)
+            result = QtGui.QMessageBox.question(self,
+                                                "Unsaved changes!",
+                                                "There are unsaved changes in '%s'. "
+                                                "Do you want to save them? "
+                                                "(Pressing Discard will discard the changes!)" % (editor.filePath),
+                                                QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel,
+                                                QtGui.QMessageBox.Save)
 
-            if result == QMessageBox.Save:
+            if result == QtGui.QMessageBox.Save:
                 # lets save changes and then kill the editor (This is the default action)
                 # If there was an error saving the file, stop what we're doing
                 # and let the user fix the problem.
@@ -1175,7 +1184,7 @@ parent directory?")
                 self.closeEditorTab(editor)
                 return True
 
-            elif result == QMessageBox.Discard:
+            elif result == QtGui.QMessageBox.Discard:
                 # changes will be discarded
                 # note: we don't have to call editor.discardChanges here
 
@@ -1227,7 +1236,7 @@ parent directory?")
         atIndex = self.tabBar.tabAt(point)
         self.tabs.setCurrentIndex(atIndex)
 
-        menu = QMenu(self)
+        menu = QtGui.QMenu(self)
         menu.addAction(self.closeTabAction)
         menu.addSeparator()
         menu.addAction(self.closeOtherTabsAction)
@@ -1236,7 +1245,7 @@ parent directory?")
         if atIndex != -1:
             tab = self.tabs.widget(atIndex)
             menu.addSeparator()
-            dataTypeAction = QAction("Data type: %s" % (tab.getDesiredSavingDataType()), self)
+            dataTypeAction = QtGui.QAction("Data type: %s" % (tab.getDesiredSavingDataType()), self)
             dataTypeAction.setToolTip("Displays which data type this file will be saved to (the desired saving data type).")
             menu.addAction(dataTypeAction)
 
@@ -1248,7 +1257,7 @@ parent directory?")
 
     def slot_saveAs(self):
         if self.activeEditor:
-            filePath, filter = QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
+            filePath, _ = QtGui.QFileDialog.getSaveFileName(self, "Save as", os.path.dirname(self.activeEditor.filePath))
             if filePath: # make sure user hasn't cancelled the dialog
                 self.activeEditor.saveAs(filePath)
 
@@ -1324,15 +1333,16 @@ parent directory?")
             if os.path.exists(absolutePath):
                 self.openEditorTab(absolutePath)
             else:
-                msgBox = QMessageBox(self)
+                msgBox = QtGui.QMessageBox(self)
                 msgBox.setText("File \"%s\" was not found." % (absolutePath))
                 msgBox.setInformativeText("The file does not exist; it may have been moved or deleted."
                                           " Do you want to remove it from the recently used list?")
-                msgBox.addButton(QMessageBox.Cancel)
-                removeButton = msgBox.addButton("&Remove", QMessageBox.YesRole)
+                msgBox.addButton(QtGui.QMessageBox.Cancel)
+                removeButton = msgBox.addButton("&Remove", QtGui.QMessageBox.YesRole)
                 msgBox.setDefaultButton(removeButton)
-                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setIcon(QtGui.QMessageBox.Question)
                 msgBox.exec_()
+                
                 if msgBox.clickedButton() == removeButton:
                     self.recentlyUsedFiles.removeRecentlyUsed(absolutePath)
 
@@ -1347,15 +1357,16 @@ parent directory?")
     
                 self.openProject(absolutePath)
             else:
-                msgBox = QMessageBox(self)
+                msgBox = QtGui.QMessageBox(self)
                 msgBox.setText("Project \"%s\" was not found." % (absolutePath))
                 msgBox.setInformativeText("The project file does not exist; it may have been moved or deleted."
                                           " Do you want to remove it from the recently used list?")
-                msgBox.addButton(QMessageBox.Cancel)
-                removeButton = msgBox.addButton("&Remove", QMessageBox.YesRole)
+                msgBox.addButton(QtGui.QMessageBox.Cancel)
+                removeButton = msgBox.addButton("&Remove", QtGui.QMessageBox.YesRole)
                 msgBox.setDefaultButton(removeButton)
-                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setIcon(QtGui.QMessageBox.Question)
                 msgBox.exec_()
+                
                 if msgBox.clickedButton() == removeButton:
                     self.recentlyUsedProjects.removeRecentlyUsed(absolutePath)
 
@@ -1376,14 +1387,14 @@ parent directory?")
     def slot_toggleStatusbar(self):
         self.statusBar().hide() if self.statusBar().isVisible() else self.statusBar().show()
 
-    def openUrlString(self, url):
-        return QDesktopServices.openUrl(QUrl(url))
-
     def slot_helpContents(self):
-        self.openUrlString("http://www.cegui.org.uk/wiki/index.php/CEED")
+        QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")
 
     def slot_sendFeedback(self):
-        self.openUrlString("http://www.cegui.org.uk/phpBB2/viewforum.php?f=15")
+        QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/phpBB2/viewforum.php?f=15")
 
     def slot_reportBug(self):
-        self.openUrlString("http://www.cegui.org.uk/mantis/bug_report_page.php")
+        QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/mantis/bug_report_page.php")
+
+    def slot_ceguiDebugInfo(self):
+        self.ceguiContainerWidget.debugInfo.show()

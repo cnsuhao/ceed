@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 import os
 import sys
@@ -57,7 +59,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         #
         # TODO: This could be improved at least a little bit if 2 consecutive edit mode changes
         #       looked like this: A->Preview, Preview->C.  We could simply turn this into A->C,
-        #       and if A = C it eat the undo command entirely.
+        #       and if A = C it would eat the undo command entirely.
         self.previewer = preview.LayoutPreviewer(self)
         self.addTab(self.previewer, "Live Preview")
         
@@ -98,19 +100,19 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     def activate(self):
         super(LayoutTabbedEditor, self).activate()
         
-        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
         self.visual.hierarchyDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(Qt.RightDockWidgetArea, self.visual.propertiesDockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.propertiesDockWidget)
         self.visual.propertiesDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
         self.visual.createWidgetDockWidget.setVisible(True)
-        self.mainWindow.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
+        self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
 
     def updateToolbarSize(self, size):
         if size < 16:
             size = 16
-        self.visual.toolBar.setIconSize(QSize(size, size))
+        self.visual.toolBar.setIconSize(QtCore.QSize(size, size))
 
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.hierarchyDockWidget)
@@ -132,7 +134,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         currentRootWidget = self.visual.getCurrentRootWidget()
         
         if currentRootWidget is None:
-            QMessageBox.warning(self.mainWindow, "No root widget in the layout!", "I am refusing to save your layout, CEGUI layouts are invalid unless they have a root widget!\n\nPlease create a root widget before saving.")
+            QtGui.QMessageBox.warning(self.mainWindow, "No root widget in the layout!", "I am refusing to save your layout, CEGUI layouts are invalid unless they have a root widget!\n\nPlease create a root widget before saving.")
             return False
         
         self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)

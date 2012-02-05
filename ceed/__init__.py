@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,15 +16,15 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 # package stub file
 
 from ceed import version
 
-__author__ = "Martin Preisler <preisler.m@gmail.com>"
+__author__ = "Martin Preisler <preisler.m@gmail.com> and contributing authors (see AUTHORS file)"
 __version__ = version.CEED
-__copyright__ = "Martin Preisler <preisler.m@gmail.com>"
+__copyright__ = __author__
 __email__ = "preisler.m@gmail.com"
 __license__ = "GPLv3+"
 

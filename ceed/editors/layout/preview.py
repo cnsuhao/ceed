@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,16 +16,15 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide import QtGui
 
 from ceed.editors import mixed
 
 import PyCEGUI
 
-class LayoutPreviewer(QWidget, mixed.EditMode):
+class LayoutPreviewer(QtGui.QWidget, mixed.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """
@@ -34,7 +35,7 @@ class LayoutPreviewer(QWidget, mixed.EditMode):
         self.tabbedEditor = tabbedEditor
         self.rootWidget = None
         
-        layout = QVBoxLayout(self)
+        layout = QtGui.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 

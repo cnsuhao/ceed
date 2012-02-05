@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,10 +16,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore
+from PySide import QtGui
 
 import os
 import sys
@@ -34,7 +36,7 @@ import ceed.ui.projectmanager
 import ceed.ui.newprojectdialog
 import ceed.ui.projectsettingsdialog
 
-class Item(QStandardItem):
+class Item(QtGui.QStandardItem):
     """One item in the project
     This is usually a file or a folder
     """
@@ -47,14 +49,14 @@ class Item(QStandardItem):
     # a counterpart on the HDD, they could be virtual.
     Folder = 3
 
-    itemType = property(lambda self: self.data(Qt.UserRole + 1),
+    itemType = property(lambda self: self.data(QtCore.Qt.UserRole + 1),
                         lambda self, value: self.setItemType(value))
     
     label = property(lambda self: self.text(),
                      lambda self, value: self.setText(value))
     
     icon = property(lambda self: self.icon(),
-                    lambda self, value: self.setIcon(QIcon(value)))
+                    lambda self, value: self.setIcon(QtGui.QIcon(value)))
     
     # following properties are only applicable to files
     
@@ -75,7 +77,7 @@ class Item(QStandardItem):
     
     def type(self):
         # Qt docs say we have to overload type() and return something > QStandardItem.UserType
-        return QStandardItem.UserType + 1
+        return QtGui.QStandardItem.UserType + 1
     
     def clone(self):
         ret = Item(self.project)
@@ -93,7 +95,7 @@ class Item(QStandardItem):
         return ret
     
     def setItemType(self, value):
-        self.setData(value, Qt.UserRole + 1)
+        self.setData(value, QtCore.Qt.UserRole + 1)
         
         if value == Item.File:
             # we can drag files but we can't drop anything to them
@@ -113,7 +115,7 @@ class Item(QStandardItem):
     def setPath(self, value):
         assert(self.itemType == Item.File)
         
-        self.setData(value, Qt.UserRole + 2)
+        self.setData(value, QtCore.Qt.UserRole + 2)
         self.label = os.path.basename(value)
        
         # TODO: File type icons are completely independent from tabbed editors,
@@ -158,12 +160,12 @@ class Item(QStandardItem):
     def getPath(self):
         assert(self.itemType == Item.File)
         
-        return self.data(Qt.UserRole + 2)
+        return self.data(QtCore.Qt.UserRole + 2)
     
     def setName(self, value):
         assert(self.itemType == Item.Folder)
         
-        self.setData(value, Qt.UserRole + 2)
+        self.setData(value, QtCore.Qt.UserRole + 2)
         
         # A hack to cause folders appear first when sorted
         # TODO: Override the sorting method and make this work more cleanly
@@ -175,7 +177,7 @@ class Item(QStandardItem):
     def getName(self):
         assert(self.itemType == Item.Folder)
         
-        return self.data(Qt.UserRole + 2)
+        return self.data(QtCore.Qt.UserRole + 2)
     
     def getRelativePath(self):
         """Returns path relative to the projects base directory"""
@@ -231,7 +233,7 @@ class Item(QStandardItem):
                 
         return ret
 
-class Project(QStandardItemModel):
+class Project(QtGui.QStandardItemModel):
     """This class encapsulates a project edited by the editor
 
     A project is basically a set of files and folders that are CEGUI related
@@ -242,7 +244,7 @@ class Project(QStandardItemModel):
         super(Project, self).__init__()
         
         self.setHorizontalHeaderLabels(["Name"])
-        self.setSupportedDragActions(Qt.MoveAction)
+        self.setSupportedDragActions(QtCore.Qt.MoveAction)
         self.prototype = Item(self)
         self.setItemPrototype(self.prototype)
         
@@ -267,7 +269,7 @@ class Project(QStandardItemModel):
         self.propertyMap = propertymapping.PropertyMap.fromFiles([os.path.abspath(path) for path in pmappings])
 
     def getSupportedDropActions(self):
-        return Qt.MoveAction
+        return QtCore.Qt.MoveAction
 
     def load(self, path):
         """Loads XML project file from given path (preferably absolute path)"""
@@ -381,7 +383,7 @@ class Project(QStandardItemModel):
             if not os.path.isdir(directoryPath):
                 raise IOError("Resource directory '%s' for resources of type '%s' isn't a directory or isn't accessible" % (directoryPath, resourceCategory))
         
-class ProjectManager(QDockWidget):
+class ProjectManager(QtGui.QDockWidget):
     """This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
     """
@@ -389,7 +391,7 @@ class ProjectManager(QDockWidget):
     project = property(lambda self: self.view.model(),
                        lambda self, value: self.setProject(value))
     
-    fileOpenRequested = Signal(str)
+    fileOpenRequested = QtCore.Signal(str)
     
     def __init__(self):
         super(ProjectManager, self).__init__()
@@ -397,8 +399,8 @@ class ProjectManager(QDockWidget):
         self.ui = ceed.ui.projectmanager.Ui_ProjectManager()
         self.ui.setupUi(self)
         
-        self.view = self.findChild(QTreeView, "view")
-        self.view.sortByColumn(0, Qt.AscendingOrder)
+        self.view = self.findChild(QtGui.QTreeView, "view")
+        self.view.sortByColumn(0, QtCore.Qt.AscendingOrder)
         self.view.doubleClicked.connect(self.slot_itemDoubleClicked)
         
         self.setupContextMenu()
@@ -406,31 +408,31 @@ class ProjectManager(QDockWidget):
         self.setProject(None)
         
     def setupContextMenu(self):
-        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         
-        self.contextMenu = QMenu(self)
+        self.contextMenu = QtGui.QMenu(self)
         
-        self.createFolderAction = QAction(QIcon("icons/project_management/create_folder.png"), "Create folder", self)
+        self.createFolderAction = QtGui.QAction(QtGui.QIcon("icons/project_management/create_folder.png"), "Create folder", self)
         self.contextMenu.addAction(self.createFolderAction)
         self.createFolderAction.triggered.connect(self.slot_createFolder)
         
         self.contextMenu.addSeparator()
         
-        self.addNewFileAction = QAction(QIcon("icons/project_management/add_new_file.png"), "Add new file", self)
+        self.addNewFileAction = QtGui.QAction(QtGui.QIcon("icons/project_management/add_new_file.png"), "Add new file", self)
         self.contextMenu.addAction(self.addNewFileAction)
         self.addNewFileAction.triggered.connect(self.slot_addNewFile)
         
-        self.addExistingFileAction = QAction(QIcon("icons/project_management/add_existing_file.png"), "Add existing file(s)", self)
+        self.addExistingFileAction = QtGui.QAction(QtGui.QIcon("icons/project_management/add_existing_file.png"), "Add existing file(s)", self)
         self.contextMenu.addAction(self.addExistingFileAction)
         self.addExistingFileAction.triggered.connect(self.slot_addExistingFile)
         
         self.contextMenu.addSeparator()
         
-        self.renameAction = QAction(QIcon("icons/project_management/rename.png"), "Rename file/folder", self)
+        self.renameAction = QtGui.QAction(QtGui.QIcon("icons/project_management/rename.png"), "Rename file/folder", self)
         self.contextMenu.addAction(self.renameAction)
         self.renameAction.triggered.connect(self.slot_renameAction)
         
-        self.removeAction = QAction(QIcon("icons/project_management/remove.png"), "Remove file(s)/folder(s)", self)
+        self.removeAction = QtGui.QAction(QtGui.QIcon("icons/project_management/remove.png"), "Remove file(s)/folder(s)", self)
         self.contextMenu.addAction(self.removeAction)
         self.removeAction.triggered.connect(self.slot_removeAction)
         
@@ -505,11 +507,11 @@ class ProjectManager(QDockWidget):
     def slot_createFolder(self):
         ## TODO: Name clashes!
         
-        text, ok = QInputDialog.getText(self,
-                                        "Create a folder (only affects project file)",
-                                        "Name",
-                                        QLineEdit.Normal,
-                                        "New folder")
+        text, ok = QtGui.QInputDialog.getText(self,
+                                              "Create a folder (only affects project file)",
+                                              "Name",
+                                              QtGui.QLineEdit.Normal,
+                                              "New folder")
         
         if ok:
             item = Item(self.project)
@@ -532,10 +534,9 @@ class ProjectManager(QDockWidget):
     def slot_addNewFile(self):
         ## TODO: name clashes, duplicates
         
-        file, filter = QFileDialog.getSaveFileName(
-                        self,
-                        "Create a new file and add it to the project",
-                        self.project.getAbsolutePathOf(""))
+        file, _ = QtGui.QFileDialog.getSaveFileName(self,
+                                                    "Create a new file and add it to the project",
+                                                    self.project.getAbsolutePathOf(""))
         
         if file == "":
             # user cancelled
@@ -546,10 +547,10 @@ class ProjectManager(QDockWidget):
             f.close()
             
         except OSError:
-            QMessageBox.question(self,
-                                 "Can't create file!",
-                                 "Creating file '%s' failed. Exception details follow:\n%s" % (file, sys.exc_info()[1]),
-                                 QMessageBox.Ok)
+            QtGui.QMessageBox.question(self,
+                                       "Can't create file!",
+                                       "Creating file '%s' failed. Exception details follow:\n%s" % (file, sys.exc_info()[1]),
+                                       QtGui.QMessageBox.Ok)
             
             return
         
@@ -573,10 +574,9 @@ class ProjectManager(QDockWidget):
     def slot_addExistingFile(self):
         ## TODO: name clashes, duplicates
         
-        files, filter = QFileDialog.getOpenFileNames(
-                        self,
-                        "Select one or more files to add to the project",
-                        self.project.getAbsolutePathOf(""))
+        files, _ = QtGui.QFileDialog.getOpenFileNames(self,
+                                                           "Select one or more files to add to the project",
+                                                           self.project.getAbsolutePathOf(""))
         selectedIndices = self.view.selectedIndexes()
         
         for file in files:
@@ -603,11 +603,11 @@ class ProjectManager(QDockWidget):
         
         item = self.getItemFromModelIndex(selectedIndices[0])
         if item.itemType == Item.File:
-            text, ok = QInputDialog.getText(self,
-                                        "Rename file (renames the file on the disk!)",
-                                        "New name",
-                                        QLineEdit.Normal,
-                                        os.path.basename(item.path))
+            text, ok = QtGui.QInputDialog.getText(self,
+                                                  "Rename file (renames the file on the disk!)",
+                                                  "New name",
+                                                  QtGui.QLineEdit.Normal,
+                                                  os.path.basename(item.path))
             
             if ok and text != os.path.basename(item.path):
                 # legit change
@@ -619,17 +619,17 @@ class ProjectManager(QDockWidget):
                     self.project.changed = True
                     
                 except OSError:
-                    QMessageBox.question(self,
-                                      "Can't rename!",
-                                      "Renaming file '%s' to '%s' failed. Exception details follow:\n%s" % (item.path, newPath, sys.exc_info()[1]),
-                                      QMessageBox.Ok)
+                    QtGui.QMessageBox.question(self,
+                                               "Can't rename!",
+                                               "Renaming file '%s' to '%s' failed. Exception details follow:\n%s" % (item.path, newPath, sys.exc_info()[1]),
+                                               QtGui.QMessageBox.Ok)
         
         elif item.itemType == Item.Folder:
-            text, ok = QInputDialog.getText(self,
-                                        "Rename folder (only affects the project file)",
-                                        "New name",
-                                        QLineEdit.Normal,
-                                        item.name)
+            text, ok = QtGui.QInputDialog.getText(self,
+                                                  "Rename folder (only affects the project file)",
+                                                  "New name",
+                                                  QtGui.QLineEdit.Normal,
+                                                  item.name)
             
             if ok and text != item.name:
                 item.name = text
@@ -651,19 +651,19 @@ class ProjectManager(QDockWidget):
             removeSpec = "%i project items" % (len(selectedIndices))
         
         # we have changes, lets ask the user whether we should dump them or save them
-        result = QMessageBox.question(self,
-                                      "Remove items?",
-                                      "Are you sure you want to remove %s from the project? "
-                                      "This action can't be undone! "
-                                      "(Pressing Cancel will cancel the operation!)" % (removeSpec),
-                                      QMessageBox.Yes | QMessageBox.Cancel,
-                                      QMessageBox.Cancel)
+        result = QtGui.QMessageBox.question(self,
+                                            "Remove items?",
+                                            "Are you sure you want to remove %s from the project? "
+                                            "This action can't be undone! "
+                                            "(Pressing Cancel will cancel the operation!)" % (removeSpec),
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel,
+                                            QtGui.QMessageBox.Cancel)
         
-        if result == QMessageBox.Cancel:
+        if result == QtGui.QMessageBox.Cancel:
             # user chickened out ;-)
             return
             
-        elif result == QMessageBox.Yes:
+        elif result == QtGui.QMessageBox.Yes:
             selectedIndices = sorted(selectedIndices, key = lambda index: index.row(), reverse = True)
             removeCount = 0
             
@@ -698,7 +698,7 @@ class ProjectManager(QDockWidget):
             if removeCount > 0:
                 self.project.changed = True
         
-class NewProjectDialog(QDialog):
+class NewProjectDialog(QtGui.QDialog):
     """Dialog responsible for creation of entirely new projects.
     """
     
@@ -708,7 +708,7 @@ class NewProjectDialog(QDialog):
         self.ui = ceed.ui.newprojectdialog.Ui_NewProjectDialog()
         self.ui.setupUi(self)
         
-        self.projectName = self.findChild(QLineEdit, "projectName")
+        self.projectName = self.findChild(QtGui.QLineEdit, "projectName")
         
         self.projectFilePath = self.findChild(qtwidgets.FileLineEdit, "projectFilePath")
         self.projectFilePath.filter = "Project file (*.project)"
@@ -718,15 +718,15 @@ class NewProjectDialog(QDialog):
     
     def accept(self):
         if self.projectName.text() == "":
-            QMessageBox.critical(self, "Project name empty!", "You must supply a valid project name!")
+            QtGui.QMessageBox.critical(self, "Project name empty!", "You must supply a valid project name!")
             return
         
         if self.projectFilePath.text() == "":
-            QMessageBox.critical(self, "Project file path empty!", "You must supply a valid project file path!")
+            QtGui.QMessageBox.critical(self, "Project file path empty!", "You must supply a valid project file path!")
             return
         
         if not os.path.exists(os.path.dirname(self.projectFilePath.text())):
-            QMessageBox.critical(self, "Project file path invalid!", "Its parent directory ('%s') is inaccessible!" % (os.path.dirname(self.projectFilePath.text())))
+            QtGui.QMessageBox.critical(self, "Project file path invalid!", "Its parent directory ('%s') is inaccessible!" % (os.path.dirname(self.projectFilePath.text())))
             return
 
         super(NewProjectDialog, self).accept()
@@ -739,7 +739,7 @@ class NewProjectDialog(QDialog):
         
         return ret
 
-class ProjectSettingsDialog(QDialog):
+class ProjectSettingsDialog(QtGui.QDialog):
     """Dialog able to change various project settings
     """
     
@@ -749,11 +749,11 @@ class ProjectSettingsDialog(QDialog):
         self.ui = ceed.ui.projectsettingsdialog.Ui_ProjectSettingsDialog()
         self.ui.setupUi(self)
         
-        self.projectName = self.findChild(QLineEdit, "projectName")
+        self.projectName = self.findChild(QtGui.QLineEdit, "projectName")
         self.baseDirectory = self.findChild(qtwidgets.FileLineEdit, "baseDirectory")
         self.baseDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
     
-        self.CEGUIVersion = self.findChild(QComboBox, "CEGUIVersion")
+        self.CEGUIVersion = self.findChild(QtGui.QComboBox, "CEGUIVersion")
         for version in compatibility.CEGUIVersions:
             self.CEGUIVersion.addItem(version)
             
@@ -761,7 +761,7 @@ class ProjectSettingsDialog(QDialog):
     
         self.resourceDirectory = self.findChild(qtwidgets.FileLineEdit, "resourceDirectory")
         self.resourceDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
-        self.resourceDirectoryApplyButton = self.findChild(QPushButton, "resourceDirectoryApplyButton")
+        self.resourceDirectoryApplyButton = self.findChild(QtGui.QPushButton, "resourceDirectoryApplyButton")
         self.resourceDirectoryApplyButton.pressed.connect(self.slot_applyResourceDirectory)
     
         self.imagesetsPath = self.findChild(qtwidgets.FileLineEdit, "imagesetsPath")

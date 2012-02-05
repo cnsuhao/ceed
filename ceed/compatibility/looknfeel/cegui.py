@@ -1,6 +1,8 @@
-################################################################################
-#   CEED - A unified CEGUI editor
-#   Copyright (C) 2011 Martin Preisler <preisler.m@gmail.com>
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -14,7 +16,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+##############################################################################
 
 from ceed import compatibility
 from xml.etree import ElementTree
@@ -128,10 +130,10 @@ class LookNFeel6To7Layer(compatibility.Layer):
         
         # transform properties
         for element in root.iter("WidgetLook"):
-            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
             
-        for element in root.iter("AutoWindow"):
-            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            for childElement in element.iter("Child"):
+                compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
             
         return ElementTree.tostring(root, "utf-8")
 
@@ -174,9 +176,9 @@ class LookNFeel7To6Layer(compatibility.Layer):
                 
         # transform properties
         for element in root.iter("WidgetLook"):
-            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
             
-        for element in root.iter("AutoWindow"):
-            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value")
+            for childElement in element.iter("Child"):
+                compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
             
         return ElementTree.tostring(root, "utf-8")
