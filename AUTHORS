@@ -4,8 +4,8 @@ List of authors and contributors
 Authors might have possibly done more than is attributed to them in this list!
 
 Martin Preisler        - main developer
-Pavlos Touboulidis     - bug fixes, UI polish, image duplication,
-                         image copy paste and more
+Pavlos Touboulidis     - property inspecting system, many bug fixes, UI polish,
+                         image duplication, image copy paste and more
 Patrick Robertson      - settings interface improvements
 Stefan Stammberger     - recent projects
 Christopher Trenkamp   - external file changes monitoring
@@ -22,3 +22,4 @@ Special thanks to Martin Babka for advices and supervision of this project!
 ---
 This list is very hard to maintain.
 If I forgot to add your name, please remind me via email or IRC
+
