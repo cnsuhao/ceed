@@ -151,8 +151,10 @@ class Layout3To4Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
-        windowType = element.get("Type")
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
+        if windowType is None:
+            windowType = element.get("Type")
+            assert(windowType is not None)
 
         # convert the properties that had 'Unified' prefix
         for property in element.findall(tag):
@@ -205,13 +207,21 @@ class Layout3To4Layer(compatibility.Layer):
                 split[1] = split[1].strip()
                 
                 property.set(valueAttribute, "%s/%s" % (split[0], split[1]))
-        
-            if windowType is None or windowType.endswith("StaticImage"):
+            
+            if windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToName(property)
                     
-            elif windowType is None or windowType.endswith("ImageButton"):
+            elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
+                    convertImagePropertyToName(property)
+                    
+            elif windowType.endswith("FrameWindow"):
+                if name.endswith("SizingCursorImage"):
+                    convertImagePropertyToName(property)
+                    
+            elif windowType.endswith("ListHeaderSegment"):
+                if name in ["MovingCursorImage", "SizingCursorImage"]:
                     convertImagePropertyToName(property)
     
     def applyChangesRecursively(self, window):
@@ -278,8 +288,10 @@ class Layout4To3Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value"):
-        windowType = element.get("Type")
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
+        if windowType is None:
+            windowType = element.get("Type")
+            assert(windowType is not None)
         
         # convert the properties that had 'Unified' prefix in 0.7
         for property in element.findall(tag):
@@ -327,14 +339,23 @@ class Layout4To3Layer(compatibility.Layer):
                 assert(len(split) == 2)
                 property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
         
-            if windowType is None or windowType.endswith("StaticImage"):
+            if windowType.endswith("StaticImage"):
                 if name == "Image":
                     convertImagePropertyToImagesetImage(property)
                     
-            elif windowType is None or windowType.endswith("ImageButton"):
+            elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
                     convertImagePropertyToImagesetImage(property)
+                    return
     
+            elif windowType.endswith("FrameWindow"):
+                if name.endswith("SizingCursorImage"):
+                    convertImagePropertyToImagesetImage(property)
+                    
+            elif windowType.endswith("ListHeaderSegment"):
+                if name in ["MovingCursorImage", "SizingCursorImage"]:
+                    convertImagePropertyToImagesetImage(property)
+
     def applyChangesRecursively(self, window):
         ret = ""
         
