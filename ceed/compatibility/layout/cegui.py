@@ -223,6 +223,12 @@ class Layout3To4Layer(compatibility.Layer):
             elif windowType.endswith("ListHeaderSegment"):
                 if name in ["MovingCursorImage", "SizingCursorImage"]:
                     convertImagePropertyToName(property)
+                    
+            else:
+                # we have done all explicit migrations, at this point the best we can do is guess
+                # if a property name ends with Image, it is most likely an image
+                if name.endswith("Image"):
+                    convertImagePropertyToName(property)
     
     def applyChangesRecursively(self, window):
         ret = ""
@@ -354,6 +360,12 @@ class Layout4To3Layer(compatibility.Layer):
                     
             elif windowType.endswith("ListHeaderSegment"):
                 if name in ["MovingCursorImage", "SizingCursorImage"]:
+                    convertImagePropertyToImagesetImage(property)
+                    
+            else:
+                # we have done all explicit migrations, at this point the best we can do is guess
+                # if a property name ends with Image, it is most likely an image
+                if name.endswith("Image"):
                     convertImagePropertyToImagesetImage(property)
 
     def applyChangesRecursively(self, window):
