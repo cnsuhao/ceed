@@ -158,7 +158,21 @@ class Layout3To4Layer(compatibility.Layer):
         for property in element.findall(tag):
             name = property.get(nameAttribute, "")
             
-            if name == "UnifiedAreaRect":
+            if name == "ZOrderChangeEnabled":
+                name = "ZOrderingEnabled"
+                
+            elif name == "MouseButtonDownAutoRepeat":
+                name = "MouseAutoRepeatEnabled"
+            
+            elif name == "CustomTooltipType":
+                name = "TooltipType"
+            elif name == "Tooltip":
+                name = "TooltipText"
+                
+            elif name == "RiseOnClick":
+                name = "RiseOnClickEnabled"
+            
+            elif name == "UnifiedAreaRect":
                 name = "Area"
             elif name == "UnifiedPosition":
                 name = "Position"
@@ -176,9 +190,6 @@ class Layout3To4Layer(compatibility.Layer):
                 name = "MinSize"
             elif name == "UnifiedMaxSize":
                 name = "MaxSize"
-                
-            elif name == "Tooltip":
-                name = "TooltipText"
             
             if name != "":
                 property.set(nameAttribute, name)
@@ -274,7 +285,21 @@ class Layout4To3Layer(compatibility.Layer):
         for property in element.findall(tag):
             name = property.get(nameAttribute, "")
             
-            if name == "Area":
+            if name == "ZOrderingEnabled":
+                name = "ZOrderChangeEnabled"
+                
+            elif name == "MouseAutoRepeatEnabled":
+                name = "MouseButtonDownAutoRepeat"
+            
+            elif name == "TooltipType":
+                name = "CustomTooltipType"
+            elif name == "TooltipText":
+                name = "Tooltip"
+                
+            elif name == "RiseOnClickEnabled":
+                name = "RiseOnClick"
+
+            elif name == "Area":
                 name = "UnifiedAreaRect"
             elif name == "Position":
                 name = "UnifiedPosition"
@@ -292,9 +317,6 @@ class Layout4To3Layer(compatibility.Layer):
                 name = "UnifiedMinSize"
             elif name == "MaxSize":
                 name = "UnifiedMaxSize"
-                
-            elif name == "TooltipText":
-                name = "Tooltip"
             
             if name != "":
                 property.set(nameAttribute, name)
