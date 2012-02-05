@@ -154,7 +154,8 @@ class Layout3To4Layer(compatibility.Layer):
     def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
         if windowType is None:
             windowType = element.get("Type")
-            assert(windowType is not None)
+            if windowType is None:
+                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
 
         # convert the properties that had 'Unified' prefix
         for property in element.findall(tag):
@@ -199,7 +200,9 @@ class Layout3To4Layer(compatibility.Layer):
             def convertImagePropertyToName(property):
                 value = property.get(valueAttribute)
                 split = value.split("image:", 1)
-                assert(len(split) == 2)
+                if len(split) != 2:
+                    raise RuntimeError("Failed parsing value '%s' as 0.7 image reference" % (value))
+                
                 split[0] = split[0][4:] # get rid of "set:"
                 
                 # strip both of whitespaces left and right
@@ -228,7 +231,12 @@ class Layout3To4Layer(compatibility.Layer):
                 # we have done all explicit migrations, at this point the best we can do is guess
                 # if a property name ends with Image, it is most likely an image
                 if name.endswith("Image"):
-                    convertImagePropertyToName(property)
+                    try:
+                        convertImagePropertyToName(property)
+                        
+                    except:
+                        # best effort only, we don't have enough info
+                        pass
     
     def applyChangesRecursively(self, window):
         ret = ""
@@ -297,7 +305,8 @@ class Layout4To3Layer(compatibility.Layer):
     def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
         if windowType is None:
             windowType = element.get("Type")
-            assert(windowType is not None)
+            if windowType is None:
+                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
         
         # convert the properties that had 'Unified' prefix in 0.7
         for property in element.findall(tag):
@@ -342,7 +351,8 @@ class Layout4To3Layer(compatibility.Layer):
             def convertImagePropertyToImagesetImage(property):
                 value = property.get(valueAttribute)
                 split = value.split("/", 1)
-                assert(len(split) == 2)
+                if len(split) != 2:
+                    raise RuntimeError("Failed parsing value '%s' as 0.8 image reference" % (value))
                 property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
         
             if windowType.endswith("StaticImage"):
@@ -366,7 +376,12 @@ class Layout4To3Layer(compatibility.Layer):
                 # we have done all explicit migrations, at this point the best we can do is guess
                 # if a property name ends with Image, it is most likely an image
                 if name.endswith("Image"):
-                    convertImagePropertyToImagesetImage(property)
+                    try:
+                        convertImagePropertyToImagesetImage(property)
+                        
+                    except:
+                        # best effort only, we don't have enough info
+                        pass
 
     def applyChangesRecursively(self, window):
         ret = ""
