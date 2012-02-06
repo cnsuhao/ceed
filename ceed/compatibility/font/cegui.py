@@ -18,8 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from ceed import compatibility
-from xml.etree import ElementTree
+#from ceed import compatibility
+#from xml.etree import ElementTree
 
 CEGUIFont1 = "CEGUI Font 1"
 CEGUIFont2 = "CEGUI Font 2"

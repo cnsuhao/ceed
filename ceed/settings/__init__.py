@@ -20,7 +20,6 @@
 
 from ceed.settings import declaration
 from ceed.settings import persistence
-from ceed.settings import interface
 
 class Settings(declaration.Settings):
     instance = None

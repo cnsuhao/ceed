@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+#from xml.etree import ElementTree
 
 AnimationList1 = "CEGUI Animation List 1"
 

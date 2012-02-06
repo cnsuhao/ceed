@@ -20,8 +20,6 @@
 
 from ceed import commands
 
-import math
-
 idbase = 1300
 
 class ChangeCurrentAnimationDefinition(commands.UndoCommand):

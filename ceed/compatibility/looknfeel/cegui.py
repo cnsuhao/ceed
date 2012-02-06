@@ -94,8 +94,6 @@ class LookNFeel6To7Layer(compatibility.Layer):
         return CEGUILookNFeel7
     
     def transform(self, data):
-        log = ""
-        
         root = ElementTree.fromstring(data)
         # Fix for Python < 2.7.
         if not hasattr(root, "iter"):
@@ -145,8 +143,6 @@ class LookNFeel7To6Layer(compatibility.Layer):
         return CEGUILookNFeel6
     
     def transform(self, data):
-        log = ""
-        
         root = ElementTree.fromstring(data)
         
         # version 6 must not have a version attribute

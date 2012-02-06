@@ -25,8 +25,6 @@ from PySide import QtOpenGL
 from OpenGL import GL
 
 import os.path
-import time
-import math
 
 import PyCEGUI
 import PyCEGUIOpenGLRenderer

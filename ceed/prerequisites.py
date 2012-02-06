@@ -23,6 +23,12 @@ and provide helpful info when something goes wrong.
 """
 
 def check(supressMessagesIfNotFatal = True):
+    """Checks all hard dependencies of CEED and reports accordingly
+    """
+    
+    # We use __import__ in this function merely to stop pyflakes and pylint
+    # from reporting unused imports
+    
     def messageBox(message):
         print message
 
@@ -31,33 +37,37 @@ def check(supressMessagesIfNotFatal = True):
 
     # PySide
     try:
-        import PySide
+        __import__("PySide")
+        
     except ImportError:
         messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org")
         ret = False
 
     # PyOpenGL
     try:
-        import OpenGL.GL
-        import OpenGL.GLU
+        __import__("OpenGL.GL")
+        __import__("OpenGL.GLU")
+        
     except ImportError:
         messages.append("PyOpenGL package is missing! PyOpenGL provides Python bindings for OpenGL, they can be found in the pypi repository.")
         ret = False
 
     # PyCEGUI
     try:
-        import PyCEGUI
+        __import__("PyCEGUI")
         try:
-            import PyCEGUIOpenGLRenderer
+            __import__("PyCEGUIOpenGLRenderer")
+            
         except ImportError:
             messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it.")
             ret = False
+    
     except ImportError:
         messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk")
         ret = False
 
     # Version module
-    import ceed.version as version
+    from ceed import version
 
     # Version checking
     if version.Python_Tuple < (2, 6):
@@ -73,4 +83,5 @@ def check(supressMessagesIfNotFatal = True):
     # Finished
     if (not ret) or (not supressMessagesIfNotFatal and len(messages) > 0):
         messageBox("Following problems found: \n" + unicode("\n").join(messages))
+        
     return ret

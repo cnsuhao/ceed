@@ -21,12 +21,8 @@
 from PySide import QtCore
 from PySide import QtGui
 
-import os
-import sys
-
 from ceed import settings
 from ceed import editors
-from ceed import xmledit
 
 import ceed.compatibility.layout as layout_compatibility
 
@@ -35,8 +31,6 @@ from ceed.editors.layout import code
 from ceed.editors.layout import preview
 
 import PyCEGUI
-
-from xml.etree import ElementTree
 
 class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """Binds all layout editing functionality together

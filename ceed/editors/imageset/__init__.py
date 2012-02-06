@@ -29,7 +29,6 @@ from ceed import editors
 from ceed import xmledit
 import ceed.compatibility.imageset as imageset_compatibility
 
-from ceed.editors.imageset import undo
 from ceed.editors.imageset import visual
 from ceed.editors.imageset import code
 

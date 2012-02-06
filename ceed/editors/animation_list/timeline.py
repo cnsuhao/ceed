@@ -244,7 +244,7 @@ class AffectorTimelineSection(QtGui.QGraphicsRectItem):
         
         i = 0
         while i < self.affector.getNumKeyFrames():
-            affectorTimelineKeyFrame = AffectorTimelineKeyFrame(self, self.affector.getKeyFrameAtIdx(i))
+            AffectorTimelineKeyFrame(self, self.affector.getKeyFrameAtIdx(i))
             
             # affector timeline key frame will refresh itself automatically to the right position
             # upon construction
