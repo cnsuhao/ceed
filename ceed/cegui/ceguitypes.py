@@ -16,7 +16,7 @@ class Base(object):
 
     __metaclass__ = abc.ABCMeta
 
-    floatPattern = '\s*(-?\d+(?:\.\d+)?)\s*'
+    floatPattern = '\s*(-?\d+(?:\.\d+)?(?:e[-+]\d+)?)\s*'
 
     @classmethod
     def tryParse(cls, strValue, target=None):
@@ -105,8 +105,8 @@ class UDim(Base):
 
     def __repr__(self):
         def fmt(value):
-            # no scientific notation, 6 digits precision, remove trailing zeroes
-            return "{:.6f}".format(value).rstrip("0").rstrip(".")
+            # no scientific notation, 16 digits precision, remove trailing zeroes
+            return "{:.16f}".format(value).rstrip("0").rstrip(".")
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
     @classmethod
@@ -534,8 +534,8 @@ class Quaternion(Base):
 
     def __repr__(self):
         def fmt(value):
-            # no scientific notation, 12 digits precision, remove trailing zeroes
-            return "{:.12f}".format(value).rstrip("0").rstrip(".")
+            # no scientific notation, 16 digits precision, remove trailing zeroes
+            return "{:.16f}".format(value).rstrip("0").rstrip(".")
         return "w:{} x:{} y:{} z:{}".format(fmt(self.w), fmt(self.x), fmt(self.y), fmt(self.z))
 
     def toDegrees(self):
@@ -596,8 +596,8 @@ class XYZRotation(Base):
 
     def __repr__(self):
         def fmt(value):
-            # no scientific notation, 6 digits precision, remove trailing zeroes
-            return "{:.6f}".format(value).rstrip("0").rstrip(".")
+            # no scientific notation, 16 digits precision, remove trailing zeroes
+            return "{:.16f}".format(value).rstrip("0").rstrip(".")
         return "x:{} y:{} z:{}".format(fmt(self.x), fmt(self.y), fmt(self.z))
 
     @classmethod

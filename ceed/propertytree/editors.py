@@ -276,7 +276,7 @@ PropertyEditorRegistry.addStandardEditor(StringPropertyEditor)
 
 class NumericPropertyEditor(PropertyEditor):
 
-    DefaultDecimals = 6
+    DefaultDecimals = 16
     DefaultMin = -999999
     DefaultMax = 999999
 
