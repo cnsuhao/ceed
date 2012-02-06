@@ -24,6 +24,7 @@ from .qtwidgets import LineEditWithClearButton
 
 from .propertytree import properties
 from .propertytree import ui as ptUi
+from .propertytree import utility as ptUtility
 
 from ceed.cegui import ceguitypes as ct
 
@@ -243,7 +244,12 @@ class CEGUIPropertyManager(object):
             valueCreator = pythonDataType.fromString
             propertyType = pythonDataType.getPropertyType()
         else:
-            valueCreator = pythonDataType
+            if pythonDataType is bool:
+                # The built-in bool parses "false" as True
+                # so we replace the default value creator.
+                valueCreator = ptUtility.boolFromString
+            else:
+                valueCreator = pythonDataType
             propertyType = properties.Property
 
         value = None
