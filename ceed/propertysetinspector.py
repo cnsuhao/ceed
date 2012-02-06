@@ -85,16 +85,7 @@ class CEGUIPropertyManager(object):
     """
 
     # Maps CEGUI data types (in string form) to Python types
-    # TODO: This type mapping may not be necessary if we create our
-    # own custom PropertyEditor(s) that use these string types directly.
-    
-    # CEGUI properties are accessed via string values.
-    # We can either convert them to our own types here and have the editors
-    # use those types, or have them as strings and make the editors
-    # parse and write the strings as CEGUI expects them.
-    # I think it's the same amount of work - I'd rather create the
-    # types here in Python and those would parse and write the strings.
-    
+
     _typeMap = {
                 "int": int,
                 "uint": int,

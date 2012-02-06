@@ -338,9 +338,8 @@ class Property(object):
         implementation does this by calling 'self.tryUpdateInner()'.
         """
 
-        # TODO: Convert print to logging or something
-        if Property.DebugMode:
-            print "{} ({}).setValue: Value={}, Changed={}, Reason={}".format(self.name, self.__class__.__name__, str(value), not value == self.value, reason)
+        #if Property.DebugMode:
+        #    print "{} ({}).setValue: Value={}, Changed={}, Reason={}".format(self.name, self.__class__.__name__, str(value), not value == self.value, reason)
 
         # Really complicated stuff :/
         #
