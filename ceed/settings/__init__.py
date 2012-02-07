@@ -20,6 +20,7 @@
 
 from ceed.settings import declaration
 from ceed.settings import persistence
+from ceed.settings import interface
 
 class Settings(declaration.Settings):
     instance = None
@@ -70,3 +71,5 @@ def getEntry(path):
 
     assert(Settings.instance is not None)
     return Settings.instance.getEntry(path)
+
+__all__ = ["declaration", "persistence", "interface", "Settings", "getEntry"]
