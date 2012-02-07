@@ -546,7 +546,7 @@ class PropertiesDockWidget(QtGui.QDockWidget):
     
     def __init__(self, visual):
         super(PropertiesDockWidget, self).__init__()
-        
+        self.setObjectName("PropertiesDockWidget")
         self.visual = visual
 
         self.setWindowTitle("Selection Properties")
@@ -1021,6 +1021,7 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         
     def setupToolBar(self):
         self.toolBar = QtGui.QToolBar("Layout")
+        self.toolBar.setObjectName("LayoutToolbar")
         self.toolBar.setIconSize(QtCore.QSize(32, 32))
         
         self.toolBar.addAction(self.alignHLeftAction)

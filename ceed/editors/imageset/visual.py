@@ -420,6 +420,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
         self.connectionGroup.add(self.focusImageListFilterBoxAction, receiver = lambda: self.focusImageListFilterBox())
         
         self.toolBar = QtGui.QToolBar("Imageset")
+        self.toolBar.setObjectName("ImagesetToolbar")
         self.toolBar.setIconSize(QtCore.QSize(32, 32))
         
         self.toolBar.addAction(self.createImageAction)
