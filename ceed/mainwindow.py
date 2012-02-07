@@ -24,6 +24,7 @@ from PySide import QtGui
 import os
 
 from ceed import settings
+from ceed.settings import interface as settings_interface
 from ceed import action
 
 from ceed import commands
@@ -83,7 +84,7 @@ class MainWindow(QtGui.QMainWindow):
         # we have to construct ActionManager before settings interface (as it alters the settings declaration)!
         self.actionManager = action.ActionManager(self, self.app.settings)
 
-        self.settingsInterface = settings.interface.QtSettingsInterface(self.app.settings)
+        self.settingsInterface = settings_interface.QtSettingsInterface(self.app.settings)
 
         self.recentlyUsedProjects = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
         self.recentlyUsedFiles = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Files")
