@@ -19,13 +19,13 @@
 ##############################################################################
 
 from PySide import QtCore
-from PySide.QtGui import QDockWidget, QComboBox, QToolButton, QListView, QFileSystemModel
+from PySide import QtGui
 
 import os
 
 import ceed.ui.filesystembrowser
 
-class FileSystemBrowser(QDockWidget):
+class FileSystemBrowser(QtGui.QDockWidget):
     """This class represents the file system browser dock widget, usually located right bottom
     in the main window. It can browse your entire filesystem and if you double click a file
     it will open an editor tab for it.
@@ -39,29 +39,29 @@ class FileSystemBrowser(QDockWidget):
         self.ui = ceed.ui.filesystembrowser.Ui_FileSystemBrowser()
         self.ui.setupUi(self)
 
-        self.view = self.findChild(QListView, "view")
-        self.model = QFileSystemModel()
+        self.view = self.findChild(QtGui.QListView, "view")
+        self.model = QtGui.QFileSystemModel()
         # causes way too many problems
         #self.model.setReadOnly(False)
         self.view.setModel(self.model)
 
         self.view.doubleClicked.connect(self.slot_itemDoubleClicked)
 
-        self.parentDirectoryButton = self.findChild(QToolButton, "parentDirectoryButton")
+        self.parentDirectoryButton = self.findChild(QtGui.QToolButton, "parentDirectoryButton")
         self.parentDirectoryButton.pressed.connect(self.slot_parentDirectoryButton)
-        self.homeDirectoryButton = self.findChild(QToolButton, "homeDirectoryButton")
+        self.homeDirectoryButton = self.findChild(QtGui.QToolButton, "homeDirectoryButton")
         self.homeDirectoryButton.pressed.connect(self.slot_homeDirectoryButton)
-        self.projectDirectoryButton = self.findChild(QToolButton, "projectDirectoryButton")
+        self.projectDirectoryButton = self.findChild(QtGui.QToolButton, "projectDirectoryButton")
         self.projectDirectoryButton.pressed.connect(self.slot_projectDirectoryButton)
-        self.activeFileDirectoryButton = self.findChild(QToolButton, "activeFileDirectoryButton")
+        self.activeFileDirectoryButton = self.findChild(QtGui.QToolButton, "activeFileDirectoryButton")
         self.activeFileDirectoryButton.pressed.connect(self.slot_activeFileDirectoryButton)
         
-        self.pathBox = self.findChild(QComboBox, "pathBox")
+        self.pathBox = self.findChild(QtGui.QComboBox, "pathBox")
         self.pathBox.currentIndexChanged.connect(self.slot_pathBoxIndexChanged)
 
         # Set to project directory if project open, otherwise to user's home
-        if mainwindow.MainWindow.instance.project is not None:
-            self.setDirectory(mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))
+        if ceed.mainwindow.MainWindow.instance.project is not None:
+            self.setDirectory(ceed.mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))
         else:
             self.setDirectory(os.path.expanduser("~"))
 
@@ -115,12 +115,12 @@ class FileSystemBrowser(QDockWidget):
         self.setDirectory(os.path.expanduser("~"))
 
     def slot_projectDirectoryButton(self):
-        if mainwindow.MainWindow.instance.project is not None:
-            self.setDirectory(mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))
+        if ceed.mainwindow.MainWindow.instance.project is not None:
+            self.setDirectory(ceed.mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))
 
     def slot_activeFileDirectoryButton(self):
-        if mainwindow.MainWindow.instance.activeEditor is not None:
-            filePath = mainwindow.MainWindow.instance.activeEditor.filePath
+        if ceed.mainwindow.MainWindow.instance.activeEditor is not None:
+            filePath = ceed.mainwindow.MainWindow.instance.activeEditor.filePath
             dirPath = os.path.dirname(filePath)
             self.setDirectory(dirPath)
             # select the active file
@@ -152,4 +152,4 @@ class FileSystemBrowser(QDockWidget):
             self.pathBox.blockSignals(False)
             self.setDirectory(newPath)
 
-import mainwindow
+import ceed.mainwindow

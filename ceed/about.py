@@ -23,7 +23,7 @@ from PySide import QtGui
 import ceed.ui.licensedialog
 import ceed.ui.aboutdialog
 
-import version
+from ceed import version
 
 class LicenseDialog(QtGui.QDialog):
     def __init__(self):
