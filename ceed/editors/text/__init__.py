@@ -53,7 +53,6 @@ class TextTabbedEditor(editors.TabbedEditor):
     def finalise(self):
         super(TextTabbedEditor, self).finalise()
         
-        self.tabWidget = None
         self.textDocument = None
         
     def hasChanges(self):

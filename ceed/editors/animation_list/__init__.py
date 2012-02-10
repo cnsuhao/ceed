@@ -91,8 +91,6 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
     def finalise(self):
         super(AnimationListTabbedEditor, self).finalise()
         
-        self.tabWidget = None
-        
     def activate(self):
         super(AnimationListTabbedEditor, self).activate()
         

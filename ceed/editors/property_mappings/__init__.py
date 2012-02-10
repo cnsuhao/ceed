@@ -52,8 +52,6 @@ class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
             
     def finalise(self):
         super(PropertyMappingsTabbedEditor, self).finalise()
-        
-        self.tabWidget = None
 
 class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):

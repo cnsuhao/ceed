@@ -44,8 +44,6 @@ class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
     def finalise(self):
         super(BitmapTabbedEditor, self).finalise()
         
-        self.tabWidget = None
-        
     def hasChanges(self):
         return False
 

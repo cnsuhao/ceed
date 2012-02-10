@@ -146,12 +146,7 @@ class TabbedEditor(object):
             self.fileChangedByExternalProgram = False
 
             if ret == QtGui.QMessageBox.Yes:
-                # FIXME: This is a messy way of reloading a file. Need a
-                # reinitialise(self) method.
-                # When the file is reloaded, CEED switches to another tab for
-                # some reason.  That should be fixed with a reinitialise method
-                self.initialised = False
-                self.initialise(self.mainWindow)
+                self.reinitialise()
             
             elif ret == QtGui.QMessageBox.No:
                 # FIXME: We should somehow make CEED think that we have changes :-/
@@ -247,12 +242,28 @@ class TabbedEditor(object):
         self.initialised = True
     
     def finalise(self):
-        """Cleans up after itself and removes itself from the tab list
-        this is usually called when you want the tab  closed
+        """Cleans up after itself
+        this is usually called when you want the tab closed
         """
         
         assert(self.initialised)
         assert(self.tabWidget)
+        
+        self.initialised = False
+
+    def reinitialise(self):
+        """Reinitialises this tabbed editor, effectivelly reloading the file
+        off the hard drive again
+        """
+        
+        mainWindow = self.mainWindow
+        self.finalise()
+        self.initialise(mainWindow)
+
+    def destroy(self):
+        """Removes itself from the tab list and irrevocably destroys
+        data associated with itself
+        """
         
         i = 0
         wdt = self.mainWindow.tabs.widget(i)
@@ -268,8 +279,6 @@ class TabbedEditor(object):
             wdt = self.mainWindow.tabs.widget(i)
         
         assert(tabRemoved)
-        
-        self.initialised = False
 
     def editorMenu(self):
         """Returns the editorMenu for this editor, or None.

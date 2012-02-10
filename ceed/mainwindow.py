@@ -735,6 +735,7 @@ Details of this error: %s""" % (e))
             # it may have been partly constructed at this point
             try:
                 ret.finalise()
+                ret.destroy()
 
             except:
                 # catch all exception the finalisation raises (we can't deal with them anyways)
@@ -776,6 +777,8 @@ Details of this error: %s""" % (e))
         assert(editor in self.tabEditors)
         
         editor.finalise()
+        editor.destroy()
+        
         self.tabEditors.remove(editor)
 
     def saveSettings(self):

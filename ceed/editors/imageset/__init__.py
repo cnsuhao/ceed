@@ -103,8 +103,6 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
 
         super(ImagesetTabbedEditor, self).finalise()
-        
-        self.tabWidget = None
 
     def rebuildEditorMenu(self, editorMenu):
         editorMenu.setTitle("&Imageset")

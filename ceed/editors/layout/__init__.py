@@ -78,12 +78,13 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.visual.initialise(root)
     
     def finalise(self):        
+        super(LayoutTabbedEditor, self).finalise()
+
+    def destroy(self):
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
 
-        super(LayoutTabbedEditor, self).finalise()
-        
-        self.tabWidget = None
+        super(LayoutTabbedEditor, self).destroy()
 
     def rebuildEditorMenu(self, editorMenu):
         editorMenu.setTitle("&Layout")
