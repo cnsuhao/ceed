@@ -256,9 +256,14 @@ class TabbedEditor(object):
         off the hard drive again
         """
         
+        wasCurrent = self.mainWindow.activeEditor is self
+        
         mainWindow = self.mainWindow
         self.finalise()
         self.initialise(mainWindow)
+        
+        if wasCurrent:
+            self.makeCurrent()
 
     def destroy(self):
         """Removes itself from the tab list and irrevocably destroys
@@ -454,6 +459,15 @@ class TabbedEditor(object):
     def redo(self):
         """Called by the mainwindow whenever redo is requested"""
         pass
+    
+    def revert(self):
+        """Called by the mainwindow whenever revert is requested
+        
+        Revert simply loads the file on the disk, disregarding any changes made
+        """
+        
+        # default and wasteful implementation
+        self.reinitialise()
     
     def getUndoStack(self):
         """Returns UndoStack or None is the tabbed editor doesn't have undo stacks.

@@ -217,10 +217,6 @@ class MainWindow(QtGui.QMainWindow):
         self.nextTabAction = self.actionManager.getAction("files/next_tab")
         self.connectionGroup.add(self.nextTabAction, receiver = self.slot_nextTab)
 
-        # TODO: Revert
-        #self.revertAction = self.actionManager.getAction("files/revert_file")
-        #self.connectionGroup.add(self.closeAllTabsAction, receiver = self.slot_revert)
-
         # the clear action will be handled by the RecentlyUsed manager, no need to connect
         self.clearRecentFilesAction = self.actionManager.getAction("files/clear_recent_files")
 
@@ -234,6 +230,10 @@ class MainWindow(QtGui.QMainWindow):
         self.redoAction = self.actionManager.getAction("all_editors/redo")
         self.redoAction.setEnabled(False)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
+        
+        self.revertAction = self.actionManager.getAction("files/revert_file")
+        self.revertAction.setEnabled(False)
+        self.connectionGroup.add(self.revertAction, receiver = self.slot_revert)
 
         self.cutAction = self.actionManager.getAction("all_editors/cut")
         self.connectionGroup.add(self.cutAction, receiver = self.slot_cut)
@@ -349,11 +349,12 @@ class MainWindow(QtGui.QMainWindow):
         self.editMenu = QtGui.QMenu("&Edit")
         self.menuBar().addMenu(self.editMenu)
         self.editMenu.addActions([self.undoAction, self.redoAction])
+        self.editMenu.addAction(self.revertAction)
         self.editMenu.addSeparator()
         self.editMenu.addActions([self.cutAction, self.copyAction, self.pasteAction, self.deleteAction])
         self.editMenu.addSeparator()
         self.editMenu.addAction(self.preferencesAction)
-
+        
         #
         # Construct View menu
         #
@@ -1141,6 +1142,8 @@ parent directory?")
         self.statusBar().clearMessage()
 
         if wdt:
+            self.revertAction.setEnabled(True)
+            
             self.saveAction.setEnabled(True)
             self.saveAsAction.setEnabled(True)
 
@@ -1149,7 +1152,9 @@ parent directory?")
 
             wdt.tabbedEditor.activate()
         else:
-            # None is selected right now, lets disable Save and Close actions
+            # None is selected right now, lets disable appropriate actions
+            self.revertAction.setEnabled(False)
+            
             self.saveAction.setEnabled(False)
             self.saveAsAction.setEnabled(False)
 
@@ -1281,6 +1286,25 @@ parent directory?")
     def slot_redo(self):
         if self.activeEditor:
             self.activeEditor.redo()
+            
+    def slot_revert(self):
+        if self.activeEditor:
+            ret = QtGui.QMessageBox.question(self,
+                                             "Are you sure you want to revert to file on hard disk?",
+                                             "Reverting means that the file will be reloaded to the state it is in on the HDD.\n\nRevert?\n\nIf you select Yes, ALL UNDO HISTORY WILL BE DESTROYED!",
+                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
+                                             QtGui.QMessageBox.No) # defaulting to No is safer IMO
+
+            if ret == QtGui.QMessageBox.Yes:
+                self.activeEditor.revert()
+            
+            elif ret == QtGui.QMessageBox.No:
+                # user chickened out
+                pass
+            
+            else:
+                # how did we get here?
+                assert(False)
 
     def slot_cut(self):
         if self.activeEditor:

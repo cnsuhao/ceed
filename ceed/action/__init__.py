@@ -198,9 +198,8 @@ class ActionManager(declaration.ActionManager):
         files.createAction(name = "new_imageset", label = "&Imageset...", settingsLabel = "New Imageset",
                            help = "Creates a new imageset file.",
                            icon = QIcon("icons/project_items/imageset.png"))
-        # TODO: Revert
-        #files.createAction(name = "revert_file", label = "Re&vert", settingsLabel = "Revert File",
-        #                   help = "Reverts the active file to version on disk.")
+        files.createAction(name = "revert_file", label = "Re&vert", settingsLabel = "Revert File",
+                           help = "Reverts the active file to version on disk.")
         files.createAction(name = "clear_recent_files", label = "&Clear", settingsLabel = "Clear Recent Files",
                            help = "Empties the recent files list.")
         files.createAction(name = "clear_recent_projects", label = "&Clear", settingsLabel = "Clear Recent Projects",
