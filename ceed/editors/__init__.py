@@ -363,7 +363,7 @@ class TabbedEditor(object):
         targetPath should be absolute file path.
         """
         
-        outputData = self.nativeData
+        outputData = self.nativeData if self.nativeData is not None else ""
         if self.compatibilityManager is not None:
             outputData = self.compatibilityManager.transform(self.compatibilityManager.EditorNativeType, self.desiredSavingDataType, self.nativeData)
 
@@ -375,6 +375,7 @@ class TabbedEditor(object):
             f = open(targetPath, "w")
             f.write(outputData)
             f.close()
+            
         except IOError as e:
             # The rest of the code is skipped, so be sure to turn file
             # monitoring back on
