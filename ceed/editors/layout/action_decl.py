@@ -49,10 +49,13 @@ def declare(actionManager):
                      icon = QtGui.QIcon("icons/layout_editing/snap_grid.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_Space)).setCheckable(True)
                      
-    cat.createAction(name = "absolute_mode", label = "&Absolute Resizing && Moving Deltas",
+    absolute_mode = cat.createAction(
+                     name = "absolute_mode", label = "&Absolute Resizing && Moving Deltas",
                      help = "When resizing and moving widgets, if checked this makes the delta absolute, it is relative if unchecked.",
                      icon = QtGui.QIcon("icons/layout_editing/absolute_mode.png"),
-                     defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_A)).setCheckable(True)
+                     defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_A))
+    absolute_mode.setCheckable(True)
+    absolute_mode.setChecked(True)
                      
     cat.createAction(name = "normalise_position", label = "Normalise &Position (cycle)",
                      help = "If the position is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
