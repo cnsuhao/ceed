@@ -104,7 +104,11 @@ class Instance(object):
 
         if not self.initialised:
             self.makeGLContextCurrent()
-
+            
+            # we don't want CEGUI Exceptions to output to stderr every time
+            # they are constructed
+            PyCEGUI.Exception.setStdErrEnabled(False)
+            # FIXME: TTT_NONE because OpenGLRenderer nukes our FBOs otherwise
             PyCEGUIOpenGLRenderer.OpenGLRenderer.bootstrapSystem(PyCEGUIOpenGLRenderer.OpenGLRenderer.TTT_NONE)
             self.initialised = True
 
