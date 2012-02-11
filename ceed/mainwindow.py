@@ -1291,7 +1291,10 @@ parent directory?")
         if self.activeEditor:
             ret = QtGui.QMessageBox.question(self,
                                              "Are you sure you want to revert to file on hard disk?",
-                                             "Reverting means that the file will be reloaded to the state it is in on the HDD.\n\nRevert?\n\nIf you select Yes, ALL UNDO HISTORY WILL BE DESTROYED!",
+                                             "Reverting means that the file will be reloaded to the "
+                                             "state it is in on the HDD.\n\nRevert?\n\n"
+                                             "If you select Yes, ALL UNDO HISTORY MIGHT BE DESTROYED!\n"
+                                             "(though I will preserve it if possible)",
                                              QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
                                              QtGui.QMessageBox.No) # defaulting to No is safer IMO
 

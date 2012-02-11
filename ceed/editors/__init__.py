@@ -439,16 +439,7 @@ class TabbedEditor(object):
             return
         
         # the default but kind of wasteful implementation
-        
-        # we better store this because it's not specified anywhere that the
-        # tabbed editor shouldn't set it to None when finalising, etc...
-        mainWindow = self.mainWindow
-        
-        self.deactivate()
-        self.finalise()
-        
-        self.initialise(mainWindow)
-        self.activate()
+        self.reinitialise()
         
         # the state of the tabbed editor should be valid at this point
         
@@ -463,11 +454,11 @@ class TabbedEditor(object):
     def revert(self):
         """Called by the mainwindow whenever revert is requested
         
-        Revert simply loads the file on the disk, disregarding any changes made
+        Revert simply goes back to the state of the file on disk, 
+        disregarding any changes made since then
         """
         
-        # default and wasteful implementation
-        self.reinitialise()
+        self.discardChanges()
     
     def getUndoStack(self):
         """Returns UndoStack or None is the tabbed editor doesn't have undo stacks.
@@ -561,13 +552,15 @@ class UndoStackTabbedEditor(TabbedEditor):
     def activate(self):
         super(UndoStackTabbedEditor, self).activate()
         
-        self.mainWindow.undoAction.setEnabled(self.undoStack.canUndo())
-        self.mainWindow.redoAction.setEnabled(self.undoStack.canRedo())
+        undoStack = self.getUndoStack()
         
-        self.mainWindow.undoAction.setText("Undo %s" % (self.undoStack.undoText()))
-        self.mainWindow.redoAction.setText("Redo %s" % (self.undoStack.redoText()))
+        self.mainWindow.undoAction.setEnabled(undoStack.canUndo())
+        self.mainWindow.redoAction.setEnabled(undoStack.canRedo())
         
-        self.mainWindow.saveAction.setEnabled(not self.undoStack.isClean())
+        self.mainWindow.undoAction.setText("Undo %s" % (undoStack.undoText()))
+        self.mainWindow.redoAction.setText("Redo %s" % (undoStack.redoText()))
+        
+        self.mainWindow.saveAction.setEnabled(not undoStack.isClean())
     
     def hasChanges(self):
         return not self.undoStack.isClean()
@@ -579,11 +572,27 @@ class UndoStackTabbedEditor(TabbedEditor):
 
         return False
         
+    def discardChanges(self):
+        # since we have undo stack, we can simply use it instead of the slower
+        # reinitialisation approach
+        
+        undoStack = self.getUndoStack()
+        cleanIndex = undoStack.cleanIndex()
+        
+        if cleanIndex == -1:
+            # it is possible that we can't undo/redo to cleanIndex
+            # this can happen because of undo limitations (at most 100 commands
+            # and we need > 100 steps)
+            super(UndoStackTabbedEditor, self).discardChanges()
+            
+        else:
+            undoStack.setIndex(cleanIndex)
+        
     def undo(self):
-        self.undoStack.undo()
+        self.getUndoStack().undo()
         
     def redo(self):
-        self.undoStack.redo()
+        self.getUndoStack().redo()
 
     def getUndoStack(self):
         return self.undoStack
