@@ -57,7 +57,7 @@ class AnimationListDockWidget(QtGui.QDockWidget):
         newName = newItem.text() if newItem else None
         oldName = oldItem.text() if oldItem else None
         
-        cmd = undo.ChangeCurrentAnimationDefinition(self.visual, newName, oldName)
+        cmd = undo.ChangeCurrentAnimationDefinitionCommand(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
         
 class TimelineGraphicsView(QtGui.QGraphicsView):
@@ -125,11 +125,9 @@ class TimelineDockWidget(QtGui.QDockWidget):
         
         return True
         
-    def slot_keyFramesMoved(self, moved):
-        #cmd = undo.MoveKeyFrames(self.visual, moved)
-        
-        #self.visual.tabbedEditor.undoStack.push(cmd)
-        pass
+    def slot_keyFramesMoved(self, movedKeyFrames):
+        cmd = undo.MoveKeyFramesCommand(self.visual, movedKeyFrames)
+        self.visual.tabbedEditor.undoStack.push(cmd)
         
 class EditingScene(cegui.widgethelpers.GraphicsScene):
     """This scene is used just to preview the animation in the state user selects.
@@ -302,6 +300,12 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         
     def getAnimationWrapper(self, name):
         return self.animationWrappers[name]
+        
+    def getAffectorOfCurrentAnimation(self, affectorIdx):
+        return self.currentAnimation.getAffectorAtIdx(affectorIdx)
+    
+    def getKeyFrameOfCurrentAnimation(self, affectorIdx, keyFrameIdx):
+        return self.getAffectorOfCurrentAnimation(affectorIdx).getKeyFrameAtIdx(keyFrameIdx)
         
     def setPreviewWidget(self, widgetType):
         if self.currentPreviewWidget is not None:

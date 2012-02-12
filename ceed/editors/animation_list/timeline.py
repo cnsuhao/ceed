@@ -564,13 +564,20 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
         and makes a list of old and new positions for them.
         """
         
-        # list of tuples, each tuple is (oldPosition, newPosition)
+        # list of lists, each list is [newIndex, oldPosition, newPosition]
+        # newIndex is also current index
         movedKeyFrames = []
         for item in self.scene().selectedItems():
             if isinstance(item, AffectorTimelineKeyFrame):
                 if item.moveInProgress:
-                    movedKeyFrames.append((item.oldPosition, item.keyFrame.getPosition()))
+                    affector = item.keyFrame.getParent()
+                    
+                    movedKeyFrames.append([item.keyFrame.getIdxInParent(),
+                                           affector.getIdxInParent(),
+                                           item.oldPosition,
+                                           item.keyFrame.getPosition()])
                     item.moveInProgress = False
                     
-        self.keyFramesMoved.emit(movedKeyFrames)
+        if len(movedKeyFrames) > 0:
+            self.keyFramesMoved.emit(movedKeyFrames)
         

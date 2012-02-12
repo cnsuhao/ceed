@@ -936,9 +936,9 @@ parent directory?")
                 return
 
         file, _ = QtGui.QFileDialog.getOpenFileName(self,
-                                                         "Open existing project file",
-                                                         "",
-                                                         "Project files (*.project)")
+                                                    "Open existing project file",
+                                                    "",
+                                                    "Project files (*.project)")
 
         if file != "":
             # user actually selected something ;-)
