@@ -242,7 +242,14 @@ class Layout3To4Layer(compatibility.Layer):
         ret = ""
         
         Layout3To4Layer.transformPropertiesOf(window)
-        
+        for property in window.findall("Property"):
+            property.set("name", property.get("Name"))
+            del property.attrib["Name"]
+            
+            if property.get("Value") is not None:
+                property.set("value", property.get("Value"))
+                del property.attrib["Value"]
+            
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
             self.convertAutoWindowSuffix(autoWindow)
@@ -251,6 +258,11 @@ class Layout3To4Layer(compatibility.Layer):
             self.applyChangesRecursively(childWindow)
             
         #window.tag = "Widget"
+        
+        window.set("name", window.get("Name"))
+        del window.attrib["Name"]
+        window.set("type", window.get("Type"))
+        del window.attrib["Type"]
         
         return ret
     
@@ -283,14 +295,14 @@ class Layout4To3Layer(compatibility.Layer):
     def convertToAbsoluteNames(self, window, leadingName = ""):
         ret = ""
         
-        name = window.get("Name", "")
+        name = window.get("name", "")
         if leadingName != "":
             name = leadingName + "/" + name
         
         for childWindow in window.findall("Window"):
             ret += self.convertToAbsoluteNames(childWindow, name)
     
-        window.set("Name", name)
+        window.set("name", name)
         
         return ret
     
@@ -302,9 +314,9 @@ class Layout4To3Layer(compatibility.Layer):
             self.convertAutoWindowSuffix(childAutoWindow)
     
     @classmethod
-    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "Name", valueAttribute = "Value", windowType = None):
+    def transformPropertiesOf(cls, element, tag = "Property", nameAttribute = "name", valueAttribute = "value", windowType = None):
         if windowType is None:
-            windowType = element.get("Type")
+            windowType = element.get("type")
             if windowType is None:
                 raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
         
@@ -387,6 +399,13 @@ class Layout4To3Layer(compatibility.Layer):
         ret = ""
         
         Layout4To3Layer.transformPropertiesOf(window)
+        for property in window.findall("Property"):
+            property.set("Name", property.get("name"))
+            del property.attrib["name"]
+            
+            if property.get("value") is not None:
+                property.set("Value", property.get("value"))
+                del property.attrib["value"]
                 
         # convert NameSuffix to NamePath
         for autoWindow in window.findall("AutoWindow"):
@@ -394,6 +413,11 @@ class Layout4To3Layer(compatibility.Layer):
         
         for childWindow in window.findall("Window"):
             self.applyChangesRecursively(childWindow)
+
+        window.set("Name", window.get("name"))
+        del window.attrib["name"]
+        window.set("Type", window.get("type"))
+        del window.attrib["type"]
 
         return ret
     
