@@ -732,9 +732,12 @@ Details of this error: %s""" % (e))
             # add successfully opened file to the recent files list
             self.recentlyUsedFiles.addRecentlyUsed(absolutePath)
 
-        except Exception:
+        except:
             # it may have been partly constructed at this point
             try:
+                # make sure the finalisation doesn't early out or fail assertion
+                ret.initialised = True
+                
                 ret.finalise()
                 ret.destroy()
 
