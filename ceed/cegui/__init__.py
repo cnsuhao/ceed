@@ -223,6 +223,7 @@ class Instance(object):
 
         from ceed import compatibility
         import ceed.compatibility.scheme as scheme_compatibility
+        import ceed.compatibility.imageset as imageset_compatibility
         import ceed.compatibility.looknfeel as looknfeel_compatibility
 
         try:
@@ -265,7 +266,29 @@ class Instance(object):
                 xmlImagesetIterator = scheme.getXMLImagesets()
                 while not xmlImagesetIterator.isAtEnd():
                     loadableUIElement = xmlImagesetIterator.getCurrentValue()
-                    PyCEGUI.ImageManager.getSingleton().loadImageset(loadableUIElement.filename, loadableUIElement.resourceGroup)
+                    imagesetFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.ImageManager.getImagesetDefaultResourceGroup())
+                    imagesetRawData = open(imagesetFilePath, "r").read()
+                    imagesetRawDataType = imageset_compatibility.Manager.instance.EditorNativeType
+                    
+                    try:
+                        imagesetRawDataType = imageset_compatibility.Manager.instance.guessType(imagesetRawData, imagesetFilePath)
+
+                    except compatibility.NoPossibleTypesError:
+                        QtGui.QMessageBox.warning(None, "Imageset doesn't match any known data type", "The imageset '%s' wasn't recognised by CEED as any imageset data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (imagesetFilePath))
+                        return
+
+                    except compatibility.MultiplePossibleTypesError as e:
+                        suitableVersion = imageset_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+
+                        if suitableVersion not in e.possibleTypes:
+                            QtGui.QMessageBox.warning(None, "Incorrect imageset data type", "The imageset '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (imagesetFilePath, suitableVersion))
+                            return
+
+                        imagesetRawDataType = suitableVersion
+
+                    imagesetNativeData = imageset_compatibility.Manager.instance.transform(imagesetRawDataType, imageset_compatibility.Manager.instance.EditorNativeType, imagesetRawData)
+
+                    PyCEGUI.ImageManager.getSingleton().loadImagesetFromString(imagesetNativeData)
                     xmlImagesetIterator.next()
 
                 updateProgress("Loading image file imagesets")
@@ -291,7 +314,7 @@ class Instance(object):
                         suitableVersion = looknfeel_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                         if suitableVersion not in e.possibleTypes:
-                            QtGui.QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
+                            QtGui.QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
                             return
 
                         looknfeelRawDataType = suitableVersion

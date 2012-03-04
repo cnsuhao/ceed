@@ -37,11 +37,15 @@ class Manager(compatibility.Manager):
             "0.5" : cegui.CEGUIScheme2,
             "0.6" : cegui.CEGUIScheme3,
             "0.7" : cegui.CEGUIScheme4,
-            "0.8" : cegui.CEGUIScheme4
+            "0.8" : cegui.CEGUIScheme5
         }
 
-        self.EditorNativeType = cegui.CEGUIScheme4
+        self.EditorNativeType = cegui.CEGUIScheme5
         
         self.detectors.append(cegui.Scheme4TypeDetector())
+        self.detectors.append(cegui.Scheme5TypeDetector())
+        
+        self.layers.append(cegui.CEGUI4ToCEGUI5Layer())
+        self.layers.append(cegui.CEGUI5ToCEGUI4Layer())
 
 Manager()

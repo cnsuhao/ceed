@@ -19,12 +19,13 @@
 ##############################################################################
 
 from ceed import compatibility
-#from xml.etree import ElementTree
+from xml.etree import ElementTree
 
 CEGUIScheme1 = "CEGUI Scheme 1"
 CEGUIScheme2 = "CEGUI Scheme 2"
 CEGUIScheme3 = "CEGUI Scheme 3"
 CEGUIScheme4 = "CEGUI Scheme 4"
+CEGUIScheme5 = "CEGUI Scheme 5"
 
 class Scheme4TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -37,6 +38,139 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "scheme"]:
             return False
         
+        try:
+            root = ElementTree.fromstring(data)
+            print root.tag
+            if root.tag != "GUIScheme":
+                return False
+            
+            # GUIScheme4 has no version indication :-(
+            # However if there is a version attribute, we can be sure it's not GUIScheme4
+            if root.get("version") is not None:
+                return False
+            
+            return True
+        
+        except:
+            return False
+        
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
         return True
+    
+class Scheme5TypeDetector(compatibility.TypeDetector):
+    def getType(self):
+        return CEGUIScheme5
+    
+    def getPossibleExtensions(self):
+        return {"scheme"}
+    
+    def matches(self, data, extension):
+        if extension not in ["", "scheme"]:
+            return False
+        
+        try:
+            root = ElementTree.fromstring(data)
+            if root.tag != "GUIScheme":
+                return False
+            
+            if root.get("version", "unknown") != "5":
+                return False
+            
+            return True
+        
+        except:
+            return False
+        
+        return True
+        
+        # todo: we should be at least a bit more precise
+        # (implement XSD based TypeDetector?)
+        return True
+
+
+class CEGUI4ToCEGUI5Layer(compatibility.Layer):
+    def getSourceType(self):
+        return CEGUIScheme4
+    
+    def getTargetType(self):
+        return CEGUIScheme5
+    
+    def transformAttribute(self, element, attribute):
+        sourceAttributeName = attribute.capitalize()
+        targetAttributeName = sourceAttributeName[0].lower() + sourceAttributeName[1:]
+        
+        if element.get(sourceAttributeName) is not None:
+            element.set(targetAttributeName, element.get(sourceAttributeName))
+            del element.attrib[sourceAttributeName]
+    
+    def transform(self, data):
+        root = ElementTree.fromstring(data)
+        root.set("version", "5")
+        
+        self.transformAttribute(root, "name")
+        
+        for font in root.findall("Font"):
+            self.transformAttribute(font, "filename")
+            
+        for imageset in root.findall("Imageset"):
+            self.transformAttribute(imageset, "filename")
+            
+        for looknfeel in root.findall("LookNFeel"):
+            self.transformAttribute(looknfeel, "filename")
+            
+        for windowRendererSet in root.findall("WindowRendererSet"):
+            self.transformAttribute(windowRendererSet, "filename")
+            
+            # this particular window renderer set got renamed
+            if windowRendererSet.get("filename", "") == "CEGUIFalagardWRBase":
+                windowRendererSet.set("filename", "CEGUICoreWindowRendererSet")
+
+        for falagardMapping in root.findall("FalagardMapping"):
+            for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
+                self.transformAttribute(falagardMapping, attr)
+
+        return ElementTree.tostring(root, "utf-8")
+
+class CEGUI5ToCEGUI4Layer(compatibility.Layer):
+    def getSourceType(self):
+        return CEGUIScheme5
+    
+    def getTargetType(self):
+        return CEGUIScheme4
+    
+    def transformAttribute(self, element, attribute):
+        targetAttributeName = attribute.capitalize()
+        sourceAttributeName = targetAttributeName[0].lower() + targetAttributeName[1:]
+        
+        if element.get(sourceAttributeName) is not None:
+            element.set(targetAttributeName, element.get(sourceAttributeName))
+            del element.attrib[sourceAttributeName]
+    
+    def transform(self, data):
+        root = ElementTree.fromstring(data)
+        del root.attrib["version"]
+              
+        self.transformAttribute(root, "name")
+        
+        for font in root.findall("Font"):
+            self.transformAttribute(font, "filename")
+            
+        for imageset in root.findall("Imageset"):
+            self.transformAttribute(imageset, "filename")
+            
+        for looknfeel in root.findall("LookNFeel"):
+            self.transformAttribute(looknfeel, "filename")
+            
+        for windowRendererSet in root.findall("WindowRendererSet"):
+            self.transformAttribute(windowRendererSet, "filename")
+            
+            # this particular window renderer set got renamed
+            if windowRendererSet.get("Filename", "") == "CEGUICoreWindowRendererSet":
+                windowRendererSet.set("Filename", "CEGUIFalagardWRBase")
+
+        for falagardMapping in root.findall("FalagardMapping"):
+            for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
+                self.transformAttribute(falagardMapping, attr)
+
+        return ElementTree.tostring(root, "utf-8")
