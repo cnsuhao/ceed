@@ -34,7 +34,7 @@ class Manager(compatibility.Manager):
         assert(Manager.instance is None)
         Manager.instance = self
         
-        self.EditorNativeType = cegui.CEGUIImageset1
+        self.EditorNativeType = cegui.CEGUIImageset2
         self.CEGUIVersionTypes = {
             "0.6" : cegui.CEGUIImageset1,
             "0.7" : cegui.CEGUIImageset1,

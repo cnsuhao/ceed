@@ -202,30 +202,30 @@ class ImageEntry(resizable.ResizableRectItem):
         return super(ImageEntry, self).constrainResizeRect(rect, oldRect)
         
     def loadFromElement(self, element):
-        self.name = element.get("Name", "Unknown")
+        self.name = element.get("name", "Unknown")
         
-        self.xpos = int(element.get("XPos", 0))
-        self.ypos = int(element.get("YPos", 0))
-        self.width = int(element.get("Width", 1))
-        self.height = int(element.get("Height", 1))
+        self.xpos = int(element.get("xPos", 0))
+        self.ypos = int(element.get("yPos", 0))
+        self.width = int(element.get("width", 1))
+        self.height = int(element.get("height", 1))
         
-        self.xoffset = int(element.get("XOffset", 0))
-        self.yoffset = int(element.get("YOffset", 0))
+        self.xoffset = int(element.get("xOffset", 0))
+        self.yoffset = int(element.get("yOffset", 0))
         
     def saveToElement(self):
         ret = ElementTree.Element("Image")
         
-        ret.set("Name", self.name)
+        ret.set("name", self.name)
         
-        ret.set("XPos", str(self.xpos))
-        ret.set("YPos", str(self.ypos))
-        ret.set("Width", str(self.width))
-        ret.set("Height", str(self.height))
+        ret.set("xPos", str(self.xpos))
+        ret.set("yPos", str(self.ypos))
+        ret.set("width", str(self.width))
+        ret.set("height", str(self.height))
         
         # we write none or both
         if self.xoffset != 0 or self.yoffset != 0:
-            ret.set("XOffset", str(self.xoffset))
-            ret.set("YOffset", str(self.yoffset))
+            ret.set("xOffset", str(self.xoffset))
+            ret.set("yOffset", str(self.yoffset))
 
         return ret
 
@@ -533,13 +533,13 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         return os.path.normpath(os.path.relpath(absoluteImageFile, os.path.dirname(self.visual.tabbedEditor.filePath)))
     
     def loadFromElement(self, element):
-        self.name = element.get("Name", "Unknown")
+        self.name = element.get("name", "Unknown")
         
-        self.loadImage(element.get("Imagefile", ""))
+        self.loadImage(element.get("imagefile", ""))
         
-        self.nativeHorzRes = int(element.get("NativeHorzRes", 800))
-        self.nativeVertRes = int(element.get("NativeVertRes", 600))
-        self.autoScaled = element.get("AutoScaled", "false") == "true"
+        self.nativeHorzRes = int(element.get("nativeHorzRes", 800))
+        self.nativeVertRes = int(element.get("nativeVertRes", 600))
+        self.autoScaled = element.get("autoScaled", "false") == "true"
         
         for imageElement in element.findall("Image"):
             image = ImageEntry(self)
@@ -549,12 +549,12 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
     def saveToElement(self):
         ret = ElementTree.Element("Imageset")
         
-        ret.set("Name", self.name)
-        ret.set("Imagefile", self.imageFile)
+        ret.set("name", self.name)
+        ret.set("imagefile", self.imageFile)
         
-        ret.set("NativeHorzRes", str(self.nativeHorzRes))
-        ret.set("NativeVertRes", str(self.nativeVertRes))
-        ret.set("AutoScaled", "true" if self.autoScaled else "false")
+        ret.set("nativeHorzRes", str(self.nativeHorzRes))
+        ret.set("nativeVertRes", str(self.nativeVertRes))
+        ret.set("autoScaled", "true" if self.autoScaled else "false")
         
         for image in self.imageEntries:
             ret.append(image.saveToElement())
