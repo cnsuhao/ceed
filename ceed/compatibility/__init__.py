@@ -18,7 +18,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-# This module is the root of all compatibility support and layers in the editor,
+import logging
+
+"""This module is the root of all compatibility support and layers in the editor
+"""
 
 # NOTE: It should be importable with as few dependencies as possible because
 #       this is used in the command line migration tool!
@@ -156,19 +159,25 @@ class Manager(object):
               I leave this as an exercise for future generations :-D
         """
         
+        logging.debug("Attempting to transform type '%s' into '%s' (compatibility path fragments are in reverse order)" % (sourceType, targetType))
+        
         # special case:
         if sourceType == targetType:
+            logging.debug("Returning data with no transformation applied, both types are the same!")
             return data
         
         for layer in self.layers:
             if layer.getSourceType() == sourceType:
                 try:
-                    return self.transform(layer.getTargetType(), targetType, layer.transform(data))
+                    ret = self.transform(layer.getTargetType(), targetType, layer.transform(data))
+                    logging.debug("Compatibility path fragment: '%s' <- '%s'" % (layer.getTargetType(), sourceType))
+                    return ret
                 
                 except LayerNotFoundError:
                     # this path doesn't lead anywhere,
                     # lets try to find another one
                     pass
+                
                 
         raise LayerNotFoundError(sourceType, targetType)
     
@@ -178,6 +187,8 @@ class Manager(object):
         
         If you pass full file path instead of the extension, the extension will be extracted from it.
         """
+        
+        logging.debug("Attempting to guess type (code size: %i, extension: '%s')" % (len(code), extension))
         
         extSplit = extension.rsplit(".", 1)
         
@@ -190,6 +201,7 @@ class Manager(object):
 
         for detector in self.detectors:
             if detector.matches(code, extension):
+                logging.debug("Detector '%s' reported positive match!" % (detector.getType()))
                 ret.append(detector.getType())
                 
         if len(ret) > 1:

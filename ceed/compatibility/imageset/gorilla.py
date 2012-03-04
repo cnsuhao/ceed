@@ -39,7 +39,7 @@ class GorillaTypeDetector(compatibility.TypeDetector):
         # todo: we should be at least a bit more precise
         return True
 
-class GorillaToCEGUILayer(compatibility.Layer):
+class GorillaToCEGUI1Layer(compatibility.Layer):
     def getSourceType(self):
         return GorillaFile
     
@@ -123,7 +123,7 @@ class GorillaToCEGUILayer(compatibility.Layer):
 
         return ElementTree.tostring(root, "utf-8")
 
-class CEGUIToGorillaLayer(compatibility.Layer):
+class CEGUI1ToGorillaLayer(compatibility.Layer):
     def getSourceType(self):
         return cegui.CEGUIImageset1
     
