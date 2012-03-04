@@ -40,7 +40,7 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         
         try:
             root = ElementTree.fromstring(data)
-            print root.tag
+            
             if root.tag != "GUIScheme":
                 return False
             
@@ -97,7 +97,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
         return CEGUIScheme5
     
     def transformAttribute(self, element, attribute):
-        sourceAttributeName = attribute.capitalize()
+        sourceAttributeName = attribute[0].upper() + attribute[1:]
         targetAttributeName = sourceAttributeName[0].lower() + sourceAttributeName[1:]
         
         if element.get(sourceAttributeName) is not None:
@@ -140,7 +140,7 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
         return CEGUIScheme4
     
     def transformAttribute(self, element, attribute):
-        targetAttributeName = attribute.capitalize()
+        targetAttributeName = attribute[0].upper() + attribute[1:]
         sourceAttributeName = targetAttributeName[0].lower() + targetAttributeName[1:]
         
         if element.get(sourceAttributeName) is not None:
