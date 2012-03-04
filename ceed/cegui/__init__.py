@@ -224,6 +224,7 @@ class Instance(object):
         from ceed import compatibility
         import ceed.compatibility.scheme as scheme_compatibility
         import ceed.compatibility.imageset as imageset_compatibility
+        import ceed.compatibility.font as font_compatibility
         import ceed.compatibility.looknfeel as looknfeel_compatibility
 
         try:
@@ -293,8 +294,35 @@ class Instance(object):
 
                 updateProgress("Loading image file imagesets")
                 scheme.loadImageFileImagesets()
+                
                 updateProgress("Loading fonts")
-                scheme.loadFonts()
+                fontIterator = scheme.getFonts()
+                while not fontIterator.isAtEnd():
+                    loadableUIElement = fontIterator.getCurrentValue()
+                    fontFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.Font.getDefaultResourceGroup())
+                    fontRawData = open(fontFilePath, "r").read()
+                    fontRawDataType = font_compatibility.Manager.instance.EditorNativeType
+                    
+                    try:
+                        fontRawDataType = font_compatibility.Manager.instance.guessType(fontRawData, fontFilePath)
+
+                    except compatibility.NoPossibleTypesError:
+                        QtGui.QMessageBox.warning(None, "Font doesn't match any known data type", "The font '%s' wasn't recognised by CEED as any font data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (fontFilePath))
+                        return
+
+                    except compatibility.MultiplePossibleTypesError as e:
+                        suitableVersion = font_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+
+                        if suitableVersion not in e.possibleTypes:
+                            QtGui.QMessageBox.warning(None, "Incorrect font data type", "The font '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (fontFilePath, suitableVersion))
+                            return
+
+                        fontRawDataType = suitableVersion
+
+                    fontNativeData = font_compatibility.Manager.instance.transform(fontRawDataType, font_compatibility.Manager.instance.EditorNativeType, fontRawData)
+
+                    PyCEGUI.FontManager.getSingleton().createFromString(fontNativeData)
+                    fontIterator.next()
 
                 updateProgress("Loading looknfeels")
                 looknfeelIterator = scheme.getLookNFeels()

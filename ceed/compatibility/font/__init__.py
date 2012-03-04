@@ -32,15 +32,19 @@ class Manager(compatibility.Manager):
         assert(Manager.instance is None)
         Manager.instance = self
         
+        self.EditorNativeType = cegui.CEGUIFont3
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUIFont1,
             "0.5" : cegui.CEGUIFont2, # font rewrite
             "0.6" : cegui.CEGUIFont2,
-            #"0.7.0" : cegui.CEGUIFont2,
-            "0.7" : cegui.CEGUIFont3, # because of LineSpacing, since 0.7.2
+            "0.7" : cegui.CEGUIFont2,
             "0.8" : cegui.CEGUIFont3
         }
-
-        self.EditorNativeType = cegui.CEGUIFont3
+        
+        self.detectors.append(cegui.Font2TypeDetector())
+        self.detectors.append(cegui.Font3TypeDetector())
+        
+        self.layers.append(cegui.Font2ToFont3Layer())
+        self.layers.append(cegui.Font3ToFont2Layer())
 
 Manager()
