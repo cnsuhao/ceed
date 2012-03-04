@@ -130,6 +130,11 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
             for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
                 self.transformAttribute(falagardMapping, attr)
 
+            if falagardMapping.get("renderer") is not None:
+                rendererValue = falagardMapping.get("renderer")
+                if rendererValue.startswith("Falagard/"):
+                    falagardMapping.set("renderer", "Core/%s" % (rendererValue[9:]))
+
         return ElementTree.tostring(root, "utf-8")
 
 class CEGUI5ToCEGUI4Layer(compatibility.Layer):
@@ -172,5 +177,10 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
         for falagardMapping in root.findall("FalagardMapping"):
             for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
                 self.transformAttribute(falagardMapping, attr)
+
+            if falagardMapping.get("Renderer") is not None:
+                rendererValue = falagardMapping.get("Renderer")
+                if rendererValue.startswith("Core/"):
+                    falagardMapping.set("Renderer", "Falagard/%s" % (rendererValue[5:]))
 
         return ElementTree.tostring(root, "utf-8")
