@@ -233,7 +233,7 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)
         
-        PyCEGUI.System.getSingleton().setGUISheet(self.rootPreviewWidget)
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootPreviewWidget)
         
         self.animationListDockWidget.setEnabled(True)
         self.timelineDockWidget.setEnabled(True)

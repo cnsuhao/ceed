@@ -55,7 +55,7 @@ class LayoutPreviewer(QtGui.QWidget, mixed.EditMode):
             # lets clone so we don't affect the layout at all
             self.rootWidget = currentRootWidget.clone()
             
-        PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWidget)
         
     def deactivate(self):    
         if self.rootWidget is not None:
@@ -73,14 +73,14 @@ class LayoutPreviewer(QtGui.QWidget, mixed.EditMode):
         mainwindow.MainWindow.instance.ceguiContainerWidget.enableInput()
         
         if self.rootWidget:
-            PyCEGUI.System.getSingleton().setGUISheet(self.rootWidget)
+            PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWidget)
 
     def hideEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.disableInput()
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
 
         if self.rootWidget:
-            PyCEGUI.System.getSingleton().setGUISheet(None)
+            PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(None)
             
         super(LayoutPreviewer, self).hideEvent(event)
 

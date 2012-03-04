@@ -1071,13 +1071,13 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         self.scene.setRootWidgetManipulator(manipulator)
         self.hierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
         
-        PyCEGUI.System.getSingleton().setGUISheet(self.getCurrentRootWidget())
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
     
         if oldRoot:
             PyCEGUI.WindowManager.getSingleton().destroyWindow(oldRoot)
             
-        # cause full redraw to ensure nothing gets stuck
-        PyCEGUI.System.getSingleton().signalRedraw()
+        # cause full redraw of the default GUI context to ensure nothing gets stuck
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().markAsDirty()
     
     def setRootWidget(self, widget):
         """Sets the root widget we want to edit
@@ -1103,7 +1103,7 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = settings.getEntry("layout/visual/continuous_rendering").value)
         
-        PyCEGUI.System.getSingleton().setGUISheet(self.getCurrentRootWidget())
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
 
         self.hierarchyDockWidget.setEnabled(True)
         self.propertiesDockWidget.setEnabled(True)

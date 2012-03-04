@@ -97,9 +97,9 @@ class GraphicsScene(QtGui.QGraphicsScene):
             # FIXME: Change when multi root is in CEGUI core
             PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(self.ceguiDisplaySize)
         
-        # signalRedraw is called to work around potential issues with dangling
+        # markAsDirty is called on the default GUI context to work around potential issues with dangling
         # references in the rendering code for some versions of CEGUI.
-        system.signalRedraw()
+        system.getDefaultGUIContext().markAsDirty()
         
         GL.glClearColor(0.3, 0.3, 0.3, 1)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -117,7 +117,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         GL.glClearColor(0, 0, 0, 1)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-        system.renderGUI()
+        system.renderAllGUIContexts()
         
         self.fbo.release()
 
@@ -158,7 +158,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # top left
         GL.glTexCoord2f(0, 1)
         GL.glVertex3f(0, 0, 0)
-        system.signalRedraw()
+        
+        system.getDefaultGUIContext().markAsDirty()
         
         GL.glEnd()
         

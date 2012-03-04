@@ -223,10 +223,10 @@ class ContainerWidget(QtGui.QWidget):
             self.setParent(self.currentParentWidget)
         self.currentParentWidget.setUpdatesEnabled(True)
         
-        # cause full redraw to ensure nothing gets stuck
-        PyCEGUI.System.getSingleton().signalRedraw()
+        # cause full redraw of the default context to ensure that nothing gets stuck
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().markAsDirty()
         
-        # and mark the view as dirty
+        # and mark the view as dirty to force Qt to redraw it
         self.view.update()
         
         # finally, set the OpenGL context for CEGUI as current as other code may rely on it
