@@ -98,7 +98,11 @@ Windows XP and newer
 \end_layout
 
 \begin_layout Itemize
-MacOS X (unofficially)
+BSD system with X11 (not officially supported)
+\end_layout
+
+\begin_layout Itemize
+MacOS X (not officially supported)
 \end_layout
 
 \begin_layout Standard
@@ -160,7 +164,7 @@ To edit assets in
 code mode
 \emph default
  you should understand the format in question, the editor makes no effort
- to make code editing easier.
+ to make code editing easier with highlighting or any code references.
 \end_layout
 
 \begin_layout Section
@@ -171,7 +175,6 @@ Installation
 The application is currently distributed as a source tarball that works
  on all supported platforms (if you install dependencies) or a ZIP archive
  with standalone executable for Win32 (needs no dependencies).
- Just extracting and starting it should be enough.
 \end_layout
 
 \begin_layout Subsection
@@ -313,7 +316,10 @@ Resizable rectangle
 \end_layout
 
 \begin_layout Standard
-[stub]
+A concept used reused in many places in CEED.
+ Can be moved by dragging the centre.
+ There are 8 areas that resize the rectangle if you drag them (these are
+ called resize handles) - 4 edges and 4 corners.
 \end_layout
 
 \begin_layout Subsection
