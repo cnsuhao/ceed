@@ -221,7 +221,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         
         if self.injectInput:
             point = self.mapToScene(QtCore.QPoint(event.x(), event.y()))
-            handled = PyCEGUI.System.getSingleton().injectMousePosition(point.x(), point.y())
+            handled = PyCEGUI.System.getSingleton().getDefaultGUIContext().injectMousePosition(point.x(), point.y())
         
         if not handled:    
             super(GraphicsView, self).mouseMoveEvent(event)
@@ -246,7 +246,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             button = self.translateQtMouseButton(event.button())
 
             if button is not None:
-                handled = PyCEGUI.System.getSingleton().injectMouseButtonDown(button)
+                handled = PyCEGUI.System.getSingleton().getDefaultGUIContext().injectMouseButtonDown(button)
                 
         if not handled:
             super(GraphicsView, self).mousePressEvent(event)
@@ -258,7 +258,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             button = self.translateQtMouseButton(event.button())
             
             if button is not None:
-                handled = PyCEGUI.System.getSingleton().injectMouseButtonUp(button)
+                handled = PyCEGUI.System.getSingleton().getDefaultGUIContext().injectMouseButtonUp(button)
                 
         if not handled:
             super(GraphicsView, self).mouseReleaseEvent(event)
@@ -466,11 +466,11 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             button = self.translateQtKeyboardButton(event.key())
             
             if button is not None:
-                handled = PyCEGUI.System.getSingleton().injectKeyDown(button)
+                handled = PyCEGUI.System.getSingleton().getDefaultGUIContext().injectKeyDown(button)
                 
             char = event.text()
             if len(char) > 0:
-                handled = handled or PyCEGUI.System.getSingleton().injectChar(ord(char[0]))
+                handled = handled or PyCEGUI.System.getSingleton().getDefaultGUIContext().injectChar(ord(char[0]))
                 
         if not handled:
             super(GraphicsView, self).keyPressEvent(event)
@@ -482,7 +482,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             button = self.translateQtKeyboardButton(event.key())
             
             if button is not None:
-                handled = PyCEGUI.System.getSingleton().injectKeyUp(button)
+                handled = PyCEGUI.System.getSingleton().getDefaultGUIContext().injectKeyUp(button)
                 
         if not handled:
             super(GraphicsView, self).keyPressEvent(event)
