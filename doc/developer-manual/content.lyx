@@ -4,6 +4,11 @@
 \begin_header
 \textclass article
 \use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
 \maintain_unincluded_children false
 \language english
 \language_package default
@@ -27,7 +32,7 @@
 \paperfontsize default
 \spacing single
 \use_hyperref false
-\papersize default
+\papersize a4paper
 \use_geometry false
 \use_amsmath 1
 \use_esint 1
@@ -156,12 +161,12 @@ status open
 
 \begin_layout Plain Layout
 
-prefix/CEED/bin/runwrapper.sh
+$prefix/CEED/bin/runwrapper.sh
 \end_layout
 
 \begin_layout Plain Layout
 
-prefix/cegui_mk2/build/lib/PyCEGUI.so
+$prefix/cegui_mk2/build/lib/PyCEGUI.so
 \end_layout
 
 \end_inset
@@ -177,8 +182,185 @@ If you directory structure looks differently you need to alter the script.
 Architecture and design decisions
 \end_layout
 
+\begin_layout Section
+Core API
+\end_layout
+
+\begin_layout Standard
+The whole code is divided into folders where the root folder provides basic
+ reusable functionality (project management, undo view, tab management,
+ …) and the editors themselves are providing editing facilities for various
+ file types.
+\end_layout
+
+\begin_layout Subsection
+TabbedEditor
+\end_layout
+
+\begin_layout Standard
+A base class for editors hosted in a tab.
+ There are 3 phases that need to happen before a tabbed editor shows up
+ to the user:
+\end_layout
+
+\begin_layout Enumerate
+Construction of the class
+\end_layout
+
+\begin_layout Enumerate
+Initialisation 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+all the supporting widgets get created
+\end_layout
+
+\begin_layout Enumerate
+the file is loaded and processed
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Activation 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+this puts the tabbed editor 'on stage'
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The destruction works in the exact opposite order.
+\end_layout
+
+\begin_layout Standard
+To avoid repeating code (DRY principle), there are 2 very important classes
+ that add functionality to TabbedEditor that you want to inherit if applicable
+ to avoid reinventing.
+\end_layout
+
+\begin_layout Subsubsection
+UndoStackTabbedEditor
+\end_layout
+
+\begin_layout Standard
+You are using the Qt's UndoStack.
+ This connects all the necessary calls.
+\end_layout
+
+\begin_layout Subsubsection
+MixedModeTabbedEditor
+\end_layout
+
+\begin_layout Standard
+Useful when you want multiple editing modes.
+ Please note that you must be using UndoStack in this situation as switching
+ modes is an undo action!
+\end_layout
+
+\begin_layout Subsection
+Property editing
+\end_layout
+
+\begin_layout Standard
+A lot of CEGUI classes provide basic introspection via property strings.
+ CEED has a set of classes to reuse when you want to edit properties of
+ widgets or any other classes that inherit from PropertySet.
+\end_layout
+
+\begin_layout Section
+Compatibility layers
+\end_layout
+
+\begin_layout Standard
+Compatibility is only dealt with on data level.
+ The editor itself only supports one version of each format and layers allow
+ to convert this raw data to other formats.
+ Here is an example of how to do that:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# we want to migrate and imageset from data format "foo" to "bar"
+\end_layout
+
+\begin_layout Plain Layout
+
+# data is a string containing imageset in "foo" format
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+from ceed.compatibility import imageset as compat
+\end_layout
+
+\begin_layout Plain Layout
+
+convertedData = compat.Manager.instance.transform("foo", "bar", data)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There are also facilities to guess types of arbitrary data.
+ See API reference of CompatibilityManager for more info.
+\end_layout
+
 \begin_layout Part
 Contributing
+\end_layout
+
+\begin_layout Section
+Coding style
+\end_layout
+
+\begin_layout Standard
+CEED doesn't follow PEP8 python style recommendation when it comes to method
+ and variable naming.
+ The reason I chose to use camelCase for methods and variables is that PySide
+ and CEGUI both use that and CEED calls a lot of methods form these 2 APIs.
+ The code looked much better with camelCase naming.
+ Whether that was or was not a good call is debatable but that's the way
+ it is.
+\end_layout
+
+\begin_layout Itemize
+use 4 spaces for indentation
+\end_layout
+
+\begin_layout Itemize
+use CamelCase for class naming
+\end_layout
+
+\begin_layout Itemize
+don't use wildcard imports! (no from abc import * can appear anywhere in
+ the code)
+\end_layout
+
+\begin_layout Itemize
+use camelCase for method and variable naming
+\end_layout
+
+\begin_layout Itemize
+document methods and classes with the triple quote docstyle syntax
+\end_layout
+
+\begin_layout Itemize
+comment other things with # prefix only
 \end_layout
 
 \begin_layout Section
@@ -198,8 +380,12 @@ http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/CEED
  Having to deal with merge conflicts makes the reviewers cranky.
  After all of this is done, simply contact upstream developer to merge your
  changes into the main repository.
- You can usually reach someone through IRC (freenode/#cegui) or mantis bug
- tracker.
+ You can usually reach someone through IRC (freenode/#cegui), mantis bug
+ tracker or email (
+\emph on
+team@cegui.org.uk
+\emph default
+).
 \end_layout
 
 \begin_layout Section
@@ -207,7 +393,12 @@ Old fashioned way - patches
 \end_layout
 
 \begin_layout Standard
-You can alternatively just send unified diffs by email if you so desire.
+You can alternatively just send unified diffs by email if you so desire
+ (
+\emph on
+team@cegui.org.uk
+\emph default
+).
 \end_layout
 
 \end_body
