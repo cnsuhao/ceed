@@ -435,7 +435,7 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
         
         self.playDelta = 1.0 / 60.0
         self.lastPlayInjectTime = time.time()
-        self.playing = True
+        self.playing = False
         
         self.setFlags(QtGui.QGraphicsItem.ItemIsFocusable)
         
@@ -531,6 +531,11 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
         QtCore.QTimer.singleShot(self.playDelta * 1000, lambda: self.playTick())
         
     def play(self):
+        if self.playing:
+            # if we didn't do this we would spawn multiple playTicks in parallel
+            # it would bog the app down to a crawl
+            return
+        
         self.playing = True
         self.lastPlayInjectTime = time.time()
         self.animationInstance.start()
