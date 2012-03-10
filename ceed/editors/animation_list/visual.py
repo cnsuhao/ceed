@@ -30,6 +30,9 @@ from ceed.editors.animation_list import undo
 import ceed.ui.editors.animation_list.animationlistdockwidget
 import ceed.ui.editors.animation_list.visualediting
 
+from ceed import propertysetinspector
+from ceed import propertytree
+
 from xml.etree import ElementTree
 
 class AnimationListDockWidget(QtGui.QDockWidget):
@@ -59,6 +62,26 @@ class AnimationListDockWidget(QtGui.QDockWidget):
         
         cmd = undo.ChangeCurrentAnimationDefinitionCommand(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
+        
+class PropertiesDockWidget(QtGui.QDockWidget):
+    """Lists and allows editing of properties at current position of the timeline
+    """
+    
+    def __init__(self, visual):
+        super(PropertiesDockWidget, self).__init__()
+        self.setObjectName("PropertiesDockWidget")
+        self.visual = visual
+
+        self.setWindowTitle("Property State")
+        # Make the dock take as much space as it can vertically
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+
+        self.inspector = propertysetinspector.PropertyInspectorWidget()
+        self.inspector.ptree.setupRegistry(propertytree.editors.PropertyEditorRegistry(True))
+        pmap = mainwindow.MainWindow.instance.project.propertyMap
+        self.inspector.setPropertyManager(propertysetinspector.CEGUIPropertyManager(pmap))
+
+        self.setWidget(self.inspector)
         
 class TimelineGraphicsView(QtGui.QGraphicsView):
     def __init__(self, parent = None):
@@ -192,6 +215,8 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         self.tabbedEditor = tabbedEditor
         
         self.animationListDockWidget = AnimationListDockWidget(self)
+        self.propertiesDockWidget = PropertiesDockWidget(self)
+        
         self.timelineDockWidget = TimelineDockWidget(self)
         self.timelineDockWidget.timeline.timePositionChanged.connect(self.slot_timePositionChanged)
         
@@ -250,15 +275,22 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
 
     def synchInstanceAndWidget(self):
         if self.currentAnimationInstance is None:
+            self.propertiesDockWidget.inspector.setPropertySets([])
             return
         
         self.currentAnimationInstance.setTargetWindow(None)
 
         if self.currentPreviewWidget is None:
+            self.propertiesDockWidget.inspector.setPropertySets([])
             return
         
         self.currentAnimationInstance.setTargetWindow(self.currentPreviewWidget)
         self.currentAnimationInstance.apply()
+        
+        if self.propertiesDockWidget.inspector.getPropertySets() != [self.currentPreviewWidget]:
+            self.propertiesDockWidget.inspector.setPropertySets([self.currentPreviewWidget])
+        else:
+            self.propertiesDockWidget.inspector.propertyManager.updateAllValues([self.currentPreviewWidget])
 
     def loadFromElement(self, rootElement):
         self.animationWrappers = {}
@@ -356,8 +388,9 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         
         if self.currentAnimationInstance is not None:
             self.currentAnimationInstance.setPosition(newPosition)
-            self.currentAnimationInstance.apply()
             
+        self.synchInstanceAndWidget()
+        
     def zoomIn(self):
         return self.timelineDockWidget.zoomIn()
         

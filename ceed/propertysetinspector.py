@@ -59,6 +59,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.setMinimumSize(200, 200)
 
         self.propertyManager = None
+        
+        self.currentPropertySets = []
 
     def sizeHint(self):
         # we'd rather have this size
@@ -78,7 +80,12 @@ class PropertyInspectorWidget(QtGui.QWidget):
 
         # load them into the tree
         self.ptree.load(categories)
-
+        
+        self.currentPropertySets = ceguiPropertySets
+        
+    def getPropertySets(self):
+        return self.currentPropertySets
+    
 class CEGUIPropertyManager(object):
     """Builds propertytree properties from CEGUI properties and PropertySets,
     using a PropertyMap.
@@ -293,3 +300,19 @@ class CEGUIPropertyManager(object):
         multiProperty = multiWrapperType(templateProperty, innerProperties, True)
 
         return multiProperty
+
+    def updateAllValues(self, ceguiPropertySets):
+        """Abuses all property manager callbacks defined for given property sets
+        to update all values from them to the respective inspector widgets
+        
+        Note: Holy mother of hacks this is horrible...
+        Author: The one and only PEDOBEAR!
+        """
+        
+        for ceguiPropertySet in ceguiPropertySets:
+            if not hasattr(ceguiPropertySet, "propertyManagerCallbacks"):
+                continue
+            
+            for _, callback in ceguiPropertySet.propertyManagerCallbacks.iteritems():
+                callback()
+        
