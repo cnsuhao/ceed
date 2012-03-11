@@ -482,6 +482,7 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
                 self.scene().removeItem(item)
             
         if self.animation is None:
+            self.timecode.range = 1.0
             return
         
         self.timecode.range = self.animation.getDuration()
