@@ -537,6 +537,10 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
             # it would bog the app down to a crawl
             return
         
+        if self.animationInstance is None:
+            self.playing = False
+            return
+        
         self.playing = True
         self.lastPlayInjectTime = time.time()
         self.animationInstance.start()
@@ -544,12 +548,20 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
         self.playTick()
         
     def pause(self):
+        if self.animationInstance is None:
+            self.playing = False
+            return
+        
         self.animationInstance.togglePause()
         self.playing = self.animationInstance.isRunning()
         
         self.playTick()
         
     def stop(self):
+        if self.animationInstance is None:
+            self.playing = False
+            return
+        
         self.playing = False
         self.setTimelinePosition(0)
         self.animationInstance.stop()
