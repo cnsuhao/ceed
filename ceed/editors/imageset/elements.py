@@ -549,6 +549,8 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
     def saveToElement(self):
         ret = ElementTree.Element("Imageset")
         
+        ret.set("version", "2")
+        
         ret.set("name", self.name)
         ret.set("imagefile", self.imageFile)
         
