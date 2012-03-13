@@ -33,7 +33,7 @@ figs-within-sections
 \spacing single
 \use_hyperref false
 \papersize a4paper
-\use_geometry false
+\use_geometry true
 \use_amsmath 1
 \use_esint 1
 \use_mhchem 1
@@ -48,6 +48,10 @@ figs-within-sections
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -318,6 +322,75 @@ convertedData = compat.Manager.instance.transform("foo", "bar", data)
 \begin_layout Standard
 There are also facilities to guess types of arbitrary data.
  See API reference of CompatibilityManager for more info.
+\end_layout
+
+\begin_layout Section
+Model View (Controller)
+\end_layout
+
+\begin_layout Standard
+As most editing applications we have the MVC paradigm.
+ When I say something is the 
+\emph on
+model
+\emph default
+ I mean that it encapsulates the data we are editing.
+ The 
+\emph on
+view
+\emph default
+ on the other hand encapsulates the facility to view the data we are editing
+ in their current state.
+ The 
+\emph on
+controller
+\emph default
+ allows the user to interact with the data.
+ Most of the time 
+\emph on
+view
+\emph default
+ meshes with 
+\emph on
+controller
+\emph default
+ as it does in the Qt world.
+\end_layout
+
+\begin_layout Section
+Imageset editing
+\end_layout
+
+\begin_layout Standard
+Lives in the 
+\emph on
+ceed.editors.imageset
+\emph default
+ package.
+ We use classes of 
+\emph on
+ceed.editors.imageset.elements
+\emph default
+ to model the data instead of using CEGUI for this one.
+ It's a multimode editor with visual and code modes.
+\end_layout
+
+\begin_layout Section
+Layout editing
+\end_layout
+
+\begin_layout Standard
+Located in the 
+\emph on
+ceed.editors.layout
+\emph default
+ package.
+ CEGUI Window is used to model the entire layout hiearchy.
+ We use WidgetManipulator class to add serialisation (for undo/redo), resizing
+ handles and more to windows.
+ It's a multimode editor with visual, code and live preview modes.
+ The live preview mode does no editing, instead it just views the current
+ layout and allows user to interact with it to test it.
 \end_layout
 
 \begin_layout Part
