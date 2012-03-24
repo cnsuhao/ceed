@@ -98,15 +98,15 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
         self.visual.animationListDockWidget.setVisible(True)
         self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.propertiesDockWidget)
         self.visual.propertiesDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.keyframepropertiesDockWidget)
-        self.visual.keyframepropertiesDockWidget.setVisible(True)
+        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.keyFramePropertiesDockWidget)
+        self.visual.keyFramePropertiesDockWidget.setVisible(True)
         self.mainWindow.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.visual.timelineDockWidget)
         self.visual.timelineDockWidget.setVisible(True)
         
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.animationListDockWidget)
         self.mainWindow.removeDockWidget(self.visual.propertiesDockWidget)
-        self.mainWindow.removeDockWidget(self.visual.keyframepropertiesDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.keyFramePropertiesDockWidget)
         self.mainWindow.removeDockWidget(self.visual.timelineDockWidget)
         
         super(AnimationListTabbedEditor, self).deactivate()

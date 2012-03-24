@@ -90,11 +90,84 @@ class KeyFramePropertiesDockWidget(QtGui.QDockWidget):
     
     def __init__(self, visual):
         super(KeyFramePropertiesDockWidget, self).__init__()
+        
         self.setObjectName("KeyFramePropertiesDockWidget")
         self.visual = visual
 
         self.ui = ceed.ui.editors.animation_list.keyframepropertiesdockwidget.Ui_KeyFramePropertiesDockWidget()
         self.ui.setupUi(self)
+        
+        self.timePositionSpinBox = self.findChild(QtGui.QDoubleSpinBox, "timePositionSpinBox")
+        self.progressionComboBox = self.findChild(QtGui.QComboBox, "progressionComboBox")
+        
+        self.fixedValueRadioButton = self.findChild(QtGui.QRadioButton, "fixedValueRadioButton")
+        self.propertyRadioButton = self.findChild(QtGui.QRadioButton, "propertyRadioButton")
+        
+        self.fixedValueLineEdit = self.findChild(QtGui.QLineEdit, "fixedValueLineEdit")
+        self.sourcePropertyComboBox = self.findChild(QtGui.QComboBox, "sourcePropertyComboBox")
+        
+        self.inspectedKeyFrame = None
+        self.setInspectedKeyFrame(None)
+        
+    def setInspectedKeyFrame(self, keyFrame):
+        self.setDisabled(keyFrame is None)
+        self.inspectedKeyFrame = keyFrame
+        
+        self.syncWithKeyFrame()
+    
+    def syncSourcePropertyComboBox(self):
+        self.sourcePropertyComboBox.clear()
+        
+        # TODO
+        pass
+        
+    def syncWithKeyFrame(self):
+        self.syncSourcePropertyComboBox()
+
+        if self.inspectedKeyFrame is None:
+            self.timePositionSpinBox.setRange(0, 1)
+            self.timePositionSpinBox.setValue(0)
+            
+            self.progressionComboBox.setCurrentIndex(self.progressionComboBox.findText("Linear"))
+            
+            self.fixedValueRadioButton.setChecked(True)
+            self.propertyRadioButton.setChecked(False)
+            
+            self.fixedValueLineEdit.setText("")
+            self.sourcePropertyComboBox.setCurrentIndex(-1)
+        
+        else:
+            assert(self.visual.currentAnimation is not None)
+            self.timePositionSpinBox.setRange(0, self.visual.currentAnimation.getDuration())
+            self.timePositionSpinBox.setValue(self.inspectedKeyFrame.getPosition())
+            
+            progression = self.inspectedKeyFrame.getProgression()
+            if progression == PyCEGUI.KeyFrame.Progression.P_Linear:
+                self.progressionComboBox.setCurrentIndex(self.progressionComboBox.findText("Linear"))
+            elif progression == PyCEGUI.KeyFrame.Progression.P_QuadraticAccelerating:
+                self.progressionComboBox.setCurrentIndex(self.progressionComboBox.findText("Quadratic Accelerating"))
+            elif progression == PyCEGUI.KeyFrame.Progression.P_QuadraticDecelerating:
+                self.progressionComboBox.setCurrentIndex(self.progressionComboBox.findText("Quadratic Decelerating"))
+            elif progression == PyCEGUI.KeyFrame.Progression.P_Discrete:
+                self.progressionComboBox.setCurrentIndex(self.progressionComboBox.findText("Discrete"))
+            else:
+                raise RuntimeError("Can't recognise progression of inspected keyframe")
+        
+            if self.inspectedKeyFrame.getSourceProperty() == "":
+                self.fixedValueRadioButton.setChecked(True)
+                self.propertyRadioButton.setChecked(False)
+                
+                self.fixedValueLineEdit.setText(self.inspectedKeyFrame.getValue())
+                
+                self.sourcePropertyComboBox.setCurrentIndex(-1)
+                
+            else:
+                self.fixedValueRadioButton.setChecked(False)
+                self.propertyRadioButton.setChecked(True)
+                
+                self.fixedValueLineEdit.setText("")
+                
+                self.sourcePropertyComboBox.lineEdit().setText(self.inspectedKeyFrame.getSourceProperty())
         
 class TimelineGraphicsView(QtGui.QGraphicsView):
     def __init__(self, parent = None):
@@ -229,10 +302,11 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         
         self.animationListDockWidget = AnimationListDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
-        self.keyframepropertiesDockWidget = KeyFramePropertiesDockWidget(self)
+        self.keyFramePropertiesDockWidget = KeyFramePropertiesDockWidget(self)
         
         self.timelineDockWidget = TimelineDockWidget(self)
         self.timelineDockWidget.timeline.timePositionChanged.connect(self.slot_timePositionChanged)
+        self.timelineDockWidget.scene.selectionChanged.connect(self.slot_keyFrameSelectionChanged)
         
         self.fakeAnimationDefinitionNameSuffix = 1
         self.currentAnimation = None
@@ -404,6 +478,15 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
             self.currentAnimationInstance.setPosition(newPosition)
             
         self.synchInstanceAndWidget()
+        
+    def slot_keyFrameSelectionChanged(self):
+        selectedKeyFrames = []
+        
+        for item in self.timelineDockWidget.scene.selectedItems():
+            if isinstance(item, timeline.AffectorTimelineKeyFrame):
+                selectedKeyFrames.append(item.keyFrame)
+        
+        self.keyFramePropertiesDockWidget.setInspectedKeyFrame(selectedKeyFrames[0] if len(selectedKeyFrames) == 1 else None)
         
     def zoomIn(self):
         return self.timelineDockWidget.zoomIn()
