@@ -59,6 +59,8 @@ class FileSystemBrowser(QtGui.QDockWidget):
         self.pathBox = self.findChild(QtGui.QComboBox, "pathBox")
         self.pathBox.currentIndexChanged.connect(self.slot_pathBoxIndexChanged)
 
+        self.directory = ""
+        
         # Set to project directory if project open, otherwise to user's home
         if ceed.mainwindow.MainWindow.instance.project is not None:
             self.setDirectory(ceed.mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))
@@ -73,7 +75,7 @@ class FileSystemBrowser(QtGui.QDockWidget):
             return
 
         self.model.setRootPath(directory)
-        self.view.setRootIndex(self.model.index(directory));
+        self.view.setRootIndex(self.model.index(directory))
 
         # Add the path to pathBox and select it
         #

@@ -625,18 +625,18 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
             self.updateHandles()
         
     def absoluteXToRelative(self, value, transform):
-            x_scale = transform.m11()
+        x_scale = transform.m11()
 
-            # this works in this special case, not in generic case!
-            # I would have to undo rotation for this to work generically            
-            return value / x_scale if x_scale != 0 else 1
+        # this works in this special case, not in generic case!
+        # I would have to undo rotation for this to work generically            
+        return value / x_scale if x_scale != 0 else 1
     
     def absoluteYToRelative(self, value, transform):
-            y_scale = transform.m22()
-            
-            # this works in this special case, not in generic case!
-            # I would have to undo rotation for this to work generically   
-            return value / y_scale if y_scale != 0 else 1
+        y_scale = transform.m22()
+        
+        # this works in this special case, not in generic case!
+        # I would have to undo rotation for this to work generically   
+        return value / y_scale if y_scale != 0 else 1
     
     def updateHandles(self):
         """Updates all the handles according to geometry"""
