@@ -818,7 +818,7 @@ class VisualEditing(resizable.GraphicsView, mixed.EditMode):
                 selectedItem.potentialMove = False
                 selectedItem.oldPosition = None
         
-        # NOTE: It should never happen that more than 2 of these sets are populated
+        # NOTE: It should never happen that more than one of these sets is populated
         #       User moves images XOR moves offsets XOR resizes images
         #
         #       I don't do elif for robustness though, who knows what can happen ;-)
