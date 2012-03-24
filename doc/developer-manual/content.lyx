@@ -393,6 +393,29 @@ ceed.editors.layout
  layout and allows user to interact with it to test it.
 \end_layout
 
+\begin_layout Section
+Animation editing
+\end_layout
+
+\begin_layout Standard
+Located in 
+\emph on
+ceed.editors.animation_list
+\emph default
+ package.
+ We use wrappers to deal with the fact that CEGUI has no model for a list
+ of animations.
+\end_layout
+
+\begin_layout Standard
+KeyFrames had to have indices added because comparing floats for equality
+ is not the most reliable thing in the world of computing.
+ So in the end we sort all keyframes by position and figure out their indices
+ from that.
+ To avoid placing 2 keyframes at the exact same position we add a small
+ epsilon until we have no clashes whenever we encounter this possibility.
+\end_layout
+
 \begin_layout Part
 Contributing
 \end_layout
