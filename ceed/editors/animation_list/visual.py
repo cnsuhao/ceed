@@ -28,6 +28,7 @@ from ceed.editors.animation_list import timeline
 from ceed.editors.animation_list import undo
 
 import ceed.ui.editors.animation_list.animationlistdockwidget
+import ceed.ui.editors.animation_list.keyframepropertiesdockwidget
 import ceed.ui.editors.animation_list.visualediting
 
 from ceed import propertysetinspector
@@ -82,6 +83,18 @@ class PropertiesDockWidget(QtGui.QDockWidget):
         self.inspector.setPropertyManager(propertysetinspector.CEGUIPropertyManager(pmap))
 
         self.setWidget(self.inspector)
+
+class KeyFramePropertiesDockWidget(QtGui.QDockWidget):
+    """Lists and allows editing of properties at current position of the timeline
+    """
+    
+    def __init__(self, visual):
+        super(KeyFramePropertiesDockWidget, self).__init__()
+        self.setObjectName("KeyFramePropertiesDockWidget")
+        self.visual = visual
+
+        self.ui = ceed.ui.editors.animation_list.keyframepropertiesdockwidget.Ui_KeyFramePropertiesDockWidget()
+        self.ui.setupUi(self)
         
 class TimelineGraphicsView(QtGui.QGraphicsView):
     def __init__(self, parent = None):
@@ -216,6 +229,7 @@ class VisualEditing(QtGui.QWidget, mixed.EditMode):
         
         self.animationListDockWidget = AnimationListDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
+        self.keyframepropertiesDockWidget = KeyFramePropertiesDockWidget(self)
         
         self.timelineDockWidget = TimelineDockWidget(self)
         self.timelineDockWidget.timeline.timePositionChanged.connect(self.slot_timePositionChanged)
