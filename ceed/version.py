@@ -80,6 +80,9 @@ OpenGL = "N/A"
 
 PyCEGUI = "N/A"
 
+# all of the other versions are just optional, what we always need and will always get
+# is the CEED version
+
 try:    
     # PySide
     from PySide import __version__ as _PySideVersion
@@ -93,15 +96,21 @@ try:
     Qt = _QtVersion
     Qt_Tuple = _QtVersion_Tuple
     
+except:
+    pass
+
+try:
     # PyOpenGL
     from OpenGL.version import __version__ as _OpenGLVersion
     OpenGL = _OpenGLVersion
     
+except:
+    pass
+
+try:
     # PyCEGUI
     from PyCEGUI import Version__ as _PyCEGUIVersion
     PyCEGUI = _PyCEGUIVersion
     
 except:
-    # all of the other versions are just optional, what we always need and will always get
-    # is the CEED version
     pass
