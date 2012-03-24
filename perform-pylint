@@ -2,7 +2,7 @@
 
 #pushd bin
 #./runwrapper.sh
-pylint --rcfile pylint.cfg ceed > pylint-output
+PYTHONPATH="../cegui_mk2/build/lib:$PYTHONPATH" pylint --rcfile pylint.cfg ceed > pylint-output
 #exit
 #popd
 
