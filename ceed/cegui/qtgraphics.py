@@ -295,7 +295,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
         elif button == QtCore.Qt.Key_Right:
             return PyCEGUI.Key.ArrowRight
         elif button == QtCore.Qt.Key_Down:
-            return PyCEGUI.Key.ArrowDownGraphicsScene
+            return PyCEGUI.Key.ArrowDown
         elif button == QtCore.Qt.Key_PageUp:
             return PyCEGUI.Key.PageUp
         elif button == QtCore.Qt.Key_PageDown:
