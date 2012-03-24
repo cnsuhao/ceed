@@ -25,7 +25,7 @@ architecture - which are used in the event of errors/exceptions.
 """
 
 # CEED
-CEED = "snapshot6"
+CEED = "snapshot7"
 # if this is True, all .ui files will be recompiled every time CEED.py is run
 CEED_developerMode = True
 
@@ -105,4 +105,3 @@ except:
     # all of the other versions are just optional, what we always need and will always get
     # is the CEED version
     pass
-
