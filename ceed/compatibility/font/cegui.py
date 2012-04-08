@@ -100,11 +100,11 @@ class Font2ToFont3Layer(compatibility.Layer):
         root = ElementTree.fromstring(data)
         root.set("version", "3")
         
-        for attr in ["name", "filename", "type", "size", "nativeHorzRes", "nativeVertRes", "AutoScaled"]:
+        for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
         
         for mapping in root.findall("Mapping"):
-            for attr in ["codepoint", "image", "horzAdvance", "lineSpacing"]:
+            for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
         
         return ElementTree.tostring(root, "utf-8")
@@ -128,11 +128,11 @@ class Font3ToFont2Layer(compatibility.Layer):
         root = ElementTree.fromstring(data)
         del root.attrib["version"]
         
-        for attr in ["name", "filename", "type", "size", "nativeHorzRes", "nativeVertRes", "AutoScaled"]:
+        for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
         
         for mapping in root.findall("Mapping"):
-            for attr in ["codepoint", "image", "horzAdvance", "lineSpacing"]:
+            for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
         
         return ElementTree.tostring(root, "utf-8")
