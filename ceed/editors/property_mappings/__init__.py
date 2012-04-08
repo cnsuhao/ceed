@@ -31,7 +31,7 @@ from xml.etree import ElementTree
 class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
     def __init__(self, filePath):
         
-        super(PropertyMappingsTabbedEditor, self).__init__(property_mappings_compatibility.Manager.instance, filePath)
+        super(PropertyMappingsTabbedEditor, self).__init__(property_mappings_compatibility.manager, filePath)
         
         self.tabWidget = QtGui.QTableView()
         self.tabWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)

@@ -109,7 +109,7 @@ class PropertyMap(object):
     @classmethod
     def fromElement(cls, element):
         """Create and return an instance from an XML element."""
-        assert(element.get("version") == compat.Manager.instance.EditorNativeType)
+        assert(element.get("version") == compat.manager.EditorNativeType)
 
         pmap = cls()
         for entryElement in element.findall("mapping"):
@@ -149,7 +149,7 @@ class PropertyMap(object):
     def saveToElement(self):
         """Create and return an XML element for this map instance."""
         element = ElementTree.Element("mappings")
-        element.set("version", compat.Manager.instance.EditorNativeType)
+        element.set("version", compat.manager.EditorNativeType)
 
         for entry in sorted(self.entries, key = lambda entry: entry.getPropertyKey()):
             eel = entry.saveToElement()

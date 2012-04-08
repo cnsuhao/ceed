@@ -37,7 +37,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(LayoutTabbedEditor, self).__init__(layout_compatibility.Manager.instance, filePath)
+        super(LayoutTabbedEditor, self).__init__(layout_compatibility.manager, filePath)
         
         self.requiresProject = True
         
@@ -174,7 +174,7 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
-        extensions = layout_compatibility.Manager.instance.getAllPossibleExtensions()
+        extensions = layout_compatibility.manager.getAllPossibleExtensions()
         return extensions
 
     def canEditFile(self, filePath):

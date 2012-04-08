@@ -37,13 +37,8 @@ class AnimationList1TypeDetector(compatibility.TypeDetector):
 class Manager(compatibility.Manager):
     """Manager of CEGUI animation list compatibility layers"""
     
-    instance = None
-    
     def __init__(self):
         super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
         
         self.EditorNativeType = AnimationList1
         # doesn't make much sense
@@ -55,4 +50,4 @@ class Manager(compatibility.Manager):
         
         self.detectors.append(AnimationList1TypeDetector())
 
-Manager()
+manager = Manager()

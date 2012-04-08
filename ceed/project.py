@@ -275,7 +275,7 @@ class Project(QtGui.QStandardItemModel):
         """Loads XML project file from given path (preferably absolute path)"""
         
         rawData = open(path, "r").read()
-        nativeData = project_compatibility.Manager.instance.transformTo(project_compatibility.Manager.instance.EditorNativeType, rawData, path)
+        nativeData = project_compatibility.manager.transformTo(project_compatibility.manager.EditorNativeType, rawData, path)
         
         root = ElementTree.fromstring(nativeData)
 
@@ -310,7 +310,7 @@ class Project(QtGui.QStandardItemModel):
         
         root = ElementTree.Element("Project")
 
-        root.set("version", project_compatibility.Manager.instance.EditorNativeType)
+        root.set("version", project_compatibility.manager.EditorNativeType)
 
         root.set("name", self.name)
         

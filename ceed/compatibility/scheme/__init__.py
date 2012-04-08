@@ -24,13 +24,8 @@ from ceed.compatibility.scheme import cegui
 class Manager(compatibility.Manager):
     """Manager of scheme compatibility layers"""
     
-    instance = None
-    
     def __init__(self):
         super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
         
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUIScheme1,
@@ -48,4 +43,4 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.CEGUI4ToCEGUI5Layer())
         self.layers.append(cegui.CEGUI5ToCEGUI4Layer())
 
-Manager()
+manager = Manager()

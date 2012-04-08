@@ -35,7 +35,7 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(AnimationListTabbedEditor, self).__init__(animation_list_compatibility.Manager.instance, filePath)
+        super(AnimationListTabbedEditor, self).__init__(animation_list_compatibility.manager, filePath)
         
         self.requiresProject = True
         

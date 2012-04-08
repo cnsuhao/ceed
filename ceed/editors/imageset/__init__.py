@@ -48,7 +48,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
     """
     
     def __init__(self, filePath):
-        super(ImagesetTabbedEditor, self).__init__(imageset_compatibility.Manager.instance, filePath)
+        super(ImagesetTabbedEditor, self).__init__(imageset_compatibility.manager, filePath)
         
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
@@ -185,7 +185,7 @@ class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
-        extensions = imageset_compatibility.Manager.instance.getAllPossibleExtensions()
+        extensions = imageset_compatibility.manager.getAllPossibleExtensions()
         return extensions
 
     def canEditFile(self, filePath):

@@ -24,13 +24,8 @@ from ceed.compatibility.font import cegui
 class Manager(compatibility.Manager):
     """Manager of font compatibility layers"""
     
-    instance = None
-    
     def __init__(self):
         super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
         
         self.EditorNativeType = cegui.CEGUIFont3
         self.CEGUIVersionTypes = {
@@ -47,4 +42,4 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.Font2ToFont3Layer())
         self.layers.append(cegui.Font3ToFont2Layer())
 
-Manager()
+manager = Manager()

@@ -134,7 +134,7 @@ class CompilerInstance(object):
 
         nativeData += "</Imageset>\n"
         
-        outputData = imageset_compatibility.Manager.instance.transform(imageset_compatibility.Manager.instance.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
+        outputData = imageset_compatibility.manager.transform(imageset_compatibility.manager.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
         open(os.path.join(self.metaImageset.getOutputDirectory(), self.metaImageset.output), "w").write(outputData)
         
         print("All done and saved!")

@@ -38,7 +38,7 @@ class PropertyMappings1TypeDetector(compatibility.TypeDetector):
             if root.tag != "mappings":
                 return False
             
-            if root.get("version", "") != Manager.instance.EditorNativeType:
+            if root.get("version", "") != manager.EditorNativeType:
                 return False
         
             return True
@@ -49,13 +49,8 @@ class PropertyMappings1TypeDetector(compatibility.TypeDetector):
 class Manager(compatibility.Manager):
     """Manager of CEED project compatibility layers"""
     
-    instance = None
-    
     def __init__(self):
         super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
         
         self.EditorNativeType = PropertyMappings1
         # doesn't make much sense
@@ -67,4 +62,4 @@ class Manager(compatibility.Manager):
         
         self.detectors.append(PropertyMappings1TypeDetector())
 
-Manager()
+manager = Manager()

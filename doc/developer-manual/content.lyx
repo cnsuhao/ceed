@@ -311,7 +311,7 @@ from ceed.compatibility import imageset as compat
 
 \begin_layout Plain Layout
 
-convertedData = compat.Manager.instance.transform("foo", "bar", data)
+convertedData = compat.manager.transform("foo", "bar", data)
 \end_layout
 
 \end_inset

@@ -24,13 +24,8 @@ from ceed.compatibility.looknfeel import cegui
 class Manager(compatibility.Manager):
     """Manager of looknfeel compatibility layers"""
     
-    instance = None
-    
     def __init__(self):
         super(Manager, self).__init__()
-        
-        assert(Manager.instance is None)
-        Manager.instance = self
         
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUILookNFeel1,
@@ -52,4 +47,4 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.LookNFeel6To7Layer())
         self.layers.append(cegui.LookNFeel7To6Layer())
 
-Manager()
+manager = Manager()

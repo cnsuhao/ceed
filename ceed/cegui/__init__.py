@@ -161,13 +161,14 @@ class Instance(object):
 
     def cleanCEGUIResources(self):
         # destroy all previous resources (if any)
-        PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
-        PyCEGUI.FontManager.getSingleton().destroyAll()
-        PyCEGUI.ImageManager.getSingleton().destroyAll()
-        PyCEGUI.SchemeManager.getSingleton().destroyAll()
-        PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
-        PyCEGUI.AnimationManager.getSingleton().destroyAllAnimations()
-        PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
+        if self.initialised:
+            PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
+            PyCEGUI.FontManager.getSingleton().destroyAll()
+            PyCEGUI.ImageManager.getSingleton().destroyAll()
+            PyCEGUI.SchemeManager.getSingleton().destroyAll()
+            PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
+            PyCEGUI.AnimationManager.getSingleton().destroyAllAnimations()
+            PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
 
     def syncToProject(self, project, mainWindow = None):
         """Synchronises the instance with given project, respecting it's paths and resources
@@ -238,17 +239,17 @@ class Instance(object):
                 updateProgress("Parsing the scheme file")
                 schemeFilePath = project.getResourceFilePath(schemeFile, PyCEGUI.Scheme.getDefaultResourceGroup())
                 rawData = open(schemeFilePath, "r").read()
-                rawDataType = scheme_compatibility.Manager.instance.EditorNativeType
+                rawDataType = scheme_compatibility.manager.EditorNativeType
 
                 try:
-                    rawDataType = scheme_compatibility.Manager.instance.guessType(rawData, schemeFilePath)
+                    rawDataType = scheme_compatibility.manager.guessType(rawData, schemeFilePath)
 
                 except compatibility.NoPossibleTypesError:
                     QtGui.QMessageBox.warning(None, "Scheme doesn't match any known data type", "The scheme '%s' wasn't recognised by CEED as any scheme data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (schemeFilePath))
                     return
 
                 except compatibility.MultiplePossibleTypesError as e:
-                    suitableVersion = scheme_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                    suitableVersion = scheme_compatibility.manager.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                     if suitableVersion not in e.possibleTypes:
                         QtGui.QMessageBox.warning(None, "Incorrect scheme data type", "The scheme '%s' checked out as some potential data types, however not any of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (schemeFilePath, suitableVersion))
@@ -256,7 +257,7 @@ class Instance(object):
 
                     rawDataType = suitableVersion
 
-                nativeData = scheme_compatibility.Manager.instance.transform(rawDataType, scheme_compatibility.Manager.instance.EditorNativeType, rawData)
+                nativeData = scheme_compatibility.manager.transform(rawDataType, scheme_compatibility.manager.EditorNativeType, rawData)
                 scheme = PyCEGUI.SchemeManager.getSingleton().createFromString(nativeData)
 
                 # NOTE: This is very CEGUI implementation specific unfortunately!
@@ -269,17 +270,17 @@ class Instance(object):
                     loadableUIElement = xmlImagesetIterator.getCurrentValue()
                     imagesetFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.ImageManager.getImagesetDefaultResourceGroup())
                     imagesetRawData = open(imagesetFilePath, "r").read()
-                    imagesetRawDataType = imageset_compatibility.Manager.instance.EditorNativeType
+                    imagesetRawDataType = imageset_compatibility.manager.EditorNativeType
                     
                     try:
-                        imagesetRawDataType = imageset_compatibility.Manager.instance.guessType(imagesetRawData, imagesetFilePath)
+                        imagesetRawDataType = imageset_compatibility.manager.guessType(imagesetRawData, imagesetFilePath)
 
                     except compatibility.NoPossibleTypesError:
                         QtGui.QMessageBox.warning(None, "Imageset doesn't match any known data type", "The imageset '%s' wasn't recognised by CEED as any imageset data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (imagesetFilePath))
                         return
 
                     except compatibility.MultiplePossibleTypesError as e:
-                        suitableVersion = imageset_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                        suitableVersion = imageset_compatibility.manager.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                         if suitableVersion not in e.possibleTypes:
                             QtGui.QMessageBox.warning(None, "Incorrect imageset data type", "The imageset '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (imagesetFilePath, suitableVersion))
@@ -287,7 +288,7 @@ class Instance(object):
 
                         imagesetRawDataType = suitableVersion
 
-                    imagesetNativeData = imageset_compatibility.Manager.instance.transform(imagesetRawDataType, imageset_compatibility.Manager.instance.EditorNativeType, imagesetRawData)
+                    imagesetNativeData = imageset_compatibility.manager.transform(imagesetRawDataType, imageset_compatibility.manager.EditorNativeType, imagesetRawData)
 
                     PyCEGUI.ImageManager.getSingleton().loadImagesetFromString(imagesetNativeData)
                     xmlImagesetIterator.next()
@@ -301,17 +302,17 @@ class Instance(object):
                     loadableUIElement = fontIterator.getCurrentValue()
                     fontFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.Font.getDefaultResourceGroup())
                     fontRawData = open(fontFilePath, "r").read()
-                    fontRawDataType = font_compatibility.Manager.instance.EditorNativeType
+                    fontRawDataType = font_compatibility.manager.EditorNativeType
                     
                     try:
-                        fontRawDataType = font_compatibility.Manager.instance.guessType(fontRawData, fontFilePath)
+                        fontRawDataType = font_compatibility.manager.guessType(fontRawData, fontFilePath)
 
                     except compatibility.NoPossibleTypesError:
                         QtGui.QMessageBox.warning(None, "Font doesn't match any known data type", "The font '%s' wasn't recognised by CEED as any font data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (fontFilePath))
                         return
 
                     except compatibility.MultiplePossibleTypesError as e:
-                        suitableVersion = font_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                        suitableVersion = font_compatibility.manager.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                         if suitableVersion not in e.possibleTypes:
                             QtGui.QMessageBox.warning(None, "Incorrect font data type", "The font '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (fontFilePath, suitableVersion))
@@ -319,7 +320,7 @@ class Instance(object):
 
                         fontRawDataType = suitableVersion
 
-                    fontNativeData = font_compatibility.Manager.instance.transform(fontRawDataType, font_compatibility.Manager.instance.EditorNativeType, fontRawData)
+                    fontNativeData = font_compatibility.manager.transform(fontRawDataType, font_compatibility.manager.EditorNativeType, fontRawData)
 
                     PyCEGUI.FontManager.getSingleton().createFromString(fontNativeData)
                     fontIterator.next()
@@ -330,16 +331,16 @@ class Instance(object):
                     loadableUIElement = looknfeelIterator.getCurrentValue()
                     looknfeelFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.WidgetLookManager.getDefaultResourceGroup())
                     looknfeelRawData = open(looknfeelFilePath, "r").read()
-                    looknfeelRawDataType = looknfeel_compatibility.Manager.instance.EditorNativeType
+                    looknfeelRawDataType = looknfeel_compatibility.manager.EditorNativeType
                     try:
-                        looknfeelRawDataType = looknfeel_compatibility.Manager.instance.guessType(looknfeelRawData, looknfeelFilePath)
+                        looknfeelRawDataType = looknfeel_compatibility.manager.guessType(looknfeelRawData, looknfeelFilePath)
 
                     except compatibility.NoPossibleTypesError:
                         QtGui.QMessageBox.warning(None, "LookNFeel doesn't match any known data type", "The looknfeel '%s' wasn't recognised by CEED as any looknfeel data type known to it. Please check that the data isn't corrupted. CEGUI instance synchronisation aborted!" % (looknfeelFilePath))
                         return
 
                     except compatibility.MultiplePossibleTypesError as e:
-                        suitableVersion = looknfeel_compatibility.Manager.instance.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
+                        suitableVersion = looknfeel_compatibility.manager.getSuitableDataTypeForCEGUIVersion(project.CEGUIVersion)
 
                         if suitableVersion not in e.possibleTypes:
                             QtGui.QMessageBox.warning(None, "Incorrect looknfeel data type", "The looknfeel '%s' checked out as some potential data types, however none of these is suitable for your project's target CEGUI version '%s', please check your project settings! CEGUI instance synchronisation aborted!" % (looknfeelFilePath, suitableVersion))
@@ -347,7 +348,7 @@ class Instance(object):
 
                         looknfeelRawDataType = suitableVersion
 
-                    looknfeelNativeData = looknfeel_compatibility.Manager.instance.transform(looknfeelRawDataType, looknfeel_compatibility.Manager.instance.EditorNativeType, looknfeelRawData)
+                    looknfeelNativeData = looknfeel_compatibility.manager.transform(looknfeelRawDataType, looknfeel_compatibility.manager.EditorNativeType, looknfeelRawData)
 
                     PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(looknfeelNativeData)
                     looknfeelIterator.next()
