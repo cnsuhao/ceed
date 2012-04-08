@@ -117,6 +117,14 @@ class Layout3To4Layer(compatibility.Layer):
     def getTargetType(self):
         return CEGUILayout4
     
+    def transformAttribute(self, element, attribute):
+        sourceAttributeName = attribute[0].upper() + attribute[1:]
+        targetAttributeName = sourceAttributeName[0].lower() + sourceAttributeName[1:]
+        
+        if element.get(sourceAttributeName) is not None:
+            element.set(targetAttributeName, element.get(sourceAttributeName))
+            del element.attrib[sourceAttributeName]
+    
     def convertToRelativeNames(self, window, leadingName = ""):
         ret = ""
         
@@ -155,7 +163,8 @@ class Layout3To4Layer(compatibility.Layer):
         if windowType is None:
             windowType = element.get("Type")
             if windowType is None:
-                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
+                windowType = ""
+                #raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
 
         # convert the properties that had 'Unified' prefix
         for property in element.findall(tag):
@@ -199,6 +208,9 @@ class Layout3To4Layer(compatibility.Layer):
         
             def convertImagePropertyToName(property):
                 value = property.get(valueAttribute)
+                if value is None:
+                    value = property.text
+                
                 split = value.split("image:", 1)
                 if len(split) != 2:
                     raise RuntimeError("Failed parsing value '%s' as 0.7 image reference" % (value))
@@ -241,6 +253,13 @@ class Layout3To4Layer(compatibility.Layer):
     def applyChangesRecursively(self, window):
         ret = ""
         
+        for layoutImport in window.findall("LayoutImport"):
+            self.transformAttribute(layoutImport, "filename")
+            self.transformAttribute(layoutImport, "resourceGroup")
+            if layoutImport.get("Prefix") is not None:
+                # no such thing is available in layout version 4
+                del layoutImport.attrib["Prefix"]
+
         Layout3To4Layer.transformPropertiesOf(window)
         for property in window.findall("Property"):
             property.set("name", property.get("Name"))
@@ -249,21 +268,24 @@ class Layout3To4Layer(compatibility.Layer):
             if property.get("Value") is not None:
                 property.set("value", property.get("Value"))
                 del property.attrib["Value"]
-            
-        # convert NameSuffix to NamePath
-        for autoWindow in window.findall("AutoWindow"):
-            self.convertAutoWindowSuffix(autoWindow)
+        
+        for event in window.findall("Event"):
+            self.transformAttribute(event, "name")
+            self.transformAttribute(event, "function")
         
         for childWindow in window.findall("Window"):
             self.applyChangesRecursively(childWindow)
-            
-        #window.tag = "Widget"
         
-        window.set("name", window.get("Name"))
-        del window.attrib["Name"]
+        for autoWindow in window.findall("AutoWindow"):
+            self.convertAutoWindowSuffix(autoWindow)
+            self.applyChangesRecursively(childWindow)
+        
+        if window.get("Name") is not None:
+            window.set("name", window.get("Name"))
+            del window.attrib["Name"]
         window.set("type", window.get("Type"))
         del window.attrib["Type"]
-        
+
         return ret
     
     def transform(self, data):
@@ -273,6 +295,10 @@ class Layout3To4Layer(compatibility.Layer):
         
         # version 4 has a version attribute
         root.set("version", "4")
+        
+        # no parent attribute in layout version 4 (CEGUI 1.0+)
+        if root.get("Parent") is not None:
+            del root.attrib["Parent"]
         
         for window in root.findall("Window"):
             # should be only one window
@@ -291,6 +317,14 @@ class Layout4To3Layer(compatibility.Layer):
     
     def getTargetType(self):
         return CEGUILayout3
+    
+    def transformAttribute(self, element, attribute):
+        targetAttributeName = attribute[0].upper() + attribute[1:]
+        sourceAttributeName = targetAttributeName[0].lower() + targetAttributeName[1:]
+        
+        if element.get(sourceAttributeName) is not None:
+            element.set(targetAttributeName, element.get(sourceAttributeName))
+            del element.attrib[sourceAttributeName]
     
     def convertToAbsoluteNames(self, window, leadingName = ""):
         ret = ""
@@ -318,7 +352,8 @@ class Layout4To3Layer(compatibility.Layer):
         if windowType is None:
             windowType = element.get("type")
             if windowType is None:
-                raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
+                windowType = ""
+                #raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
         
         # convert the properties that had 'Unified' prefix in 0.7
         for property in element.findall(tag):
@@ -362,9 +397,12 @@ class Layout4To3Layer(compatibility.Layer):
                 
             def convertImagePropertyToImagesetImage(property):
                 value = property.get(valueAttribute)
+                if value is None:
+                    value = property.text
+                
                 split = value.split("/", 1)
                 if len(split) != 2:
-                    raise RuntimeError("Failed parsing value '%s' as 0.8 image reference" % (value))
+                    raise RuntimeError("Failed parsing value '%s' as 1.0 image reference" % (value))
                 property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
         
             if windowType.endswith("StaticImage"):
@@ -397,7 +435,11 @@ class Layout4To3Layer(compatibility.Layer):
 
     def applyChangesRecursively(self, window):
         ret = ""
-        
+
+        for layoutImport in window.findall("LayoutImport"):
+            self.transformAttribute(layoutImport, "filename")
+            self.transformAttribute(layoutImport, "resourceGroup")
+
         Layout4To3Layer.transformPropertiesOf(window)
         for property in window.findall("Property"):
             property.set("Name", property.get("name"))
@@ -406,16 +448,24 @@ class Layout4To3Layer(compatibility.Layer):
             if property.get("value") is not None:
                 property.set("Value", property.get("value"))
                 del property.attrib["value"]
-                
-        # convert NameSuffix to NamePath
-        for autoWindow in window.findall("AutoWindow"):
-            self.convertAutoWindowSuffix(autoWindow)
+        
+        for event in window.findall("Event"):
+            self.transformAttribute(event, "name")
+            self.transformAttribute(event, "function")
         
         for childWindow in window.findall("Window"):
             self.applyChangesRecursively(childWindow)
-
-        window.set("Name", window.get("name"))
-        del window.attrib["name"]
+            
+        for autoWindow in window.findall("AutoWindow"):
+            self.convertAutoWindowSuffix(autoWindow)
+            self.applyChangesRecursively(childWindow)
+            
+        for userString in window.findall("UserString"):
+            raise NotImplementedError("Can't migrate, UserString element is not supported in layout version 3 (up to CEGUI 0.7)")
+        
+        if window.get("name") is not None:
+            window.set("Name", window.get("name"))
+            del window.attrib["name"]
         window.set("Type", window.get("type"))
         del window.attrib["type"]
 
