@@ -125,7 +125,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
             self.transformNamedType(looknfeel)
         
         for windowSet in root.findall("WindowSet"):
-            self.transformAttribute(windowRendererSet, "filename")
+            self.transformAttribute(windowSet, "filename")
             
             for windowFactory in windowSet.findall("WindowFactory"):
                 self.transformAttribute(windowFactory, "name")
@@ -191,7 +191,7 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
             self.transformNamedType(looknfeel)
         
         for windowSet in root.findall("WindowSet"):
-            self.transformAttribute(windowRendererSet, "filename")
+            self.transformAttribute(windowSet, "filename")
             
             for windowFactory in windowSet.findall("WindowFactory"):
                 self.transformAttribute(windowFactory, "name")
