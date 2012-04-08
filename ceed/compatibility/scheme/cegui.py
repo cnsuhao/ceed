@@ -104,30 +104,48 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
             element.set(targetAttributeName, element.get(sourceAttributeName))
             del element.attrib[sourceAttributeName]
     
+    def transformNamedType(self, element):
+        self.transformAttribute(element, "name")
+        self.transformAttribute(element, "filename")
+        self.transformAttribute(element, "resourceGroup")
+    
     def transform(self, data):
         root = ElementTree.fromstring(data)
         root.set("version", "5")
         
         self.transformAttribute(root, "name")
-        
-        for font in root.findall("Font"):
-            self.transformAttribute(font, "filename")
             
         for imageset in root.findall("Imageset"):
-            self.transformAttribute(imageset, "filename")
-            
+            self.transformNamedType(imageset)
+        for imagesetFromFile in root.findall("ImagesetFromFile"):
+            self.transformNamedType(imagesetFromFile)
+        for font in root.findall("Font"):
+            self.transformNamedType(font)
         for looknfeel in root.findall("LookNFeel"):
-            self.transformAttribute(looknfeel, "filename")
+            self.transformNamedType(looknfeel)
+        
+        for windowSet in root.findall("WindowSet"):
+            self.transformAttribute(windowRendererSet, "filename")
             
+            for windowFactory in windowSet.findall("WindowFactory"):
+                self.transformAttribute(windowFactory, "name")
+        
         for windowRendererSet in root.findall("WindowRendererSet"):
             self.transformAttribute(windowRendererSet, "filename")
             
             # this particular window renderer set got renamed
             if windowRendererSet.get("filename", "") == "CEGUIFalagardWRBase":
                 windowRendererSet.set("filename", "CEGUICoreWindowRendererSet")
+                
+            for windowRendererFactory in windowRendererSet.findall("WindowRendererFactory"):
+                self.transformAttribute(windowRendererFactory, "name")
+
+        for windowAlias in root.findall("WindowAlias"):
+            self.transformAttribute(windowAlias, "alias")
+            self.transformAttribute(windowAlias, "target")
 
         for falagardMapping in root.findall("FalagardMapping"):
-            for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
+            for attr in ["windowType", "targetType", "renderer", "lookNFeel", "renderEffect"]:
                 self.transformAttribute(falagardMapping, attr)
 
             if falagardMapping.get("renderer") is not None:
@@ -152,30 +170,48 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
             element.set(targetAttributeName, element.get(sourceAttributeName))
             del element.attrib[sourceAttributeName]
     
+    def transformNamedType(self, element):
+        self.transformAttribute(element, "name")
+        self.transformAttribute(element, "filename")
+        self.transformAttribute(element, "resourceGroup")
+    
     def transform(self, data):
         root = ElementTree.fromstring(data)
         del root.attrib["version"]
               
         self.transformAttribute(root, "name")
         
-        for font in root.findall("Font"):
-            self.transformAttribute(font, "filename")
-            
         for imageset in root.findall("Imageset"):
-            self.transformAttribute(imageset, "filename")
-            
+            self.transformNamedType(imageset)
+        for imagesetFromFile in root.findall("ImagesetFromFile"):
+            self.transformNamedType(imagesetFromFile)
+        for font in root.findall("Font"):
+            self.transformNamedType(font)
         for looknfeel in root.findall("LookNFeel"):
-            self.transformAttribute(looknfeel, "filename")
+            self.transformNamedType(looknfeel)
+        
+        for windowSet in root.findall("WindowSet"):
+            self.transformAttribute(windowRendererSet, "filename")
             
+            for windowFactory in windowSet.findall("WindowFactory"):
+                self.transformAttribute(windowFactory, "name")
+        
         for windowRendererSet in root.findall("WindowRendererSet"):
             self.transformAttribute(windowRendererSet, "filename")
             
             # this particular window renderer set got renamed
             if windowRendererSet.get("Filename", "") == "CEGUICoreWindowRendererSet":
                 windowRendererSet.set("Filename", "CEGUIFalagardWRBase")
+                
+            for windowRendererFactory in windowRendererSet.findall("WindowRendererFactory"):
+                self.transformAttribute(windowRendererFactory, "name")
+
+        for windowAlias in root.findall("WindowAlias"):
+            self.transformAttribute(windowAlias, "alias")
+            self.transformAttribute(windowAlias, "target")
 
         for falagardMapping in root.findall("FalagardMapping"):
-            for attr in ["windowType", "targetType", "renderer", "lookNFeel"]:
+            for attr in ["windowType", "targetType", "renderer", "lookNFeel", "renderEffect"]:
                 self.transformAttribute(falagardMapping, attr)
 
             if falagardMapping.get("Renderer") is not None:
