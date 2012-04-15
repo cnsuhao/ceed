@@ -39,8 +39,8 @@ def check(supressMessagesIfNotFatal = True):
     try:
         __import__("PySide")
         
-    except ImportError:
-        messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org")
+    except ImportError as e:
+        messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org. (exception: %s)" % (e))
         ret = False
 
     # PyOpenGL
@@ -48,8 +48,8 @@ def check(supressMessagesIfNotFatal = True):
         __import__("OpenGL.GL")
         __import__("OpenGL.GLU")
         
-    except ImportError:
-        messages.append("PyOpenGL package is missing! PyOpenGL provides Python bindings for OpenGL, they can be found in the pypi repository.")
+    except ImportError as e:
+        messages.append("PyOpenGL package is missing! PyOpenGL provides Python bindings for OpenGL, they can be found in the pypi repository. (exception: %s)" % (e))
         ret = False
 
     # PyCEGUI
@@ -58,12 +58,12 @@ def check(supressMessagesIfNotFatal = True):
         try:
             __import__("PyCEGUIOpenGLRenderer")
             
-        except ImportError:
-            messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it.")
+        except ImportError as e:
+            messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it. (exception: %s)" % (e))
             ret = False
     
-    except ImportError:
-        messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk")
+    except ImportError as e:
+        messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk. (exception: %s)" % (e))
         ret = False
 
     # Version module
