@@ -30,7 +30,7 @@ class Font2TypeDetector(compatibility.TypeDetector):
         return CEGUIFont2
     
     def getPossibleExtensions(self):
-        return {"font"}
+        return set(["font"])
     
     def matches(self, data, extension):
         if extension not in ["", "font"]:
@@ -60,7 +60,7 @@ class Font3TypeDetector(compatibility.TypeDetector):
         return CEGUIFont3
     
     def getPossibleExtensions(self):
-        return {"font"}
+        return set(["font"])
     
     def matches(self, data, extension):
         if extension not in ["", "font"]:

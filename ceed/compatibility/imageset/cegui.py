@@ -29,7 +29,7 @@ class Imageset1TypeDetector(compatibility.TypeDetector):
         return CEGUIImageset1
     
     def getPossibleExtensions(self):
-        return {"imageset"}
+        return ["imageset"]
     
     def matches(self, data, extension):
         if extension not in ["", "imageset"]:
@@ -59,7 +59,7 @@ class Imageset2TypeDetector(compatibility.TypeDetector):
         return CEGUIImageset2
     
     def getPossibleExtensions(self):
-        return {"imageset"}
+        return set(["imageset"])
     
     def matches(self, data, extension):
         if extension not in ["", "imageset"]:

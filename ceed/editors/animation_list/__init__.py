@@ -144,7 +144,7 @@ class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
 
 class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
-        extensions = {"anims"}
+        extensions = set(["anims"])
         return extensions
 
     def canEditFile(self, filePath):

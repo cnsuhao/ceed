@@ -336,11 +336,11 @@ class PropertyEditCommand(commands.UndoCommand):
         # about the related properties as well.
         related = None
         if self.propertyName == "Size":
-            related = { "Area" }
+            related = set([ "Area" ])
         elif self.propertyName == "Area":
             related = { "Position", "Size" }
         elif self.propertyName == "Position":
-            related = { "Area" }
+            related = set([ "Area" ])
         
         if related is not None:
             widgetManipulator.triggerPropertyManagerCallback(related)
@@ -424,7 +424,7 @@ class HorizontalAlignCommand(commands.UndoCommand):
             widgetManipulator.widget.setHorizontalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
 
-            widgetManipulator.triggerPropertyManagerCallback({"HorizontalAlignment"})
+            widgetManipulator.triggerPropertyManagerCallback(set(["HorizontalAlignment"]))
 
     def redo(self):
         for widgetPath in self.widgetPaths:
@@ -432,7 +432,7 @@ class HorizontalAlignCommand(commands.UndoCommand):
             widgetManipulator.widget.setHorizontalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
 
-            widgetManipulator.triggerPropertyManagerCallback({"HorizontalAlignment"})
+            widgetManipulator.triggerPropertyManagerCallback(set(["HorizontalAlignment"]))
 
         super(HorizontalAlignCommand, self).redo()
 
@@ -487,7 +487,7 @@ class VerticalAlignCommand(commands.UndoCommand):
             widgetManipulator.widget.setVerticalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
 
-            widgetManipulator.triggerPropertyManagerCallback({"VerticalAlignment"})
+            widgetManipulator.triggerPropertyManagerCallback(set(["VerticalAlignment"]))
 
     def redo(self):
         for widgetPath in self.widgetPaths:
@@ -495,7 +495,7 @@ class VerticalAlignCommand(commands.UndoCommand):
             widgetManipulator.widget.setVerticalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
 
-            widgetManipulator.triggerPropertyManagerCallback({"VerticalAlignment"})
+            widgetManipulator.triggerPropertyManagerCallback(set(["VerticalAlignment"]))
 
         super(VerticalAlignCommand, self).redo()
 

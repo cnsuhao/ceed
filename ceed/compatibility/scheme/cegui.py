@@ -32,7 +32,7 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         return CEGUIScheme4
     
     def getPossibleExtensions(self):
-        return {"scheme"}
+        return set(["scheme"])
     
     def matches(self, data, extension):
         if extension not in ["", "scheme"]:
@@ -63,7 +63,7 @@ class Scheme5TypeDetector(compatibility.TypeDetector):
         return CEGUIScheme5
     
     def getPossibleExtensions(self):
-        return {"scheme"}
+        return set(["scheme"])
     
     def matches(self, data, extension):
         if extension not in ["", "scheme"]:

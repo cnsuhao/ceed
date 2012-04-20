@@ -265,7 +265,7 @@ class Project(QtGui.QStandardItemModel):
         
         self.changed = True
         
-        pmappings = { "mappings/Base.pmappings" }
+        pmappings = set([ "mappings/Base.pmappings" ])
         self.propertyMap = propertymapping.PropertyMap.fromFiles([os.path.abspath(path) for path in pmappings])
 
     def getSupportedDropActions(self):
