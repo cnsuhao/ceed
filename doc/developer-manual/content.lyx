@@ -385,7 +385,7 @@ Located in the
 ceed.editors.layout
 \emph default
  package.
- CEGUI Window is used to model the entire layout hiearchy.
+ CEGUI Window is used to model the entire layout hierarchy.
  We use WidgetManipulator class to add serialisation (for undo/redo), resizing
  handles and more to windows.
  It's a multimode editor with visual, code and live preview modes.
