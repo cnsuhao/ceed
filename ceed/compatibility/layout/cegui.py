@@ -40,7 +40,7 @@ class Layout2TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         
         try:
-            root = ElementTree.fromstring(data)
+            root = ElementTree.fromstring(data.encode("utf-8"))
             if root.tag != "GUILayout":
                 return False
             
@@ -69,7 +69,7 @@ class Layout3TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         
         try:
-            root = ElementTree.fromstring(data)
+            root = ElementTree.fromstring(data.encode("utf-8"))
             if root.tag != "GUILayout":
                 return False
             
@@ -98,7 +98,7 @@ class Layout4TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         
         try:
-            root = ElementTree.fromstring(data)
+            root = ElementTree.fromstring(data.encode("utf-8"))
             if root.tag != "GUILayout":
                 return False
             
@@ -291,7 +291,7 @@ class Layout3To4Layer(compatibility.Layer):
     def transform(self, data):
         log = ""
         
-        root = ElementTree.fromstring(data)
+        root = ElementTree.fromstring(data.encode("utf-8"))
         
         # version 4 has a version attribute
         root.set("version", "4")
@@ -309,7 +309,7 @@ class Layout3To4Layer(compatibility.Layer):
             # apply other changes
             log += self.applyChangesRecursively(window)
             
-        return ElementTree.tostring(root, "utf-8")
+        return unicode(ElementTree.tostring(root, "utf-8"), encoding = "utf-8")
 
 class Layout4To3Layer(compatibility.Layer):
     def getSourceType(self):
@@ -474,7 +474,7 @@ class Layout4To3Layer(compatibility.Layer):
     def transform(self, data):
         log = ""
         
-        root = ElementTree.fromstring(data)
+        root = ElementTree.fromstring(data.encode("utf-8"))
         
         # version 3 must not have a version attribute
         del root.attrib["version"]
@@ -488,4 +488,4 @@ class Layout4To3Layer(compatibility.Layer):
             # apply other changes
             log += self.applyChangesRecursively(window)
             
-        return ElementTree.tostring(root, "utf-8")
+        return unicode(ElementTree.tostring(root, "utf-8"), encoding = "utf-8")

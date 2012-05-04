@@ -133,7 +133,6 @@ class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
             return False
         
         self.nativeData = PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
-        
         return super(LayoutTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
     def performCut(self):

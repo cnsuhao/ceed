@@ -227,7 +227,7 @@ class Property(object):
         if isinstance(value, Property):
             raise TypeError("The 'value' argument of the '%s' Property can't be a Property." % name)
 
-        self.name = str(name) # make sure it's string
+        self.name = unicode(name) # make sure it's string
         self.value = value
         self.defaultValue = defaultValue
         self.category = category
@@ -304,7 +304,8 @@ class Property(object):
         if self.value is not None:
             if issubclass(type(self.value), Property):
                 return self.value.valueToString()
-            return str(self.value)
+            return unicode(self.value)
+        
         return ""
 
     def isStringRepresentationEditable(self):

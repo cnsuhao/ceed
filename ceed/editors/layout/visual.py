@@ -470,7 +470,7 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
     def tryUpdateInner(self, newValue, reason=pt.properties.Property.ChangeValueReason.Unknown):
         if super(WidgetMultiPropertyWrapper, self).tryUpdateInner(newValue, reason):
-            ceguiValue = str(newValue)
+            ceguiValue = unicode(newValue)
 
             # create and execute command
             widgetPaths = []

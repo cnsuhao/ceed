@@ -26,6 +26,8 @@ from PySide import QtCore
 from PySide import QtGui
 
 import os.path
+import codecs
+
 from ceed import compatibility
 
 import ceed.ui.editors.notypedetected
@@ -169,9 +171,9 @@ class TabbedEditor(object):
         self.tabWidget.tabbedEditor = self
         
         self.mainWindow.tabs.addTab(self.tabWidget, self.tabLabel)
-        
+
         if self.compatibilityManager is not None:
-            rawData = open(self.filePath, "r").read()
+            rawData = codecs.open(self.filePath, mode = "r", encoding = "utf-8").read()
             rawDataType = ""
             
             if rawData == "":
@@ -386,7 +388,7 @@ class TabbedEditor(object):
         self.removeFileMonitor(self.filePath)
         
         try:
-            f = open(targetPath, "w")
+            f = codecs.open(targetPath, mode = "w", encoding = "utf-8")
             f.write(outputData)
             f.close()
             

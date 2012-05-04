@@ -106,7 +106,7 @@ class AstHelper(object):
         so that it would automatically accept 'true' and 'false' (in the string
         value) without quotes and will convert them to True and False.
         """
-        vr = dict((str(key).lower(), value) for key, value in valueReplacements.items())
+        vr = dict((unicode(key).lower(), value) for key, value in valueReplacements.items())
         def convertHook(node, convert):
             if isinstance(node, Dict):
                 return True, OrderedDict((convert(key), convert(value)) for key, value in zip(node.keys, node.values))
@@ -114,7 +114,7 @@ class AstHelper(object):
                 if node.id.lower() in vr:
                     return True, vr[node.id.lower()]
                 else:
-                    return True, str(node.id)
+                    return True, unicode(node.id)
             return False, None
 
         return AstHelper.delegate_literal_eval(strValue, convertHook)
