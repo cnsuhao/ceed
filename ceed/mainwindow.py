@@ -1436,6 +1436,7 @@ parent directory?")
         ret = editors_htmlview.HTMLViewTabbedEditor("help:///quickstart-guide", open("../doc/quickstart-guide/content.xhtml").read())
         ret.initialise(self)
         self.tabEditors.append(ret)
+        ret.makeCurrent()
     
     def slot_helpUserManual(self):
         if self.activateEditorTabByFilePath("help:///user-manual"):
@@ -1444,6 +1445,7 @@ parent directory?")
         ret = editors_htmlview.HTMLViewTabbedEditor("help:///user-manual", open("../doc/user-manual/content.xhtml").read())
         ret.initialise(self)
         self.tabEditors.append(ret)
+        ret.makeCurrent()
         
     def slot_helpWikiPage(self):
         QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")
