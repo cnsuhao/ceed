@@ -662,9 +662,10 @@ class MessageTabbedEditor(TabbedEditor):
     def __init__(self, filePath, message):
         super(MessageTabbedEditor, self).__init__(None, filePath)
         
-        self.message = message
-        self.tabWidget = QtGui.QLabel(self.message)
-        self.tabWidget.setWordWrap(True)
+        self.label = QtGui.QLabel(message)
+        self.label.setWordWrap(True)
+        self.tabWidget = QtGui.QScrollArea()
+        self.tabWidget.setWidget(self.label)
         
     def hasChanges(self):
         return False

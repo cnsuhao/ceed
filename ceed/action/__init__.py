@@ -139,10 +139,16 @@ class ActionManager(declaration.ActionManager):
                              icon = QIcon("icons/actions/quit.png"),
                              defaultShortcut = QKeySequence(QKeySequence.Quit),
                              menuRole = QAction.QuitRole)
-        general.createAction(name = "help_contents", label = "&Contents",
-                             help = "Opens the help page.",
-                             icon = QIcon("icons/actions/help_contents.png"),
+        general.createAction(name = "help_quickstart", label = "&Quickstart Guide",
+                             help = "Opens the quick start guide (inside editor).",
+                             icon = QIcon("icons/actions/help_quickstart.png"),
                              defaultShortcut = QKeySequence(QKeySequence.HelpContents))
+        general.createAction(name = "help_user_manual", label = "&User manual",
+                             help = "Opens the user manual (inside editor).",
+                             icon = QIcon("icons/actions/help_user_manual.png"))
+        general.createAction(name = "help_wiki_page", label = "&Wiki page",
+                             help = "Opens the wiki page.",
+                             icon = QIcon("icons/actions/help_wiki_page.png"))
         general.createAction(name = "send_feedback", label = "Send &Feedback",
                              help = "Opens the feedback forum.",
                              icon = QIcon("icons/actions/help_feedback.png"))

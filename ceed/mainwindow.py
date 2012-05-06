@@ -32,6 +32,7 @@ from ceed import cegui
 from ceed import filesystembrowser
 import ceed.cegui.container as cegui_container
 from ceed import editors
+from ceed.editors import htmlview as editors_htmlview
 
 #from ceed import help
 from ceed import recentlyused
@@ -275,8 +276,14 @@ class MainWindow(QtGui.QMainWindow):
         self.quitAction = self.actionManager.getAction("general/quit")
         self.connectionGroup.add(self.quitAction, receiver = self.slot_quit)
 
-        self.helpContentsAction = self.actionManager.getAction("general/help_contents")
-        self.connectionGroup.add(self.helpContentsAction, receiver = self.slot_helpContents)
+        self.helpQuickstartAction = self.actionManager.getAction("general/help_quickstart")
+        self.connectionGroup.add(self.helpQuickstartAction, receiver = self.slot_helpQuickstart)
+        
+        self.helpUserManualAction = self.actionManager.getAction("general/help_user_manual")
+        self.connectionGroup.add(self.helpUserManualAction, receiver = self.slot_helpUserManual)
+        
+        self.helpWikiPageAction = self.actionManager.getAction("general/help_wiki_page")
+        self.connectionGroup.add(self.helpWikiPageAction, receiver = self.slot_helpWikiPage)
 
         self.sendFeedbackAction = self.actionManager.getAction("general/send_feedback")
         self.connectionGroup.add(self.sendFeedbackAction, receiver = self.slot_sendFeedback)
@@ -463,7 +470,9 @@ class MainWindow(QtGui.QMainWindow):
         #
         self.helpMenu = QtGui.QMenu("&Help")
         self.menuBar().addMenu(self.helpMenu)
-        self.helpMenu.addAction(self.helpContentsAction)
+        self.helpMenu.addAction(self.helpQuickstartAction)
+        self.helpMenu.addAction(self.helpUserManualAction)
+        self.helpMenu.addAction(self.helpWikiPageAction)
         self.helpMenu.addSeparator()
         self.helpMenu.addActions([self.sendFeedbackAction, self.reportBugAction, self.ceguiDebugInfoAction])
         self.helpMenu.addSeparator()
@@ -1420,7 +1429,23 @@ parent directory?")
     def slot_toggleStatusbar(self):
         self.statusBar().hide() if self.statusBar().isVisible() else self.statusBar().show()
 
-    def slot_helpContents(self):
+    def slot_helpQuickstart(self):
+        if self.activateEditorTabByFilePath("help:///quickstart-guide"):
+            return
+        
+        ret = editors_htmlview.HTMLViewTabbedEditor("help:///quickstart-guide", open("../doc/quickstart-guide/content.xhtml").read())
+        ret.initialise(self)
+        self.tabEditors.append(ret)
+    
+    def slot_helpUserManual(self):
+        if self.activateEditorTabByFilePath("help:///user-manual"):
+            return
+        
+        ret = editors_htmlview.HTMLViewTabbedEditor("help:///user-manual", open("../doc/user-manual/content.xhtml").read())
+        ret.initialise(self)
+        self.tabEditors.append(ret)
+        
+    def slot_helpWikiPage(self):
         QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")
 
     def slot_sendFeedback(self):
