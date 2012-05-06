@@ -79,8 +79,8 @@ A: Why are there no images in this guide? A: Because I am lazy AND because
 \end_layout
 
 \begin_layout Standard
-Hi, now that you've started the editor, it's time to take a few minutes
- to learn basic concepts of it.
+Now that you've started the editor, it's time to take a few minutes to learn
+ basic concepts of it.
  Lets start with some terminology.
 \end_layout
 
@@ -111,16 +111,24 @@ Compatibility layer
  a strict requirement)
 \end_layout
 
+\begin_layout Itemize
+
+\emph on
+Embedded CEGUI
+\emph default
+ - the editor uses CEGUI internally to make sure it's all WYSIWYG, embedded
+ CEGUI is the CEGUI instance that runs in the editor, project file is needed
+ to start it
+\end_layout
+
 \begin_layout Section
 Opening existing files and projects
 \end_layout
 
 \begin_layout Standard
-There are 2 categories of files, the ones that need embedded CEGUI running
- and the ones that don't.
- If you need to open an imageset, you don't need to have a project file
- opened (and therefore CEGUI embedded instance running).
- It is still recommended to have a project opened for everything since that
+Some of the simpler datafiles (e.g.
+ imagesets) can be opened without having a project file setup, however it
+ is still recommended to have a project opened for everything since that
  way your custom resource provider path settings are honoured.
 \end_layout
 
@@ -150,7 +158,8 @@ status open
 \begin_layout Plain Layout
 If you are working on a project and are not a programmer, you probably should
  ask one of the coders to set up a project file for you.
- They can simply send you the archived folder to open.
+ They can simply send you the archived folder to open or even commit it
+ to your team repository for more efficient workflow.
 \end_layout
 
 \end_inset
@@ -168,6 +177,11 @@ target CEGUI version
 
 \begin_layout Itemize
 paths! same as you use in DefaultResourceProvider setResourceGroup calls
+ (in CEGUI stock data it's the 
+\emph on
+datafile
+\emph default
+s folder)
 \end_layout
 
 \begin_layout Standard
@@ -190,7 +204,7 @@ version control friendly
 \begin_inset Quotes erd
 \end_inset
 
- and is relocatable.
+ and is relocatable (you can simply move it around on the disk).
  Your colleagues can clone/checkout and move it somewhere else and it will
  still work unless you do something stupid, like reference files across
  different drives (Windows only).
@@ -229,7 +243,7 @@ After the file is created you will be asked for target CEGUI version and
  The editor will attempt to bootstrap CEGUI based on your values after you
  press OK.
  Don't continue with this guide unless everything goes smoothly and no error
- dialogs are shown! 
+ dialogs are shown!
 \end_layout
 
 \begin_layout Subsection
@@ -292,7 +306,7 @@ Further reading
 \end_layout
 
 \begin_layout Standard
-This has been just a really quick run through the basics.
+This has been just a really quick run through the basics to get you started.
  See the 
 \emph on
 user-manual.pdf
