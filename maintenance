@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
@@ -24,8 +24,8 @@
 to be performed with CEED codebase
 """
 
-# I would have preferred a bash script but to potentially allow Windows
-# folks to use this as well I have chosen python in the end
+# I would have preferred a bash script or a Makefile but to potentially
+# allow Windows folks to use this as well I have chosen python in the end
 
 import sys
 import os
@@ -40,6 +40,10 @@ def get_temporary_directory_path():
         os.mkdir(temp_directory_path)
         
     return temp_directory_path
+
+def compile_ui_files():
+    from ceed import compileuifiles
+    compileuifiles.main()
 
 def fetch_datafiles():
     v0_7_branch = "v0-7"
@@ -146,11 +150,14 @@ def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
     
     parser.add_argument("task", type = str,
-                        help = "Which task do you want to perform? (valid choices: fetch-datafiles, archive, clean)")
+                        help = "Which task do you want to perform? (valid choices: compile-ui-files, fetch-datafiles, archive, clean)")
     
     args = parser.parse_args()
     
-    if args.task == "fetch-datafiles":
+    if args.task == "compile-ui-files":
+        compile_ui_files()
+    
+    elif args.task == "fetch-datafiles":
         fetch_datafiles()
     
     elif args.task == "archive":
