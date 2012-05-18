@@ -143,10 +143,16 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
         for windowAlias in root.findall("WindowAlias"):
             self.transformAttribute(windowAlias, "alias")
             self.transformAttribute(windowAlias, "target")
+            
+            if windowAlias.get("target", "") == "CEGUI/Checkbox":
+                windowAlias.set("target", "CEGUI/ToggleButton")
 
         for falagardMapping in root.findall("FalagardMapping"):
             for attr in ["windowType", "targetType", "renderer", "lookNFeel", "renderEffect"]:
                 self.transformAttribute(falagardMapping, attr)
+
+            if falagardMapping.get("targetType", "") == "CEGUI/Checkbox":
+                falagardMapping.set("targetType", "CEGUI/ToggleButton")
 
             if falagardMapping.get("renderer") is not None:
                 rendererValue = falagardMapping.get("renderer")
@@ -209,10 +215,16 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
         for windowAlias in root.findall("WindowAlias"):
             self.transformAttribute(windowAlias, "alias")
             self.transformAttribute(windowAlias, "target")
+            
+            if windowAlias.get("Target", "") == "CEGUI/ToggleButton":
+                windowAlias.set("Target", "CEGUI/Checkbox")
 
         for falagardMapping in root.findall("FalagardMapping"):
             for attr in ["windowType", "targetType", "renderer", "lookNFeel", "renderEffect"]:
                 self.transformAttribute(falagardMapping, attr)
+
+            if falagardMapping.get("TargetType", "") == "CEGUI/ToggleButton":
+                falagardMapping.set("TargetType", "CEGUI/Checkbox")
 
             if falagardMapping.get("Renderer") is not None:
                 rendererValue = falagardMapping.get("Renderer")
