@@ -21,6 +21,8 @@ xcuserdata/
 
 pylint-output
 
+doc/*/*.pdf
+doc/*/*.xhtml
 
 data/samples/datafiles0_7/
 data/samples/datafiles1_0/
