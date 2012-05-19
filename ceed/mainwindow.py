@@ -676,7 +676,11 @@ Details of this error: %s""" % (e))
         
         ret = None
 
-        projectRelativePath = os.path.relpath(absolutePath, self.project.baseDirectory) if self.project else "<No project opened>"
+        projectRelativePath = "N/A"
+        try:
+            projectRelativePath = os.path.relpath(absolutePath, self.project.getAbsolutePathOf("")) if self.project else "<No project opened>"
+        except:
+            pass
 
         if not os.path.exists(absolutePath):
             ret = editors.MessageTabbedEditor(absolutePath,
