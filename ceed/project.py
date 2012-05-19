@@ -248,7 +248,6 @@ class Project(QtGui.QStandardItemModel):
         self.prototype = Item(self)
         self.setItemPrototype(self.prototype)
         
-        self.name = "Unknown"
         self.projectFilePath = ""
         
         self.baseDirectory = "./"
@@ -279,8 +278,6 @@ class Project(QtGui.QStandardItemModel):
         
         root = ElementTree.fromstring(nativeData)
 
-        self.name = root.get("name", "Unknown")
-            
         self.baseDirectory = root.get("baseDirectory", "./")
         self.CEGUIVersion = root.get("CEGUIVersion", compatibility.EditorEmbeddedCEGUIVersion)
         
@@ -312,8 +309,6 @@ class Project(QtGui.QStandardItemModel):
 
         root.set("version", project_compatibility.manager.EditorNativeType)
 
-        root.set("name", self.name)
-        
         root.set("baseDirectory", self.baseDirectory)
         
         root.set("CEGUIVersion", self.CEGUIVersion)
@@ -708,19 +703,13 @@ class NewProjectDialog(QtGui.QDialog):
         self.ui = ceed.ui.newprojectdialog.Ui_NewProjectDialog()
         self.ui.setupUi(self)
         
-        self.projectName = self.findChild(QtGui.QLineEdit, "projectName")
-        
         self.projectFilePath = self.findChild(qtwidgets.FileLineEdit, "projectFilePath")
         self.projectFilePath.filter = "Project file (*.project)"
         self.projectFilePath.mode = qtwidgets.FileLineEdit.NewFileMode    
 
-        self.createResourceDirs = self.ui.createDefaultDirectories
+        self.createResourceDirs = self.findChild(QtGui.QCheckBox, "createResourceDirs")
     
     def accept(self):
-        if self.projectName.text() == "":
-            QtGui.QMessageBox.critical(self, "Project name empty!", "You must supply a valid project name!")
-            return
-        
         if self.projectFilePath.text() == "":
             QtGui.QMessageBox.critical(self, "Project file path empty!", "You must supply a valid project file path!")
             return
@@ -734,8 +723,26 @@ class NewProjectDialog(QtGui.QDialog):
     # creates the project using data from this dialog    
     def createProject(self):
         ret = Project()
-        ret.name = self.projectName.text()
         ret.projectFilePath = self.projectFilePath.text()
+        
+        if not ret.projectFilePath.endswith(".project"):
+            # enforce the "project" extension
+            ret.projectFilePath += ".project"
+        
+        if self.createResourceDirs.checkState() == QtCore.Qt.Checked:
+            try:
+                prefix = os.path.dirname(ret.projectFilePath)
+                dirs = ["fonts", "imagesets", "looknfeel", "schemes", "layouts", "xml_schemas"]
+
+                for dir in dirs:
+                    if not os.path.exists(os.path.join(prefix, dir)):
+                        os.mkdir(os.path.join(prefix, dir))
+
+            except OSError as e:
+                QtGui.QMessageBox.critical(self, "Cannot create resource \
+directories!", "There was a problem creating the resource \
+directories.  Do you have the proper permissions on the \
+parent directory? (exception info: %s)" % (e))
         
         return ret
 
@@ -749,7 +756,6 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.ui = ceed.ui.projectsettingsdialog.Ui_ProjectSettingsDialog()
         self.ui.setupUi(self)
         
-        self.projectName = self.findChild(QtGui.QLineEdit, "projectName")
         self.baseDirectory = self.findChild(qtwidgets.FileLineEdit, "baseDirectory")
         self.baseDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
     
@@ -777,7 +783,6 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.xmlSchemasPath = self.findChild(qtwidgets.FileLineEdit, "xmlSchemasPath")
         self.xmlSchemasPath.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
         
-        self.projectName.setText(project.name)
         self.baseDirectory.setText(project.getAbsolutePathOf(""))
         self.imagesetsPath.setText(project.getAbsolutePathOf(project.imagesetsPath))
         self.fontsPath.setText(project.getAbsolutePathOf(project.fontsPath))
@@ -790,7 +795,6 @@ class ProjectSettingsDialog(QtGui.QDialog):
         """Applies values from this dialog to given project
         """
         
-        project.name = self.projectName.text()
         absBaseDir = os.path.normpath(os.path.abspath(self.baseDirectory.text()))
         project.baseDirectory = os.path.relpath(absBaseDir, os.path.dirname(project.projectFilePath))
         
@@ -812,4 +816,3 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.schemesPath.setText(os.path.join(resourceDir, "schemes"))
         self.layoutsPath.setText(os.path.join(resourceDir, "layouts"))
         self.xmlSchemasPath.setText(os.path.join(resourceDir, "xmlSchemas"))
-        

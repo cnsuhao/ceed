@@ -896,37 +896,9 @@ Details of this error: %s""" % (e))
         newProject = newProjectDialog.createProject()
         newProject.save()
 
-        if newProjectDialog.createResourceDirs.checkState() == QtCore.Qt.Checked:
-            try:
-                # FIXME: This should be changed to use os.path.join
-                
-                path = os.path.dirname(newProjectDialog.projectFilePath.text())+"/"
-                if not os.path.exists(path+"fonts"):
-                    os.mkdir(path+"fonts")
-                if not os.path.exists(path+"imagesets"):
-                    os.mkdir(path+"imagesets")
-                if not os.path.exists(path+"layouts"):
-                    os.mkdir(path+"layouts")
-                if not os.path.exists(path+"looknfeel"):
-                    os.mkdir(path+"looknfeel")
-                if not os.path.exists(path+"schemes"):
-                    os.mkdir(path+"schemes")
-                if not os.path.exists(path+"xml_schemas"):
-                    os.mkdir(path+"xml_schemas")
-            except OSError:
-                QtGui.QMessageBox.critical(self, "Cannot create resource \
-directories!", "There was a problem creating the resource \
-directories.  Do you have the proper permissions on the \
-parent directory?")
-
-        # This is a new project.  If the user lets CEED create the resource
-        # directories, there's no need to bring up the settings activity.
-        # If the user doesn't want CEED to create the default resource
-        # directories, additional information needs to be entered.
-        if newProjectDialog.createResourceDirs.checkState() == QtCore.Qt.Checked:
-            self.openProject(path = newProject.projectFilePath)
-        else:
-            self.openProject(path = newProject.projectFilePath, openSettings = True)
+        # open the settings window after creation so that user can further customise their
+        # new project file
+        self.openProject(path = newProject.projectFilePath, openSettings = True)
             
         # save the project with the settings that were potentially set in the project settings dialog
         self.saveProject()
