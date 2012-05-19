@@ -224,5 +224,5 @@ class Manager(object):
         sourceType = self.guessType(code, extension)
         return self.transform(sourceType, targetType, code) 
 
-CEGUIVersions = ["0.6", "0.7", "0.8"]
-EditorEmbeddedCEGUIVersion = "0.8"
+CEGUIVersions = ["0.6", "0.7", "1.0"]
+EditorEmbeddedCEGUIVersion = "1.0"

@@ -36,7 +36,7 @@ class Manager(compatibility.Manager):
             # we only support non-obsolete major versions
             #"0.7.0" : cegui.CEGUILookNFeel5,
             "0.7" : cegui.CEGUILookNFeel6, # because of animations, since 0.7.2
-            "0.8" : cegui.CEGUILookNFeel7
+            "1.0" : cegui.CEGUILookNFeel7
         }
 
         self.EditorNativeType = cegui.CEGUILookNFeel7

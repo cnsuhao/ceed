@@ -45,7 +45,7 @@ class Manager(compatibility.Manager):
         self.CEGUIVersionType = {
             "0.6" : None,
             "0.7" : AnimationList1,
-            "0.8" : AnimationList1
+            "1.0" : AnimationList1
         }
         
         self.detectors.append(AnimationList1TypeDetector())

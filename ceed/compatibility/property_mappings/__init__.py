@@ -57,7 +57,7 @@ class Manager(compatibility.Manager):
         self.CEGUIVersionType = {
             "0.6" : PropertyMappings1,
             "0.7" : PropertyMappings1,
-            "0.8" : PropertyMappings1
+            "1.0" : PropertyMappings1
         }
         
         self.detectors.append(PropertyMappings1TypeDetector())

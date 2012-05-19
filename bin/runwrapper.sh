@@ -10,7 +10,7 @@ CEGUI_BUILD_PATH="../../cegui_mk2"
 # directory where the "ceed" package is located
 CEED_PACKAGE_PATH="../"
 
-# Not needed with the new RPATH stuff in 0.8
+# Not needed with the new RPATH stuff in 1.0
 #export LD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/cegui/src/:$CEGUI_BUILD_PATH/build/cegui/src/RendererModules/OpenGL:$LD_LIBRARY_PATH"
 
 export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$CEED_PACKAGE_PATH:$PYTHONPATH"

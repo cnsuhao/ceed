@@ -33,7 +33,7 @@ class Manager(compatibility.Manager):
         self.CEGUIVersionTypes = {
             "0.6" : cegui.CEGUIImageset1,
             "0.7" : cegui.CEGUIImageset1,
-            "0.8" : cegui.CEGUIImageset2
+            "1.0" : cegui.CEGUIImageset2
         }
         
         self.detectors.append(cegui.Imageset1TypeDetector())

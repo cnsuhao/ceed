@@ -31,7 +31,7 @@ class Manager(compatibility.Manager):
             "0.5" : cegui.CEGUILayout2,
             "0.6" : cegui.CEGUILayout2,
             "0.7" : cegui.CEGUILayout3,
-            "0.8" : cegui.CEGUILayout4
+            "1.0" : cegui.CEGUILayout4
         }
 
         self.EditorNativeType = cegui.CEGUILayout4

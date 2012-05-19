@@ -23,7 +23,7 @@ pylint-output
 
 
 data/samples/datafiles0_7/
-data/samples/datafiles0_8/
+data/samples/datafiles1_0/
 
 ui/**.py
 
