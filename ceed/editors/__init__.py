@@ -229,6 +229,19 @@ class TabbedEditor(object):
                 
                 # by default, save in the same format as we opened in
                 self.desiredSavingDataType = rawDataType
+
+                if mainWindow.project is not None:
+                    projectCompatibleDataType = self.compatibilityManager.CEGUIVersionTypes[mainWindow.project.CEGUIVersion]
+                    
+                    if projectCompatibleDataType != rawDataType:
+                        if QtGui.QMessageBox.question(mainWindow,
+                                                      "Convert to format suitable for opened project?",
+                                                      "File you are opening isn't suitable for the project that is opened at the moment.\n"
+                                                      "Do you want to convert it to a suitable format upon saving?\n"
+                                                      "(from '%s' to '%s')\n"
+                                                      "Data COULD be lost, make a backup!)" % (rawDataType, projectCompatibleDataType),
+                                                      QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
+                            self.desiredSavingDataType = projectCompatibleDataType
     
                 # if nativeData is "" at this point, data type was not successful and user didn't select
                 # any data type as well so we will just use given file as an empty file
