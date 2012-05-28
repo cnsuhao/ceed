@@ -592,6 +592,14 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
                 elif isinstance(item, CornerResizingHandle):
                     item.setPen(self.getCornerResizingHandleHiddenPen())
     
+    def setResizingEnabled(self, enabled = True):
+        """Makes it possible to disable or enable resizing
+        """
+        
+        for item in self.childItems():
+            if isinstance(item, ResizingHandle):
+                item.setVisible(enabled)
+    
     def unselectAllHandles(self):
         """Unselects all handles of this resizable"""
         

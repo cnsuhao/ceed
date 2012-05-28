@@ -104,10 +104,22 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             return None
         return name.replace("/", "_")
     
-    def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = True):
+    def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = False):
         self.visual = visual
         
+        self.showOutline = True
+        if widget.isAutoWindow() and not settings.getEntry("layout/visual/auto_widgets_show_outline").value:
+            # don't show outlines unless instructed to do so
+            self.showOutline = False
+
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)  
+        
+        if widget.isAutoWindow() and not settings.getEntry("layout/visual/auto_widgets_selectable").value:
+            # make this widget not focusable, selectable, movable and resizable
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
+            self.setResizingEnabled(False)
         
         self.setAcceptDrops(True)
         
@@ -134,10 +146,10 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             self.update()
         
     def getNormalPen(self):
-        return settings.getEntry("layout/visual/normal_outline").value
+        return settings.getEntry("layout/visual/normal_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
         
     def getHoverPen(self):
-        return settings.getEntry("layout/visual/hover_outline").value
+        return settings.getEntry("layout/visual/hover_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
     
     def getPenWhileResizing(self):
         return settings.getEntry("layout/visual/resizing_outline").value
@@ -193,12 +205,13 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             
         return candidate
         
-    def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = True):
+    def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
         return Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
     
-    def detach(self, destroyWidget):
+    def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         parentWidgetWasNone = self.widget.getParent() is None
-        super(Manipulator, self).detach(destroyWidget)
+        
+        super(Manipulator, self).detach(detachWidget, destroyWidget, recursive)
 
         if parentWidgetWasNone:
             # if this was root we have to inform the scene accordingly!

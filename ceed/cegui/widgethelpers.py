@@ -43,13 +43,15 @@ class SerialisationData(object):
         self.name = ""
         self.type = ""
         self.parentPath = ""
+        self.autoWidget = False
         self.properties = {}
         self.children = []
-        
+
         if widget is not None:
             self.name = widget.getName()
             self.type = widget.getType()
-            
+            self.autoWidget = widget.isAutoWindow()
+
             parent = widget.getParent()
             if parent is not None:
                 self.parentPath = parent.getNamePath()
@@ -94,15 +96,16 @@ class SerialisationData(object):
             i += 1
             
     def reconstruct(self, rootManipulator):
-        widget = PyCEGUI.WindowManager.getSingleton().createWindow(self.type, self.name)
-        for name, value in self.properties.iteritems():
-            widget.setProperty(name, value)
-        
+        widget = None
         ret = None
             
         if rootManipulator is None:
             #assert(self.parentPath == "")
             
+            if self.autoWidget:
+                raise RuntimeError("Root widget can't be an auto widget!")
+            
+            widget = PyCEGUI.WindowManager.getSingleton().createWindow(self.type, self.name)
             ret = self.createManipulator(None, widget)
             rootManipulator = ret
             
@@ -116,12 +119,31 @@ class SerialisationData(object):
             else:
                 parentManipulator = rootManipulator.getWidgetManipulatorByPath(parentPathSplit[1])
             
+            widget = None
+            if self.autoWidget:
+                widget = parentManipulator.widget.getChild(self.name)
+                if widget.getType() != self.type:
+                    raise RuntimeError("Skipping widget construction because it's an auto widget, the types don't match though!")
+            else:
+                widget = PyCEGUI.WindowManager.getSingleton().createWindow(self.type, self.name)
+
             parentManipulator.widget.addChild(widget)
-            ret = self.createManipulator(parentManipulator, widget)
+            # because of auto windows
+            # NOTE: We don't have to do rootManipulator.createMissingChildManipulators
+            #       because auto windows never get created outside their parent
+            parentManipulator.createMissingChildManipulators(True, False)
             
+            realPathSplit = widget.getNamePath().split("/", 1)
+            ret = rootManipulator.getWidgetManipulatorByPath(realPathSplit[1])
+        
+        for name, value in self.properties.iteritems():
+            widget.setProperty(name, value)
+
         for child in self.children:
             widget.addChild(child.reconstruct(rootManipulator).widget)
             
+        # refresh the manipulator using newly set properties
+        ret.updateFromWidget()
         return ret
 
 class Manipulator(resizable.ResizableRectItem):
@@ -129,7 +151,7 @@ class Manipulator(resizable.ResizableRectItem):
     it provides moving and resizing functionality
     """
     
-    def __init__(self, parent, widget, recursive = True, skipAutoWidgets = True):
+    def __init__(self, parent, widget, recursive = True, skipAutoWidgets = False):
         """Constructor
         
         widget - CEGUI::Widget to wrap
@@ -148,18 +170,7 @@ class Manipulator(resizable.ResizableRectItem):
         self.updateFromWidget()
         
         if recursive:
-            idx = 0
-            while idx < self.widget.getChildCount():
-                childWidget = self.widget.getChildAtIdx(idx)
-                
-                if skipAutoWidgets and childWidget.isAutoWindow():
-                    # TODO: non auto widgets inside auto widgets?
-                    idx += 1
-                    continue
-                
-                # note: we don't have to assign child anywhere, we pass parent to the constructor
-                self.createChildManipulator(childWidget, True, skipAutoWidgets)
-                idx += 1
+            self.createChildManipulators(True, skipAutoWidgets)
         
         self.preResizePos = None
         self.preResizeSize = None
@@ -169,7 +180,44 @@ class Manipulator(resizable.ResizableRectItem):
         self.preMovePos = None
         self.lastMoveNewPos = None
     
-    def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = True):
+    def createChildManipulators(self, recursive = True, skipAutoWidgets = False):
+        idx = 0
+        while idx < self.widget.getChildCount():
+            childWidget = self.widget.getChildAtIdx(idx)
+            
+            if skipAutoWidgets and childWidget.isAutoWindow():
+                idx += 1
+                continue
+            
+            # note: we don't have to assign child anywhere, we pass parent to the constructor
+            self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
+            idx += 1
+    
+    def createMissingChildManipulators(self, recursive = True, skipAutoWidgets = False):
+        idx = 0
+        while idx < self.widget.getChildCount():
+            childWidget = self.widget.getChildAtIdx(idx)
+            
+            try:
+                self.getWidgetManipulatorByPath(childWidget.getName())
+                idx += 1
+                continue
+            
+            except RuntimeError:
+                pass
+
+            if skipAutoWidgets and childWidget.isAutoWindow():
+                idx += 1
+                continue
+            
+            # note: we don't have to assign child anywhere, we pass parent to the constructor
+            childManipulator = self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
+            if recursive:
+                childManipulator.createMissingChildManipulators(True, skipAutoWidgets)
+            
+            idx += 1
+            
+    def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
         """Creates a child manipulator
         
         This is there to allow overriding (if user subclasses the Manipulator, child manipulators are
@@ -178,22 +226,35 @@ class Manipulator(resizable.ResizableRectItem):
         
         return Manipulator(self, childWidget, recursive, skipAutoWidgets)
     
-    def detach(self, destroyWidget):
+    def detachChildren(self, detachWidget = True, destroyWidget = True, recursive = True):
+        for child in self.childItems():
+            if isinstance(child, Manipulator):
+                child.detach(detachWidget, destroyWidget, recursive)
+    
+    def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         """Detaches itself from the GUI hierarchy and the manipulator hierarchy.
+        
+        detachWidget - should we detach the CEGUI widget as well?
+        destroyWidget - should we destroy the CEGUI widget after it's detached?
         
         This method doesn't destroy this instance immediately but it will be destroyed automatically
         when nothing is referencing it.
         """
         
+        # descend if recursive
+        if recursive:
+            self.detachChildren(detachWidget, destroyWidget, True)
+        
         # detach from the GUI hierarchy
-        parentWidget = self.widget.getParent()
-        if parentWidget is not None:
-            parentWidget.removeChild(self.widget)
+        if detachWidget:
+            parentWidget = self.widget.getParent()
+            if parentWidget is not None:
+                parentWidget.removeChild(self.widget)
 
         # detach from the parent manipulator
         self.scene().removeItem(self)
         
-        if destroyWidget:
+        if detachWidget and destroyWidget:
             PyCEGUI.WindowManager.getSingleton().destroyWindow(self.widget)
             self.widget = None
     
