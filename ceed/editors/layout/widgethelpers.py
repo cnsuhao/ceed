@@ -23,44 +23,15 @@ from PySide import QtGui
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
-class SerialisationData(cegui_widgethelpers.SerialisationData):
-    """See cegui.widgethelpers.SerialisationData
-    
-    The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
-    """
-    
-    def __init__(self, visual, widget = None, serialiseChildren = True):
-        self.visual = visual
-        
-        super(SerialisationData, self).__init__(widget, serialiseChildren)
-        
-    def createChildData(self, widget = None, serialiseChildren = True):
-        return SerialisationData(self.visual, widget, serialiseChildren)
-        
-    def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
-        return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
-    
-    def setVisual(self, visual):
-        self.visual = visual
-        
-        for child in self.children:
-            child.setVisual(visual)
-       
-    def reconstruct(self, rootManipulator):
-        ret = super(SerialisationData, self).reconstruct(rootManipulator)
-        
-        if ret.widget.getParent() is None:
-            # this is a root widget being reconstructed, handle this accordingly
-            self.visual.setRootWidgetManipulator(ret)
-        
-        return ret
-            
 class Manipulator(cegui_widgethelpers.Manipulator):
     """Layout editing specific widget manipulator"""
     snapGridBrush = None
     
     @classmethod
     def getSnapGridBrush(cls):
+        """Retrieves a (cached) snap grid brush
+        """
+        
         snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
         snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
         snapGridPointColour = settings.getEntry("layout/visual/snap_grid_point_colour").value
@@ -378,6 +349,38 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         rect = super(Manipulator, self).constrainResizeRect(rect, oldRect)
         
         return rect
+
+class SerialisationData(cegui_widgethelpers.SerialisationData):
+    """See cegui.widgethelpers.SerialisationData
+    
+    The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
+    """
+    
+    def __init__(self, visual, widget = None, serialiseChildren = True):
+        self.visual = visual
         
+        super(SerialisationData, self).__init__(widget, serialiseChildren)
+        
+    def createChildData(self, widget = None, serialiseChildren = True):
+        return SerialisationData(self.visual, widget, serialiseChildren)
+        
+    def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
+        return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+    
+    def setVisual(self, visual):
+        self.visual = visual
+        
+        for child in self.children:
+            child.setVisual(visual)
+       
+    def reconstruct(self, rootManipulator):
+        ret = super(SerialisationData, self).reconstruct(rootManipulator)
+        
+        if ret.widget.getParent() is None:
+            # this is a root widget being reconstructed, handle this accordingly
+            self.visual.setRootWidgetManipulator(ret)
+        
+        return ret
+
 from ceed import settings
 from ceed import action

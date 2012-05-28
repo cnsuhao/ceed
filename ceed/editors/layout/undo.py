@@ -68,7 +68,7 @@ class MoveCommand(commands.UndoCommand):
         super(MoveCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.updateFromWidget()
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
@@ -78,7 +78,7 @@ class MoveCommand(commands.UndoCommand):
 
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.updateFromWidget()
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
@@ -129,7 +129,7 @@ class ResizeCommand(commands.UndoCommand):
         super(ResizeCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.widget.setSize(self.oldSizes[widgetPath])
             widgetManipulator.updateFromWidget()
@@ -140,7 +140,7 @@ class ResizeCommand(commands.UndoCommand):
 
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.widget.setSize(self.newSizes[widgetPath])
             widgetManipulator.updateFromWidget()
@@ -164,7 +164,7 @@ class DeleteCommand(commands.UndoCommand):
         
         # we have to add all the child widgets of all widgets we are deleting
         for widgetPath in self.widgetPaths:
-            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             dependencies = manipulator.getAllDescendantManipulators()
             
             for dependency in dependencies:
@@ -179,7 +179,7 @@ class DeleteCommand(commands.UndoCommand):
                 self.visual = visual
                 
                 self.path = path
-                self.manipulator = self.visual.scene.getWidgetManipulatorByPath(path)
+                self.manipulator = self.visual.scene.getManipulatorByPath(path)
                 
             def __lt__(self, otherKey):
                 # if this is the ancestor of other manipulator, it comes after it
@@ -198,7 +198,7 @@ class DeleteCommand(commands.UndoCommand):
         # we want to be able to restore if user decides to undo
         for widgetPath in self.widgetPaths:
             # serialiseChildren is False because we have already included all the children and they are handled separately
-            self.widgetData[widgetPath] = widgethelpers.SerialisationData(self.visual, self.visual.scene.getWidgetManipulatorByPath(widgetPath).widget,
+            self.widgetData[widgetPath] = widgethelpers.SerialisationData(self.visual, self.visual.scene.getManipulatorByPath(widgetPath).widget,
                                                                           serialiseChildren = False)
         
         self.refreshText()
@@ -233,7 +233,7 @@ class DeleteCommand(commands.UndoCommand):
         
     def redo(self):
         for widgetPath in self.widgetPaths:
-            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             manipulator.detach(destroyWidget = True)
             
         self.visual.notifyWidgetManipulatorsRemoved(self.widgetPaths)
@@ -267,7 +267,7 @@ class CreateCommand(commands.UndoCommand):
     def undo(self):
         super(CreateCommand, self).undo()
         
-        manipulator = self.visual.scene.getWidgetManipulatorByPath(self.parentWidgetPath + "/" + self.widgetName if self.parentWidgetPath != "" else self.widgetName)
+        manipulator = self.visual.scene.getManipulatorByPath(self.parentWidgetPath + "/" + self.widgetName if self.parentWidgetPath != "" else self.widgetName)
         manipulator.detach(destroyWidget = True)
         
         self.visual.hierarchyDockWidget.refresh()
@@ -349,7 +349,7 @@ class PropertyEditCommand(commands.UndoCommand):
         super(PropertyEditCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.oldValues[widgetPath])
             widgetManipulator.updateFromWidget()
 
@@ -361,7 +361,7 @@ class PropertyEditCommand(commands.UndoCommand):
             
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.newValue)
             widgetManipulator.updateFromWidget()
 
@@ -420,7 +420,7 @@ class HorizontalAlignCommand(commands.UndoCommand):
         super(HorizontalAlignCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setHorizontalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
 
@@ -428,7 +428,7 @@ class HorizontalAlignCommand(commands.UndoCommand):
 
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setHorizontalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
 
@@ -483,7 +483,7 @@ class VerticalAlignCommand(commands.UndoCommand):
         super(VerticalAlignCommand, self).undo()
         
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setVerticalAlignment(self.oldAlignments[widgetPath])
             widgetManipulator.updateFromWidget()
 
@@ -491,7 +491,7 @@ class VerticalAlignCommand(commands.UndoCommand):
 
     def redo(self):
         for widgetPath in self.widgetPaths:
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setVerticalAlignment(self.newAlignment)
             widgetManipulator.updateFromWidget()
 
@@ -544,9 +544,9 @@ class ReparentCommand(commands.UndoCommand):
             newWidgetName = widgetPath[widgetPath.rfind("/") + 1:]
             oldWidgetName = oldWidgetPath[oldWidgetPath.rfind("/") + 1:]
 
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             oldParentPath = oldWidgetPath[0:oldWidgetPath.rfind("/")]
-            oldParentManipulator = self.visual.scene.getWidgetManipulatorByPath(oldParentPath)
+            oldParentManipulator = self.visual.scene.getManipulatorByPath(oldParentPath)
             
             # remove it from the current CEGUI parent widget
             ceguiParentWidget = widgetManipulator.widget.getParent()
@@ -582,9 +582,9 @@ class ReparentCommand(commands.UndoCommand):
             oldWidgetName = widgetPath[widgetPath.rfind("/") + 1:]
             newWidgetName = newWidgetPath[newWidgetPath.rfind("/") + 1:]
 
-            widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             newParentPath = newWidgetPath[0:newWidgetPath.rfind("/")]
-            newParentManipulator = self.visual.scene.getWidgetManipulatorByPath(newParentPath)
+            newParentManipulator = self.visual.scene.getManipulatorByPath(newParentPath)
             
             # remove it from the current CEGUI parent widget
             ceguiParentWidget = widgetManipulator.widget.getParent()
@@ -645,7 +645,7 @@ class PasteCommand(commands.UndoCommand):
             widgetPath = serialisationData.parentPath + "/" + serialisationData.name
             widgetPaths.append(widgetPath)
             
-            manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+            manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             wasRootWidget = manipulator.widget.getParent() is None
             
             manipulator.detach(destroyWidget = True)
@@ -657,7 +657,7 @@ class PasteCommand(commands.UndoCommand):
         self.visual.notifyWidgetManipulatorsRemoved(widgetPaths)
         
     def redo(self):
-        targetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.targetWidgetPath)
+        targetManipulator = self.visual.scene.getManipulatorByPath(self.targetWidgetPath)
         
         for serialisationData in self.clipboardData:
             # make sure the name is unique and we will be able to paste smoothly
@@ -703,7 +703,7 @@ class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
         super(NormaliseSizeToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
     
     def normaliseSize(self, widgetPath, size):
-        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         pixelSize = manipulator.widget.getPixelSize()
         baseSize = manipulator.getBaseSize()
         
@@ -728,7 +728,7 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
         super(NormaliseSizeToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
     
     def normaliseSize(self, widgetPath, size):
-        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         pixelSize = manipulator.widget.getPixelSize()
         
         return PyCEGUI.USize(PyCEGUI.UDim(0, pixelSize.d_width),
@@ -775,7 +775,7 @@ class NormalisePositionToRelativeCommand(NormalisePositionCommand):
         super(NormalisePositionToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions)
     
     def normalisePosition(self, widgetPath, size):
-        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         position = manipulator.widget.getPosition()
         baseSize = manipulator.getBaseSize()
         
@@ -800,7 +800,7 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
         super(NormalisePositionToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions)
     
     def normalisePosition(self, widgetPath, size):
-        manipulator = self.visual.scene.getWidgetManipulatorByPath(widgetPath)
+        manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         position = manipulator.widget.getPosition()
         baseSize = manipulator.getBaseSize()
         
@@ -857,7 +857,7 @@ class RenameCommand(commands.UndoCommand):
     def undo(self):
         super(RenameCommand, self).undo()
 
-        widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.newWidgetPath)
+        widgetManipulator = self.visual.scene.getManipulatorByPath(self.newWidgetPath)
         assert(hasattr(widgetManipulator, "treeItem"))
         assert(widgetManipulator.treeItem is not None)
 
@@ -869,7 +869,7 @@ class RenameCommand(commands.UndoCommand):
 
 
     def redo(self):
-        widgetManipulator = self.visual.scene.getWidgetManipulatorByPath(self.oldWidgetPath)
+        widgetManipulator = self.visual.scene.getManipulatorByPath(self.oldWidgetPath)
         assert(hasattr(widgetManipulator, "treeItem"))
         assert(widgetManipulator.treeItem is not None)
 

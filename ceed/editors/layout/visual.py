@@ -210,7 +210,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
             if newParent is None:
                 return False
 
-            newParentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(newParent.data(QtCore.Qt.UserRole))
+            newParentManipulator = self.dockWidget.visual.scene.getManipulatorByPath(newParent.data(QtCore.Qt.UserRole))
             
             usedNames = set()
             for widgetPath in widgetPaths:
@@ -289,7 +289,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
             # if the drop was at empty space (parentItem is None) the parentItemPath
             # should be "" if no root item exists, otherwise the name of the root item
             parentItemPath = parentItem.data(QtCore.Qt.UserRole) if parentItem is not None else self.dockWidget.visual.scene.rootManipulator.widget.getName() if self.dockWidget.visual.scene.rootManipulator is not None else ""
-            parentManipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(parentItemPath) if parentItemPath else None
+            parentManipulator = self.dockWidget.visual.scene.getManipulatorByPath(parentItemPath) if parentItemPath else None
             uniqueName = parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]) if parentManipulator is not None else widgetType.rsplit("/", 1)[-1]
             
             cmd = undo.CreateCommand(self.dockWidget.visual, parentItemPath, widgetType, uniqueName)
@@ -329,7 +329,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
                 manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
-                    manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
+                    manipulator = self.dockWidget.visual.scene.getManipulatorByPath(manipulatorPath)
                 
                 if manipulator is not None:
                     manipulator.setSelected(True)
@@ -341,7 +341,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
                 manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
-                    manipulator = self.dockWidget.visual.scene.getWidgetManipulatorByPath(manipulatorPath)
+                    manipulator = self.dockWidget.visual.scene.getManipulatorByPath(manipulatorPath)
                 
                 if manipulator is not None:
                     manipulator.setSelected(False)
@@ -702,7 +702,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if self.rootManipulator is not None:
             self.addItem(self.rootManipulator)
         
-    def getWidgetManipulatorByPath(self, widgetPath):
+    def getManipulatorByPath(self, widgetPath):
         path = widgetPath.split("/", 1)
         assert(len(path) >= 1)
         
@@ -713,7 +713,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         
         else:
             # path[1] is the remainder of the path
-            return self.rootManipulator.getWidgetManipulatorByPath(path[1])
+            return self.rootManipulator.getManipulatorByPath(path[1])
         
     def setCEGUIDisplaySize(self, width, height, lazyUpdate = True):
         # overridden to keep the manipulators in sync
