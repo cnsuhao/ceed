@@ -128,35 +128,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     def getPenWhileMoving(self):
         return settings.getEntry("layout/visual/moving_outline").value
     
-    """
-    def getEdgeResizingHandleHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
-        ret.setWidth(2)
-        ret.setCosmetic(True)
-        
-        return ret
-    
-    def getEdgeResizingHandleHiddenPen(self):
-        ret = QPen()
-        ret.setColor(Qt.transparent)
-        
-        return ret
-    
-    def getCornerResizingHandleHoverPen(self):
-        ret = QPen()
-        ret.setColor(QColor(0, 255, 255, 255))
-        ret.setWidth(2)
-        ret.setCosmetic(True)
-        
-        return ret    
-    
-    def getCornerResizingHandleHiddenPen(self):
-        ret = QPen()
-        ret.setColor(Qt.transparent)
-        
-        return ret
-    """
     def getDragAcceptableHintPen(self):
         ret = QtGui.QPen()
         ret.setColor(QtGui.QColor(255, 255, 0))
@@ -164,9 +135,15 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         return ret
         
     def getUniqueChildWidgetName(self, base = "Widget"):
+        """Finds a unique name for a child widget of the manipulated widget
+        
+        The resulting name's format is the base with a number appended
+        """
+        
         candidate = base
         
         if self.widget is None:
+            # we can't check for duplicates in this case
             return candidate
         
         i = 2
@@ -376,7 +353,7 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
     def reconstruct(self, rootManipulator):
         ret = super(SerialisationData, self).reconstruct(rootManipulator)
         
-        if ret.widget.getParent() is None:
+        if ret.parentItem() is None:
             # this is a root widget being reconstructed, handle this accordingly
             self.visual.setRootWidgetManipulator(ret)
         

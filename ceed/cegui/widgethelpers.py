@@ -113,17 +113,14 @@ class Manipulator(resizable.ResizableRectItem):
             try:
                 # try to find a manipulator for currently examined child widget
                 self.getManipulatorByPath(childWidget.getName())
-                idx += 1
-                continue
             
             except LookupError:
-                pass
-
-            if not skipAutoWidgets or not childWidget.isAutoWindow():
-                # note: we don't have to assign child anywhere, we pass parent to the constructor
-                childManipulator = self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
-                if recursive:
-                    childManipulator.createMissingChildManipulators(True, skipAutoWidgets)
+                if not skipAutoWidgets or not childWidget.isAutoWindow():
+                    # note: we don't have to assign or attach the child manipulator here
+                    #       just passing parent to the constructor is enough
+                    childManipulator = self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
+                    if recursive:
+                        childManipulator.createMissingChildManipulators(True, skipAutoWidgets)
             
             idx += 1
     
@@ -658,7 +655,7 @@ class SerialisationData(object):
         
         return SerialisationData(widget, serialiseChildren)
         
-    def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
+    def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = False):
         """Creates a manipulator suitable for the widget resulting from reconstruction
         """
         
@@ -725,10 +722,11 @@ class SerialisationData(object):
                 widget = parentManipulator.widget.getChild(self.name)
                 if widget.getType() != self.type:
                     raise RuntimeError("Skipping widget construction because it's an auto widget, the types don't match though!")
+                
             else:
                 widget = PyCEGUI.WindowManager.getSingleton().createWindow(self.type, self.name)
-
-            parentManipulator.widget.addChild(widget)
+                parentManipulator.widget.addChild(widget)
+            
             # Extra code because of auto windows
             # NOTE: We don't have to do rootManipulator.createMissingChildManipulators
             #       because auto windows never get created outside their parent
@@ -741,7 +739,9 @@ class SerialisationData(object):
             widget.setProperty(name, value)
 
         for child in self.children:
-            widget.addChild(child.reconstruct(rootManipulator).widget)
+            childWidget = child.reconstruct(rootManipulator).widget
+            if not child.autoWidget:
+                widget.addChild(childWidget)
             
         # refresh the manipulator using newly set properties
         ret.updateFromWidget()
