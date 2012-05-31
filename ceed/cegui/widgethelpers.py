@@ -336,11 +336,6 @@ class Manipulator(resizable.ResizableRectItem):
         self.widget.setPosition(self.preResizePos + processedDeltaPos)
         self.widget.setSize(self.preResizeSize + deltaSize)
         
-        # our size changed that means that all child manipulators are out of sync
-        for item in self.childItems():
-            if isinstance(item, Manipulator):
-                item.updateFromWidget()
-                
         self.lastResizeNewPos = newPos
         self.lastResizeNewRect = newRect
         
@@ -351,6 +346,7 @@ class Manipulator(resizable.ResizableRectItem):
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
+                item.updateFromWidget()
                 item.setVisible(True)
                 
         self.lastResizeNewPos = None
@@ -381,11 +377,7 @@ class Manipulator(resizable.ResizableRectItem):
             deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(pixelDeltaPos.x() / baseSize.d_width, 0), PyCEGUI.UDim(pixelDeltaPos.y() / baseSize.d_height, 0))
             
         self.widget.setPosition(self.preMovePos + deltaPos)
-        
-        for item in self.childItems():
-            if isinstance(item, Manipulator):
-                item.updateFromWidget()
-                
+
         self.lastMoveNewPos = newPos
         
     def notifyMoveFinished(self, newPos):
@@ -395,6 +387,7 @@ class Manipulator(resizable.ResizableRectItem):
         
         for item in self.childItems():
             if isinstance(item, Manipulator):
+                item.updateFromWidget()
                 item.setVisible(True)
                 
         self.lastMoveNewPos = None
