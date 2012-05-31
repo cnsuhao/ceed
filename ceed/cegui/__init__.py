@@ -163,6 +163,9 @@ class Instance(object):
         # destroy all previous resources (if any)
         if self.initialised:
             PyCEGUI.WindowManager.getSingleton().destroyAllWindows()
+            # we need to ensure all windows are destroyed, dangling pointers would
+            # make us segfault later otherwise
+            PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
             PyCEGUI.FontManager.getSingleton().destroyAll()
             PyCEGUI.ImageManager.getSingleton().destroyAll()
             PyCEGUI.SchemeManager.getSingleton().destroyAll()
