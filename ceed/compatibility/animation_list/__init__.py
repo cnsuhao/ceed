@@ -41,8 +41,7 @@ class Manager(compatibility.Manager):
         super(Manager, self).__init__()
         
         self.EditorNativeType = AnimationList1
-        # doesn't make much sense
-        self.CEGUIVersionType = {
+        self.CEGUIVersionTypes = {
             "0.6" : None,
             "0.7" : AnimationList1,
             "1.0" : AnimationList1

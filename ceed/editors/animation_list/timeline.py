@@ -378,7 +378,7 @@ class TimelinePositionBar(QtGui.QGraphicsRectItem):
         
         self.setHeight(1)
         
-        self.setCursor(QtGui.QCursor(QtCore.Qt.SplitHCursor))
+        self.setCursor(QtCore.Qt.SplitHCursor)
         
     def setHeight(self, height):
         self.setRect(QtCore.QRectF(-1, 6, 3, height - 6))
