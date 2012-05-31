@@ -62,7 +62,7 @@ def main():
         print("Provided compatibility is not valid, such a compatibility module doesn't exist or can't be imported!")
         sys.exit(1)
     
-    print "\nStarting migration!\n"
+    print("\nStarting migration!\n")
         
     data = args.input.read()
     
@@ -73,7 +73,7 @@ def main():
     
     args.output.write(outputData)
 
-    print "Performed migration from '%s' to '%s'.\ninput size: %i bytes\noutput size: %i bytes" % (sourceType, targetType, len(data), len(outputData))
+    print("Performed migration from '%s' to '%s'.\ninput size: %i bytes\noutput size: %i bytes" % (sourceType, targetType, len(data), len(outputData)))
 
 if __name__ == "__main__":
     main()

@@ -97,7 +97,7 @@ class CompilerInstance(object):
                 
                 i += 1
                 if i % 5 == 0:
-                    print "%i candidate sizes checked" % (i)
+                    print("%i candidate sizes checked" % (i))
 
                 continue
         

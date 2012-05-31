@@ -224,7 +224,6 @@ class DeleteCommand(commands.UndoCommand):
         # we have to undo in reverse to ensure widgets have their (potential) dependencies in place when they
         # are constructed
         for widgetPath in reversed(self.widgetPaths):
-            print "Reconstructing", widgetPath
             data = self.widgetData[widgetPath]
             result = data.reconstruct(self.visual.scene.rootManipulator)
         

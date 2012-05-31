@@ -340,7 +340,7 @@ class Property(object):
         """
 
         #if Property.DebugMode:
-        #    print "{} ({}).setValue: Value={}, Changed={}, Reason={}".format(self.name, self.__class__.__name__, str(value), not value == self.value, reason)
+        #    print("{} ({}).setValue: Value={}, Changed={}, Reason={}".format(self.name, self.__class__.__name__, str(value), not value == self.value, reason))
 
         # Really complicated stuff :/
         #

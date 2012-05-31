@@ -118,7 +118,7 @@ class CEGUIPropertyManager(object):
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
         #if not ceguiStrType in CEGUIPropertyManager._typeMap:
-        #    print "TODO: " + ceguiStrType
+        #    print("TODO: " + ceguiStrType)
         return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
 
     @staticmethod
@@ -201,7 +201,7 @@ class CEGUIPropertyManager(object):
                 else:
                     # we don't support unreadable properties
                     if cgProp.isReadable():
-                        #print "XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType())
+                        #print("XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType()))
                         # check mapping and ignore hidden properties
                         pmEntry = self.propertyMap.getEntry(cgProp.getOrigin(), cgProp.getName())
                         if (not pmEntry) or (not pmEntry.hidden):
