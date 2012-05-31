@@ -31,6 +31,7 @@ from ceed import compatibility
 from ceed import propertymapping
 from ceed import qtwidgets
 import ceed.compatibility.project as project_compatibility
+from ceed import xmledit
 
 import ceed.ui.projectmanager
 import ceed.ui.newprojectdialog
@@ -302,6 +303,7 @@ class Project(QtGui.QStandardItemModel):
 
     def save(self, path = ""):
         if path == "":
+            # "save" vs "save as"
             path = self.projectFilePath
             self.changed = False
         
@@ -326,6 +328,8 @@ class Project(QtGui.QStandardItemModel):
         while i < self.rowCount():
             items.append(self.item(i).saveToElement())
             i = i + 1
+        
+        xmledit.indent(root)
         
         nativeData = ElementTree.tostring(root)
         outputFile = open(path, "w")
