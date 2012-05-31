@@ -173,9 +173,18 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
     def __init__(self, parent = None):
         resizable.GraphicsView.__init__(self, parent)
 
-        self.setViewport(QtOpenGL.QGLWidget())
+        # mainly to tone down potential antialiasing
+        self.glFormat = QtOpenGL.QGLFormat()
+        self.glFormat.setSampleBuffers(True);
+        self.glFormat.setSamples(2);
+        
+        self.setViewport(QtOpenGL.QGLWidget(self.glFormat))
         # OpenGL doesn't do partial redraws (it isn't practical anyways)
         self.setViewportUpdateMode(QtGui.QGraphicsView.FullViewportUpdate)
+        
+        # make things slightly faster
+        self.setOptimizationFlags(QtGui.QGraphicsView.DontClipPainter |
+                                  QtGui.QGraphicsView.DontAdjustForAntialiasing)
         
         self.injectInput = False
         # we might want mouse events

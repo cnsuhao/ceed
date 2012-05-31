@@ -179,7 +179,7 @@ $prefix/cegui_mk2/build/lib/PyCEGUI.so
 \end_layout
 
 \begin_layout Standard
-If you directory structure looks differently you need to alter the script.
+If your directory structure looks differently you need to alter the script.
 \end_layout
 
 \begin_layout Part
@@ -260,6 +260,11 @@ MixedModeTabbedEditor
 
 \begin_layout Standard
 Useful when you want multiple editing modes.
+ As an example, let us take the layout editor.
+ It has 3 modes - visual, code and live preview.
+ You can freely switch between them and they each offer a different look
+ at the same data.
+ At any point in time you are viewing/editing in one mode only.
  Please note that you must be using UndoStack in this situation as switching
  modes is an undo action!
 \end_layout
@@ -272,6 +277,26 @@ Property editing
 A lot of CEGUI classes provide basic introspection via property strings.
  CEED has a set of classes to reuse when you want to edit properties of
  widgets or any other classes that inherit from PropertySet.
+\end_layout
+
+\begin_layout Section
+Embedded CEGUI
+\end_layout
+
+\begin_layout Standard
+To make sure everything is rendered exactly as it will appear in CEGUI it
+ is used in the editor.
+ This also ensures that whatever custom assets you have, they will be usable
+ in the editor exactly as they are in CEGUI itself.
+\end_layout
+
+\begin_layout Standard
+As CEGUI is a C++ library, making it accessible from Python is not trivial.
+ I have written python bindings for CEGUI called PyCEGUI using py++ boost::pytho
+n for this purpose.
+ It is important to realise though that even though I tried to make it pythonic
+ and reasonably safe, mistreating PyCEGUI can still cause segfaults any
+ other phenomena usually prevented by using a scripting language.
 \end_layout
 
 \begin_layout Section
@@ -409,7 +434,7 @@ ceed.editors.animation_list
 
 \begin_layout Standard
 KeyFrames had to have indices added because comparing floats for equality
- is not the most reliable thing in the world of computing.
+ is unrealiable.
  So in the end we sort all keyframes by position and figure out their indices
  from that.
  To avoid placing 2 keyframes at the exact same position we add a small

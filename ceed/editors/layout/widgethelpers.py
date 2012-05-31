@@ -90,6 +90,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
+            self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
             self.setResizingEnabled(False)
         
         self.setAcceptDrops(True)
