@@ -37,6 +37,11 @@ import ceed.ui.projectmanager
 import ceed.ui.newprojectdialog
 import ceed.ui.projectsettingsdialog
 
+# TODO: Should probably be moved somewhere else because it's reusable
+def convertToPortablePath(input_path):
+    # very crude and basic for now
+    return unicode(os.path.normpath(input_path)).replace("\\", "/")
+
 class Item(QtGui.QStandardItem):
     """One item in the project
     This is usually a file or a folder
@@ -198,7 +203,7 @@ class Item(QtGui.QStandardItem):
         typeString = element.get("type")
         if typeString == "file":
             item.itemType = Item.File
-            item.path = element.get("path")
+            item.path = os.path.normpath(element.get("path"))
             
         elif typeString == "folder":
             item.itemType = Item.Folder
@@ -219,8 +224,7 @@ class Item(QtGui.QStandardItem):
         
         if self.itemType == Item.File:
             ret.set("type", "file")
-            # the replace is to prevent Windows from putting it's backslashes into project files
-            ret.set("path", str(self.path).replace("\\", "/"))
+            ret.set("path", convertToPortablePath(self.path))
             
         elif self.itemType == Item.Folder:
             ret.set("type", "folder")
@@ -279,15 +283,15 @@ class Project(QtGui.QStandardItemModel):
         
         root = ElementTree.fromstring(nativeData)
 
-        self.baseDirectory = root.get("baseDirectory", "./")
+        self.baseDirectory = os.path.normpath(root.get("baseDirectory", "./"))
         self.CEGUIVersion = root.get("CEGUIVersion", compatibility.EditorEmbeddedCEGUIVersion)
         
-        self.imagesetsPath = root.get("imagesetsPath", "./imagesets")            
-        self.fontsPath = root.get("fontsPath", "./fonts")            
-        self.looknfeelsPath = root.get("looknfeelsPath", "./looknfeel")            
-        self.schemesPath = root.get("schemesPath", "./schemes")            
-        self.layoutsPath = root.get("layoutsPath", "./layouts")
-        self.xmlSchemasPath = root.get("xmlSchemasPath", "./xml_schemas")
+        self.imagesetsPath = os.path.normpath(root.get("imagesetsPath", "./imagesets"))
+        self.fontsPath = os.path.normpath(root.get("fontsPath", "./fonts"))
+        self.looknfeelsPath = os.path.normpath(root.get("looknfeelsPath", "./looknfeel"))
+        self.schemesPath = os.path.normpath(root.get("schemesPath", "./schemes"))
+        self.layoutsPath = os.path.normpath(root.get("layoutsPath", "./layouts"))
+        self.xmlSchemasPath = os.path.normpath(root.get("xmlSchemasPath", "./xml_schemas"))
         
         items = root.find("Items")
         
@@ -311,16 +315,16 @@ class Project(QtGui.QStandardItemModel):
 
         root.set("version", project_compatibility.manager.EditorNativeType)
 
-        root.set("baseDirectory", self.baseDirectory)
+        root.set("baseDirectory", convertToPortablePath(self.baseDirectory))
         
         root.set("CEGUIVersion", self.CEGUIVersion)
         
-        root.set("imagesetsPath", self.imagesetsPath)
-        root.set("fontsPath", self.fontsPath)
-        root.set("looknfeelsPath", self.looknfeelsPath)
-        root.set("schemesPath", self.schemesPath)
-        root.set("layoutsPath", self.layoutsPath)
-        root.set("xmlSchemasPath", self.xmlSchemasPath)
+        root.set("imagesetsPath", convertToPortablePath(self.imagesetsPath))
+        root.set("fontsPath", convertToPortablePath(self.fontsPath))
+        root.set("looknfeelsPath", convertToPortablePath(self.looknfeelsPath))
+        root.set("schemesPath", convertToPortablePath(self.schemesPath))
+        root.set("layoutsPath", convertToPortablePath(self.layoutsPath))
+        root.set("xmlSchemasPath", convertToPortablePath(self.xmlSchemasPath))
         
         items = ElementTree.SubElement(root, "Items")
         
