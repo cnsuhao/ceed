@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 CEGUILookNFeel1 = "CEGUI LookNFeel 1"
@@ -44,20 +46,7 @@ class LookNFeel6TypeDetector(compatibility.TypeDetector):
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Falagard":
-                return False
-            
-            # version 6 doesn't have any version tag! so if there is a version tag (of any value) it can't be version 6
-            if root.get("version") is not None:
-                return False
-
-            return True
-        
-        except:
-            return False
+        return ceguihelpers.checkDataVersion("Falagard", None, data)
 
 class LookNFeel7TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -70,21 +59,7 @@ class LookNFeel7TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "looknfeel"]:
             return False
         
-        # todo: we should be at least a bit more precise
-        # (implement XSD based TypeDetector?)
-        
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Falagard":
-                return False
-            
-            if root.get("version", "unknown") != "7":
-                return False
-
-            return True
-        
-        except:
-            return False
+        return ceguihelpers.checkDataVersion("Falagard", "7", data)
 
 class LookNFeel6To7Layer(compatibility.Layer):
     def getSourceType(self):

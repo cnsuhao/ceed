@@ -32,19 +32,9 @@ class PropertyMappings1TypeDetector(compatibility.TypeDetector):
             return False
         
         # should work as a pretty rigorous test for now, tests the root tag name and version
-        try:
-            root = ElementTree.fromstring(data)
-            
-            if root.tag != "mappings":
-                return False
-            
-            if root.get("version", "") != manager.EditorNativeType:
-                return False
-        
-            return True
-
-        except:
-            return False
+        # CEED property mapping files have a similar version check to CEGUI, that's why we can use
+        # the cegui helper function here.
+        return ceguihelpers.checkDataVersion("mappings", PropertyMappings1, data)
 
 class Manager(compatibility.Manager):
     """Manager of CEED project compatibility layers"""

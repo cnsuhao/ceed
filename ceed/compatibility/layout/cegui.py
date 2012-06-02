@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 CEGUILayout2 = "CEGUI layout 2"
@@ -38,21 +40,7 @@ class Layout2TypeDetector(compatibility.TypeDetector):
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        
-        try:
-            root = ElementTree.fromstring(data.encode("utf-8"))
-            if root.tag != "GUILayout":
-                return False
-            
-            # Layout 2 has no version indication :-(
-            # However if there is a version attribute, we can be sure it's not Layout2
-            if root.get("version") is not None:
-                return False
-            
-            return True
-        
-        except:
-            return False
+        return ceguihelpers.checkDataVersion("GUILayout", None, data)
 
 class Layout3TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -67,21 +55,7 @@ class Layout3TypeDetector(compatibility.TypeDetector):
         
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        
-        try:
-            root = ElementTree.fromstring(data.encode("utf-8"))
-            if root.tag != "GUILayout":
-                return False
-            
-            # Layout 3 has no version indication :-(
-            # However if there is a version attribute, we can be sure it's not Layout3
-            if root.get("version") is not None:
-                return False
-            
-            return True
-        
-        except:
-            return False
+        return ceguihelpers.checkDataVersion("GUILayout", None, data)
 
 class Layout4TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -94,21 +68,7 @@ class Layout4TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "layout"]:
             return False
         
-        # todo: we should be at least a bit more precise
-        # (implement XSD based TypeDetector?)
-        
-        try:
-            root = ElementTree.fromstring(data.encode("utf-8"))
-            if root.tag != "GUILayout":
-                return False
-            
-            if root.get("version", "unknown") != "4":
-                return False
-            
-            return True
-        
-        except:
-            return False
+        return ceguihelpers.checkDataVersion("GUILayout", "4", data)
         
 class Layout3To4Layer(compatibility.Layer):
     def getSourceType(self):

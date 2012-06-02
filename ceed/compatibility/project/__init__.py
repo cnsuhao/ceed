@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 Project1 = "CEED Project 1"
@@ -32,19 +34,9 @@ class Project1TypeDetector(compatibility.TypeDetector):
             return False
         
         # should work as a pretty rigorous test for now, tests the root tag name and version
-        try:
-            root = ElementTree.fromstring(data)
-            
-            if root.tag != "Project":
-                return False
-            
-            if root.get("version", "") != manager.EditorNativeType:
-                return False
-        
-            return True
-
-        except:
-            return False
+        # CEED project files have a similar version check to CEGUI, that's why we can use
+        # the cegui helper function here.
+        return ceguihelpers.checkDataVersion("Project", Project1, data)
 
 class Manager(compatibility.Manager):
     """Manager of CEED project compatibility layers"""

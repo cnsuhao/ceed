@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 CEGUIFont1 = "CEGUI Font 1"
@@ -36,24 +38,10 @@ class Font2TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "font"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Font":
-                return False
-            
-            # Font3 has no version indication :-(
-            # However if there is a version attribute, we can be sure it's not Font3
-            if root.get("version") is not None:
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
+        
+        return ceguihelpers.checkDataVersion("Font", None, data)
 
 class Font3TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -66,20 +54,7 @@ class Font3TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "font"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Font":
-                return False
-            
-            if root.get("version", "unknown") != "3":
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
-        return True
+        return ceguihelpers.checkDataVersion("Font", "3", data)
 
 class Font2ToFont3Layer(compatibility.Layer):
     def getSourceType(self):

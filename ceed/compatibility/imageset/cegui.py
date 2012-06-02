@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 CEGUIImageset1 = "CEGUI imageset 1"
@@ -35,24 +37,9 @@ class Imageset1TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "imageset"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Imageset":
-                return False
-            
-            # Imageset1 has no version indication :-(
-            # However if there is a version attribute, we can be sure it's not Imageset1
-            if root.get("version") is not None:
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
+        return ceguihelpers.checkDataVersion("Imageset", None, data)
 
 class Imageset2TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -65,20 +52,7 @@ class Imageset2TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "imageset"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "Imageset":
-                return False
-            
-            if root.get("version", "unknown") != "2":
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
-        return True
+        return ceguihelpers.checkDataVersion("Imageset", "2", data)
 
 class CEGUI1ToCEGUI2Layer(compatibility.Layer):
     def getSourceType(self):

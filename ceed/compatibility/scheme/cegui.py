@@ -19,6 +19,8 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import ceguihelpers
+
 from xml.etree import cElementTree as ElementTree
 
 CEGUIScheme1 = "CEGUI Scheme 1"
@@ -38,26 +40,10 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "scheme"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            
-            if root.tag != "GUIScheme":
-                return False
-            
-            # GUIScheme4 has no version indication :-(
-            # However if there is a version attribute, we can be sure it's not GUIScheme4
-            if root.get("version") is not None:
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        return True
-    
+        return ceguihelpers.checkDataVersion("GUIScheme", None, data)
+
 class Scheme5TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUIScheme5
@@ -69,25 +55,7 @@ class Scheme5TypeDetector(compatibility.TypeDetector):
         if extension not in ["", "scheme"]:
             return False
         
-        try:
-            root = ElementTree.fromstring(data)
-            if root.tag != "GUIScheme":
-                return False
-            
-            if root.get("version", "unknown") != "5":
-                return False
-            
-            return True
-        
-        except:
-            return False
-        
-        return True
-        
-        # todo: we should be at least a bit more precise
-        # (implement XSD based TypeDetector?)
-        return True
-
+        return ceguihelpers.checkDataVersion("GUIScheme", "5", data)
 
 class CEGUI4ToCEGUI5Layer(compatibility.Layer):
     def getSourceType(self):
