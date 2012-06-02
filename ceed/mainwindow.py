@@ -739,12 +739,12 @@ Details of this error: %s""" % (e))
             ret = editors.MessageTabbedEditor(absolutePath,
                        "Opening this file requires you to have a project opened!")
 
-        if True:#try:
+        try:
             ret.initialise(self)
             
             # add successfully opened file to the recent files list
             self.recentlyUsedFiles.addRecentlyUsed(absolutePath)
-            """
+            
         except:
             # it may have been partly constructed at this point
             try:
@@ -759,7 +759,7 @@ Details of this error: %s""" % (e))
                 pass
 
             raise
-            """
+            
         self.tabEditors.append(ret)
         return ret
 
