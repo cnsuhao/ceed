@@ -171,6 +171,9 @@ class Instance(object):
             PyCEGUI.SchemeManager.getSingleton().destroyAll()
             PyCEGUI.WidgetLookManager.getSingleton().eraseAllWidgetLooks()
             PyCEGUI.AnimationManager.getSingleton().destroyAllAnimations()
+            PyCEGUI.WindowFactoryManager.getSingleton().removeAllFalagardWindowMappings()
+            PyCEGUI.WindowFactoryManager.getSingleton().removeAllWindowTypeAliases()
+            PyCEGUI.WindowFactoryManager.getSingleton().removeAllFactories()
             PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
 
     def syncToProject(self, project, mainWindow = None):
