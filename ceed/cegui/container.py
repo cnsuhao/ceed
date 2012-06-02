@@ -22,10 +22,34 @@ from PySide import QtCore
 from PySide import QtGui
 from PySide import QtWebKit
 
+import collections
+
 from ceed.cegui import qtgraphics
 
 import ceed.ui.ceguidebuginfo
 import PyCEGUI
+
+class LogMessageWrapper(object):
+    def __init__(self, message, level):
+        self.message = message
+        self.level = level
+        
+    def asTableRow(self):
+        bgColour = "transparent"
+        
+        if self.level == PyCEGUI.LoggingLevel.Errors:
+            stringLevel = "E"
+            bgColour = "#ff5f5f"
+            
+        elif self.level == PyCEGUI.LoggingLevel.Warnings:
+            stringLevel = "W"
+            bgColour = "#fff76f"
+            
+        else:
+            stringLevel = " "
+            bgColour = "transparent"
+        
+        return "<tr><td style=\"background: %s\">%s</td><td>%s</td></tr>\n" % (bgColour, stringLevel, self.message)
 
 class DebugInfo(QtGui.QDialog):
     """A debugging/info widget about the embedded CEGUI instance"""
@@ -66,35 +90,33 @@ class DebugInfo(QtGui.QDialog):
         
         self.logViewArea.setLayout(self.logViewAreaLayout)
         
-        self.htmlLog = ""
+        self.logMessagesLimit = settings.getEntry("global/cegui_debug_info/log_limit").value
+        self.logMessages = collections.deque([])
         
         self.containerWidget.ceguiInstance.logger.registerSubscriber(self.logEvent)
         
     def logEvent(self, message, level):
-        stringLevel = "unknown"
-        bgColour = "transparent"
-        
         if level == PyCEGUI.LoggingLevel.Errors:
             self.errors += 1
             self.errorsBox.setText(str(self.errors))
-            stringLevel = "E"
-            bgColour = "#ff5f5f"
             
         elif level == PyCEGUI.LoggingLevel.Warnings:
             self.warnings += 1
             self.warningsBox.setText(str(self.warnings))
-            stringLevel = "W"
-            bgColour = "#fff76f"
             
         else:
             self.others += 1
             self.othersBox.setText(str(self.others))
-            stringLevel = " "
-            bgColour = "transparent"
-            
-        self.htmlLog += "<tr><td style=\"background: %s\">%s</td><td>%s</td></tr>\n" % (bgColour, stringLevel, message)
+        
+        # remove old messages
+        while len(self.logMessages) >= self.logMessagesLimit:
+            self.logMessages.popleft()
+        
+        self.logMessages.append(LogMessageWrapper(message, level))
         
     def show(self):
+        htmlLog = "\n".join([msg.asTableRow() for msg in self.logMessages])
+        
         self.logView.setHtml("""
 <html>
 <body>
@@ -106,7 +128,7 @@ font-size: 10px;
 <th></th><th>Message</th>
 </thead>
 <tbody>
-""" + self.htmlLog + """
+""" + htmlLog + """
 </tbody>
 </table>
 </html>""")
@@ -278,3 +300,5 @@ class ContainerWidget(QtGui.QWidget):
 
     def slot_debugInfoButton(self):
         self.debugInfo.show()
+
+from ceed import settings
