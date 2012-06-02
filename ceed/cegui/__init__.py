@@ -173,7 +173,10 @@ class Instance(object):
             PyCEGUI.AnimationManager.getSingleton().destroyAllAnimations()
             PyCEGUI.WindowFactoryManager.getSingleton().removeAllFalagardWindowMappings()
             PyCEGUI.WindowFactoryManager.getSingleton().removeAllWindowTypeAliases()
-            #PyCEGUI.WindowFactoryManager.getSingleton().removeAllFactories()
+            PyCEGUI.WindowFactoryManager.getSingleton().removeAllFactories()
+            # the previous call removes all Window factories, including the stock ones like DefaultWindow
+            # lets add them back
+            PyCEGUI.System.getSingleton().addStandardWindowFactories()
             PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
 
     def syncToProject(self, project, mainWindow = None):
