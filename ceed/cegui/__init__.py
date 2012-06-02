@@ -29,8 +29,6 @@ import os.path
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
-from profilehooks import profile
-
 class RedirectingCEGUILogger(PyCEGUI.Logger):
     """Allows us to register subscribers that want CEGUI log info
     
@@ -178,7 +176,6 @@ class Instance(object):
             #PyCEGUI.WindowFactoryManager.getSingleton().removeAllFactories()
             PyCEGUI.System.getSingleton().getRenderer().destroyAllTextures()
 
-    @profile
     def syncToProject(self, project, mainWindow = None):
         """Synchronises the instance with given project, respecting it's paths and resources
         """
