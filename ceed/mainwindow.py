@@ -872,7 +872,25 @@ Details of this error: %s""" % (e))
             i += 1
             
         return True      
+
+    def getFilePathsOfAllTabsRequiringProject(self):
+        """Queries file paths of all tabs that require a project opened
         
+        This is used to bring previously closed tabs back up when reloading project resources
+        """
+        
+        ret = []
+        i = 0
+        while i < self.tabs.count():
+            tabbedEditor = self.tabs.widget(i).tabbedEditor
+            
+            if tabbedEditor.requiresProject:
+                ret.append(tabbedEditor.filePath)
+            
+            i += 1
+        
+        return ret 
+
     def slot_newProject(self):
         if self.project:
             # another project is already opened!
@@ -979,6 +997,12 @@ Details of this error: %s""" % (e))
         # since we are effectively unloading the project and potentially nuking resources of it
         # we should definitely unload all tabs that rely on it to prevent segfaults and other
         # nasty phenomena
+        
+        # we will remember previously opened tabs requiring a project so that we can load them up
+        # after we are done
+        filePathsToLoad = self.getFilePathsOfAllTabsRequiringProject()
+        activeEditorPath = self.activeEditor.filePath if self.activeEditor else ""
+        
         if not self.closeAllTabsRequiringProject():
             QtGui.QMessageBox.information(self,
                                           "Project dependent tabs still open!",
@@ -988,6 +1012,13 @@ Details of this error: %s""" % (e))
         
         self.performProjectDirectoriesSanityCheck()
         self.syncProjectToCEGUIInstance()
+        
+        # load previously loaded tabs requiring a project opened
+        for filePath in filePathsToLoad:
+            lastLoaded = self.openEditorTab(filePath)
+        
+        # previously active editor to be loaded last, this makes it active again
+        self.openEditorTab(activeEditorPath)
         
     def slot_newFileDialog(self, title = "New File", filtersList = None, selectedFilterIndex = 0, autoSuffix = False):
         defaultDir = ""
