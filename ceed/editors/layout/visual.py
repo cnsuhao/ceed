@@ -60,7 +60,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
             # interlink them so we can react on selection changes
             self.setData(manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
             manipulator.treeItem = self
-        
+            
         else:
             super(WidgetHierarchyItem, self).__init__("<No widget>")
         
@@ -138,6 +138,12 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
         
         for item in manipulator.childItems():
             if isinstance(item, widgethelpers.Manipulator):
+                if item.widget.isAutoWindow() and \
+                   settings.getEntry("layout/visual/hide_deadend_autowidgets").value and \
+                   not item.hasNonAutoWidgetDescendants():
+                    # skip this branch as per settings
+                    continue
+                
                 childSubtree = self.constructSubtree(item)
                 ret.appendRow(childSubtree)
         

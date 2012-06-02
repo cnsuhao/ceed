@@ -37,44 +37,50 @@ def declare(settings):
                        sortingWeight = 0)
 
     visual.createEntry(name = "normal_outline", type = QtGui.QPen, label = "Normal outline",
-                       help="Pen for normal outline.",
+                       help = "Pen for normal outline.",
                        defaultValue = QtGui.QPen(QtGui.QColor(255, 255, 255, 150)), widgetHint = "pen",
                        sortingWeight = 1)
 
     visual.createEntry(name = "hover_outline", type = QtGui.QPen, label = "Hover outline",
-                       help="Pen for hover outline.",
+                       help = "Pen for hover outline.",
                        defaultValue = QtGui.QPen(QtGui.QColor(0, 255, 255, 255)), widgetHint = "pen",
                        sortingWeight = 2)
 
     visual.createEntry(name = "resizing_outline", type = QtGui.QPen, label = "Outline while resizing",
-                       help="Pen for resizing outline.",
+                       help = "Pen for resizing outline.",
                        defaultValue = QtGui.QPen(QtGui.QColor(255, 0, 255, 255)), widgetHint = "pen",
                        sortingWeight = 3)
 
     visual.createEntry(name = "moving_outline", type = QtGui.QPen, label = "Outline while moving",
-                       help="Pen for moving outline.",
+                       help = "Pen for moving outline.",
                        defaultValue = QtGui.QPen(QtGui.QColor(255, 0, 255, 255)), widgetHint = "pen",
                        sortingWeight = 4)
 
     visual.createEntry(name = "snap_grid_x", type = float, label = "Snap grid cell width (X)",
-                       help="Snap grid X metric.",
+                       help = "Snap grid X metric.",
                        defaultValue = 5, widgetHint = "float",
                        sortingWeight = 5)
 
     visual.createEntry(name = "snap_grid_y", type = float, label = "Snap grid cell height (Y)",
-                       help="Snap grid Y metric.",
+                       help = "Snap grid Y metric.",
                        defaultValue = 5, widgetHint = "float",
                        sortingWeight = 6)
 
     visual.createEntry(name = "snap_grid_point_colour", type = QtGui.QColor, label = "Snap grid point colour",
-                       help="Color of snap grid points.",
+                       help = "Color of snap grid points.",
                        defaultValue = QtGui.QColor(255, 255, 255, 192), widgetHint = "colour",
                        sortingWeight = 7)
 
     visual.createEntry(name = "snap_grid_point_shadow_colour", type = QtGui.QColor, label = "Snap grid point shadow colour",
-                       help="Color of snap grid points (shadows).",
+                       help = "Color of snap grid points (shadows).",
                        defaultValue = QtGui.QColor(64, 64, 64, 192), widgetHint = "colour",
                        sortingWeight = 8)
+    
+    # TODO: Full restart is not actually needed, just a refresh on all layout visual editing modes
+    visual.createEntry(name = "hide_deadend_autowidgets", type = bool, label = "Hide deadend auto widgets",
+                       help = "Should auto widgets with no non-auto widgets descendants be hidden in the widget hierarchy?",
+                       defaultValue = True, widgetHint = "checkbox",
+                       sortingWeight = 9, changeRequiresRestart = True)
     
     # FIXME: Only applies to newly refreshed visual modes!
     visual.createEntry(name = "auto_widgets_selectable", type = bool, label = "Make auto widgets selectable",

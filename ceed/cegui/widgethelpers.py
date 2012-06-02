@@ -602,6 +602,25 @@ class Manipulator(resizable.ResizableRectItem):
                     # call it
                     widget.propertyManagerCallbacks[propertyName]()
 
+    def hasNonAutoWidgetDescendants(self):
+        """Checks whether there are non-auto widgets nested in this widget
+        
+        Self is a descendant of self in this context!
+        """
+        
+        def impl_hasNonAutoWidgetDescendants(widget):
+            if not widget.isAutoWindow():
+                return True
+            
+            for i in range(widget.getChildCount()):
+                child = widget.getChildAtIdx(i)
+                
+                if impl_hasNonAutoWidgetDescendants(child):
+                    return True
+                
+            return False
+        
+        return impl_hasNonAutoWidgetDescendants(self.widget)
 
 class SerialisationData(object):
     """Allows to "freeze" CEGUI widget to data that is easy to retain in python,
