@@ -22,7 +22,7 @@ from PySide import QtGui
 
 import PyCEGUI
 
-from ceed.editors import mixed
+from ceed.editors import multi
 from ceed import cegui
 from ceed.editors.animation_list import timeline
 from ceed.editors.animation_list import undo
@@ -284,10 +284,10 @@ class AnimationDefinitionWrapper(object):
         
         return ret
 
-class VisualEditing(QtGui.QWidget, mixed.EditMode):
+class VisualEditing(QtGui.QWidget, multi.EditMode):
     """This is the default visual editing mode for animation lists
     
-    see editors.mixed.EditMode
+    see editors.multi.EditMode
     """
     
     fakeAnimationDefinitionNameSuffix = 1

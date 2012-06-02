@@ -18,10 +18,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from ceed.editors import mixed
+from ceed.editors import multi
 import PyCEGUI
 
-class CodeEditing(mixed.CodeEditMode):
+class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
         

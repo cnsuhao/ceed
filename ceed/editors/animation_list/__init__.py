@@ -30,7 +30,7 @@ import os.path
 import sys
 from xml.etree import ElementTree
 
-class AnimationListTabbedEditor(editors.mixed.MixedTabbedEditor):
+class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Animation list file editor (XML file containing list of animations)
     """
     

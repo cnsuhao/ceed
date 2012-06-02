@@ -29,7 +29,7 @@ import PyCEGUI
 
 from ceed import resizable
 
-from ceed.editors import mixed
+from ceed.editors import multi
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
@@ -962,10 +962,10 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             else:
                 event.ignore()
         
-class VisualEditing(QtGui.QWidget, mixed.EditMode):
+class VisualEditing(QtGui.QWidget, multi.EditMode):
     """This is the default visual editing mode
     
-    see ceed.editors.mixed.EditMode
+    see ceed.editors.multi.EditMode
     """
     
     def __init__(self, tabbedEditor):

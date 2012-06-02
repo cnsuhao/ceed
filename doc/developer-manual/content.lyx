@@ -255,7 +255,7 @@ You are using the Qt's UndoStack.
 \end_layout
 
 \begin_layout Subsubsection
-MixedModeTabbedEditor
+MultiModeTabbedEditor
 \end_layout
 
 \begin_layout Standard

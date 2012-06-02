@@ -19,7 +19,7 @@
 ##############################################################################
 
 ##
-# This module contains interfaces for mixed editing tabbed editors (visual, source, ...)
+# This module contains interfaces for multi mode tabbed editors (visual, source, ...)
 
 from ceed import editors
 from ceed import commands
@@ -36,6 +36,7 @@ class ModeSwitchCommand(commands.UndoCommand):
     undoable even though you can't affect the document in any way whilst in Live Preview
     mode.
     """
+    
     def __init__(self, tabbedEditor, oldTabIndex, newTabIndex):
         super(ModeSwitchCommand, self).__init__()
         
@@ -94,7 +95,10 @@ class EditMode(object):
         return True
 
 class CodeEditModeCommand(commands.UndoCommand):
-    """Extremely memory hungry implementation for now, I have to figure out how to use my own
+    """
+    Undo command for code edit mode.
+    
+    TODO: Extremely memory hungry implementation for now, I have to figure out how to use my own
     QUndoStack with QTextDocument in the future to fix this.
     """
     
@@ -152,7 +156,7 @@ class CodeEditModeCommand(commands.UndoCommand):
         super(CodeEditModeCommand, self).redo()
 
 class CodeEditMode(QTextEdit, EditMode):
-    """This is the most used alternative mixed editing mode that allows you to edit raw code.
+    """This is the most used alternative editing mode that allows you to edit raw code.
     
     Raw code is mostly XML in CEGUI formats but can be anything else in a generic sense
     """
@@ -185,7 +189,7 @@ class CodeEditMode(QTextEdit, EditMode):
         #return False
     
     def refreshFromVisual(self):
-        """Refreshes this Code editing mixed mode with current native source code."""
+        """Refreshes this Code editing mode with current native source code."""
         
         source = self.getNativeCode()
         
@@ -194,7 +198,7 @@ class CodeEditMode(QTextEdit, EditMode):
         self.ignoreUndoCommands = False
         
     def propagateToVisual(self):
-        """Propagates source code from this Code editing mixed mode to your editor implementation."""
+        """Propagates source code from this Code editing mode to your editor implementation."""
         
         source = self.document().toPlainText()
         
@@ -242,7 +246,7 @@ class CodeEditMode(QTextEdit, EditMode):
             
         self.lastUndoText = self.toPlainText()
 
-class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
+class MultiModeTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
     """This class represents tabbed editor that has little tabs on the bottom
     allowing you to switch editing "modes" - visual, code, ...
     
@@ -272,7 +276,7 @@ class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
         self.ignoreCurrentChangedForUndo = False
         
     def initialise(self, mainWindow):
-        super(MixedTabbedEditor, self).initialise(mainWindow)
+        super(MultiModeTabbedEditor, self).initialise(mainWindow)
         
         # the emitted signal only contains the new signal, we have to keep track
         # of the current index ourselves so that we know which one is the "old" one
@@ -287,6 +291,7 @@ class MixedTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
             return
         
         oldTab = self.widget(self.currentTabIndex)
+        
         # FIXME: workaround for PySide 1.0.6, I suspect this is a bug in PySide! http://bugs.pyside.org/show_bug.cgi?id=988
         if newTabIndex is None:
             newTabIndex = -1

@@ -24,7 +24,7 @@ from PySide import QtOpenGL
 
 import fnmatch, re
 
-from ceed.editors import mixed
+from ceed.editors import multi
 from ceed import qtwidgets
 from ceed import resizable
 
@@ -351,13 +351,13 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
     def slot_offsetYChanged(self, text):
         self.metaslot_propertyChanged("yoffset", text)
 
-class VisualEditing(resizable.GraphicsView, mixed.EditMode):
+class VisualEditing(resizable.GraphicsView, multi.EditMode):
     """This is the "Visual" tab for imageset editing
     """
     
     def __init__(self, tabbedEditor):
         resizable.GraphicsView.__init__(self)
-        mixed.EditMode.__init__(self)
+        multi.EditMode.__init__(self)
         
         self.wheelZoomEnabled = True
         self.middleButtonDragScrollEnabled = True

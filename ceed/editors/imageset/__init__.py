@@ -43,7 +43,7 @@ Image Offset - allows you to change the pivot point of the image entry which by 
 Underlying image - the image that lies under the image entries/rectangles (bitmap image)
 """
 
-class ImagesetTabbedEditor(editors.mixed.MixedTabbedEditor):
+class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Binds all imageset editing functionality together
     """
     

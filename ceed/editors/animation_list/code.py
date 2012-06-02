@@ -20,10 +20,10 @@
 
 from xml.etree import ElementTree
 
-from ceed.editors import mixed
+from ceed.editors import multi
 from ceed import xmledit
 
-class CodeEditing(mixed.CodeEditMode):
+class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
         

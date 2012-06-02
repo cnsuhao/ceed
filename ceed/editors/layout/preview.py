@@ -20,11 +20,11 @@
 
 from PySide import QtGui
 
-from ceed.editors import mixed
+from ceed.editors import multi
 
 import PyCEGUI
 
-class LayoutPreviewer(QtGui.QWidget, mixed.EditMode):
+class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """

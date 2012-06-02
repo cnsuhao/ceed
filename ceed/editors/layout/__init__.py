@@ -32,7 +32,7 @@ from ceed.editors.layout import preview
 
 import PyCEGUI
 
-class LayoutTabbedEditor(editors.mixed.MixedTabbedEditor):
+class LayoutTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Binds all layout editing functionality together
     """
     
