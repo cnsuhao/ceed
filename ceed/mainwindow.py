@@ -1018,7 +1018,8 @@ Details of this error: %s""" % (e))
             lastLoaded = self.openEditorTab(filePath)
         
         # previously active editor to be loaded last, this makes it active again
-        self.openEditorTab(activeEditorPath)
+        if activeEditorPath != "":
+            self.openEditorTab(activeEditorPath)
         
     def slot_newFileDialog(self, title = "New File", filtersList = None, selectedFilterIndex = 0, autoSuffix = False):
         defaultDir = ""
