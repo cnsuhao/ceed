@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 CEGUILayout2 = "CEGUI layout 2"
 CEGUILayout3 = "CEGUI layout 3"

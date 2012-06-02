@@ -26,7 +26,7 @@ PropertyMap -- PropertyMappingEntry container.
 
 from collections import OrderedDict
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 class PropertyMappingEntry(object):
     """Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor

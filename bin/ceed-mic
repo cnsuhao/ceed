@@ -35,7 +35,7 @@ def main():
         from ceed import metaimageset
         from ceed.metaimageset import compiler as metaimageset_compiler
         
-        from xml.etree import ElementTree
+        from xml.etree import cElementTree as ElementTree
         
         # we have to construct Qt application, otherwise all the pixmap functionality won't work
         QApplication([])

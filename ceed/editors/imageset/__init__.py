@@ -32,7 +32,7 @@ import ceed.compatibility.imageset as imageset_compatibility
 from ceed.editors.imageset import visual
 from ceed.editors.imageset import code
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 """Special words used in imageset editing code:
 Imageset - definition of image rectangles on specified underlying image (~texture atlas)

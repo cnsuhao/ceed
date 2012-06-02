@@ -29,7 +29,7 @@ from PySide import QtGui
 from PySide import QtSvg
 
 import os
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 class Image(object):
     """Instance of the image, containing a bitmap (QImage)

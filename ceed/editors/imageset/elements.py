@@ -21,7 +21,7 @@
 from PySide import QtCore
 from PySide import QtGui
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 import os
 
 from ceed import resizable

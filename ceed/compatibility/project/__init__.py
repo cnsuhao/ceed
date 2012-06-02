@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 Project1 = "CEED Project 1"
 

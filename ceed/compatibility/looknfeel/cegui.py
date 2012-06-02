@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 CEGUILookNFeel1 = "CEGUI LookNFeel 1"
 # superseded by LookNFeel 2 in 0.5b

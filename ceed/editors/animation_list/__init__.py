@@ -28,7 +28,7 @@ from ceed.editors.animation_list import code
 
 import os.path
 import sys
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Animation list file editor (XML file containing list of animations)

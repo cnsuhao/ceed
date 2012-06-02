@@ -34,7 +34,7 @@ import ceed.ui.editors.animation_list.visualediting
 from ceed import propertysetinspector
 from ceed import propertytree
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 class AnimationListDockWidget(QtGui.QDockWidget):
     """Lists animations in the currently opened animation list XML

@@ -18,7 +18,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import multi
 from ceed import xmledit

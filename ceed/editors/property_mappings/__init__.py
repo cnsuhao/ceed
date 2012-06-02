@@ -24,7 +24,7 @@ from ceed import editors
 from ceed import propertyinspector
 import ceed.compatibility.property_mappings as property_mappings_compatibility
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 ##
 # Property mapping file editor

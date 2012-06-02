@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 CEGUIFont1 = "CEGUI Font 1"
 CEGUIFont2 = "CEGUI Font 2"

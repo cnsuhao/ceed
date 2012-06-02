@@ -25,7 +25,7 @@ import os
 import sys
 import logging
 
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 from ceed import compatibility
 from ceed import propertymapping

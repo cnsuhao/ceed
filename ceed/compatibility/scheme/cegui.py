@@ -19,7 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
-from xml.etree import ElementTree
+from xml.etree import cElementTree as ElementTree
 
 CEGUIScheme1 = "CEGUI Scheme 1"
 CEGUIScheme2 = "CEGUI Scheme 2"
