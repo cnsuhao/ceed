@@ -32,22 +32,33 @@ def main():
         from PySide.QtGui import QApplication
         
         import argparse
+        import sys
+        
         from ceed import metaimageset
         from ceed.metaimageset import compiler as metaimageset_compiler
         
         from xml.etree import cElementTree as ElementTree
         
-        # we have to construct Qt application, otherwise all the pixmap functionality won't work
-        QApplication([])
-        
         parser = argparse.ArgumentParser(description = "Compile given meta imageset")
         
+        parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
+                            help = "These options will be passed to QApplication, see http://qt-project.org/doc/qt-4.8/qapplication.html#QApplication. \
+                            Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
+                
         parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5,
                             help = "Number of pixels the size is increased as a step in the size determination.")
         parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
                             help = "Input file to be processed.")
         
         args = parser.parse_args()
+
+        # we pass the first argument, which is the app name and the split qtoptions
+        split_qtoptions = sys.argv[:1]
+        if args.qtoptions != "":
+            split_qtoptions.extend(args.qtoptions.split(" "))
+        
+        # we have to construct Qt application, otherwise all the pixmap functionality won't work
+        QApplication(split_qtoptions)
         
         metaImageset = metaimageset.MetaImageset(args.input.name)
     
