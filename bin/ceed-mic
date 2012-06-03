@@ -42,8 +42,8 @@ def main():
         parser = argparse.ArgumentParser(description = "Compile given meta imageset")
         
         parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
-                            help = "These options will be passed to QApplication, see http://qt-project.org/doc/qt-4.8/qapplication.html#QApplication. \
-                            Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
+                            help = "These options will be passed to QApplication, see documentation of QApplication for details. " + \
+                            "Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
                 
         parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5,
                             help = "Number of pixels the size is increased as a step in the size determination.")
