@@ -89,6 +89,9 @@ class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.visual.loadFromElement(root)
         
     def finalise(self):
+        # this takes care of destroying the temporary animation instance, if any
+        self.visual.setCurrentAnimation(None)
+        
         super(AnimationListTabbedEditor, self).finalise()
         
     def activate(self):
