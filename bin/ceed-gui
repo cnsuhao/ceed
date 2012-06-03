@@ -30,6 +30,7 @@ def main():
     if prerequisites.check():
         import sys
         import os
+        import os.path
 
         from ceed import application
         from ceed import paths
@@ -47,6 +48,9 @@ def main():
                             help = "These options will be passed to QApplication, see http://qt-project.org/doc/qt-4.8/qapplication.html#QApplication. \
                             Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
         
+        parser.add_argument("--project", metavar = "PROJECT_FILE", type = file, required = False,
+                            help = "You can open a project file immediately after CEED loads using this optional parameter.")
+        
         args = parser.parse_args()
         
         # we pass the first argument, which is the app name and the split qtoptions
@@ -56,6 +60,10 @@ def main():
         
         # split_qtoptions has to remain valid for the entire lifetime of the app
         app = application.Application(split_qtoptions)
+        
+        if args.project is not None:
+            app.mainWindow.openProject(os.path.abspath(args.project.name))
+        
         sys.exit(app.exec_())
 
     else:
