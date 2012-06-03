@@ -266,3 +266,23 @@ class LineEditWithClearButton(QtGui.QLineEdit):
 
     def updateCloseButton(self, text):
         self.button.setVisible(not not text)
+
+def getCheckerboardBrush(halfWidth = 5, halfHeight = 5,
+                         firstColour = QtGui.QColor(QtCore.Qt.darkGray),
+                         secondColour = QtGui.QColor(QtCore.Qt.gray)):
+    """Small helper function that generates a brush usually seen in graphics
+    editing tools. The checkerboard brush that draws background seen when
+    edited images are transparent
+    """
+    
+    ret = QtGui.QBrush()
+    texture = QtGui.QPixmap(2 * halfWidth, 2 * halfHeight)
+    painter = QtGui.QPainter(texture)
+    painter.fillRect(0, 0, halfWidth, halfHeight, firstColour)
+    painter.fillRect(halfWidth, halfHeight, halfWidth, halfHeight, firstColour)
+    painter.fillRect(halfWidth, 0, halfWidth, halfHeight, secondColour)
+    painter.fillRect(0, halfHeight, halfWidth, halfHeight, secondColour)
+    painter.end()
+    ret.setTexture(texture)
+    
+    return ret

@@ -25,26 +25,7 @@ from xml.etree import cElementTree as ElementTree
 import os
 
 from ceed import resizable
-
-def getCheckerboardBrush(halfWidth = 5, halfHeight = 5,
-                         firstColour = QtGui.QColor(QtCore.Qt.darkGray),
-                         secondColour = QtGui.QColor(QtCore.Qt.gray)):
-    """Small helper function that generates a brush usually seen in graphics
-    editing tools. The checkerboard brush that draws background seen when
-    edited images are transparent
-    """
-    
-    ret = QtGui.QBrush()
-    texture = QtGui.QPixmap(2 * halfWidth, 2 * halfHeight)
-    painter = QtGui.QPainter(texture)
-    painter.fillRect(0, 0, halfWidth, halfHeight, firstColour)
-    painter.fillRect(halfWidth, halfHeight, halfWidth, halfHeight, firstColour)
-    painter.fillRect(halfWidth, 0, halfWidth, halfHeight, secondColour)
-    painter.fillRect(0, halfHeight, halfWidth, halfHeight, secondColour)
-    painter.end()
-    ret.setTexture(texture)
-    
-    return ret
+from ceed import qtwidgets
 
 class ImageLabel(QtGui.QGraphicsTextItem):
     """Text item showing image's label when the image is hovered or selected.
@@ -272,7 +253,7 @@ class ImageEntry(resizable.ResizableRectItem):
         
         preview = QtGui.QPixmap(previewWidth, previewHeight)
         painter = QtGui.QPainter(preview)
-        painter.setBrush(getCheckerboardBrush())
+        painter.setBrush(qtwidgets.getCheckerboardBrush())
         painter.drawRect(0, 0, previewWidth, previewHeight)
         scaledPixmap = self.getPixmap().scaled(QtCore.QSize(previewWidth, previewHeight),
                                                QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
@@ -447,7 +428,7 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         self.transparencyBackground.setParentItem(self)
         self.transparencyBackground.setFlags(QtGui.QGraphicsItem.ItemStacksBehindParent)
         
-        self.transparencyBackground.setBrush(getCheckerboardBrush())
+        self.transparencyBackground.setBrush(qtwidgets.getCheckerboardBrush())
         self.transparencyBackground.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.transparent)))
 
         # Allocate space for monitoring the image, but don't load anything since
