@@ -22,6 +22,8 @@ from ceed.settings import declaration
 from ceed.settings import persistence
 from ceed.settings import interface
 
+from PySide import QtGui
+
 class Settings(declaration.Settings):
     instance = None
 
@@ -61,6 +63,9 @@ class Settings(declaration.Settings):
                                      help = "Limits number of remembered log messages to given amount. This is there to prevent endless growth of memory consumed by CEED.",
                                      defaultValue = 20000, widgetHint = "int",
                                      sortingWeight = 1, changeRequiresRestart = True)
+
+        import ceed.cegui.settings_decl as cegui_settings
+        cegui_settings.declare(self)
 
         import ceed.editors.imageset.settings_decl as imageset_settings
         imageset_settings.declare(self)

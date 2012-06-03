@@ -30,6 +30,7 @@ import PyCEGUI
 
 from ceed import resizable
 from ceed import cegui
+from ceed import qtwidgets
 
 class GraphicsScene(QtGui.QGraphicsScene):
     """A scene that draws CEGUI as it's background.
@@ -52,6 +53,11 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.lastDelta = 0
         
         self.fbo = None
+        
+        self.checkerWidth = settings.getEntry("cegui/background/checker_width")
+        self.checkerHeight = settings.getEntry("cegui/background/checker_height")
+        self.checkerFirstColour = settings.getEntry("cegui/background/first_colour")
+        self.checkerSecondColour = settings.getEntry("cegui/background/second_colour")
         
     def setCEGUIDisplaySize(self, width, height, lazyUpdate = True):
         self.ceguiDisplaySize = PyCEGUI.Sizef(width, height)
@@ -89,6 +95,11 @@ class GraphicsScene(QtGui.QGraphicsScene):
         system.injectTimePulse(self.lastDelta)
         self.timeOfLastRender = time.time()
 
+        painter.setPen(QtGui.QPen(QtCore.Qt.transparent))
+        painter.setBrush(qtwidgets.getCheckerboardBrush(self.checkerWidth.value, self.checkerHeight.value,
+                                                        self.checkerFirstColour.value, self.checkerSecondColour.value))
+        painter.drawRect(0, 0, self.ceguiDisplaySize.d_width, self.ceguiDisplaySize.d_height)
+
         painter.beginNativePainting()
                 
         self.ceguiInstance.ensureIsInitialised()
@@ -101,9 +112,6 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # references in the rendering code for some versions of CEGUI.
         system.getDefaultGUIContext().markAsDirty()
         
-        GL.glClearColor(0.3, 0.3, 0.3, 1)
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-
         # we have to render to FBO and then scale/translate that since CEGUI doesn't allow
         # scaling the whole rendering root directly
         
@@ -114,7 +122,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
             
         self.fbo.bind()
         
-        GL.glClearColor(0, 0, 0, 1)
+        GL.glClearColor(0, 0, 0, 0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         system.renderAllGUIContexts()
@@ -128,6 +136,9 @@ class GraphicsScene(QtGui.QGraphicsScene):
         
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.fbo.texture())
+
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
         # TODO: I was told that this is the slowest method to draw with OpenGL, with which I certainly agree
         #       no profiling has been done at all and I don't suspect this to be a painful performance problem.
@@ -495,3 +506,5 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
                 
         if not handled:
             super(GraphicsView, self).keyPressEvent(event)
+
+from ceed import settings
