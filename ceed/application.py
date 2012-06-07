@@ -37,15 +37,16 @@ class Application(QApplication):
     """The central application class
     """
 
-    def __init__(self, argv):
+    def __init__(self, argv, debug = False):
         super(Application, self).__init__(argv)
 
         logging.basicConfig()
 
-        if version.CEED_developerMode:
+        if debug:
             # set debug logging
-            #logging.getLogger().setLevel(logging.DEBUG)
-            
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        if version.CEED_developerMode:
             # print info about developer's mode to possibly prevent it being
             # forgotten about when releasing
             logging.info("Developer's mode enabled - recompiling all .ui files...")

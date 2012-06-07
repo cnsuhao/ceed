@@ -23,6 +23,7 @@ from PySide import QtGui
 from PySide import QtWebKit
 
 import collections
+import logging
 
 from ceed.cegui import qtgraphics
 
@@ -108,6 +109,9 @@ class DebugInfo(QtGui.QDialog):
             self.others += 1
             self.othersBox.setText(str(self.others))
         
+        # log info using the logging message, allows debug outputs without GUI
+        logging.info("CEGUI message: %s" % (message))
+
         # remove old messages
         while len(self.logMessages) >= self.logMessagesLimit:
             self.logMessages.popleft()

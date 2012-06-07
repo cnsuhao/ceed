@@ -45,6 +45,9 @@ def main():
                             help = "These options will be passed to QApplication, see documentation of QApplication for details. " + \
                             "Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
         
+        parser.add_argument("--debug", type = bool, nargs = "?", const = True, default = False,
+                            help = "Verbosely output log messages to stdout / terminal")
+
         parser.add_argument("--project", metavar = "PROJECT_FILE", type = file, required = False,
                             help = "You can open a project file immediately after CEED loads using this optional parameter.")
         
@@ -67,7 +70,7 @@ def main():
         # cwd has to be data dir for Qt to load the icons correctly
         os.chdir(paths.data_dir)
         # split_qtoptions has to remain valid for the entire lifetime of the app
-        app = application.Application(split_qtoptions)
+        app = application.Application(split_qtoptions, args.debug)
         
         if projectToOpen is not None:
             app.processEvents()
