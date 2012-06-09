@@ -130,7 +130,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # we start CEGUI early and we always start it
         self.ceguiInstance = cegui.Instance()
-        self.ceguiContainerWidget = cegui_container.ContainerWidget(self.ceguiInstance)
+        self.ceguiContainerWidget = cegui_container.ContainerWidget(self.ceguiInstance, self)
 
         self.tabs = self.centralWidget().findChild(QtGui.QTabWidget, "tabs")
         self.tabs.currentChanged.connect(self.slot_currentTabChanged)

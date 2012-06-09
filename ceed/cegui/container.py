@@ -163,10 +163,11 @@ class ContainerWidget(QtGui.QWidget):
     Provides resolution changes, auto expanding and debug widget
     """
     
-    def __init__(self, ceguiInstance):
+    def __init__(self, ceguiInstance, mainWindow):
         super(ContainerWidget, self).__init__()
         
         self.ceguiInstance = ceguiInstance
+        self.mainWindow = mainWindow
         
         self.ui = ceed.ui.ceguicontainerwidget.Ui_CEGUIContainerWidget()
         self.ui.setupUi(self)
@@ -283,25 +284,33 @@ class ContainerWidget(QtGui.QWidget):
             
         self.currentParentWidget = None
 
-    def slot_resolutionBoxChanged(self, text):
-        if text == "Project Default (Layout)":
+    def updateResolution(self):
+        text = self.resolutionBox.currentText()
+        
+        if text == "Project default":
             # special case
-            pass
-        else:
-            res = text.split("x", 1)
-            if len(res) == 2:
-                try:
-                    # clamp both to 1 - 4096, should suit 99% of all cases
-                    width = max(1, min(4096, int(res[0])))
-                    height = max(1, min(4096, int(res[1])))
-                    
-                    self.ceguiInstance.makeGLContextCurrent()
-                    self.view.scene().setCEGUIDisplaySize(width, height, lazyUpdate = False)
-                    
-                except ValueError:
-                    # ignore invalid literals
-                    pass
+            project = self.mainWindow.project
+            
+            if project is not None:
+                text = project.CEGUIDefaultResolution
+        
+        res = text.split("x", 1)
+        if len(res) == 2:
+            try:
+                # clamp both to 1 - 4096, should suit 99% of all cases
+                width = max(1, min(4096, int(res[0])))
+                height = max(1, min(4096, int(res[1])))
+                
+                self.ceguiInstance.makeGLContextCurrent()
+                self.view.scene().setCEGUIDisplaySize(width, height, lazyUpdate = False)
+                
+            except ValueError:
+                # ignore invalid literals
+                pass
 
+    def slot_resolutionBoxChanged(self, text):
+        self.updateResolution()
+        
     def slot_debugInfoButton(self):
         self.debugInfo.show()
 

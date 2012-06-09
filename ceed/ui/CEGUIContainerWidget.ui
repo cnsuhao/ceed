@@ -109,6 +109,11 @@
         </property>
         <item>
          <property name="text">
+          <string>Project default</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>800x600</string>
          </property>
         </item>
@@ -119,12 +124,22 @@
         </item>
         <item>
          <property name="text">
+          <string>1280x720</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>1280x1024</string>
          </property>
         </item>
         <item>
          <property name="text">
           <string>1650x1080</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>1920x1080</string>
          </property>
         </item>
        </widget>

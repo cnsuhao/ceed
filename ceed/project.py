@@ -259,6 +259,8 @@ class Project(QtGui.QStandardItemModel):
         
         # default to the best case, native version :-)
         self.CEGUIVersion = compatibility.EditorEmbeddedCEGUIVersion
+        # 720p seems like a decent default nowadays, 16:9
+        self.CEGUIDefaultResolution = "1280x720"
         
         self.imagesetsPath = "./imagesets"
         self.fontsPath = "./fonts"
@@ -285,6 +287,7 @@ class Project(QtGui.QStandardItemModel):
 
         self.baseDirectory = os.path.normpath(root.get("baseDirectory", "./"))
         self.CEGUIVersion = root.get("CEGUIVersion", compatibility.EditorEmbeddedCEGUIVersion)
+        self.CEGUIDefaultResolution = root.get("CEGUIDefaultResolution", "1280x720")
         
         self.imagesetsPath = os.path.normpath(root.get("imagesetsPath", "./imagesets"))
         self.fontsPath = os.path.normpath(root.get("fontsPath", "./fonts"))
@@ -318,6 +321,7 @@ class Project(QtGui.QStandardItemModel):
         root.set("baseDirectory", convertToPortablePath(self.baseDirectory))
         
         root.set("CEGUIVersion", self.CEGUIVersion)
+        root.set("CEGUIDefaultResolution", self.CEGUIDefaultResolution)
         
         root.set("imagesetsPath", convertToPortablePath(self.imagesetsPath))
         root.set("fontsPath", convertToPortablePath(self.fontsPath))
