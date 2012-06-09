@@ -777,6 +777,9 @@ class ProjectSettingsDialog(QtGui.QDialog):
             self.CEGUIVersion.addItem(version)
             
         self.CEGUIVersion.setEditText(project.CEGUIVersion)
+        
+        self.CEGUIDefaultResolution = self.findChild(QtGui.QComboBox, "CEGUIDefaultResolution")
+        self.CEGUIDefaultResolution.setEditText(project.CEGUIDefaultResolution)
     
         self.resourceDirectory = self.findChild(qtwidgets.FileLineEdit, "resourceDirectory")
         self.resourceDirectory.mode = qtwidgets.FileLineEdit.ExistingDirectoryMode
@@ -812,6 +815,7 @@ class ProjectSettingsDialog(QtGui.QDialog):
         project.baseDirectory = os.path.relpath(absBaseDir, os.path.dirname(project.projectFilePath))
         
         project.CEGUIVersion = self.CEGUIVersion.currentText()
+        project.CEGUIDefaultResolution = self.CEGUIDefaultResolution.currentText()
         
         project.imagesetsPath = os.path.relpath(self.imagesetsPath.text(), absBaseDir)
         project.fontsPath = os.path.relpath(self.fontsPath.text(), absBaseDir)
