@@ -126,6 +126,13 @@ class CEGUI2ToCEGUI1Layer(compatibility.Layer):
     def getTargetType(self):
         return CEGUIImageset1
     
+    @classmethod
+    def autoScaledToBoolean(cls, value):
+        if value in ["true", "vertical", "horizontal", "min", "max"]:
+            return "true"
+        else:
+            return "false"
+    
     def transform(self, data):
         root = ElementTree.fromstring(data)
         del root.attrib["version"] # imageset version 1 has no version attribute!
@@ -149,7 +156,7 @@ class CEGUI2ToCEGUI1Layer(compatibility.Layer):
             del root.attrib["nativeVertRes"]
         
         if root.get("autoScaled") is not None:
-            root.set("AutoScaled", root.get("autoScaled", "false"))
+            root.set("AutoScaled", CEGUI2ToCEGUI1Layer.autoScaledToBoolean(root.get("autoScaled", "false")))
             del root.attrib["autoScaled"]
         
         for image in root.findall("Image"):

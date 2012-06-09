@@ -20,6 +20,7 @@
 
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
+from ceed.compatibility.imageset import cegui as imageset_cegui_compat
 
 from xml.etree import cElementTree as ElementTree
 
@@ -105,6 +106,9 @@ class Font3ToFont2Layer(compatibility.Layer):
         
         for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
+        
+        if self.get("AutoScaled") is not None:
+            self.set("AutoScaled", imageset_cegui_compat.CEGUI2ToCEGUI1Layer.autoScaledToBoolean(self.get("AutoScaled")))
         
         for mapping in root.findall("Mapping"):
             for attr in ["codepoint", "image", "horzAdvance"]:
