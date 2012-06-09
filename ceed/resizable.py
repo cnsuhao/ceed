@@ -43,6 +43,8 @@ class GraphicsView(QtGui.QGraphicsView):
         self.middleButtonDragScrollEnabled = False
         self.lastDragScrollMousePosition = None
 
+        self.ctrlZoom = settings.getEntry("global/navigation/ctrl_zoom")
+
     def setTransform(self, transform):
         super(GraphicsView, self).setTransform(transform)
         
@@ -82,7 +84,7 @@ class GraphicsView(QtGui.QGraphicsView):
         self.performZoom()
     
     def wheelEvent(self, event):
-        if self.wheelZoomEnabled:
+        if self.wheelZoomEnabled and (not self.ctrlZoom.value or event.modifiers() & QtCore.Qt.ControlModifier):
             if event.delta() == 0:
                 return
             
@@ -847,3 +849,5 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
             newPos = self.pos()
             
             self.notifyMoveFinished(newPos)
+
+from ceed import settings

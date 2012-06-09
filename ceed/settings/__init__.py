@@ -63,6 +63,12 @@ class Settings(declaration.Settings):
                                      help = "Limits number of remembered log messages to given amount. This is there to prevent endless growth of memory consumed by CEED.",
                                      defaultValue = 20000, widgetHint = "int",
                                      sortingWeight = 1, changeRequiresRestart = True)
+        
+        navigation = global_.createSection(name = "navigation", label = "Navigation")
+        navigation.createEntry(name = "ctrl_zoom", type = bool, label = "Only zoom when CTRL is pressed",
+                               help = "Mouse wheel zoom is ignored unless the Control key is pressed when it happens.",
+                               defaultValue = True, widgetHint = "checkbox",
+                               sortingWeight = 1, changeRequiresRestart = False)
 
         import ceed.cegui.settings_decl as cegui_settings
         cegui_settings.declare(self)
