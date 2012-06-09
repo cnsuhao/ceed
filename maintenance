@@ -72,7 +72,7 @@ def fetch_datafiles():
         print("*** Making sure the cegui_mk2 working copy is up to date...")
         if os.path.exists("cegui_mk2"):
             os.chdir("cegui_mk2")
-            subprocess.call(["hg", "pull", "-u"])
+            subprocess.call(["hg", "pull"])
             os.chdir(temp_directory_path)
         else:
             subprocess.call(["hg", "clone",
