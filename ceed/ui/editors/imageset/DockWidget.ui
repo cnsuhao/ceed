@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>252</width>
+    <width>287</width>
     <height>567</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>252</width>
+    <width>287</width>
     <height>385</height>
    </size>
   </property>
@@ -94,19 +94,9 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="autoScaleLabel">
+        <widget class="QLabel" name="autoScaledLabel">
          <property name="text">
           <string>Auto scaled</string>
-         </property>
-         <property name="buddy">
-          <cstring>autoScaled</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1" colspan="2">
-        <widget class="QCheckBox" name="autoScaled">
-         <property name="text">
-          <string/>
          </property>
         </widget>
        </item>
@@ -131,6 +121,40 @@
          <property name="text">
           <string>Load image</string>
          </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="2">
+        <widget class="QComboBox" name="autoScaled">
+         <item>
+          <property name="text">
+           <string>false</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>vertical</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>horizontal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>min</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>max</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>true</string>
+          </property>
+         </item>
         </widget>
        </item>
       </layout>

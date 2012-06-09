@@ -75,8 +75,8 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         self.image.startDirectory = lambda: project.getResourceFilePath("", "imagesets") if project is not None else ""
         self.imageLoad = self.findChild(QtGui.QPushButton, "imageLoad")
         self.imageLoad.clicked.connect(self.slot_imageLoadClicked)
-        self.autoScaled = self.findChild(QtGui.QCheckBox, "autoScaled")
-        self.autoScaled.stateChanged.connect(self.slot_autoScaledChanged)
+        self.autoScaled = self.findChild(QtGui.QComboBox, "autoScaled")
+        self.autoScaled.currentIndexChanged.connect(self.slot_autoScaledChanged)
         self.nativeHorzRes = self.findChild(QtGui.QLineEdit, "nativeHorzRes")
         self.nativeHorzRes.textEdited.connect(self.slot_nativeResolutionEdited)
         self.nativeVertRes = self.findChild(QtGui.QLineEdit, "nativeVertRes")
@@ -141,7 +141,7 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         
         self.name.setText(self.imagesetEntry.name)
         self.image.setText(self.imagesetEntry.getAbsoluteImageFile())
-        self.autoScaled.setChecked(self.imagesetEntry.autoScaled)
+        self.autoScaled.setCurrentIndex(self.autoScaled.findText(self.imagesetEntry.autoScaled))
         self.nativeHorzRes.setText(str(self.imagesetEntry.nativeHorzRes))
         self.nativeVertRes.setText(str(self.imagesetEntry.nativeVertRes))
         
@@ -292,9 +292,9 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         cmd = undo.ImagesetChangeImageCommand(self.visual, oldImageFile, newImageFile)
         self.visual.tabbedEditor.undoStack.push(cmd)
         
-    def slot_autoScaledChanged(self, newState):
+    def slot_autoScaledChanged(self, index):
         oldAutoScaled = self.imagesetEntry.autoScaled
-        newAutoScaled = self.autoScaled.checkState() == QtCore.Qt.Checked
+        newAutoScaled = self.autoScaled.currentText()
         
         if oldAutoScaled == newAutoScaled:
             return

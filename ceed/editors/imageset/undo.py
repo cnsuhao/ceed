@@ -599,7 +599,7 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
         self.refreshText()
         
     def refreshText(self):
-        self.setText("%s imageset auto scale" % ("Enable" if self.newAutoScaled else "Disable"))
+        self.setText("Imageset auto scaled changed to %s" % (self.newAutoScaled))
                 
     def id(self):
         return idbase + 11
@@ -618,12 +618,16 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
         
         imagesetEntry = self.visual.imagesetEntry
         imagesetEntry.autoScaled = self.oldAutoScaled
-        self.visual.dockWidget.autoScaled.setChecked(self.oldAutoScaled)
+        
+        index = self.visual.dockWidget.autoScaled.findText(imagesetEntry.autoScaled)
+        self.visual.dockWidget.autoScaled.setCurrentIndex(index)
     
     def redo(self):        
         imagesetEntry = self.visual.imagesetEntry
         imagesetEntry.autoScaled = self.newAutoScaled
-        self.visual.dockWidget.autoScaled.setChecked(self.newAutoScaled)
+        
+        index = self.visual.dockWidget.autoScaled.findText(imagesetEntry.autoScaled)
+        self.visual.dockWidget.autoScaled.setCurrentIndex(index)
    
         super(ImagesetChangeAutoScaledCommand, self).redo()
 

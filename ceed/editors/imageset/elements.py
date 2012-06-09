@@ -414,7 +414,7 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         self.imageFile = ""
         self.nativeHorzRes = 800
         self.nativeVertRes = 600
-        self.autoScaled = False
+        self.autoScaled = "false"
         
         self.setShapeMode(QtGui.QGraphicsPixmapItem.BoundingRectShape)
         self.setCursor(QtCore.Qt.ArrowCursor)
@@ -531,7 +531,7 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         
         self.nativeHorzRes = int(element.get("nativeHorzRes", 800))
         self.nativeVertRes = int(element.get("nativeVertRes", 600))
-        self.autoScaled = element.get("autoScaled", "false") == "true"
+        self.autoScaled = element.get("autoScaled")
         
         for imageElement in element.findall("Image"):
             image = ImageEntry(self)
@@ -548,7 +548,7 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         
         ret.set("nativeHorzRes", str(self.nativeHorzRes))
         ret.set("nativeVertRes", str(self.nativeVertRes))
-        ret.set("autoScaled", "true" if self.autoScaled else "false")
+        ret.set("autoScaled", self.autoScaled)
         
         for image in self.imageEntries:
             ret.append(image.saveToElement())
