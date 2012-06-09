@@ -107,8 +107,8 @@ class Font3ToFont2Layer(compatibility.Layer):
         for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
         
-        if self.get("AutoScaled") is not None:
-            self.set("AutoScaled", imageset_cegui_compat.CEGUI2ToCEGUI1Layer.autoScaledToBoolean(self.get("AutoScaled")))
+        if root.get("AutoScaled") is not None:
+            root.set("AutoScaled", imageset_cegui_compat.CEGUI2ToCEGUI1Layer.autoScaledToBoolean(root.get("AutoScaled")))
         
         for mapping in root.findall("Mapping"):
             for attr in ["codepoint", "image", "horzAdvance"]:
