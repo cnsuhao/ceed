@@ -78,8 +78,8 @@ class GraphicsView(QtGui.QGraphicsView):
     def zoomOut(self):
         self.zoomFactor /= 2
         
-        if self.zoomFactor < 1:
-            self.zoomFactor = 1
+        if self.zoomFactor < 0.5:
+            self.zoomFactor = 0.5
             
         self.performZoom()
     
