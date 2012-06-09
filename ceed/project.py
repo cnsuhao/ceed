@@ -335,8 +335,9 @@ class Project(QtGui.QStandardItemModel):
         
         xmledit.indent(root)
         
-        nativeData = ElementTree.tostring(root)
+        nativeData = ElementTree.tostring(root, encoding = "utf-8")
         outputFile = open(path, "w")
+        outputFile.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
         outputFile.write(nativeData)
         outputFile.close()
     
@@ -644,7 +645,7 @@ class ProjectManager(QtGui.QDockWidget):
         
         selectedIndices = self.view.selectedIndexes()
         # when this is called the selection must not be empty
-        assert (len(selectedIndices) > 0)
+        assert(len(selectedIndices) > 0)
         
         removeSpec = ""
         if len(selectedIndices) == 1:
