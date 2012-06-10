@@ -103,7 +103,7 @@ class ColourButton(QtGui.QPushButton):
             self.colourChanged.emit(colour)
         
     def slot_clicked(self):
-        colour = QtGui.QColorDialog.getColor(self.colour, self, "", QtGui.QColorDialog.ColorDialogOption.ShowAlphaChannel)
+        colour = QtGui.QColorDialog.getColor(self.colour, self, "", QtGui.QColorDialog.ColorDialogOption.ShowAlphaChannel|QtGui.QColorDialog.ColorDialogOption.DontUseNativeDialog)
         
         if colour.isValid():
             self.colour = colour
