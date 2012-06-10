@@ -342,7 +342,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.scene)
-        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = False,
+        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)
         
