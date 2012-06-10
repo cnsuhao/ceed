@@ -431,20 +431,8 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         self.transparencyBackground.setBrush(qtwidgets.getCheckerboardBrush())
         self.transparencyBackground.setPen(QtGui.QPen(QtGui.QColor(QtCore.Qt.transparent)))
 
-        # Allocate space for monitoring the image, but don't load anything since
-        # nothing has been loaded yet
         self.imageMonitor = None
-
-        # The imageMonitor seems to signal on file flush's, so multiple signals
-        # will be sent to reload the image.  Instead of blindy calling loadImage
-        # every time the signal is sent, delay a little bit by using QTimer.
-        # If another signal is sent before the delay time's out, push it back.
-        # Once the timer signals, the file is most likely done writing, and
-        # should be okay to reload.
-        self.imageRefreshTimer = None
-
-        # Make sure the image is okay to reload by also monitoring the file size.
-        self.imageSizeMonitor = None
+        self.displayingReloadAlert = False
         
     def getImageEntry(self, name):
         for image in self.imageEntries:
@@ -455,28 +443,28 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
         return None
     
     def slot_imageChangedByExternalProgram(self):
-        """Monitor the image with a QFilesystemWatcher and call a timer to
-        reload it after some time. If multiple signals are sent, just push the
-        timer back."""
+        """Monitor the image with a QFilesystemWatcher, ask user to reload
+        if changes to the file were made."""
 
-        if self.imageRefreshTimer is None:
-            self.imageRefreshTimer = QtCore.QTimer()
-            self.imageRefreshTimer.timeout.connect(self.slot_imageRefreshTimer)
-            self.imageRefreshTimer.setSingleShot(True)
-        else:
-            self.imageRefreshTimer.stop()
+        if not self.displayingReloadAlert:
+            self.displayingReloadAlert = True
+            ret = QtGui.QMessageBox.question(self.visual.tabbedEditor.mainWindow,
+                                             "Underlying image '%s' has been modified externally!" % (self.imageFile),
+                                             "The file has been modified outside the CEGUI Unified Editor.\n\nReload the file?\n\nIf you select Yes, UNDO HISTORY MIGHT BE PARTIALLY BROKEN UNLESS THE NEW SIZE IS THE SAME OR LARGER THAN THE OLD!",
+                                             QtGui.QMessageBox.No | QtGui.QMessageBox.Yes,
+                                             QtGui.QMessageBox.No) # defaulting to No is safer IMO
 
-        self.imageRefreshTimer.start(500)
+            if ret == QtGui.QMessageBox.Yes:
+                self.loadImage(self.imageFile)
+            
+            elif ret == QtGui.QMessageBox.No:
+                pass
+            
+            else:
+                # how did we get here?
+                assert(False)
 
-        # Keep track of the file size to be sure the image is ready to be read
-        self.imageSizeMonitor = QtCore.QFileInfo(self.getAbsoluteImageFile()).size()
-
-    def slot_imageRefreshTimer(self):
-        """When the image is done being written, reload it."""
-        
-        # This shouldn't fail, but just to be sure, make sure the file sizes match
-        assert(self.imageSizeMonitor == QtCore.QFileInfo(self.getAbsoluteImageFile()).size())
-        self.loadImage(self.imageFile)
+            self.displayingReloadAlert = False
 
     def loadImage(self, relativeImagePath):
         """
