@@ -341,7 +341,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         return "CEED_InternalAnimationDefinition_%i" % (VisualEditing.fakeAnimationDefinitionNameSuffix)
 
     def showEvent(self, event):
-        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.tabbedEditor.filePath, self.scene)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self.ceguiPreview, self.scene)
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = False,
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = True)

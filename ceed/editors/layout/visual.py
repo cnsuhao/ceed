@@ -1104,7 +1104,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.hierarchyDockWidget.refresh()
     
     def showEvent(self, event):
-        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.tabbedEditor.filePath, self.scene)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
                                                                             middleButtonScroll = True,
                                                                             continuousRendering = settings.getEntry("layout/visual/continuous_rendering").value)

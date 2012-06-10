@@ -224,10 +224,8 @@ class ContainerWidget(QtGui.QWidget):
         
         self.view.continuousRendering = continuousRendering
         
-    def activate(self, parentWidget, resourceIdentifier, scene = None):
+    def activate(self, parentWidget, scene = None):
         """Activates the CEGUI Widget for the given parentWidget (QWidget derived class).
-        resourceIdentifier is usually absolute path of the file and is used to differentiate
-        resolution settings
         """
         
         # sometimes things get called in the opposite order, lets be forgiving and robust!
