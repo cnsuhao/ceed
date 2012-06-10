@@ -31,7 +31,7 @@ class SplashScreen(QSplashScreen):
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(Qt.SplashScreen | Qt.WindowStaysOnTopHint)
-        self.showMessage("(imageset editing implemented, limited layout editing possible!) | Version: %s" % (version.CEED), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
+        self.showMessage("version: %s" % (version.CEED), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
 
 class Application(QApplication):
     """The central application class
