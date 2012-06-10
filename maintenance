@@ -113,7 +113,9 @@ def archive():
     # make sure we have to proper datafiles fetched
     print("*** Making sure fresh datafiles are in place...")
     fetch_datafiles()
-    
+    print("*** Making sure docs are built...")
+    build_docs()
+
     temp_directory_path = get_temporary_directory_path()
     from ceed import version
     target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
@@ -133,10 +135,13 @@ def archive():
                     ignore = shutil.ignore_patterns("*~", "*.pyc", "*.pyo"))
     shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
                     ignore = shutil.ignore_patterns("*~"))
-    
+    shutil.copytree("doc", os.path.join(target_temp_directory_path, "doc"),
+                    ignore = shutil.ignore_patterns("*~"))
+
     # we don't copy doc for now, there is almost nothing there
     shutil.copy("AUTHORS", target_temp_directory_path)
     shutil.copy("LICENSE", target_temp_directory_path)
+    shutil.copy("README", target_temp_directory_path)
     for file in glob.glob("*-COPYING"):
         shutil.copy(file, target_temp_directory_path)
         
