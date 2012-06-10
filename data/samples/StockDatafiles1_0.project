@@ -25,6 +25,7 @@
         </Item>
         <Item name="layouts" type="folder">
             <Item path="layouts/Demo8.layout" type="file" />
+            <Item path="layouts/Demo7Windows.layout" type="file" />
             <Item path="layouts/DragDropDemo.layout" type="file" />
             <Item path="layouts/FontDemo.layout" type="file" />
             <Item path="layouts/TabControlDemo.layout" type="file" />
