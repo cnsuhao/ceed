@@ -46,7 +46,7 @@ class Application(QApplication):
             # set debug logging
             logging.getLogger().setLevel(logging.DEBUG)
 
-        if version.CEED_developerMode:
+        if version.DEVELOPER_MODE:
             # print info about developer's mode to possibly prevent it being
             # forgotten about when releasing
             logging.info("Developer's mode enabled - recompiling all .ui files...")

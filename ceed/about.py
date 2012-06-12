@@ -47,6 +47,6 @@ class AboutDialog(QtGui.QDialog):
 
         self.findChild(QtGui.QLabel, "CEEDDescription").setText("{0}".format(CEEDDescription))
         self.findChild(QtGui.QLabel, "CEEDVersion").setText("CEED: {0}".format(version.CEED))
-        self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: {0}".format(version.PySide))
-        self.findChild(QtGui.QLabel, "QtVersion").setText("Qt: {0}".format(version.Qt))
-        self.findChild(QtGui.QLabel, "PyCEGUIVersion").setText("PyCEGUI: {0}".format(version.PyCEGUI))
+        self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: {0}".format(version.PYSIDE))
+        self.findChild(QtGui.QLabel, "QtVersion").setText("Qt: {0}".format(version.QT))
+        self.findChild(QtGui.QLabel, "PyCEGUIVersion").setText("PyCEGUI: {0}".format(version.PYCEGUI))

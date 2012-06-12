@@ -70,14 +70,14 @@ def check(supressMessagesIfNotFatal = True):
     from ceed import version
 
     # Version checking
-    if version.Python_Tuple < (2, 6):
-        messages.append("Python is version '%s', at least 2.6 required" % (version.Python))
+    if version.PYTHON_TUPLE < (2, 6):
+        messages.append("Python is version '%s', at least 2.6 required" % (version.PYTHON))
         ret = False
-    if version.PySide_Tuple < (1, 0, 3):
-        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PySide))
+    if version.PYSIDE_TUPLE < (1, 0, 3):
+        messages.append("PySide package is not the required version (found version: '%s')! At least version 1.0.3 is required!" % (version.PYSIDE))
         ret = False
-    if version.Qt_Tuple < (4, 7, 0):
-        messages.append("Qt is not the required version (found version: '%s')! At least version 4.7 is required!" % (version.Qt))
+    if version.QT_TUPLE < (4, 7, 0):
+        messages.append("Qt is not the required version (found version: '%s')! At least version 4.7 is required!" % (version.QT))
         ret = False
 
     # Finished

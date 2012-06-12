@@ -67,7 +67,7 @@ class ExceptionDialog(QDialog):
 
     # Appends Mercurial info to traceback string
     def _stampMercurialInfo(self):
-        self._stamp("CEED revision: {0}", version.MercurialRevision)
+        self._stamp("CEED revision: {0}", version.MERCURIAL_REVISION)
 
     # Appends version info to traceback string
     def _stampVersionInfo(self):
@@ -75,26 +75,26 @@ class ExceptionDialog(QDialog):
         # we could iterate ... hint hint.
         self._stamp("CEED version: {0}", version.CEED)
 
-        self._stamp("HW architecture: {0}", version.SystemArch)
-        self._stamp("HW type: {0}", version.SystemType)
-        self._stamp("HW processor: {0}", version.SystemCore)
-        self._stamp("OS type: {0}", version.OSType)
-        self._stamp("OS release: {0}", version.OSRelease)
-        self._stamp("OS version: {0}", version.OSVersion)
-        OSType = version.OSType
+        self._stamp("HW architecture: {0}", version.SYSTEM_ARCH)
+        self._stamp("HW type: {0}", version.SYSTEM_TYPE)
+        self._stamp("HW processor: {0}", version.SYSTEM_PROCESSOR)
+        self._stamp("OS type: {0}", version.OS_TYPE)
+        self._stamp("OS release: {0}", version.OS_RELEASE)
+        self._stamp("OS version: {0}", version.OS_VERSION)
+        OSType = version.OS_TYPE
         if OSType == "Windows":
-            self._stamp("OS Windows: {0}", version.Windows)
+            self._stamp("OS Windows: {0}", version.WINDOWS)
         elif OSType == "Linux":
-            self._stamp("OS Linux: {0}", version.Linux)
+            self._stamp("OS Linux: {0}", version.LINUX)
         elif OSType == "Java":
-            self._stamp("OS Java: {0}", version.Java)
+            self._stamp("OS Java: {0}", version.JAVA)
         elif OSType == "Darwin":
-            self._stamp("OS Darwin: {0}", version.Mac)
-        self._stamp("SW Python: {0}", version.Python)
-        self._stamp("SW PySide: {0}", version.PySide)
-        self._stamp("SW Qt: {0}", version.Qt)
-        self._stamp("SW OpenGL: {0}", version.OpenGL)
-        self._stamp("SW PyCEGUI: {0}", version.PyCEGUI)
+            self._stamp("OS Darwin: {0}", version.MAC)
+        self._stamp("SW Python: {0}", version.PYTHON)
+        self._stamp("SW PySide: {0}", version.PYSIDE)
+        self._stamp("SW Qt: {0}", version.QT)
+        self._stamp("SW OpenGL: {0}", version.OPENGL)
+        self._stamp("SW PyCEGUI: {0}", version.PYCEGUI)
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.

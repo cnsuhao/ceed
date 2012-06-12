@@ -27,58 +27,60 @@ architecture - which are used in the event of errors/exceptions.
 # CEED
 CEED = "snapshot8"
 # if this is True, all .ui files will be recompiled every time CEED.py is run
-CEED_developerMode = False
+DEVELOPER_MODE = False
 
 # Mercurial
 try:
     import subprocess
 
-    MercurialRevision = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
-    if MercurialRevision.startswith("Revision:"):
-        MercurialRevision = MercurialRevision[9:]
+    MERCURIAL_REVISION = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
+    if MERCURIAL_REVISION.startswith("Revision:"):
+        MERCURIAL_REVISION = MERCURIAL_REVISION[9:]
     else:
-        MercurialRevision = "Unknown"
+        MERCURIAL_REVISION = "unknown"
 except:
-    MercurialRevision = "Can't execute \"hg\""
+    MERCURIAL_REVISION = "Can't execute \"hg\""
 
 import platform
 import sys
 
 # Architecture
-SystemArch = platform.architecture()
-SystemType = platform.machine()
-SystemCore = platform.processor()
+SYSTEM_ARCH = platform.architecture()
+SYSTEM_TYPE = platform.machine()
+SYSTEM_PROCESSOR = platform.processor()
 
 # OS agnostic
-OSType = platform.system()
-OSRelease = platform.release()
-OSVersion = platform.version()
+OS_TYPE = platform.system()
+OS_RELEASE = platform.release()
+OS_VERSION = platform.version()
+
 
 # OS specific
-if OSType == "Windows":
-    Windows = platform.win32_ver()
+WINDOWS = LINUX = JAVA = MAC = None
+if OS_TYPE == "Windows":
+    WINDOWS = platform.win32_ver()
     #sys.getwindowsversion()
-elif OSType == "Linux":
-    Linux = platform.linux_distribution()
-elif OSType == "Java": # Jython
-    Java = platform.java_ver()
-elif OSType == "Darwin": # OSX
-    Mac = platform.mac_ver()
+elif OS_TYPE == "Linux":
+    LINUX = platform.linux_distribution()
+elif OS_TYPE == "Java": # Jython
+    JAVA = platform.java_ver()
+elif OS_TYPE == "Darwin": # OSX
+    MAC = platform.mac_ver()
 
 # Python
-Python = sys.version
-Python_Tuple = sys.version_info
+PYTHON = sys.version
+PYTHON_TUPLE = sys.version_info
 
 # in case the try block fails, set all the tuples and values to something
-PySide = "N/A"
-PySide_Tuple = ("N", "/", "A")
+PYSIDE = "N/A"
+PYSIDE_TUPLE = ("N", "/", "A")
 
-Qt = "N/A"
-Qt_Tuple = ("N", "/", "A")
+QT = "N/A"
+QT_TUPLE = ("N", "/", "A")
 
-OpenGL = "N/A"
+OPENGL = "N/A"
 
-PyCEGUI = "N/A"
+PYCEGUI = "N/A"
 
 # all of the other versions are just optional, what we always need and will always get
 # is the CEED version
@@ -87,14 +89,14 @@ try:
     # PySide
     from PySide import __version__ as _PySideVersion
     from PySide import __version_info__ as _PySideVersion_Tuple
-    PySide = _PySideVersion
-    PySide_Tuple = _PySideVersion_Tuple
+    PYSIDE = _PySideVersion
+    PYSIDE_TUPLE = _PySideVersion_Tuple
 
     # Qt
     from PySide.QtCore import __version__ as _QtVersion
     from PySide.QtCore import __version_info__ as _QtVersion_Tuple
-    Qt = _QtVersion
-    Qt_Tuple = _QtVersion_Tuple
+    QT = _QtVersion
+    QT_TUPLE = _QtVersion_Tuple
 
 except:
     pass
@@ -102,7 +104,7 @@ except:
 try:
     # PyOpenGL
     from OpenGL.version import __version__ as _OpenGLVersion
-    OpenGL = _OpenGLVersion
+    OPENGL = _OpenGLVersion
 
 except:
     pass
@@ -110,7 +112,7 @@ except:
 try:
     # PyCEGUI
     from PyCEGUI import Version__ as _PyCEGUIVersion
-    PyCEGUI = _PyCEGUIVersion
+    PYCEGUI = _PyCEGUIVersion
 
 except:
     pass

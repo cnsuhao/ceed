@@ -29,7 +29,7 @@ import platform
 
 from ceed import version
 
-if version.CEED_developerMode:
+if version.DEVELOPER_MODE:
     raise RuntimeError("I politely refuse to freeze CEED in developer mode! "
                        "I will only freeze end-user versions.")
 
