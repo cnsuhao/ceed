@@ -30,7 +30,7 @@ def declare(settings):
                            help = "Width of one of the checkers.",
                            defaultValue = 10, widgetHint = "int",
                            sortingWeight = 1)
-    
+
     background.createEntry(name = "checker_height", type = int, label = "Height of the checkers",
                            help = "Height of one of the checkers.",
                            defaultValue = 10, widgetHint = "int",
@@ -40,7 +40,7 @@ def declare(settings):
                            help = "First of the alternating colours to use.",
                            defaultValue = QtGui.QColor(QtCore.Qt.darkGray), widgetHint = "colour",
                            sortingWeight = 3)
-    
+
     background.createEntry(name = "second_colour", type = QtGui.QColor, label = "Second colour",
                            help = "Second of the alternating colours to use. (use the same as first to get a solid background)",
                            defaultValue = QtGui.QColor(QtCore.Qt.lightGray), widgetHint = "colour",

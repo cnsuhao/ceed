@@ -55,7 +55,7 @@ class MainWindow(QtGui.QMainWindow):
 
     project = property(lambda self: self._project,
                        lambda self, value: self._setProject(value))
-    
+
     activeEditor = property(lambda self: self._activeEditor,
                             lambda self, value: self._setActiveEditor(value))
 
@@ -123,7 +123,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.ui = ceed.ui.mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
-        
+
         # for now we can't use unified title and toolbar, it doesn't have toolbar "ellipsis"
         # and that makes the main window jump around when switching tabs
         self.setUnifiedTitleAndToolBarOnMac(False)
@@ -181,10 +181,10 @@ class MainWindow(QtGui.QMainWindow):
 
         self.newLayoutAction = self.actionManager.getAction("files/new_layout")
         self.connectionGroup.add(self.newLayoutAction, receiver = self.slot_newLayoutDialog)
-        
+
         self.newImagesetAction = self.actionManager.getAction("files/new_imageset")
         self.connectionGroup.add(self.newImagesetAction, receiver = self.slot_newImagesetDialog)
-        
+
         self.openFileAction = self.actionManager.getAction("files/open_file")
         self.connectionGroup.add(self.openFileAction, receiver = self.slot_openFileDialog)
 
@@ -231,7 +231,7 @@ class MainWindow(QtGui.QMainWindow):
         self.redoAction = self.actionManager.getAction("all_editors/redo")
         self.redoAction.setEnabled(False)
         self.connectionGroup.add(self.redoAction, receiver = self.slot_redo)
-        
+
         self.revertAction = self.actionManager.getAction("files/revert_file")
         self.revertAction.setEnabled(False)
         self.connectionGroup.add(self.revertAction, receiver = self.slot_revert)
@@ -278,10 +278,10 @@ class MainWindow(QtGui.QMainWindow):
 
         self.helpQuickstartAction = self.actionManager.getAction("general/help_quickstart")
         self.connectionGroup.add(self.helpQuickstartAction, receiver = self.slot_helpQuickstart)
-        
+
         self.helpUserManualAction = self.actionManager.getAction("general/help_user_manual")
         self.connectionGroup.add(self.helpUserManualAction, receiver = self.slot_helpUserManual)
-        
+
         self.helpWikiPageAction = self.actionManager.getAction("general/help_wiki_page")
         self.connectionGroup.add(self.helpWikiPageAction, receiver = self.slot_helpWikiPage)
 
@@ -361,7 +361,7 @@ class MainWindow(QtGui.QMainWindow):
         self.editMenu.addActions([self.cutAction, self.copyAction, self.pasteAction, self.deleteAction])
         self.editMenu.addSeparator()
         self.editMenu.addAction(self.preferencesAction)
-        
+
         #
         # Construct View menu
         #
@@ -390,7 +390,7 @@ class MainWindow(QtGui.QMainWindow):
             self._docksAndToolbarsMenu = None
         self.viewMenu.aboutToShow.connect(viewMenuAboutShow)
         self.viewMenu.aboutToHide.connect(viewMenuAboutHide)
-        
+
         # add the rest of the view menu items
         self.viewMenu.addAction(self.statusbarAction)
         self.viewMenu.addSeparator()
@@ -510,7 +510,7 @@ class MainWindow(QtGui.QMainWindow):
         tbar.addActions([self.openFileAction, self.openProjectAction])
         tbar.addSeparator()
         tbar.addActions([self.saveAction, self.saveAsAction, self.saveProjectAction, self.saveAllAction])
-        # The menubutton does not resize its icon correctly unless we tell it to do so 
+        # The menubutton does not resize its icon correctly unless we tell it to do so
         tbar.iconSizeChanged.connect(lambda size: newMenuButton.setIconSize(size))
 
         #
@@ -538,15 +538,15 @@ class MainWindow(QtGui.QMainWindow):
 
     def syncProjectToCEGUIInstance(self, indicateErrorsWithDialogs = True):
         """Synchronises current project to the CEGUI instance.
-        
+
         indicateErrorsWithDialogs - if True a dialog is opened in case of errors
-        
+
         Returns True if the procedure was successful
         """
 
         try:
             self.ceguiInstance.syncToProject(self.project, self)
-            
+
             return True
 
         except Exception as e:
@@ -557,38 +557,38 @@ class MainWindow(QtGui.QMainWindow):
 This means that editing capabilities of CEED will be limited to editing of files that don't require a project opened (for example: imagesets).
 
 Details of this error: %s""" % (e))
-            
+
             return False
 
     def performProjectDirectoriesSanityCheck(self, indicateErrorsWithDialogs = True):
         try:
             self.project.checkAllDirectories()
-            
+
             return True
-        
+
         except IOError as e:
             if indicateErrorsWithDialogs:
                 QtGui.QMessageBox.warning(self, "At least one of project's resource directories is invalid",
 """Project's resource directory paths didn't pass the sanity check, please check projects settings.
 
 Details of this error: %s""" % (e))
-        
+
             return False
-        
+
     def openProject(self, path, openSettings = False):
         """Opens the project file given in 'path'. Assumes no project is opened at the point this is called.
         The slot_openProject method will test if a project is opened and close it accordingly (with a dialog
         being shown if there are changes to it)
-        
+
         Errors aren't indicated by exceptions or return values, dialogs are shown in case of errors.
-        
+
         path - Absolute path of the project file
         openSettings - if True, the settings dialog is opened instead of just loading the resources,
                        this is desirable when creating a new project
         """
-        
+
         assert(self.project is None)
-        
+
         # reset project manager to a clean state just in case
         self.projectManager.setProject(None)
 
@@ -600,9 +600,9 @@ Details of this error: %s""" % (e))
 
             self.project = None
             return
-        
+
         self.performProjectDirectoriesSanityCheck()
-        
+
         # view the newly opened project in the project manager
         self.projectManager.setProject(self.project)
         # and set the filesystem browser path to the base folder of the project
@@ -610,7 +610,7 @@ Details of this error: %s""" % (e))
         projectBaseDirectory = self.project.getAbsolutePathOf("")
         if os.path.isdir(projectBaseDirectory):
             self.fileSystemBrowser.setDirectory(projectBaseDirectory)
-        
+
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
 
         # and enable respective actions
@@ -621,29 +621,29 @@ Details of this error: %s""" % (e))
 
         if openSettings:
             self.slot_projectSettings()
-            
+
         else:
             self.syncProjectToCEGUIInstance()
 
     def closeProject(self):
         """Closes currently opened project. Assumes one is opened at the point this is called.
         """
-        
+
         assert(self.project is not None)
-        
+
         # since we are effectively unloading the project and potentially nuking resources of it
         # we should definitely unload all tabs that rely on it to prevent segfaults and other
         # nasty phenomena
         if not self.closeAllTabsRequiringProject():
             return
-        
+
         self.projectManager.setProject(None)
         # TODO: Do we really want to call this there? This was already called when the project was being opened.
         #       It doesn't do anything harmful but maybe is unnecessary.
         self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
         # clean resources that were potentially used with this project
         self.ceguiInstance.cleanCEGUIResources()
-        
+
         self.project.unload()
         self.project = None
 
@@ -655,15 +655,15 @@ Details of this error: %s""" % (e))
     def saveProject(self):
         """Saves currently opened project to the file it was opened from (or the last file it was saved to).
         """
-        
+
         assert(self.project is not None)
-        
+
         self.project.save()
 
     def saveProjectAs(self, newPath):
         """Saves currently opened project to a custom path. For best reliability, use absolute file path as newPath
         """
-        
+
         self.project.save(newPath)
         # set the project's file path to newPath so that if you press save next time it will save to the new path
         # (This is what is expected from applications in general I think)
@@ -673,7 +673,7 @@ Details of this error: %s""" % (e))
         """Creates a new editor for file at given absolutePath. This always creates a new editor,
         it is not advised to use this method directly, use openEditorTab instead.
         """
-        
+
         ret = None
 
         projectRelativePath = "N/A"
@@ -741,16 +741,16 @@ Details of this error: %s""" % (e))
 
         try:
             ret.initialise(self)
-            
+
             # add successfully opened file to the recent files list
             self.recentlyUsedFiles.addRecentlyUsed(absolutePath)
-            
+
         except:
             # it may have been partly constructed at this point
             try:
                 # make sure the finalisation doesn't early out or fail assertion
                 ret.initialised = True
-                
+
                 ret.finalise()
                 ret.destroy()
 
@@ -759,7 +759,7 @@ Details of this error: %s""" % (e))
                 pass
 
             raise
-            
+
         self.tabEditors.append(ret)
         return ret
 
@@ -792,38 +792,38 @@ Details of this error: %s""" % (e))
         """
 
         assert(editor in self.tabEditors)
-        
+
         editor.finalise()
         editor.destroy()
-        
+
         self.tabEditors.remove(editor)
 
     def saveSettings(self):
         """Saves geometry and state of this window to QSettings.
         """
-        
+
         try:
             self.app.qsettings.setValue("window-geometry", self.saveGeometry())
             self.app.qsettings.setValue("window-state", self.saveState())
-            
+
         except:
             # we don't really care if this fails
             pass
-        
+
     def restoreSettings(self):
         """Restores geometry and state of this window from QSettings.
         """
-        
+
         try:
             if self.app.qsettings.contains("window-geometry"):
                 self.restoreGeometry(self.app.qsettings.value("window-geometry"))
             if self.app.qsettings.contains("window-state"):
                 self.restoreState(self.app.qsettings.value("window-state"))
-                
+
         except:
             # we don't really care if this fails
             pass
-        
+
     def quit(self):
         """Safely quits the editor, prompting user to save changes to files and the project."""
 
@@ -852,44 +852,44 @@ Details of this error: %s""" % (e))
 
     def closeAllTabsRequiringProject(self):
         """Attempts to close all tabs that require a project opened.
-        
+
         This is usually done when project settings are altered and CEGUI instance has to be reloaded
         or when project is being closed and we can no longer rely on resource availability.
         """
-        
+
         i = 0
         while i < self.tabs.count():
             tabbedEditor = self.tabs.widget(i).tabbedEditor
-            
+
             if tabbedEditor.requiresProject:
                 if not self.slot_tabCloseRequested(i):
                     # if the method returns False user pressed Cancel so in that case
                     # we cancel the entire operation
                     return False
-                
+
                 continue
-            
+
             i += 1
-            
-        return True      
+
+        return True
 
     def getFilePathsOfAllTabsRequiringProject(self):
         """Queries file paths of all tabs that require a project opened
-        
+
         This is used to bring previously closed tabs back up when reloading project resources
         """
-        
+
         ret = []
         i = 0
         while i < self.tabs.count():
             tabbedEditor = self.tabs.widget(i).tabbedEditor
-            
+
             if tabbedEditor.requiresProject:
                 ret.append(tabbedEditor.filePath)
-            
+
             i += 1
-        
-        return ret 
+
+        return ret
 
     def slot_newProject(self):
         if self.project:
@@ -903,9 +903,9 @@ Details of this error: %s""" % (e))
 
             if result != QtGui.QMessageBox.Yes:
                 return
-            
+
             # don't close the project yet, close it after the user
-            # accepts the New Project dialog below because they may cancel 
+            # accepts the New Project dialog below because they may cancel
 
         newProjectDialog = project.NewProjectDialog()
         if newProjectDialog.exec_() != QtGui.QDialog.Accepted:
@@ -921,7 +921,7 @@ Details of this error: %s""" % (e))
         # open the settings window after creation so that user can further customise their
         # new project file
         self.openProject(path = newProject.projectFilePath, openSettings = True)
-            
+
         # save the project with the settings that were potentially set in the project settings dialog
         self.saveProject()
 
@@ -985,42 +985,42 @@ Details of this error: %s""" % (e))
                                           "You can't alter project's settings while having tabs that "
                                           "depend on the project and its resources opened!")
             return
-        
+
         dialog = project.ProjectSettingsDialog(self.project)
 
         if dialog.exec_() == QtGui.QDialog.Accepted:
             dialog.apply(self.project)
             self.performProjectDirectoriesSanityCheck()
             self.syncProjectToCEGUIInstance()
-            
+
     def slot_projectReloadResources(self):
         # since we are effectively unloading the project and potentially nuking resources of it
         # we should definitely unload all tabs that rely on it to prevent segfaults and other
         # nasty phenomena
-        
+
         # we will remember previously opened tabs requiring a project so that we can load them up
         # after we are done
         filePathsToLoad = self.getFilePathsOfAllTabsRequiringProject()
         activeEditorPath = self.activeEditor.filePath if self.activeEditor else ""
-        
+
         if not self.closeAllTabsRequiringProject():
             QtGui.QMessageBox.information(self,
                                           "Project dependent tabs still open!",
                                           "You can't reload project's resources while having tabs that "
                                           "depend on the project and its resources opened!")
             return
-        
+
         self.performProjectDirectoriesSanityCheck()
         self.syncProjectToCEGUIInstance()
-        
+
         # load previously loaded tabs requiring a project opened
         for filePath in filePathsToLoad:
             lastLoaded = self.openEditorTab(filePath)
-        
+
         # previously active editor to be loaded last, this makes it active again
         if activeEditorPath != "":
             self.openEditorTab(activeEditorPath)
-        
+
     def slot_newFileDialog(self, title = "New File", filtersList = None, selectedFilterIndex = 0, autoSuffix = False):
         defaultDir = ""
         if self.project:
@@ -1041,10 +1041,10 @@ Details of this error: %s""" % (e))
                     f = open(fileName, "w")
                     f.close()
                 except IOError as e:
-                    QtGui.QMessageBox.critical(self, "Error creating file!", 
+                    QtGui.QMessageBox.critical(self, "Error creating file!",
                                                      "CEED encountered an error trying to create a new file.\n\n(exception details: %s)" % (e))
                     return
-                
+
                 self.openEditorTab(fileName)
         else:
             while True:
@@ -1092,10 +1092,10 @@ Details of this error: %s""" % (e))
                     f = open(fileName, "w")
                     f.close()
                 except IOError as e:
-                    QtGui.QMessageBox.critical(self, "Error creating file!", 
+                    QtGui.QMessageBox.critical(self, "Error creating file!",
                                                      "CEED encountered an error trying to create a new file.\n\n(exception details: %s)" % (e))
                     return
-                
+
                 self.openEditorTab(fileName)
                 break
 
@@ -1132,14 +1132,14 @@ Details of this error: %s""" % (e))
         # FIXME: workaround for PySide 1.0.6, I suspect this is a bug in PySide! http://bugs.pyside.org/show_bug.cgi?id=988
         if index is None:
             index = -1
-            
+
         elif isinstance(index, QtGui.QWidget):
             for i in range(0, self.tabs.count()):
                 if index is self.tabs.widget(i):
                     index = i
                     break
-                   
-            assert(not isinstance(index, QtGui.QWidget)) 
+
+            assert(not isinstance(index, QtGui.QWidget))
         # END OF FIXME
 
         wdt = self.tabs.widget(index)
@@ -1163,7 +1163,7 @@ Details of this error: %s""" % (e))
 
         if wdt:
             self.revertAction.setEnabled(True)
-            
+
             self.saveAction.setEnabled(True)
             self.saveAsAction.setEnabled(True)
 
@@ -1174,7 +1174,7 @@ Details of this error: %s""" % (e))
         else:
             # None is selected right now, lets disable appropriate actions
             self.revertAction.setEnabled(False)
-            
+
             self.saveAction.setEnabled(False)
             self.saveAsAction.setEnabled(False)
 
@@ -1292,10 +1292,10 @@ Details of this error: %s""" % (e))
     def slot_saveAll(self):
         """Saves all opened tabbed editors and opened project (if any)
         """
-        
+
         if self.project is not None:
             self.project.save()
-        
+
         for editor in self.tabEditors:
             editor.save()
 
@@ -1306,7 +1306,7 @@ Details of this error: %s""" % (e))
     def slot_redo(self):
         if self.activeEditor:
             self.activeEditor.redo()
-            
+
     def slot_revert(self):
         if self.activeEditor:
             ret = QtGui.QMessageBox.question(self,
@@ -1320,11 +1320,11 @@ Details of this error: %s""" % (e))
 
             if ret == QtGui.QMessageBox.Yes:
                 self.activeEditor.revert()
-            
+
             elif ret == QtGui.QMessageBox.No:
                 # user chickened out
                 pass
-            
+
             else:
                 # how did we get here?
                 assert(False)
@@ -1392,7 +1392,7 @@ Details of this error: %s""" % (e))
                 msgBox.setDefaultButton(removeButton)
                 msgBox.setIcon(QtGui.QMessageBox.Question)
                 msgBox.exec_()
-                
+
                 if msgBox.clickedButton() == removeButton:
                     self.recentlyUsedFiles.removeRecentlyUsed(absolutePath)
 
@@ -1404,7 +1404,7 @@ Details of this error: %s""" % (e))
                     # give user a chance to save changes if needed
                     if not self.slot_closeProject():
                         return
-    
+
                 self.openProject(absolutePath)
             else:
                 msgBox = QtGui.QMessageBox(self)
@@ -1416,7 +1416,7 @@ Details of this error: %s""" % (e))
                 msgBox.setDefaultButton(removeButton)
                 msgBox.setIcon(QtGui.QMessageBox.Question)
                 msgBox.exec_()
-                
+
                 if msgBox.clickedButton() == removeButton:
                     self.recentlyUsedProjects.removeRecentlyUsed(absolutePath)
 
@@ -1440,21 +1440,21 @@ Details of this error: %s""" % (e))
     def slot_helpQuickstart(self):
         if self.activateEditorTabByFilePath("help:///quickstart-guide"):
             return
-        
+
         ret = editors_htmlview.HTMLViewTabbedEditor("help:///quickstart-guide", open("../doc/quickstart-guide/content.xhtml").read())
         ret.initialise(self)
         self.tabEditors.append(ret)
         ret.makeCurrent()
-    
+
     def slot_helpUserManual(self):
         if self.activateEditorTabByFilePath("help:///user-manual"):
             return
-        
+
         ret = editors_htmlview.HTMLViewTabbedEditor("help:///user-manual", open("../doc/user-manual/content.xhtml").read())
         ret.initialise(self)
         self.tabEditors.append(ret)
         ret.makeCurrent()
-        
+
     def slot_helpWikiPage(self):
         QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")
 

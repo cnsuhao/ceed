@@ -31,7 +31,7 @@ import PyCEGUIOpenGLRenderer
 
 class RedirectingCEGUILogger(PyCEGUI.Logger):
     """Allows us to register subscribers that want CEGUI log info
-    
+
     This prevents writing CEGUI.log into CWD and will allow log display inside
     the app in the future
     """
@@ -39,12 +39,12 @@ class RedirectingCEGUILogger(PyCEGUI.Logger):
     def __init__(self):
         # don't use super here, PyCEGUI.Logger is an old-style class
         PyCEGUI.Logger.__init__(self)
-        
+
         self.subscribers = set()
 
     def registerSubscriber(self, subscriber):
         assert(callable(subscriber))
-        
+
         self.subscribers.add(subscriber)
 
     def logEvent(self, message, level):
@@ -104,7 +104,7 @@ class Instance(object):
 
         if not self.initialised:
             self.makeGLContextCurrent()
-            
+
             # we don't want CEGUI Exceptions to output to stderr every time
             # they are constructed
             PyCEGUI.Exception.setStdErrEnabled(False)
@@ -280,7 +280,7 @@ class Instance(object):
                     imagesetFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.ImageManager.getImagesetDefaultResourceGroup())
                     imagesetRawData = open(imagesetFilePath, "r").read()
                     imagesetRawDataType = imageset_compatibility.manager.EditorNativeType
-                    
+
                     try:
                         imagesetRawDataType = imageset_compatibility.manager.guessType(imagesetRawData, imagesetFilePath)
 
@@ -304,7 +304,7 @@ class Instance(object):
 
                 updateProgress("Loading image file imagesets")
                 scheme.loadImageFileImagesets()
-                
+
                 updateProgress("Loading fonts")
                 fontIterator = scheme.getFonts()
                 while not fontIterator.isAtEnd():
@@ -312,7 +312,7 @@ class Instance(object):
                     fontFilePath = project.getResourceFilePath(loadableUIElement.filename, loadableUIElement.resourceGroup if loadableUIElement.resourceGroup != "" else PyCEGUI.Font.getDefaultResourceGroup())
                     fontRawData = open(fontFilePath, "r").read()
                     fontRawDataType = font_compatibility.manager.EditorNativeType
-                    
+
                     try:
                         fontRawDataType = font_compatibility.manager.guessType(fontRawData, fontFilePath)
 

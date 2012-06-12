@@ -32,102 +32,102 @@ from PySide.QtGui import QIcon, QKeySequence, QAction
 class ConnectionGroup(object):
     """This object allows you to group signal slot connections and
     disconnect them and connect them again en masse.
-    
+
     Very useful when switching editors
     """
-    
+
     class Connection(object):
         """Very lightweight holding object that represents a signal slot connection.
         Receiver is the Python callable (free function, bound method, lambda function, anything really)
-        
+
         Not intended for use outside the ConnectionGroup class, should be considered internal!
         """
-        
+
         def __init__(self, action, receiver, signalName = "triggered", connectionType = Qt.AutoConnection):
             self.action = action
             self.signalName = signalName
             self.receiver = receiver
             self.connectionType = connectionType
-            
+
             self.connected = False
-            
+
             if not hasattr(self.action, self.signalName):
                 raise RuntimeError("Given action doesn't have signal called '%s'!" % (self.signalName))
-            
+
         def connect(self):
             if self.connected:
                 raise RuntimeError("This Connection was already connected!")
-            
+
             signal = getattr(self.action, self.signalName)
             signal.connect(self.receiver, self.connectionType)
-            
+
             self.connected = True
-            
+
         def disconnect(self):
             if not self.connected:
                 raise RuntimeError("Can't disconnect this Connection, it isn't connected at the moment.")
-            
+
             signal = getattr(self.action, self.signalName)
             signal.disconnect(self.receiver)
-            
+
             self.connected = False
-    
+
     def __init__(self, actionManager = None):
         self.actionManager = actionManager
-                
+
         self.connections = []
-    
+
     def add(self, action, **kwargs):
         if isinstance(action, basestring):
             # allow adding actions by their full names/paths for convenience
             if self.actionManager is None:
                 raise RuntimeError("Action added by it's string name but action manager wasn't set, can't retrieve the action object!")
-            
+
             action = self.actionManager.getAction(action)
-        
+
         connection = ConnectionGroup.Connection(action, **kwargs)
         self.connections.append(connection)
-        
+
         return connection
-    
+
     def remove(self, connection, ensureDisconnected = True):
         if not connection in self.connections:
             raise RuntimeError("Can't remove given connection, it wasn't added!")
-        
+
         self.connections.remove(connection)
-        
+
         if ensureDisconnected and connection.connected:
             connection.disconnect()
-    
+
     def connectAll(self, skipConnected = True):
         for connection in self.connections:
             if connection.connected and skipConnected:
                 continue
-            
+
             connection.connect()
-    
+
     def disconnectAll(self, skipDisconnected = True):
         for connection in self.connections:
             if not connection.connected and skipDisconnected:
                 continue
-            
+
             connection.disconnect()
-    
+
 class ActionManager(declaration.ActionManager):
     """This is the CEED's action manager, all the "global" actions are declared in it.
-    
+
     Includes general actions (like Quit, Undo & Redo, File Open, etc...) and also editor specific
     actions (layout align left, ...) - you should use ConnectionGroup for these to connect them when
     your editor is activated and disconnect them when it's deactivated.
-    
+
     See ConnectionGroup
     """
-    
+
     instance = None
-    
+
     def __init__(self, mainWindow, settings):
         super(ActionManager, self).__init__(mainWindow, settings)
-        
+
         general = self.createCategory(name = "general", label = "General")
         general.createAction(name = "application_settings", label = "Prefere&nces",
                              help = "Displays and allows changes of the application settings (persistent settings)",
@@ -285,17 +285,17 @@ class ActionManager(declaration.ActionManager):
         # Imageset editor
         import ceed.editors.imageset.action_decl as imageset_actions
         imageset_actions.declare(self)
-        
+
         # Layout editor
         import ceed.editors.layout.action_decl as layout_actions
         layout_actions.declare(self)
-        
+
         assert(ActionManager.instance is None)
         ActionManager.instance = self
-        
+
 def getAction(path):
     """This is a convenience method to make action retrieval easier
     """
-    
+
     assert(ActionManager.instance is not None)
     return ActionManager.instance.getAction(path)

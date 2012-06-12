@@ -75,19 +75,19 @@ def declare(settings):
                        help = "Color of snap grid points (shadows).",
                        defaultValue = QtGui.QColor(64, 64, 64, 192), widgetHint = "colour",
                        sortingWeight = 8)
-    
+
     # TODO: Full restart is not actually needed, just a refresh on all layout visual editing modes
     visual.createEntry(name = "hide_deadend_autowidgets", type = bool, label = "Hide deadend auto widgets",
                        help = "Should auto widgets with no non-auto widgets descendants be hidden in the widget hierarchy?",
                        defaultValue = True, widgetHint = "checkbox",
                        sortingWeight = 9, changeRequiresRestart = True)
-    
+
     # FIXME: Only applies to newly refreshed visual modes!
     visual.createEntry(name = "auto_widgets_selectable", type = bool, label = "Make auto widgets selectable",
                        help = "Auto widgets are usually handled by LookNFeel and except in very special circumstances, you don't want to deal with them at all. Only for EXPERT use! Will make CEED crash in cases where you don't know what you are doing!",
                        defaultValue = False, widgetHint = "checkbox",
                        sortingWeight = 9)
-    
+
     # FIXME: Only applies to newly refreshed visual modes!
     visual.createEntry(name = "auto_widgets_show_outline", type = bool, label = "Show outline of auto widgets",
                        help = "Auto widgets are usually handled by LookNFeel and except in very special circumstances, you don't want to deal with them at all. Only use if you know what you are doing! This might clutter the interface a lot.",

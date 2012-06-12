@@ -30,26 +30,26 @@ from xml.etree import cElementTree as ElementTree
 # Property mapping file editor
 class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
     def __init__(self, filePath):
-        
+
         super(PropertyMappingsTabbedEditor, self).__init__(property_mappings_compatibility.manager, filePath)
-        
+
         self.tabWidget = QtGui.QTableView()
         self.tabWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.tabWidget.setDragDropOverwriteMode(False)
         self.tabWidget.setSelectionBehavior(QtGui.QTableView.SelectionBehavior.SelectRows)
         #self.tabWidget.setRootIsDecorated(False)
-        
+
         self.propertyMappingList = None
-    
+
     def initialise(self, mainWindow):
         super(PropertyMappingsTabbedEditor, self).initialise(mainWindow)
-        
+
         if self.nativeData != "":
             self.propertyMappingList = propertyinspector.PropertyInspectorMappingList()
             self.propertyMappingList.loadFromElement(ElementTree.fromstring(self.nativeData))
-            
+
             self.tabWidget.setModel(self.propertyMappingList)
-            
+
     def finalise(self):
         super(PropertyMappingsTabbedEditor, self).finalise()
 
@@ -60,11 +60,11 @@ class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def canEditFile(self, filePath):
         extensions = self.getFileExtensions()
-        
+
         for extension in extensions:
             if filePath.endswith("." + extension):
                 return True
-            
+
         return False
 
     def create(self, filePath):

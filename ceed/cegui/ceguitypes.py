@@ -23,7 +23,7 @@ class Base(object):
         """Parse the specified string value and return
         a tuple with the parsed value and a boolean
         specifying success or failure.
-        
+
         If 'target' is not None, update its attributes
         with the parse value.
         """
@@ -166,7 +166,7 @@ class USize(Base):
 
 class UVector2(Base):
     """UVector2 (uses UDim)
-    
+
     Very similar to USize.
     """
 
@@ -436,7 +436,7 @@ class Quaternion(Base):
         """Convert the x, y, z angles (in radians) to w, x, y, z (quaternion).
 
         The order of rotation: 1) around Z 2) around Y 3) around X
-        
+
         Copied from CEGUI, Quaternion.cpp
         """
 
@@ -471,9 +471,9 @@ class Quaternion(Base):
     @staticmethod
     def convertQuaternionToYPR(w, x, y, z):
         """Return a tuple of yaw, pitch, roll.
-        
+
         Ported from http://stackoverflow.com/a/1031235
-        
+
         Note: This is probably wrong but it's a start.
         """
         # FIXME: Please fix me! (See above)
@@ -606,7 +606,7 @@ class XYZRotation(Base):
 
 class Colour(Base):
     """Colour
-    
+
     Can parse hex strings like:
         [#]RGB
         [#]RRGGBB
@@ -700,12 +700,12 @@ class Colour(Base):
 
 class ColourRect(Base):
     """ColourRect
-    
+
     Can parse strings like:
         colour
         or
         tl:colour tr:colour bl:colour br:colour
-        
+
         where colour is:
             [#]RGB
             [#]RRGGBB
@@ -780,10 +780,10 @@ class ColourRect(Base):
 
 class BaseProperty(properties.Property):
     """Base class for all Property types.
-    
+
     Note that, by default, it expects the components to map
     directly to an attribute of it's value; with the first letter in lower case.
-    
+
     For example the UDimProperty has two components, 'Scale' and 'Offset' and
     it also uses the UDim type that has the 'scale' and 'offset' attribute values.
     """
@@ -944,9 +944,9 @@ class XYZRotationProperty(BaseProperty):
 
     def createComponents(self):
         editorOptions = { "numeric": { "min": -360, "max": 360, "wrapping": True } }
-        
+
         self.components = OrderedDict()
-        
+
         self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
                                             readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
@@ -967,9 +967,9 @@ class ColourProperty(BaseProperty):
 
     def createComponents(self):
         editorOptions = { "numeric": { "min": 0, "max": 255 } }
-        
+
         self.components = OrderedDict()
-        
+
         self.components["Alpha"] = properties.Property(name="Alpha", value=self.value.alpha, defaultValue=self.defaultValue.alpha,
                                                        readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Red"] = properties.Property(name="Red", value=self.value.red, defaultValue=self.defaultValue.red,
@@ -992,7 +992,7 @@ class ColourRectProperty(BaseProperty):
 
     def createComponents(self):
         self.components = OrderedDict()
-        
+
         self.components["TopLeft"] = ColourProperty(name="TopLeft", value=self.value.topLeft, defaultValue=self.defaultValue.topLeft,
                                                     readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["TopRight"] = ColourProperty(name="TopRight", value=self.value.topRight, defaultValue=self.defaultValue.topRight,

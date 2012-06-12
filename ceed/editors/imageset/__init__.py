@@ -46,16 +46,16 @@ Underlying image - the image that lies under the image entries/rectangles (bitma
 class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Binds all imageset editing functionality together
     """
-    
+
     def __init__(self, filePath):
         super(ImagesetTabbedEditor, self).__init__(imageset_compatibility.manager, filePath)
-        
+
         self.visual = visual.VisualEditing(self)
         self.addTab(self.visual, "Visual")
-        
+
         self.code = code.CodeEditing(self)
         self.addTab(self.code, "Code")
-        
+
         self.tabWidget = self
 
         # set the toolbar icon size according to the setting and subscribe to it
@@ -66,11 +66,11 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
     def initialise(self, mainWindow):
         super(ImagesetTabbedEditor, self).initialise(mainWindow)
-    
+
         root = None
         try:
             root = ElementTree.fromstring(self.nativeData)
-            
+
         except:
             # things didn't go smooth
             # 2 reasons for that
@@ -79,7 +79,7 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
             #
             # In the first case we will silently move along (it is probably just a new file),
             # in the latter we will output a message box informing about the situation
-            
+
             # the file should exist at this point, so we are not checking and letting exceptions
             # fly out of this method
             if os.path.getsize(self.filePath) > 2:
@@ -90,14 +90,14 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
                                            "Constructing empty imageset instead (if you save you will override the invalid data!). "
                                            "Exception details follow:\n%s" % (self.filePath, sys.exc_info()[1]),
                                            QtGui.QMessageBox.Ok)
-            
-            # we construct the minimal empty imageset    
+
+            # we construct the minimal empty imageset
             root = ElementTree.Element("Imageset")
             root.set("Name", "")
             root.set("Imagefile", "")
-        
+
         self.visual.initialise(root)
-    
+
     def finalise(self):
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
@@ -109,13 +109,13 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.visual.rebuildEditorMenu(editorMenu)
 
         return True, self.currentWidget() == self.visual
-    
+
     def activate(self):
         super(ImagesetTabbedEditor, self).activate()
-        
+
         self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
-        
+
         self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.dockWidget)
         self.visual.dockWidget.setVisible(True)
 
@@ -127,24 +127,24 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.dockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
-        
+
         super(ImagesetTabbedEditor, self).deactivate()
-        
+
     def saveAs(self, targetPath, updateCurrentPath = True):
         codeMode = self.currentWidget() is self.code
-        
+
         # if user saved in code mode, we process the code by propagating it to visual
         # (allowing the change propagation to do the code validating and other work for us)
-        
+
         if codeMode:
             self.code.propagateToVisual()
-            
+
         rootElement = self.visual.imagesetEntry.saveToElement()
         # we indent to make the resulting files as readable as possible
         xmledit.indent(rootElement)
-        
+
         self.nativeData = ElementTree.tostring(rootElement, "utf-8")
-        
+
         return super(ImagesetTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
     def performCut(self):
@@ -190,11 +190,11 @@ class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def canEditFile(self, filePath):
         extensions = self.getFileExtensions()
-        
+
         for extension in extensions:
             if filePath.endswith("." + extension):
                 return True
-            
+
         return False
 
     def create(self, filePath):

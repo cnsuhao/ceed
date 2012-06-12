@@ -24,34 +24,34 @@ import PyCEGUI
 class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
-        
+
         self.tabbedEditor = tabbedEditor
-        
+
     def getNativeCode(self):
         currentRootWidget = self.tabbedEditor.visual.getCurrentRootWidget()
-        
+
         if currentRootWidget is None:
             return ""
-        
+
         else:
             return PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
-        
+
     def propagateNativeCode(self, code):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
-        
+
         if code == "":
             self.tabbedEditor.visual.setRootWidget(None)
-            
+
         else:
             try:
                 newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(code)
                 self.tabbedEditor.visual.setRootWidget(newRoot)
-                
+
                 return True
-            
+
             except:
                 return False
-        
+
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow

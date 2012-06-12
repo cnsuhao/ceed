@@ -50,7 +50,7 @@ if platform.system() == "Windows":
 
 from cx_Freeze import setup, Executable
 
-buildOptions = dict(    
+buildOptions = dict(
     packages =
     [
         "OpenGL",
@@ -58,16 +58,16 @@ buildOptions = dict(
         "OpenGL.GLU",
         "OpenGL.platform",
         "OpenGL.arrays.formathandler",
-        
+
         "encodings.ascii",
         "encodings.utf_8",
 
         "PySide.QtNetwork",
-        
+
         "PyCEGUI",
         "PyCEGUIOpenGLRenderer"
     ],
-    
+
     include_files =
     [
         ["data", "data"]
@@ -87,7 +87,7 @@ setup(
             targetName = "ceed-gui" + EXECUTABLE_EXTENSION,
             icon = "data/icons/application_icon.ico"
         ),
-        
+
         # this starts the MetaImageset compiler
         Executable(
             "bin/ceed-mic",
@@ -100,5 +100,5 @@ setup(
             base = CONSOLE_BASE_APP,
             targetName = "ceed-migrate" + EXECUTABLE_EXTENSION
         )
-    ] 
+    ]
 )

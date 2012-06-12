@@ -31,7 +31,7 @@ from xml.etree import cElementTree as ElementTree
 class PropertyMappingEntry(object):
     """Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
     to allow its viewing and editing.
-    
+
     If target inspector name is \"\" then this mapping means that the property should
     be ignored in the property set inspector listing.
     """
@@ -63,7 +63,7 @@ class PropertyMappingEntry(object):
 
     @classmethod
     def makeKey(cls, propertyOrigin, propertyName):
-        return "/".join((propertyOrigin, propertyName)) 
+        return "/".join((propertyOrigin, propertyName))
 
     def __init__(self, propertyOrigin, propertyName,
                  typeName = None, hidden = False,
@@ -77,7 +77,7 @@ class PropertyMappingEntry(object):
         self.editorSettings = editorSettings if editorSettings is not None else dict()
 
     def getPropertyKey(self):
-        return self.makeKey(self.propertyOrigin, self.propertyName) 
+        return self.makeKey(self.propertyOrigin, self.propertyName)
 
     def saveToElement(self):
         element = ElementTree.Element("mapping")
@@ -132,7 +132,7 @@ class PropertyMap(object):
     @classmethod
     def fromFiles(cls, absolutePaths):
         """Create and return an instance from a list of XML file paths.
-        
+
         Entries from files later in the list replace entries with the same
         property key from previous files.
         """

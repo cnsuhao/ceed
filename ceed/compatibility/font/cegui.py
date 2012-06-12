@@ -31,87 +31,87 @@ CEGUIFont3 = "CEGUI Font 3"
 class Font2TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUIFont2
-    
+
     def getPossibleExtensions(self):
         return set(["font"])
-    
+
     def matches(self, data, extension):
         if extension not in ["", "font"]:
             return False
-        
+
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
-        
+
         return ceguihelpers.checkDataVersion("Font", None, data)
 
 class Font3TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUIFont3
-    
+
     def getPossibleExtensions(self):
         return set(["font"])
-    
+
     def matches(self, data, extension):
         if extension not in ["", "font"]:
             return False
-        
+
         return ceguihelpers.checkDataVersion("Font", "3", data)
 
 class Font2ToFont3Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUIFont2
-    
+
     def getTargetType(self):
         return CEGUIFont3
-    
+
     def transformAttribute(self, element, attribute):
         sourceAttributeName = attribute[0].upper() + attribute[1:]
         targetAttributeName = sourceAttributeName[0].lower() + sourceAttributeName[1:]
-        
+
         if element.get(sourceAttributeName) is not None:
             element.set(targetAttributeName, element.get(sourceAttributeName))
             del element.attrib[sourceAttributeName]
-            
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
         root.set("version", "3")
-        
+
         for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
-        
+
         for mapping in root.findall("Mapping"):
             for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
-        
+
         return ElementTree.tostring(root, "utf-8")
 
 class Font3ToFont2Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUIFont3
-    
+
     def getTargetType(self):
         return CEGUIFont2
-    
+
     def transformAttribute(self, element, attribute):
         targetAttributeName = attribute[0].upper() + attribute[1:]
         sourceAttributeName = targetAttributeName[0].lower() + targetAttributeName[1:]
-        
+
         if element.get(sourceAttributeName) is not None:
             element.set(targetAttributeName, element.get(sourceAttributeName))
             del element.attrib[sourceAttributeName]
-            
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
         del root.attrib["version"]
-        
+
         for attr in ["name", "filename", "resourceGroup", "type", "size", "nativeHorzRes", "nativeVertRes", "autoScaled", "antiAlias", "lineScaling"]:
             self.transformAttribute(root, attr)
-        
+
         if root.get("AutoScaled") is not None:
             root.set("AutoScaled", imageset_cegui_compat.CEGUI2ToCEGUI1Layer.autoScaledToBoolean(root.get("AutoScaled")))
-        
+
         for mapping in root.findall("Mapping"):
             for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
-        
+
         return ElementTree.tostring(root, "utf-8")

@@ -57,13 +57,13 @@ class Settings(declaration.Settings):
                        defaultValue = 32, widgetHint = "combobox",
                        sortingWeight = 1, changeRequiresRestart = False,
                        optionList = [ [32, "Normal"], [24, "Small"], [16, "Smaller"] ])
-        
+
         cegui_debug_info = global_.createSection(name = "cegui_debug_info", label = "CEGUI debug info")
         cegui_debug_info.createEntry(name = "log_limit", type = int, label = "Log messages limit",
                                      help = "Limits number of remembered log messages to given amount. This is there to prevent endless growth of memory consumed by CEED.",
                                      defaultValue = 20000, widgetHint = "int",
                                      sortingWeight = 1, changeRequiresRestart = True)
-        
+
         navigation = global_.createSection(name = "navigation", label = "Navigation")
         navigation.createEntry(name = "ctrl_zoom", type = bool, label = "Only zoom when CTRL is pressed",
                                help = "Mouse wheel zoom is ignored unless the Control key is pressed when it happens.",

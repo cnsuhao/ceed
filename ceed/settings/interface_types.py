@@ -234,7 +234,7 @@ class InterfaceEntryCombobox(InterfaceEntry):
     def __init__(self, entry, parent):
         super(InterfaceEntryCombobox, self).__init__(entry, parent)
         self.entryWidget = QtGui.QComboBox()
-        # optionList should be a list of lists where the first item is the key (data) and the second is the label 
+        # optionList should be a list of lists where the first item is the key (data) and the second is the label
         for option in entry.optionList:
             self.entryWidget.addItem(option[1], option[0])
         self.setCurrentIndexByValue(entry.value)
@@ -354,7 +354,7 @@ class InterfaceCategory(QtGui.QScrollArea):
             else:
                 self.verticalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderSingleStepSub)
             return True
-        
+
         return super(InterfaceCategory, self).eventFilter(obj, event)
 
     def discardChanges(self):

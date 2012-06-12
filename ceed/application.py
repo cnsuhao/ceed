@@ -50,12 +50,12 @@ class Application(QApplication):
             # print info about developer's mode to possibly prevent it being
             # forgotten about when releasing
             logging.info("Developer's mode enabled - recompiling all .ui files...")
-            
+
             # in case we are in the developer's mode,
             # lets compile all UI files to ensure they are up to date
             from ceed import compileuifiles
             compileuifiles.main()
-            
+
             logging.debug("All .ui files recompiled!")
 
         from ceed import settings
@@ -90,6 +90,6 @@ class Application(QApplication):
         # import error after UI files have been recompiled
         # - Truncate exception log, if it exists.
         from ceed import error
-        
+
         self.errorHandler = error.ErrorHandler(self.mainWindow)
         self.errorHandler.installExceptionHook()

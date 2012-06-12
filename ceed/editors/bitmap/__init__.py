@@ -29,21 +29,21 @@ class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
     def __init__(self, filePath):
         editors.TabbedEditor.__init__(self, None, filePath)
         QtGui.QWidget.__init__(self)
-        
+
         self.ui = ceed.ui.bitmapeditor.Ui_BitmapEditor()
         self.ui.setupUi(self)
-        
+
         self.tabWidget = self
-    
+
     def initialise(self, mainWindow):
         super(BitmapTabbedEditor, self).initialise(mainWindow)
-            
+
         self.preview = self.findChild(QtGui.QLabel, "preview")
         self.preview.setPixmap(QtGui.QPixmap(self.filePath))
-    
+
     def finalise(self):
         super(BitmapTabbedEditor, self).finalise()
-        
+
     def hasChanges(self):
         return False
 
@@ -54,11 +54,11 @@ class BitmapTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def canEditFile(self, filePath):
         extensions = self.getFileExtensions()
-        
+
         for extension in extensions:
             if filePath.endswith("." + extension):
                 return True
-            
+
         return False
 
     def create(self, filePath):

@@ -37,13 +37,13 @@ class AstHelper(object):
     @staticmethod
     def delegate_literal_eval(node_or_string, convertHook=None):
         """Copied from cpython 2.7 Lib/ast.py @ 74346:66f2bcb47050
-        
+
         Intentionally made as few changes as possible and marked them
         so it can be easily upgraded to a later version.
-        
+
         Allows an optional 'convertHook' function with the signature:
             convertHook(node, converter) -> handled, value
-        
+
         Safely evaluate an expression node or a string containing a Python
         expression.  The string or node provided may only consist of the following
         Python literal structures: strings, bytes, numbers, tuples, lists, dicts,
@@ -95,11 +95,11 @@ class AstHelper(object):
     @staticmethod
     def parseOrderedDict(strValue, valueReplacements=None):
         """Parse a string and return an ordered dictionary; nesting allowed.
-        
+
         The format is similar to Python'strValue dict literal but it doesn't require
         quotes around strings.
         Example: ``{Red:255, Green:0, Blue:0, Awesome: True}``
-        
+
         Values found in the 'valueReplacements' parameter (case insensitive)
         will be replaced. An example would be:
             {"true": True, "false": False}
@@ -121,7 +121,7 @@ class AstHelper(object):
 
 def parseNamedValues(strValue, allowedNames=None, requiredNames=None, ignoreCase=True):
     """Parse a string with names and values.
-    
+
     The format is similar to a dictionary and is the following:
         'name:value name2:value with spaces allowed name3:some other value'
     """

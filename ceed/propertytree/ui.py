@@ -145,12 +145,12 @@ class PropertyTreeRow(object):
 
     def getState(self, view):
         """Return the state of the row and its children as a dictionary.
-        
+
         The state includes the expanded state.
-        
+
         Sample return value:
             { "expanded": True, "items": { "item1": <recurse>, "item2": <recurse> } }
-        
+
         Note that the "items" key/value pair may be missing if the current row
         has no children.
         """
@@ -166,7 +166,7 @@ class PropertyTreeRow(object):
 
     def setState(self, view, state):
         """Restore the state of the row and its children.
-        
+
         See getState() for more information.
         """
         if state is None:
@@ -175,7 +175,7 @@ class PropertyTreeRow(object):
         expanded = state.get("expanded", None)
         if expanded is not None:
             view.setExpanded(self.nameItem.index(), expanded)
-        
+
         items = state.get("items", None)
         if items is not None and self.nameItem.hasChildren():
             for row in self.childRows():
@@ -191,7 +191,7 @@ class PropertyTreeRow(object):
     def setFilter(self, view, filterRegEx, hideUnmodified=False):
         """Filter children using the specified regular expression
         and return the count of children left visible.
-        
+
         view -- The Tree View that manages the visibility state
         filterRegEx -- A regular expression that will be matched
                     against the names of the children. Only those
@@ -397,7 +397,7 @@ class PropertyTreeView(QtGui.QTreeView):
         #
         # Behavior
         #
-        
+
         # We don't want 'SelectedClicked' on the name item - it's really annoyng when
         # you try to end the editing by clicking outside the editor but you hit the name
         # and then it starts to edit again.
@@ -458,7 +458,7 @@ class PropertyTreeView(QtGui.QTreeView):
 
     def drawRow(self, painter, option, index):
         """Draws grid lines.
-        
+
         Yep, that's all it does.
         """
         super(PropertyTreeView, self).drawRow(painter, option, index)
@@ -500,7 +500,7 @@ class PropertyTreeView(QtGui.QTreeView):
         while i < model.rowCount():
             item = model.item(i, 0)
             expand(item, 0)
-            
+
             i += 1
 
 class PropertyTreeItemModel(QtGui.QStandardItemModel):
@@ -522,14 +522,14 @@ class PropertyTreeItemModel(QtGui.QStandardItemModel):
 
 class PropertyTreeWidget(QtGui.QWidget):
     """The property tree widget.
-    
+
     Sets up any options necessary.
     Provides easy access methods.
     """
 
     def __init__(self, parent = None):
         """Initialise the widget instance.
-        
+
         'setupRegistry()' should be called next,
         before any property editing can happen.
         """
@@ -587,7 +587,7 @@ class PropertyTreeWidget(QtGui.QWidget):
 
     def rowFromPath(self, path):
         """Find and return the row with the specified name-path, or None.
-        
+
         See PropertyTreeRow.getNamePath()
         """
         if not path:
@@ -621,7 +621,7 @@ class PropertyTreeWidget(QtGui.QWidget):
 
     def getRowsState(self):
         """Return the current state of the items.
-        
+
         See PropertyTreeRow.getState().
         """
         state = dict()
@@ -638,17 +638,17 @@ class PropertyTreeWidget(QtGui.QWidget):
 
     def setRowsState(self, state, defaultCategoryExpansion=None):
         """Restore the state of the items to a saved state.
-        
+
         defaultCategoryExpansion -- None, to leave categories that are not in
                                     the specified 'state' to their current
                                     expansion state; True to expand them;
                                     False to collapse them.
-        
+
         Note: This does not call self.view.setUpdatesEnabled() before or
         after changing the items' state; it's left to the caller because
         this operation may be a part of another that handles updates
         already.
-        
+
         See getRowsState() and PropertyTreeRow.getState().
         """
 
@@ -667,16 +667,16 @@ class PropertyTreeWidget(QtGui.QWidget):
 
     def load(self, categories, resetState=False):
         """Clear tree and load the specified categories into it.
-        
+
         categories -- Dictionary
         resetState -- False to try to maintain as much of the previous items' state
                     as possible, True to reset it.
-        
+
         Note: This does not change the current filter.
-        
+
         See getRowsState() and setRowsState().
         """
-        
+
         # prevent flicker
         self.view.setUpdatesEnabled(False)
 

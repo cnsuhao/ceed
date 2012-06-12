@@ -60,7 +60,7 @@ class ExceptionDialog(QDialog):
                                  "Traceback:\n"
                                  "%s"
                                  % (exc_message, self.tracebackStr))
-        
+
     # Convenience; internal use only
     def _stamp(self, newLine, arg):
         self.tracebackStr = "\n".join([self.tracebackStr, newLine.format(arg)])
@@ -74,7 +74,7 @@ class ExceptionDialog(QDialog):
         # If the versioning info was stored in an object, not a module,
         # we could iterate ... hint hint.
         self._stamp("CEED version: {0}", version.CEED)
-        
+
         self._stamp("HW architecture: {0}", version.SystemArch)
         self._stamp("HW type: {0}", version.SystemType)
         self._stamp("HW processor: {0}", version.SystemCore)
@@ -122,7 +122,7 @@ class ErrorHandler(object):
             # We don't call the standard excepthook anymore since we output to stderr with the logging module
             # we also call the original excepthook which will just output things to stderr
             #sys.__excepthook__(exc_type, exc_message, exc_traceback)
-            
+
             result = dialog.exec_()
 
             # if the dialog was reject, the user chose to quit the whole app immediately (coward...)

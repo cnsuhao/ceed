@@ -25,9 +25,9 @@ getDictionaryTreePath -- Retrieve a value from a dictionary tree.
 
 def getDictionaryTreePath(dtree, path, defaultValue=None):
     """Get the value of the dictionary tree at the specified path string.
-    
+
     Return 'defaultValue' if the path can't be found.
-    
+
     Example::
         tree = { "instantApply" : False, "numeric": { "max" : 10 } }
         path = "numeric/max"

@@ -24,18 +24,18 @@ def checkDataVersion(root_element, version, data):
     """Checks that tag of the root element in data is as given
     and checks that version recorded in the root element is given
     (can be None if no version information should be there)
-    
+
     Returns True if everything went well and all matches,
     False otherwise.
-    
+
     NOTE: Implemented using SAX for speed
     """
-    
+
     class RootElement(Exception):
         def __init__(self, tag, version):
             self.tag = tag
             self.version = version
-    
+
     class REHandler(handler.ContentHandler):
         def __init__(self):
             handler.ContentHandler.__init__(self)
@@ -44,17 +44,17 @@ def checkDataVersion(root_element, version, data):
             version = None
             if attrs.has_key("version"):
                 version = attrs["version"]
-                
+
             raise RootElement(name, version)
-    
+
     try:
         parseString(data, REHandler())
-        
+
     except RootElement as re:
         if re.tag == root_element and re.version == version:
             return True
 
     except:
         pass
-    
-    return False  
+
+    return False

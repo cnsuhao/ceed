@@ -51,7 +51,7 @@ except:
 
 if not system_data_dir_exists:
     data_dir = os.path.join(os.path.dirname(package_dir), "data")
-    
+
 """What's the absolute path to the ui directory"""
 ui_dir = os.path.join(package_dir, "ui")
 
@@ -60,5 +60,5 @@ if not frozen:
     # these two checks will always fail in a frozen instance
     assert(os.path.exists(package_dir))
     assert(os.path.exists(ui_dir))
-    
+
 assert(os.path.exists(data_dir))

@@ -25,22 +25,22 @@ from ceed.compatibility.imageset import gorilla
 
 class Manager(compatibility.Manager):
     """Manager of imageset compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.EditorNativeType = cegui.CEGUIImageset2
         self.CEGUIVersionTypes = {
             "0.6" : cegui.CEGUIImageset1,
             "0.7" : cegui.CEGUIImageset1,
             "1.0" : cegui.CEGUIImageset2
         }
-        
+
         self.detectors.append(cegui.Imageset1TypeDetector())
         self.detectors.append(cegui.Imageset2TypeDetector())
         self.layers.append(cegui.CEGUI1ToCEGUI2Layer())
         self.layers.append(cegui.CEGUI2ToCEGUI1Layer())
-        
+
         self.detectors.append(gorilla.GorillaTypeDetector())
         self.layers.append(gorilla.GorillaToCEGUI1Layer())
         self.layers.append(gorilla.CEGUI1ToGorillaLayer())

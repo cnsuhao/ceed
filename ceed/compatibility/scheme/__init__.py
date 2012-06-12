@@ -23,10 +23,10 @@ from ceed.compatibility.scheme import cegui
 
 class Manager(compatibility.Manager):
     """Manager of scheme compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUIScheme1,
             "0.5" : cegui.CEGUIScheme2,
@@ -36,10 +36,10 @@ class Manager(compatibility.Manager):
         }
 
         self.EditorNativeType = cegui.CEGUIScheme5
-        
+
         self.detectors.append(cegui.Scheme4TypeDetector())
         self.detectors.append(cegui.Scheme5TypeDetector())
-        
+
         self.layers.append(cegui.CEGUI4ToCEGUI5Layer())
         self.layers.append(cegui.CEGUI5ToCEGUI4Layer())
 

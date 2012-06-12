@@ -23,10 +23,10 @@ from ceed.compatibility.layout import cegui
 
 class Manager(compatibility.Manager):
     """Manager of layout compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.CEGUIVersionTypes = {
             "0.5" : cegui.CEGUILayout2,
             "0.6" : cegui.CEGUILayout2,
@@ -35,11 +35,11 @@ class Manager(compatibility.Manager):
         }
 
         self.EditorNativeType = cegui.CEGUILayout4
-        
+
         self.detectors.append(cegui.Layout2TypeDetector())
         self.detectors.append(cegui.Layout3TypeDetector())
         self.detectors.append(cegui.Layout4TypeDetector())
-        
+
         self.layers.append(cegui.Layout3To4Layer())
         self.layers.append(cegui.Layout4To3Layer())
 

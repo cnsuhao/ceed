@@ -23,10 +23,10 @@ from ceed.compatibility.font import cegui
 
 class Manager(compatibility.Manager):
     """Manager of font compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.EditorNativeType = cegui.CEGUIFont3
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUIFont1,
@@ -35,10 +35,10 @@ class Manager(compatibility.Manager):
             "0.7" : cegui.CEGUIFont2,
             "1.0" : cegui.CEGUIFont3
         }
-        
+
         self.detectors.append(cegui.Font2TypeDetector())
         self.detectors.append(cegui.Font3TypeDetector())
-        
+
         self.layers.append(cegui.Font2ToFont3Layer())
         self.layers.append(cegui.Font3ToFont2Layer())
 

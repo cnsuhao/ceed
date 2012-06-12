@@ -27,54 +27,55 @@ underlying bitmap images.
 
 def main():
     from ceed import prerequisites
-    
+
     if prerequisites.check():
         from PySide.QtGui import QApplication
-        
+
         import argparse
         import sys
-        
+
         from ceed import metaimageset
         from ceed.metaimageset import compiler as metaimageset_compiler
-        
+
         from xml.etree import cElementTree as ElementTree
-        
+
         parser = argparse.ArgumentParser(description = "Compile given meta imageset")
-        
+
         parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
                             help = "These options will be passed to QApplication, see documentation of QApplication for details. " + \
                             "Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
-                
+
         parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5,
                             help = "Number of pixels the size is increased as a step in the size determination.")
         parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
                             help = "Input file to be processed.")
-        
+
         args = parser.parse_args()
 
         # we pass the first argument, which is the app name and the split qtoptions
         split_qtoptions = sys.argv[:1]
         if args.qtoptions != "":
             split_qtoptions.extend(args.qtoptions.split(" "))
-        
+
         # we have to construct Qt application, otherwise all the pixmap functionality won't work
         QApplication(split_qtoptions)
-        
+
         metaImageset = metaimageset.MetaImageset(args.input.name)
-    
+
         data = args.input.read()
         element = ElementTree.fromstring(data)
         metaImageset.loadFromElement(element)
-        
+
         compiler = metaimageset_compiler.CompilerInstance(metaImageset)
         compiler.sizeIncrement = args.sizeIncrement
         compiler.compile()
-    
+
         print("")
         print("Performed compilation of '%s'..." % (args.input.name))
-        
+
     else:
         print("Your environment doesn't meet critical prerequisites! Can't start!")
 
 if __name__ == "__main__":
     main()
+

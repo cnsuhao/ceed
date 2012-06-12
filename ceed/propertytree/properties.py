@@ -49,7 +49,7 @@ class PropertyCategory(object):
     def categorisePropertyList(propertyList, unknownCategoryName="Unknown"):
         """Given a list of properties, create categories and add the
         properties to them based on their 'category' field.
-        
+
         The unknownCategoryName is used for a category that holds all
         properties that have no 'category' specified.
         """
@@ -71,7 +71,7 @@ class PropertyEventSubscription(object):
 
     def __init__(self, callback, excludedReasons=None, includedReasons=None):
         """Initialise the subscription to call the specified callback.
-        
+
         callback -- The callable to call, will take the arguments specified
                     during the call to PropertyEvent.trigger().
         excludedReasons -- If the 'reason' argument of PropertyEvent.trigger()
@@ -96,7 +96,7 @@ class PropertyEventSubscription(object):
 
     def __hash__(self):
         """Return the hash of the callback.
-        
+
         The __hash__, __eq__ and __ne__ methods have been re-implemented so that it's
         possible to manage this subscription via it's callback, without holding a
         reference to the subscription instance.
@@ -106,7 +106,7 @@ class PropertyEventSubscription(object):
     def __eq__(self, other):
         """Return True if this subscription's callback is equal to the
         'other' argument (subscription or callback).
-        
+
         See the notes on '__hash__'
         """
         if isinstance(other, PropertyEventSubscription):
@@ -117,7 +117,7 @@ class PropertyEventSubscription(object):
 
     def __ne__(self, other):
         """Inverted '__eq__'.
-        
+
         See the notes on '__hash__' and '__eq__'
         """
         return not self.__eq__(other)
@@ -126,9 +126,9 @@ class PropertyEvent(object):
 
     def __init__(self, maxRecursionDepth=None, assertOnDepthExceeded=False):
         """Custom event.
-        
+
         An event can have subscribers and can guard against recursion.
-        
+
         maxRecursionDepth -- 0 (zero) means no recursion at all, None means unlimited.
         assertOnDepthExcessed -- Will call 'assert False' if the recursion depth exceeds the maximum.
         """
@@ -143,7 +143,7 @@ class PropertyEvent(object):
 
     def subscribe(self, callback, excludedReasons=None, includedReasons=None):
         """Shortcut to create and add a subscription.
-        
+
         Multiple subscriptions with the same callback are not supported.
         """
         sub = PropertyEventSubscription(callback, excludedReasons, includedReasons)
@@ -152,7 +152,7 @@ class PropertyEvent(object):
 
     def unsubscribe(self, eventSubOrCallback, safe=True):
         """Remove a subscription.
-        
+
         eventSubOrCallback -- An event subscription instance or the callback
                             of a subscription to remove.
         safe -- If True, check that the subscription exists to avoid
@@ -184,7 +184,7 @@ class PropertyEvent(object):
 
 class Property(object):
     """A property which is the base for all properties.
-    
+
     The most important fields of a property are 'name' and 'value'.
     A property instance should be able to return the type of its value
     and has a simple mechanism to notify others when its value changes.
@@ -212,11 +212,11 @@ class Property(object):
 
     def __init__(self, name, value=None, defaultValue=None, category=None, helpText=None, readOnly=False, editorOptions=None, createComponents=True):
         """Initialise an instance using the specified parameters.
-        
+
         The 'category' field is usually a string that is used by
         'PropertyCategory.categorisePropertyList()' to place the
         property in a category.
-        
+
         In the default implementation, the 'editorOptions' argument
         should be a dictionary of options that will be passed to the
         editor of the property's value. See getEditorOption().
@@ -252,12 +252,12 @@ class Property(object):
     def createComponents(self):
         """Create an OrderedDict with the component-properties that make up
         this property.
-        
+
         The default implementation is incomplete,
         it simply subscribes to the components' valueChanged event
         to be able to update this property's own value when
         their value changes. It also calls raiseComponentsUpdate().
-        
+
         Implementors should create the components, make sure they
         are accessible from getComponents() and then call this
         as super().
@@ -274,7 +274,7 @@ class Property(object):
 
     def finaliseComponents(self):
         """Clean up components.
-        
+
         The default implementation is usually enough, it will
         unsubscribe from the components' events, finalise them
         and clear the components field. It will also call
@@ -305,7 +305,7 @@ class Property(object):
             if issubclass(type(self.value), Property):
                 return self.value.valueToString()
             return unicode(self.value)
-        
+
         return ""
 
     def isStringRepresentationEditable(self):
@@ -328,7 +328,7 @@ class Property(object):
         """Change the current value to the one specified
         and notify all subscribers of the change. Return True
         if the value was changed, otherwise False.
-        
+
         If the property has components, this method is responsible
         for updating their values, if necessary. The default
         implementation does this by calling 'self.updateComponents()'.
@@ -389,7 +389,7 @@ class Property(object):
 
     def tryUpdateInner(self, newValue, reason=ChangeValueReason.Unknown):
         """Try to update the inner properties (if any) to the new value.
-        
+
         Return True on success, False on failure.
         """
         #pylint: disable-msg=W0613,R0201
@@ -399,18 +399,18 @@ class Property(object):
 
     def componentValueChanged(self, component, reason):
         """Callback called when a component's value changes.
-        
+
         This will generally call setValue() to update this instance's
         value in response to the component's value change. If this
         happens, the call to setValue() should use ChangeValueReason.ComponentValueChanged.
-        
+
         See the DictionaryProperty for a different implementation.
         """
         pass
 
     def getEditorOption(self, path, defaultValue=None):
         """Get the value of the editor option at the specified path string.
-        
+
         Return 'defaultValue' if the option/path can't be found.
         """
 
@@ -476,7 +476,7 @@ class MultiPropertyWrapper(Property):
 
     def __init__(self, templateProperty, innerProperties, takeOwnership):
         """Initialise the instance with the specified properties.
-        
+
         templateProperty -- A newly created instance of a property of the same type
                             as the properties that are to be wrapped. This should be
                             already initialised with the proper name, category, settings,
@@ -591,7 +591,7 @@ class MultiPropertyWrapper(Property):
 class EnumValue(object):
     """Interface for properties that have a predetermined list
     of possible values, like enums.
-    
+
     Used by the EnumValuePropertyEditor (combo box).
     """
     #pylint: disable-msg=R0903

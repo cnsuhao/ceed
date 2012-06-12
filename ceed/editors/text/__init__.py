@@ -28,47 +28,47 @@ from ceed import editors
 class TextTabbedEditor(editors.TabbedEditor):
     """Multi purpose text editor
     """
-    
+
     def __init__(self, filePath):
-        
+
         super(TextTabbedEditor, self).__init__(None, filePath)
-        
+
         self.tabWidget = QtGui.QTextEdit()
-    
+
     def initialise(self, mainWindow):
         super(TextTabbedEditor, self).initialise(mainWindow)
-            
+
         file_ = open(self.filePath, "r")
         self.textDocument = QtGui.QTextDocument()
         self.textDocument.setPlainText(file_.read())
         file_.close()
-        
+
         self.tabWidget.setDocument(self.textDocument)
         self.textDocument.setModified(False)
 
         self.textDocument.setUndoRedoEnabled(True)
         self.textDocument.undoAvailable.connect(self.slot_undoAvailable)
         self.textDocument.redoAvailable.connect(self.slot_redoAvailable)
-    
+
     def finalise(self):
         super(TextTabbedEditor, self).finalise()
-        
+
         self.textDocument = None
-        
+
     def hasChanges(self):
         return self.textDocument.isModified()
-    
+
     def undo(self):
         # TODO: For some weird reason this doesn't do anything, could be a PySide bug
         self.textDocument.undo()
-        
+
     def redo(self):
         # TODO: For some weird reason this doesn't do anything, could be a PySide bug
         self.textDocument.redo()
-        
+
     def slot_undoAvailable(self, available):
         self.mainWindow.undoAction.setEnabled(available)
-        
+
     def slot_redoAvailable(self, available):
         self.mainWindow.redoAction.setEnabled(available)
 
@@ -82,11 +82,11 @@ class TextTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def canEditFile(self, filePath):
         extensions = self.getFileExtensions()
-        
+
         for extension in extensions:
             if filePath.endswith("." + extension):
                 return True
-            
+
         return False
 
     def create(self, filePath):

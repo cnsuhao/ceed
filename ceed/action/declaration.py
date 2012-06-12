@@ -22,7 +22,7 @@
 (shortcuts can be changed) using the settings interface
 
 All actions in the application should be declared using this API, unless
-there are serious reasons not to do that. 
+there are serious reasons not to do that.
 """
 
 from PySide.QtCore import Qt
@@ -42,7 +42,7 @@ class Action(QAction):
             label = name
         if settingsLabel is None:
             # remove trailing ellipsis and mnemonics
-            settingsLabel = label.rstrip(".").replace("&&", "%amp%").replace("&", "").replace("%amp%", "&&") 
+            settingsLabel = label.rstrip(".").replace("&&", "%amp%").replace("&", "").replace("%amp%", "&&")
 
         self.category = category
         self.name = name
@@ -128,7 +128,7 @@ class ActionManager(object):
     """Usually a singleton that manages all action categories and therefore
     actions within them.
     """
-    
+
     def __init__(self, mainWindow, settings):
         self.mainWindow = mainWindow
         self.settings = settings

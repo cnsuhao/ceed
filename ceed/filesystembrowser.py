@@ -55,12 +55,12 @@ class FileSystemBrowser(QtGui.QDockWidget):
         self.projectDirectoryButton.pressed.connect(self.slot_projectDirectoryButton)
         self.activeFileDirectoryButton = self.findChild(QtGui.QToolButton, "activeFileDirectoryButton")
         self.activeFileDirectoryButton.pressed.connect(self.slot_activeFileDirectoryButton)
-        
+
         self.pathBox = self.findChild(QtGui.QComboBox, "pathBox")
         self.pathBox.currentIndexChanged.connect(self.slot_pathBoxIndexChanged)
 
         self.directory = ""
-        
+
         # Set to project directory if project open, otherwise to user's home
         if ceed.mainwindow.MainWindow.instance.project is not None:
             self.setDirectory(ceed.mainwindow.MainWindow.instance.project.getAbsolutePathOf(""))

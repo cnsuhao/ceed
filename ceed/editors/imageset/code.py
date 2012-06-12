@@ -26,24 +26,24 @@ from ceed import xmledit
 class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
-        
+
         self.tabbedEditor = tabbedEditor
-        
+
     def getNativeCode(self):
         element = self.tabbedEditor.visual.imagesetEntry.saveToElement()
         xmledit.indent(element)
-        
+
         return ElementTree.tostring(element, "utf-8")
-        
+
     def propagateNativeCode(self, code):
         element = None
-        
+
         try:
             element = ElementTree.fromstring(code)
-        
+
         except:
             return False
-        
+
         else:
             self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
             return True

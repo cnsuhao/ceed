@@ -32,7 +32,7 @@ CEED_developerMode = False
 # Mercurial
 try:
     import subprocess
-        
+
     MercurialRevision = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
     if MercurialRevision.startswith("Revision:"):
         MercurialRevision = MercurialRevision[9:]
@@ -83,19 +83,19 @@ PyCEGUI = "N/A"
 # all of the other versions are just optional, what we always need and will always get
 # is the CEED version
 
-try:    
+try:
     # PySide
     from PySide import __version__ as _PySideVersion
     from PySide import __version_info__ as _PySideVersion_Tuple
     PySide = _PySideVersion
     PySide_Tuple = _PySideVersion_Tuple
-    
+
     # Qt
     from PySide.QtCore import __version__ as _QtVersion
     from PySide.QtCore import __version_info__ as _QtVersion_Tuple
     Qt = _QtVersion
     Qt_Tuple = _QtVersion_Tuple
-    
+
 except:
     pass
 
@@ -103,7 +103,7 @@ try:
     # PyOpenGL
     from OpenGL.version import __version__ as _OpenGLVersion
     OpenGL = _OpenGLVersion
-    
+
 except:
     pass
 
@@ -111,6 +111,6 @@ try:
     # PyCEGUI
     from PyCEGUI import Version__ as _PyCEGUIVersion
     PyCEGUI = _PyCEGUIVersion
-    
+
 except:
     pass

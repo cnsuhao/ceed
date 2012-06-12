@@ -28,42 +28,42 @@ GorillaFile = "Gorilla file"
 class GorillaTypeDetector(compatibility.TypeDetector):
     def getType(self):
         return GorillaFile
-    
+
     def getPossibleExtensions(self):
         return set(["gorilla"])
-    
+
     def matches(self, data, extension):
         if extension != "gorilla":
             return False
-        
+
         # todo: we should be at least a bit more precise
         return True
 
 class GorillaToCEGUI1Layer(compatibility.Layer):
     def getSourceType(self):
         return GorillaFile
-    
+
     def getTargetType(self):
         return cegui.CEGUIImageset1
-    
+
     def transform(self, data):
-        # TODO: very crude and work in progress transformation        
+        # TODO: very crude and work in progress transformation
         class Sprite(object):
             def __init__(self, name, xpos, ypos, width, height):
                 self.name = name
-                
+
                 self.xpos = xpos
                 self.ypos = ypos
                 self.width = width
                 self.height = height
-        
+
         textureName = None
         sprites = []
         section = None
-        
+
         for line in data.split("\n"):
             stripped = line.strip()
-            
+
             if stripped.lower() == "[texture]":
                 section = "Texture"
             elif stripped.lower() == "[sprites]":
@@ -71,7 +71,7 @@ class GorillaToCEGUI1Layer(compatibility.Layer):
             elif stripped.lower().startswith("["):
                 # unknown section
                 section = None
-                
+
             else:
                 if section == "Texture":
                     if stripped.lower().startswith("file"):
@@ -80,45 +80,45 @@ class GorillaToCEGUI1Layer(compatibility.Layer):
                             raise RuntimeError("Texture file is defined multiple times, duplicating line '%s'" % (stripped))
                         if len(split) != 2:
                             raise RuntimeError("Invalid texture file line '%s', can't be split into 2 pieces" % (stripped))
-                        
+
                         textureName = split[1]
-                        
+
                     # TODO: we ignore whitepixels for now
-                    
+
                 if section == "Sprites":
                     if stripped == "":
                         # empty line
                         continue
-                    
+
                     split = stripped.split(" ")
                     if len(split) != 5:
                         raise RuntimeError("Error, line '%s' can't be split into 5 strings" % (stripped))
-                    
+
                     sprites.append(Sprite(split[0], split[1], split[2], split[3], split[4]))
-                    
+
         if textureName is None:
             raise RuntimeError("Gorilla file doesn't contain any texture info")
-        
+
         if len(sprites) == 0:
             raise RuntimeError("Gorilla file doesn't contain any sprites (font glyphs are not being converted, that's a TODO)")
-        
+
         root = ElementTree.Element("Imageset")
-        
+
         # from what I see, gorilla files don't have names in them, the filename is the
         # name of the resource
         root.set("Name", GorillaFile)
         root.set("Imagefile", textureName)
-        
+
         for sprite in sprites:
             image = ElementTree.Element("Image")
-    
+
             image.set("Name", sprite.name)
-            
+
             image.set("XPos", sprite.xpos)
             image.set("YPos", sprite.ypos)
             image.set("Width", sprite.width)
             image.set("Height", sprite.height)
-            
+
             root.append(image)
 
         return ElementTree.tostring(root, "utf-8")
@@ -126,18 +126,18 @@ class GorillaToCEGUI1Layer(compatibility.Layer):
 class CEGUI1ToGorillaLayer(compatibility.Layer):
     def getSourceType(self):
         return cegui.CEGUIImageset1
-    
+
     def getTargetType(self):
         return GorillaFile
-    
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
-        
+
         ret = ""
         ret += "[Texture]\n"
         ret += "file %s\n" % (root.get("Imagefile"))
         ret += "\n"
-        
+
         ret += "[Sprites]\n"
         for image in root.findall("Image"):
             ret += "%s %s %s %s %s\n" % (image.get("Name"), image.get("XPos"), image.get("YPos"), image.get("Width"), image.get("Height"))

@@ -31,9 +31,9 @@ class HTMLViewTabbedEditor(editors.TabbedEditor):
     """
     def __init__(self, filePath, message):
         super(HTMLViewTabbedEditor, self).__init__(None, filePath)
-        
+
         self.tabWidget = QtWebKit.QWebView()
         self.tabWidget.setHtml(message)
-        
+
     def hasChanges(self):
         return False

@@ -40,81 +40,81 @@ class NoTypeDetectedDialog(QtGui.QDialog):
 
         self.ui = ceed.ui.editors.notypedetected.Ui_NoTypeDetectedDialog()
         self.ui.setupUi(self)
-        
+
         self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
-        
+
         for type in compatibilityManager.getKnownTypes():
             item = QtGui.QListWidgetItem()
             item.setText(type)
-            
+
             # TODO: We should give a better feedback about what's compatible with what
             item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
-            
+
             self.typeChoice.addItem(item)
 
 class MultipleTypesDetectedDialog(QtGui.QDialog):
     def __init__(self, compatibilityManager, possibleTypes):
         super(MultipleTypesDetectedDialog, self).__init__()
-        
+
         self.ui = ceed.ui.editors.multipletypesdetected.Ui_MultipleTypesDetectedDialog()
         self.ui.setupUi(self)
-        
+
         self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
-        
+
         for type in compatibilityManager.getKnownTypes():
             item = QtGui.QListWidgetItem()
             item.setText(type)
-            
+
             if type in possibleTypes:
                 font = QtGui.QFont()
                 font.setBold(True)
                 item.setFont(font)
-            
+
             # TODO: We should give a better feedback about what's compatible with what
             item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
-            
+
             self.typeChoice.addItem(item)
 
 class MultiplePossibleFactoriesDialog(QtGui.QDialog):
     def __init__(self, possibleFactories):
         super(MultiplePossibleFactoriesDialog, self).__init__()
-        
+
         self.ui = ceed.ui.editors.multiplepossiblefactories.Ui_MultiplePossibleFactoriesDialog()
         self.ui.setupUi(self)
-        
+
         self.factoryChoice = self.findChild(QtGui.QListWidget, "factoryChoice")
-        
+
         for factory in possibleFactories:
             item = QtGui.QListWidgetItem()
             item.setText(factory.getName())
             item.setData(QtCore.Qt.UserRole, factory)
-            
+
             self.factoryChoice.addItem(item)
 
 class TabbedEditor(object):
     """This is the base class for a class that takes a file and allows manipulation
     with it. It occupies exactly 1 tab space.
     """
-    
+
     def __init__(self, compatibilityManager, filePath):
         """Constructs the editor.
-        
+
         compatibilityManager - manager that should be used to transform data between
                                various data types using compatibility layers
         filePath - absolute file path of the file that should be opened
         """
-        
+
         self.compatibilityManager = compatibilityManager
         self.desiredSavingDataType = "" if self.compatibilityManager is None else self.compatibilityManager.EditorNativeType
         self.nativeData = None
-        
+
         self.requiresProject = False
-        
+
         self.initialised = False
         self.active = False
-        
+
         self.filePath = os.path.normpath(filePath)
-        
+
         self.tabWidget = None
         self.tabLabel = os.path.basename(self.filePath)
 
@@ -149,42 +149,42 @@ class TabbedEditor(object):
 
             if ret == QtGui.QMessageBox.Yes:
                 self.reinitialise()
-            
+
             elif ret == QtGui.QMessageBox.No:
                 # FIXME: We should somehow make CEED think that we have changes :-/
                 #        That is hard to do because CEED relies on QUndoStack to get that info
                 pass
-            
+
             else:
                 # how did we get here?
                 assert(False)
 
             self.displayingReloadAlert = False
-    
+
     def initialise(self, mainWindow):
         """This method loads everything up so this editor is ready to be switched to"""
-        
+
         assert(not self.initialised)
         assert(self.tabWidget)
-        
+
         self.mainWindow = mainWindow
         self.tabWidget.tabbedEditor = self
-        
+
         self.mainWindow.tabs.addTab(self.tabWidget, self.tabLabel)
 
         if self.compatibilityManager is not None:
             rawData = codecs.open(self.filePath, mode = "r", encoding = "utf-8").read()
             rawDataType = ""
-            
+
             if rawData == "":
                 # it's an empty new file, the derived classes deal with this separately
                 self.nativeData = rawData
-                
+
                 if mainWindow.project is None:
                     self.desiredSavingDataType = self.compatibilityManager.EditorNativeType
                 else:
                     self.desiredSavingDataType = self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion)
-                
+
             else:
                 try:
                     rawDataType = self.compatibilityManager.guessType(rawData, self.filePath)
@@ -192,47 +192,47 @@ class TabbedEditor(object):
                     # A file exists and the editor has it open, so watch it for
                     # external changes.
                     self.addFileMonitor(self.filePath)
-                    
+
                 except compatibility.NoPossibleTypesError:
                     dialog = NoTypeDetectedDialog(self.compatibilityManager)
                     result = dialog.exec_()
-                    
+
                     rawDataType = self.compatibilityManager.EditorNativeType
                     self.nativeData = ""
-                    
+
                     if result == QtGui.QDialog.Accepted:
                         selection = dialog.typeChoice.selectedItems()
-                        
+
                         if len(selection) == 1:
                             rawDataType = selection[0].text()
                             self.nativeData = None
-                
+
                 except compatibility.MultiplePossibleTypesError as e:
                     # if no project is opened or if the opened file was detected as something not suitable for the target CEGUI version of the project
                     if (mainWindow.project is None) or (self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion) not in e.possibleTypes):
                         dialog = MultipleTypesDetectedDialog(self.compatibilityManager, e.possibleTypes)
                         result = dialog.exec_()
-                        
+
                         rawDataType = self.compatibilityManager.EditorNativeType
                         self.nativeData = ""
-                        
+
                         if result == QtGui.QDialog.Accepted:
                             selection = dialog.typeChoice.selectedItems()
-                            
+
                             if len(selection) == 1:
                                 rawDataType = selection[0].text()
                                 self.nativeData = None
-                                
+
                     else:
                         rawDataType = self.compatibilityManager.getSuitableDataTypeForCEGUIVersion(mainWindow.project.CEGUIVersion)
                         self.nativeData = None
-                
+
                 # by default, save in the same format as we opened in
                 self.desiredSavingDataType = rawDataType
 
                 if mainWindow.project is not None:
                     projectCompatibleDataType = self.compatibilityManager.CEGUIVersionTypes[mainWindow.project.CEGUIVersion]
-                    
+
                     if projectCompatibleDataType != rawDataType:
                         if QtGui.QMessageBox.question(mainWindow,
                                                       "Convert to format suitable for opened project?",
@@ -242,41 +242,41 @@ class TabbedEditor(object):
                                                       "Data COULD be lost, make a backup!)" % (rawDataType, projectCompatibleDataType),
                                                       QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No) == QtGui.QMessageBox.Yes:
                             self.desiredSavingDataType = projectCompatibleDataType
-    
+
                 # if nativeData is "" at this point, data type was not successful and user didn't select
                 # any data type as well so we will just use given file as an empty file
-                
+
                 if self.nativeData != "":
                     try:
                         self.nativeData = self.compatibilityManager.transform(rawDataType, self.compatibilityManager.EditorNativeType, rawData)
-                        
+
                     except compatibility.LayerNotFoundError:
                         # TODO: Dialog, can't convert
                         self.nativeData = ""
-        
+
         self.initialised = True
-    
+
     def finalise(self):
         """Cleans up after itself
         this is usually called when you want the tab closed
         """
-        
+
         assert(self.initialised)
         assert(self.tabWidget)
-        
+
         self.initialised = False
 
     def reinitialise(self):
         """Reinitialises this tabbed editor, effectivelly reloading the file
         off the hard drive again
         """
-        
+
         wasCurrent = self.mainWindow.activeEditor is self
-        
+
         mainWindow = self.mainWindow
         self.finalise()
         self.initialise(mainWindow)
-        
+
         if wasCurrent:
             self.makeCurrent()
 
@@ -284,20 +284,20 @@ class TabbedEditor(object):
         """Removes itself from the tab list and irrevocably destroys
         data associated with itself
         """
-        
+
         i = 0
         wdt = self.mainWindow.tabs.widget(i)
         tabRemoved = False
-        
+
         while wdt:
             if wdt == self.tabWidget:
                 self.mainWindow.tabs.removeTab(i)
                 tabRemoved = True
                 break
-                        
+
             i = i + 1
             wdt = self.mainWindow.tabs.widget(i)
-        
+
         assert(tabRemoved)
 
     def editorMenu(self):
@@ -305,7 +305,7 @@ class TabbedEditor(object):
         The editorMenu is shared across editors so this returns
         None if this editor is not the active editor.
         """
-        return self.mainWindow.editorMenu if self.active else None 
+        return self.mainWindow.editorMenu if self.active else None
 
     def rebuildEditorMenu(self, editorMenu):
         """The main window has one special menu on its menubar (editorMenu)
@@ -314,19 +314,19 @@ class TabbedEditor(object):
         Returns two booleans: Visible, Enabled
         """
         return False, False
-    
+
     def activate(self):
         """The tab gets "on stage", it's been clicked on and is now the only active
         tab. There can be either 0 tabs active (blank screen) or exactly 1 tab
         active.
         """
-        
+
         currentActive = self.mainWindow.activeEditor
-        
+
         # no need to deactivate and then activate again
         if currentActive == self:
             return
-        
+
         if currentActive is not None:
             currentActive.deactivate()
 
@@ -345,43 +345,43 @@ class TabbedEditor(object):
         visible, enabled = self.rebuildEditorMenu(edMenu)
         edMenu.menuAction().setVisible(visible)
         edMenu.menuAction().setEnabled(enabled)
-        
+
     def deactivate(self):
         """The tab gets "off stage", user switched to another tab.
         This is also called when user closes the tab (deactivate and then finalise
         is called).
         """
-        
+
         self.active = False
-        
+
         if self.mainWindow.activeEditor == self:
             self.mainWindow.activeEditor = None
             edMenu = self.mainWindow.editorMenu
             edMenu.clear()
             edMenu.menuAction().setEnabled(False)
             edMenu.menuAction().setVisible(False)
-    
+
     def makeCurrent(self):
         """Makes this tab editor current (= the selected tab)"""
-        
-        # (this should automatically handle the respective deactivate and activate calls)   
-        
+
+        # (this should automatically handle the respective deactivate and activate calls)
+
         self.mainWindow.tabs.setCurrentWidget(self.tabWidget)
- 
+
     def hasChanges(self):
         """Checks whether this TabbedEditor contains changes
         (= it should be saved before closing it)"""
-        
+
         return False
 
     def markHasChanges(self, hasChanges):
         """Marks that this tabbed editor has changes, in this implementation this means
         that the tab in the tab list gets an icon
         """
-        
+
         if not hasattr(self, "mainWindow"):
             return
-        
+
         if hasChanges:
             self.mainWindow.tabs.setTabIcon(self.mainWindow.tabs.indexOf(self.tabWidget), QtGui.QIcon("icons/tabs/has_changes.png"))
         else:
@@ -391,7 +391,7 @@ class TabbedEditor(object):
         """Causes the tabbed editor to save all it's progress to the file.
         targetPath should be absolute file path.
         """
-        
+
         outputData = self.nativeData if self.nativeData is not None else ""
         if self.compatibilityManager is not None:
             outputData = self.compatibilityManager.transform(self.compatibilityManager.EditorNativeType, self.desiredSavingDataType, self.nativeData)
@@ -399,27 +399,27 @@ class TabbedEditor(object):
         # Stop monitoring the file, the changes that are about to occur are not
         # picked up as being from an external program!
         self.removeFileMonitor(self.filePath)
-        
+
         try:
             f = codecs.open(targetPath, mode = "w", encoding = "utf-8")
             f.write(outputData)
             f.close()
-            
+
         except IOError as e:
             # The rest of the code is skipped, so be sure to turn file
             # monitoring back on
             self.addFileMonitor(self.filePath)
-            QtGui.QMessageBox.critical(self, "Error saving file!", 
+            QtGui.QMessageBox.critical(self, "Error saving file!",
                                        "CEED encountered an error trying to save the file.\n\n(exception details: %s)" % (e))
             return False
-        
+
         if updateCurrentPath:
             # changes current path to the path we saved to
             self.filePath = targetPath
-            
+
             # update tab text
             self.tabLabel = os.path.basename(self.filePath)
-        
+
             # hasattr because this might be called even before initialise is called!
             if hasattr(self, "mainWindow"):
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
@@ -443,86 +443,86 @@ class TabbedEditor(object):
     def save(self):
         """Saves all progress to the same file we have opened at the moment
         """
-        
+
         return self.saveAs(self.filePath)
 
     def discardChanges(self):
         """Causes the tabbed editor to discard all it's progress"""
-        
+
         # early out
         if not self.hasChanges():
             return
-        
+
         # the default but kind of wasteful implementation
         self.reinitialise()
-        
+
         # the state of the tabbed editor should be valid at this point
-        
+
     def undo(self):
         """Called by the mainwindow whenever undo is requested"""
         pass
-        
+
     def redo(self):
         """Called by the mainwindow whenever redo is requested"""
         pass
-    
+
     def revert(self):
         """Called by the mainwindow whenever revert is requested
-        
-        Revert simply goes back to the state of the file on disk, 
+
+        Revert simply goes back to the state of the file on disk,
         disregarding any changes made since then
         """
-        
+
         self.discardChanges()
-    
+
     def getUndoStack(self):
         """Returns UndoStack or None is the tabbed editor doesn't have undo stacks.
         This is useful for QUndoView
-        
+
         Note: If you use UndoStack in your tabbed editor, inherit from UndoStackTabbedEditor
               below, it will save you a lot of work (synchronising all the actions and their texts, etc..)
         """
-        
+
         return None
-    
+
     def getDesiredSavingDataType(self):
         """Returns current desired saving data type. Data type that will be used when user requests to save this file
         """
-        
+
         return self.desiredSavingDataType if self.compatibilityManager is not None else None
 
     def performCopy(self):
         """Performs copy of the editor's selection to the clipboard.
-        
+
         Default implementation doesn't do anything.
-        
+
         Returns: True if the operation was successful
         """
         return False
-    
+
     def performCut(self):
         """Performs cut of the editor's selection to the clipboard.
-        
+
         Default implementation doesn't do anything.
-        
+
         Returns: True if the operation was successful
         """
         return False
-    
+
     def performPaste(self):
         """Performs paste from the clipboard to the editor.
-        
+
         Default implementation doesn't do anything
-        
+
         Returns: True if the operation was successful
         """
         return False
 
     def performDelete(self):
         """Deletes the selected items in the editor.
-        
+
         Default implementation doesn't do anything
-        
+
         Returns: True if the operation was successful
         """
         return False
@@ -530,11 +530,11 @@ class TabbedEditor(object):
     def zoomIn(self):
         """Called by the mainwindow whenever zoom is requested"""
         pass
-        
+
     def zoomOut(self):
         """Called by the mainwindow whenever zoom is requested"""
         pass
-        
+
     def zoomReset(self):
         """Called by the mainwindow whenever zoom is requested"""
         pass
@@ -543,40 +543,40 @@ class UndoStackTabbedEditor(TabbedEditor):
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
     """
-    
+
     def __init__(self, compatibilityManager, filePath):
         super(UndoStackTabbedEditor, self).__init__(compatibilityManager, filePath)
-        
+
         self.undoStack = QtGui.QUndoStack()
-        
+
         self.undoStack.setUndoLimit(settings.getEntry("global/undo/limit").value)
         self.undoStack.setClean()
-        
+
         self.undoStack.canUndoChanged.connect(self.slot_undoAvailable)
         self.undoStack.canRedoChanged.connect(self.slot_redoAvailable)
-        
+
         self.undoStack.undoTextChanged.connect(self.slot_undoTextChanged)
         self.undoStack.redoTextChanged.connect(self.slot_redoTextChanged)
-        
+
         self.undoStack.cleanChanged.connect(self.slot_cleanChanged)
-        
+
     def initialise(self, mainWindow):
         super(UndoStackTabbedEditor, self).initialise(mainWindow)
         self.undoStack.clear()
-        
+
     def activate(self):
         super(UndoStackTabbedEditor, self).activate()
-        
+
         undoStack = self.getUndoStack()
-        
+
         self.mainWindow.undoAction.setEnabled(undoStack.canUndo())
         self.mainWindow.redoAction.setEnabled(undoStack.canRedo())
-        
+
         self.mainWindow.undoAction.setText("Undo %s" % (undoStack.undoText()))
         self.mainWindow.redoAction.setText("Redo %s" % (undoStack.redoText()))
-        
+
         self.mainWindow.saveAction.setEnabled(not undoStack.isClean())
-    
+
     def hasChanges(self):
         return not self.undoStack.isClean()
 
@@ -586,26 +586,26 @@ class UndoStackTabbedEditor(TabbedEditor):
             return True
 
         return False
-        
+
     def discardChanges(self):
         # since we have undo stack, we can simply use it instead of the slower
         # reinitialisation approach
-        
+
         undoStack = self.getUndoStack()
         cleanIndex = undoStack.cleanIndex()
-        
+
         if cleanIndex == -1:
             # it is possible that we can't undo/redo to cleanIndex
             # this can happen because of undo limitations (at most 100 commands
             # and we need > 100 steps)
             super(UndoStackTabbedEditor, self).discardChanges()
-            
+
         else:
             undoStack.setIndex(cleanIndex)
-        
+
     def undo(self):
         self.getUndoStack().undo()
-        
+
     def redo(self):
         self.getUndoStack().redo()
 
@@ -616,22 +616,22 @@ class UndoStackTabbedEditor(TabbedEditor):
         # hasattr because this might be called even before initialise is called!
         if hasattr(self, "mainWindow"):
             self.mainWindow.undoAction.setEnabled(available)
-        
+
     def slot_redoAvailable(self, available):
         # hasattr because this might be called even before initialise is called!
         if hasattr(self, "mainWindow"):
             self.mainWindow.redoAction.setEnabled(available)
-            
+
     def slot_undoTextChanged(self, text):
         # hasattr because this might be called even before initialise is called!
         if hasattr(self, "mainWindow"):
             self.mainWindow.undoAction.setText("Undo %s" % (text))
-            
+
     def slot_redoTextChanged(self, text):
         # hasattr because this might be called even before initialise is called!
         if hasattr(self, "mainWindow"):
             self.mainWindow.redoAction.setText("Redo %s" % (text))
-            
+
     def slot_cleanChanged(self, clean):
         # clean means that the undo stack is at a state where it's in sync with the underlying file
         # we set the undostack as clean usually when saving the file so we will assume that there
@@ -639,11 +639,11 @@ class UndoStackTabbedEditor(TabbedEditor):
             self.mainWindow.saveAction.setEnabled(not clean)
 
         self.markHasChanges(not clean)
-        
+
 class TabbedEditorFactory(object):
     """Constructs instances of TabbedEditor (multiple instances of one TabbedEditor
     can coexist - user editing 2 layouts for example - with the ability to switch
-    from one to another) 
+    from one to another)
     """
 
     def getFileExtensions(self):
@@ -656,13 +656,13 @@ class TabbedEditorFactory(object):
 
     def create(self, filePath):
         """Creates the respective TabbedEditor instance
-    
+
         This should only be called with a filePath the factory reported
         as editable by the instances
         """
-        
+
         return None
-        
+
     # note: destroy doesn't really make sense as python is reference counted
     #       and everything is garbage collected
 
@@ -674,12 +674,12 @@ class MessageTabbedEditor(TabbedEditor):
     """
     def __init__(self, filePath, message):
         super(MessageTabbedEditor, self).__init__(None, filePath)
-        
+
         self.label = QtGui.QLabel(message)
         self.label.setWordWrap(True)
         self.tabWidget = QtGui.QScrollArea()
         self.tabWidget.setWidget(self.label)
-        
+
     def hasChanges(self):
         return False
 

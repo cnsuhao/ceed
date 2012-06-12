@@ -25,10 +25,10 @@ and provide helpful info when something goes wrong.
 def check(supressMessagesIfNotFatal = True):
     """Checks all hard dependencies of CEED and reports accordingly
     """
-    
+
     # We use __import__ in this function merely to stop pyflakes and pylint
     # from reporting unused imports
-    
+
     def messageBox(message):
         print message
 
@@ -38,7 +38,7 @@ def check(supressMessagesIfNotFatal = True):
     # PySide
     try:
         __import__("PySide")
-        
+
     except ImportError as e:
         messages.append("PySide package is missing! PySide provides Python bindings for Qt4, see pyside.org. (exception: %s)" % (e))
         ret = False
@@ -47,7 +47,7 @@ def check(supressMessagesIfNotFatal = True):
     try:
         __import__("OpenGL.GL")
         __import__("OpenGL.GLU")
-        
+
     except ImportError as e:
         messages.append("PyOpenGL package is missing! PyOpenGL provides Python bindings for OpenGL, they can be found in the pypi repository. (exception: %s)" % (e))
         ret = False
@@ -57,11 +57,11 @@ def check(supressMessagesIfNotFatal = True):
         __import__("PyCEGUI")
         try:
             __import__("PyCEGUIOpenGLRenderer")
-            
+
         except ImportError as e:
             messages.append("PyCEGUI was found but PyCEGUIOpenGLRenderer is missing! CEED can't render embedded CEGUI without it. (exception: %s)" % (e))
             ret = False
-    
+
     except ImportError as e:
         messages.append("PyCEGUI package is missing! PyCEGUI provides Python bindings for CEGUI, the library this editor edits assets for, see cegui.org.uk. (exception: %s)" % (e))
         ret = False
@@ -83,5 +83,5 @@ def check(supressMessagesIfNotFatal = True):
     # Finished
     if (not ret) or (not supressMessagesIfNotFatal and len(messages) > 0):
         messageBox("Following problems found: \n" + unicode("\n").join(messages))
-        
+
     return ret

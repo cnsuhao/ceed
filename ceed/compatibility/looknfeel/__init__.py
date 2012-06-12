@@ -23,10 +23,10 @@ from ceed.compatibility.looknfeel import cegui
 
 class Manager(compatibility.Manager):
     """Manager of looknfeel compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUILookNFeel1,
             # we only support non-obsolete major versions
@@ -40,10 +40,10 @@ class Manager(compatibility.Manager):
         }
 
         self.EditorNativeType = cegui.CEGUILookNFeel7
-        
+
         self.detectors.append(cegui.LookNFeel6TypeDetector())
         self.detectors.append(cegui.LookNFeel7TypeDetector())
-        
+
         self.layers.append(cegui.LookNFeel6To7Layer())
         self.layers.append(cegui.LookNFeel7To6Layer())
 

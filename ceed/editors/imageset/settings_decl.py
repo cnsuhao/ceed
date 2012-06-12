@@ -27,7 +27,7 @@ def declare(settings):
                     help = "Show overlay labels of images.",
                     defaultValue = True, widgetHint = "checkbox",
                     sortingWeight = 1)
-    
+
     visual.createEntry(name = "partial_updates", type = bool, label = "Use partial drawing updates",
                     help = "Will use partial 2D updates using accelerated 2D machinery. The performance of this is very dependent on your platform and hardware. MacOSX handles partial updates much better than Linux it seems. If you have a very good GPU, don't tick this.",
                     defaultValue = False, widgetHint = "checkbox", changeRequiresRestart = True,

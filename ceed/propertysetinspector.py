@@ -32,7 +32,7 @@ from collections import OrderedDict
 
 class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
-    
+
     Requires a call to 'setPropertyManager()' before
     it can show properties via 'setPropertySets'.
     """
@@ -59,7 +59,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.setMinimumSize(200, 200)
 
         self.propertyManager = None
-        
+
         self.currentPropertySets = []
 
     def sizeHint(self):
@@ -80,12 +80,12 @@ class PropertyInspectorWidget(QtGui.QWidget):
 
         # load them into the tree
         self.ptree.load(categories)
-        
+
         self.currentPropertySets = ceguiPropertySets
-        
+
     def getPropertySets(self):
         return self.currentPropertySets
-    
+
 class CEGUIPropertyManager(object):
     """Builds propertytree properties from CEGUI properties and PropertySets,
     using a PropertyMap.
@@ -113,7 +113,7 @@ class CEGUIPropertyManager(object):
                 "Colour": ct.Colour,
                 "ColourRect": ct.ColourRect
                 }
-    # TODO: Font*, Image*, UBox? 
+    # TODO: Font*, Image*, UBox?
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
@@ -171,7 +171,7 @@ class CEGUIPropertyManager(object):
         # properties that are shared across sets so we display them as one
         # property that affects all the sets that have it.
         # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
-        # are the same. 
+        # are the same.
 
         cgProps = dict()
 
@@ -304,15 +304,14 @@ class CEGUIPropertyManager(object):
     def updateAllValues(self, ceguiPropertySets):
         """Abuses all property manager callbacks defined for given property sets
         to update all values from them to the respective inspector widgets
-        
+
         Note: Holy mother of hacks this is horrible...
         Author: The one and only PEDOBEAR!
         """
-        
+
         for ceguiPropertySet in ceguiPropertySets:
             if not hasattr(ceguiPropertySet, "propertyManagerCallbacks"):
                 continue
-            
+
             for _, callback in ceguiPropertySet.propertyManagerCallbacks.iteritems():
                 callback()
-        

@@ -44,7 +44,7 @@ class PropertyEditorRegistry(object):
     # Standard editors place themselves in this set,
     # used by registerStandardEditors().
     _standardEditors = set()
-    
+
     @staticmethod
     def addStandardEditor(editorType):
         """Add the editor to the list of standard editors."""
@@ -63,13 +63,13 @@ class PropertyEditorRegistry(object):
     def register(self, editorType, priority=0):
         """Register an editor with the specified priority.
         Higher values equal higher priority.
-        
+
         Note: The priority is added to the editor's preferred
         priority for each value type supported. For example. if
         an editor specifies priority 10 for integers, registering
         the editor with priority = -3 will register it for
         integers with priority 7.
-        
+
         Note: Registering the same editor twice does nothing
         and does not change the priority.
         """
@@ -100,7 +100,7 @@ class PropertyEditorRegistry(object):
         """Create and return an editor for the specified property,
         or None if none can be found that have been registered and
         are capable of editing the property.
-        
+
         If more than one editors that can edit the property have been
         registered, the one with the highest priority will be chosen.
         """
@@ -112,7 +112,7 @@ class PropertyEditorRegistry(object):
 
 class PropertyEditor(object):
     """Abstract base class for a property editor.
-    
+
     A property editor instance is created when required
     to edit the value of a (supported) property.
     """
@@ -124,7 +124,7 @@ class PropertyEditor(object):
         """Return a dictionary containing the types supported by this
         editor and their priorities. The key is the type and the value
         is the priority.
-        
+
         Example: ``{ int:0, float:-10 }``
             Uses the default priority for integers and is most likely
             the preferred editor unless another editor is registered
@@ -155,7 +155,7 @@ class PropertyEditor(object):
     def createEditWidget(self, parent):
         """Create and return a widget that will be used
         to edit the property.
-        
+
         This is a good place to set up minimums and maximums,
         allowed patterns, step sizes etc. but setting the value
         is not required because a call to setWidgetValue
@@ -172,7 +172,7 @@ class PropertyEditor(object):
     @abc.abstractmethod
     def setWidgetValueFromProperty(self):
         """Set the value of the widget to the value of the property.
-        
+
         Implementors should set self.widgetValueInitialized to True
         *after* setting the widget value.
         """
@@ -204,9 +204,9 @@ class PropertyEditor(object):
 
 class StringPropertyEditor(PropertyEditor):
     """Editor for strings.
-    
+
     Supports line edit (the default) or combo-box mode.
-    
+
     The combo-box mode is activated when the "combo/" editor options are set.
     For example, to set it via the property mappings:
         <mapping propertyOrigin="Element" propertyName="HorizontalAlignment">
@@ -216,7 +216,7 @@ class StringPropertyEditor(PropertyEditor):
                 <setting name="Right" value="Right" />
             </settings>
         </mapping>
-    
+
     Note that the EnumValuePropertyEditor has similar functionality but
     is based on known types and does not take the list of values from
     the editor options.
@@ -345,7 +345,7 @@ PropertyEditorRegistry.addStandardEditor(BoolPropertyEditor)
 class StringWrapperValidator(QtGui.QValidator):
     """Validate the edit widget value when editing
     a StringWrapperProperty.
-    
+
     Using this prevents closing the edit widget using
     "Enter" when the value is invalid and allows the
     user the correct their mistake without losing any

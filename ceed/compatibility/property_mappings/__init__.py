@@ -28,11 +28,11 @@ PropertyMappings1 = "CEED Property Mappings 1"
 class PropertyMappings1TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return PropertyMappings1
-    
+
     def matches(self, data, extension):
         if extension not in ["", "pmappings"]:
             return False
-        
+
         # should work as a pretty rigorous test for now, tests the root tag name and version
         # CEED property mapping files have a similar version check to CEGUI, that's why we can use
         # the cegui helper function here.
@@ -40,10 +40,10 @@ class PropertyMappings1TypeDetector(compatibility.TypeDetector):
 
 class Manager(compatibility.Manager):
     """Manager of CEED project compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.EditorNativeType = PropertyMappings1
         # doesn't make much sense
         self.CEGUIVersionType = {
@@ -51,7 +51,7 @@ class Manager(compatibility.Manager):
             "0.7" : PropertyMappings1,
             "1.0" : PropertyMappings1
         }
-        
+
         self.detectors.append(PropertyMappings1TypeDetector())
 
 manager = Manager()

@@ -28,13 +28,13 @@ class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """
-    
+
     def __init__(self, tabbedEditor):
         super(LayoutPreviewer, self).__init__()
-        
+
         self.tabbedEditor = tabbedEditor
         self.rootWidget = None
-        
+
         layout = QtGui.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -43,21 +43,21 @@ class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
         super(LayoutPreviewer, self).activate()
 
         assert(self.rootWidget is None)
-        
+
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
-        
+
         currentRootWidget = self.tabbedEditor.visual.getCurrentRootWidget()
         if currentRootWidget is None:
             self.rootWidget = None
-        
+
         else:
             # lets clone so we don't affect the layout at all
             self.rootWidget = currentRootWidget.clone()
-            
+
         PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWidget)
-        
-    def deactivate(self):    
+
+    def deactivate(self):
         if self.rootWidget is not None:
             PyCEGUI.WindowManager.getSingleton().destroyWindow(self.rootWidget)
             self.rootWidget = None
@@ -71,7 +71,7 @@ class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
         # we always want continuous rendering in live preview
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(continuousRendering = True)
         mainwindow.MainWindow.instance.ceguiContainerWidget.enableInput()
-        
+
         if self.rootWidget:
             PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWidget)
 
@@ -81,7 +81,7 @@ class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
 
         if self.rootWidget:
             PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(None)
-            
+
         super(LayoutPreviewer, self).hideEvent(event)
 
 # needs to be at the end, import to get the singleton

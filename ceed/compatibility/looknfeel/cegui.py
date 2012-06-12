@@ -36,14 +36,14 @@ CEGUILookNFeel7 = "CEGUI LookNFeel 7"
 class LookNFeel6TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILookNFeel6
-    
+
     def getPossibleExtensions(self):
         return set(["looknfeel"])
-    
+
     def matches(self, data, extension):
         if extension not in ["", "looknfeel"]:
             return False
-        
+
         # todo: we should be at least a bit more precise
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("Falagard", None, data)
@@ -51,105 +51,105 @@ class LookNFeel6TypeDetector(compatibility.TypeDetector):
 class LookNFeel7TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILookNFeel7
-    
+
     def getPossibleExtensions(self):
         return set(["looknfeel"])
-    
+
     def matches(self, data, extension):
         if extension not in ["", "looknfeel"]:
             return False
-        
+
         return ceguihelpers.checkDataVersion("Falagard", "7", data)
 
 class LookNFeel6To7Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUILookNFeel6
-    
+
     def getTargetType(self):
         return CEGUILookNFeel7
-    
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
         # Fix for Python < 2.7.
         if not hasattr(root, "iter"):
             root.iter = root.getiterator
-        
+
         # version 7 has a version attribute
         root.set("version", "7")
-        
+
         # New image addressing: Imageset/Image
         def convertImageElementToName(element):
             imageset = element.get("imageset")
             image = element.get("image")
-            
+
             assert(imageset is not None and image is not None)
-            
+
             del element.attrib["imageset"]
             del element.attrib["image"]
-            
+
             element.set("name", "%s/%s" % (imageset, image))
-            
+
         for element in root.iter("Image"):
             convertImageElementToName(element)
-        
+
         for element in root.iter("ImageDim"):
             convertImageElementToName(element)
-        
-        # Carat was rightfully renamed to Caret    
+
+        # Carat was rightfully renamed to Caret
         for element in root.iter("ImagerySection"):
             if element.get("name") == "Carat":
                 # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
                 element.set("name", "Caret")
-        
+
         # transform properties
         for element in root.iter("WidgetLook"):
             compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
-            
+
             for childElement in element.iter("Child"):
                 compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
-            
+
         return ElementTree.tostring(root, "utf-8")
 
 class LookNFeel7To6Layer(compatibility.Layer):
     def getSourceType(self):
         return CEGUILookNFeel7
-    
+
     def getTargetType(self):
         return CEGUILookNFeel6
-    
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
-        
+
         # version 6 must not have a version attribute
         del root.attrib["version"]
-        
+
         # New image addressing: Imageset/Image
         def convertImageElementToImagesetImage(element):
             name = element.get("name")
             split = name.split("/", 1)
             assert(len(split) == 2)
-            
+
             del element.attrib["name"]
             element.set("imageset", split[0])
             element.set("image", split[1])
-            
+
         for element in root.iter("Image"):
             convertImageElementToImagesetImage(element)
-        
+
         for element in root.iter("ImageDim"):
             convertImageElementToImagesetImage(element)
-                
-        # Carat was rightfully renamed to Caret    
+
+        # Carat was rightfully renamed to Caret
         for element in root.iter("ImagerySection"):
             if element.get("name") == "Caret":
                 # TODO: We should check that parent is Editbox or MultilineEditbox, however that would be very complicated with all the mappings
                 element.set("name", "Carat")
-                
+
         # transform properties
         for element in root.iter("WidgetLook"):
             compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
-            
+
             for childElement in element.iter("Child"):
                 compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
-            
+
         return ElementTree.tostring(root, "utf-8")

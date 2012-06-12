@@ -33,17 +33,17 @@ compileuifiles.main()
 
 def get_packages():
     """Returns the whole list of ceed packages"""
-    
+
     # Distutils requires us to list all packages, this is very tedious and prone
     # to errors. While I believe I should know which packages ceed has at all times
     # I also believe that saving work on my part is a "good thing".
-    
+
     ret = ["ceed"]
-    
+
     for dirpath, _, files in os.walk("ceed"):
         if "__init__.py" in files:
             ret.append(dirpath.replace(os.path.sep, "."))
-            
+
     return ret
 
 def get_directoryfilepairs(directory, base = "data", install_base = paths.system_data_dir):
@@ -53,13 +53,13 @@ def get_directoryfilepairs(directory, base = "data", install_base = paths.system
         full_path = os.path.join(base, directory, path)
         if os.path.isdir(full_path):
             ret.extend(get_directoryfilepairs(os.path.join(directory, path), base))
-            
+
         elif os.path.isfile(full_path):
             files.append(os.path.join(base, directory, path))
-            
+
         else:
             print("[W] I don't know what '%s' is (checked for file or directory)" % (full_path))
-            
+
     ret.append((os.path.join(install_base, directory), files))
 
     return ret

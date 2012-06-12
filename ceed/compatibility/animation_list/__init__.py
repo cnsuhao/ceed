@@ -26,27 +26,27 @@ AnimationList1 = "CEGUI Animation List 1"
 class AnimationList1TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return AnimationList1
-    
+
     def matches(self, data, extension):
         if extension not in ["", "anims"]:
             return False
-        
+
         # TODO
         return True
 
 class Manager(compatibility.Manager):
     """Manager of CEGUI animation list compatibility layers"""
-    
+
     def __init__(self):
         super(Manager, self).__init__()
-        
+
         self.EditorNativeType = AnimationList1
         self.CEGUIVersionTypes = {
             "0.6" : None,
             "0.7" : AnimationList1,
             "1.0" : AnimationList1
         }
-        
+
         self.detectors.append(AnimationList1TypeDetector())
 
 manager = Manager()
