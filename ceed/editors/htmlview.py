@@ -20,7 +20,6 @@
 
 from ceed import editors
 
-from PySide import QtGui
 from PySide import QtWebKit
 
 class HTMLViewTabbedEditor(editors.TabbedEditor):
