@@ -832,4 +832,5 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.looknfeelsPath.setText(os.path.join(resourceDir, "looknfeel"))
         self.schemesPath.setText(os.path.join(resourceDir, "schemes"))
         self.layoutsPath.setText(os.path.join(resourceDir, "layouts"))
-        self.xmlSchemasPath.setText(os.path.join(resourceDir, "xmlSchemas"))
+        self.xmlSchemasPath.setText(os.path.join(resourceDir, "xml_schemas"))
+
