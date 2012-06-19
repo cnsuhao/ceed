@@ -130,13 +130,13 @@ def archive():
     os.mkdir(target_temp_directory_path)
 
     shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"),
-                    ignore = shutil.ignore_patterns("*~", "runwrapper.sh"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig", "runwrapper.sh"))
     shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"),
-                    ignore = shutil.ignore_patterns("*~", "*.pyc", "*.pyo"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig", "*.pyc", "*.pyo"))
     shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
-                    ignore = shutil.ignore_patterns("*~"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig"))
     shutil.copytree("doc", os.path.join(target_temp_directory_path, "doc"),
-                    ignore = shutil.ignore_patterns("*~"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig"))
 
     # we don't copy doc for now, there is almost nothing there
     shutil.copy("AUTHORS", target_temp_directory_path)
