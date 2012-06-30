@@ -428,7 +428,7 @@ For some file types (mostly .imageset and .layout), it makes sense to edit
 
 \begin_layout Standard
 Code editing is currently very simplistic and does not even have syntax
- highlighting! Please also note undo redo is very wasteful when it comes
+ highlighting! Please also note undo/redo is very wasteful when it comes
  to code editing and long editing sessions may end up with a lot of RAM
  being allocated.
 \end_layout
@@ -659,7 +659,7 @@ Undo and Redo can be very powerful and allows free experimentation without
 status open
 
 \begin_layout Plain Layout
-Even with undo redo, you are advised to use version control or other mechanisms.
+Even with undo/redo, you are advised to use version control or other mechanisms.
  Undo redo actions are lost when you close the application!
 \end_layout
 
@@ -819,44 +819,19 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-\begin_inset Tabular
-<lyxtabular version="3" rows="1" columns="2">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
 \begin_inset Graphics
 	filename project_creation/settings_top.png
-	width 40page%
+	width 60page%
 
 \end_inset
 
 
 \end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
 
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename project_creation/settings_resource_paths.png
-	width 40page%
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
+	width 60page%
 
 \end_inset
 
@@ -984,19 +959,22 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-Imageset is practically a texture atlas, a technique used to put many smaller
- images on one texture to drastically speed up rendering (texture switching
- is still a very expensive operation, even on today's hardware).
- Each imageset has a name, underlying image (what to load the texture from),
- knows whether it's autoscaled and its native resolution if it is so and
- a set of 'images'.
- By 'image' I basically mean rectangle selection of the underlying image
- in artist's eyes.
- Each of these 'images' has position (x, y), width, height and offset (x,
- y).
- Offset allows you to move the virtual 'pivot point' of the image, which
- is useful for crosshairs for example (because by default the 'pivot point'
- is top left).
+An imageset is practically a texture atlas, a technique used to put many
+ smaller images on one texture to drastically speed up rendering (texture
+ switching is still a very expensive operation, even on modern hardware).
+ Each imageset has a name, underlying texture file path, autoscaled settings,
+ native resolution and a set of images.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Image
+\begin_inset Quotes erd
+\end_inset
+
+ means a rectangle selection of the underlying texture.
+ Each of these images has a position (x, y), width, height and an offset
+ (x, y).
 \end_layout
 
 \end_inset
@@ -1005,9 +983,9 @@ Imageset is practically a texture atlas, a technique used to put many smaller
 \end_layout
 
 \begin_layout Standard
-Opening existing imageset for editing does not require you to have a project
+Opening existing imagesets for editing does not require you to have a project
  opened - the underlying image is sought after in the same directory the
- .imageset file resides in in that case.
+ .imageset file resides in.
  If a project file is opened, the appropriate resource directory is used
  to search for the files instead.
 \end_layout
@@ -1017,13 +995,13 @@ Overview
 \end_layout
 
 \begin_layout Standard
-Upon opening the imageset, a dock widget containing basic imageset properties
- (all editable), list of images shows up.
- The centre part of the editor shows the underlying image and rectangles
+Upon opening the imageset, a dock widget containing basic imageset properties,
+ which are all editable, and a list of images shows up.
+ The centre part of the editor shows the underlying texture and rectangles
  describing geometry of the images.
  Image rectangles can be selected (including multiple selection).
- Selection works in both the image list and the centre part (rubber band
- selection).
+ Selection works in both the image list and the editor's centre part (rubber
+ band selection).
  Both selections are synchronised.
  Names of the images will be shown as labels when the images are selected.
  This can be disabled in settings, see section 
@@ -1042,10 +1020,6 @@ placement H
 wide false
 sideways false
 status open
-
-\begin_layout Plain Layout
-
-\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1096,10 +1070,18 @@ reference "fig:rubber-band-selecting"
 
 \begin_layout Standard
 The name of the imageset means different things depending on which version
- of CEGUI you are targetting.
+ of CEGUI you are targeting.
  It is simply a prefix of each of the defined images' names in CEGUI 1.0
- (ImagesetName/ImageName is the full name of a single image), in 0.7 images
- are strictly tied to imagesets (reference to image is 
+ with 
+\begin_inset Quotes eld
+\end_inset
+
+ImagesetName/ImageName
+\begin_inset Quotes erd
+\end_inset
+
+ being the full name of a single image, in 0.7 images are strictly tied to
+ imagesets and are referenced using 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1107,12 +1089,12 @@ set: ImagesetName image: ImageName
 \begin_inset Quotes erd
 \end_inset
 
- in CEGUI 0.7.
+.
 \end_layout
 
 \begin_layout Standard
-Image is the underlying image, this is the texture that will be used to
- draw all the images defined inside the imageset.
+Underlying texture is the texture that will be used to draw all the images
+ defined inside the imageset.
 \end_layout
 
 \begin_layout Standard
@@ -1145,7 +1127,7 @@ true
 Native resolution is the resolution this imageset was created for in simplified
  terms.
  If the target resolution is different, the images may be scaled, depending
- on 
+ on the 
 \emph on
 auto scaled
 \emph default
@@ -1230,11 +1212,11 @@ name "fig:selected-images-context"
 You can delete a selection of images by selecting, right clicking and choosing
  Delete in the context menu or pressing the 
 \emph on
-DELETE key
+Delete key
 \emph default
  (this is of course undoable).
  This will only delete the rectangle definitions of the images in the imageset,
- it will not alter the underlying bitmap image in any way.
+ it will not alter the underlying texture in any way.
 \end_layout
 
 \begin_layout Subsection
@@ -1283,10 +1265,10 @@ To allow precise adjustments, user can alter all the values of selected
  values.
  Altering them will immediately preview the changes in the visual editing
  pane.
- All editing has undo redo support.
+ All editing has undo/redo support.
  Editing image properties in the property box should always be preferred
  to editing raw XML in code mode, it is safer and has better and faster
- undo redo.
+ undo/redo.
 \end_layout
 
 \begin_layout Subsection
@@ -1390,25 +1372,98 @@ status open
 \begin_layout Plain Layout
 The word layout has 2 meanings in the CEGUI world so I will first disambiguate
  it.
- The first meaning is a hierarchy of widgets (the layout describes the way
- widgets are laid out).
+ The first meaning is a hierarchy of widgets, the layout describes the way
+ widgets are laid out as an 
+\emph on
+N-tree
+\emph default
+.
  The other meaning is a widget able to lay out its child widgets during
- runtime (more precisely called Layout Container).
- I will use the word 'layout' with the first meaning in the rest of this
- section unless stated otherwise.
- Each layout starts with the root widget (and can only have exactly one
- root widget, if you need more root widgets, just put them into DefaultWidget
- and use the DefaultWidget as the root widget).
- When loading the layout you always get this root widget back.
- Widgets always have a name that must be unique in the context of it's parent.
- When I say widget 'Parent/Child/SubChild' I mean a widget that is a child
- of the 'Child' widget and 'Child' widget is a child of 'Parent' widget.
- I will call this notation the 'widget path'.
+ runtime, this is more precisely called 
+\emph on
+Layout Container
+\emph default
+.
+ I will use the word 
+\begin_inset Quotes eld
+\end_inset
+
+layout
+\begin_inset Quotes erd
+\end_inset
+
+ with the former meaning in the rest of this section unless stated otherwise.
+\end_layout
+
+\begin_layout Plain Layout
+Each layout starts with a root widget and can only have exactly one root
+ widget.
+ If you need more root widgets, just put them into a 
+\emph on
+DefaultWindow
+\emph default
+ and use the 
+\emph on
+DefaultWindow
+\emph default
+ as the root widget).
+ When CEGUI loads the layout it returns this root widget.
+ Widgets always have a name, this name only needs to be unique in the parent
+ in CEGUI 1.0, it has to be globally unique in CEGUI 0.7.
+\end_layout
+
+\begin_layout Plain Layout
+When I say widget 
+\begin_inset Quotes eld
+\end_inset
+
+Parent/Child/SubChild
+\begin_inset Quotes erd
+\end_inset
+
+ I mean a widget that is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget and the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Parent
+\begin_inset Quotes erd
+\end_inset
+
+ widget.
+ I will call this notation the 
+\emph on
+widget path
+\emph default
+.
 \end_layout
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Overview
+\end_layout
+
+\begin_layout Standard
+todo
 \end_layout
 
 \begin_layout Subsection
@@ -1428,6 +1483,20 @@ Animation list editing
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 Animations are composed of Affectors and can work on any PropertySet based
  class (Widget, MouseCursor, …).
  Each Affector affects exactly one property.
@@ -1441,6 +1510,11 @@ time
 \end_inset
 
  should accelerate towards it, decelerate or be linear).
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
