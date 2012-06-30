@@ -502,7 +502,7 @@ You are advised to use project manager if at all possible, it will improve
 \end_layout
 
 \begin_layout Standard
-In addition to the project manager, CEED allows you to browse filesystem
+In addition to the project manager, CEED allows you to browse the filesystem
  and simply open files for quick editing.
  Please note that this will only work for some file types (it can not work
  for schemes and layouts because CEGUI paths are not set if project is not
@@ -597,14 +597,14 @@ resizable handles appear when you hover over edges/corners, they hint at
 \end_inset
 
 A construct used reused in many places in CEED.
- Represents a rectangular object that can be resized.
+ Represents a rectangular object that can be resized and/or resized.
  It offers features that would otherwise have to be reimplemented in many
  places.
  The main inspiration was GIMP's selection rectangle (TODO: citation).
- Can be moved by dragging the centre.
+ Can be moved by dragging any area that doesn't highlight a resize handle.
  There are 8 areas that resize the rectangle if you drag them (these are
- called resize handles) - 4 edges and 4 corners.
- Resize handles appear when you hover over them.
+ called resize handles) - 4 edges and 4 corners, they get highlighted when
+ you hover over them.
 \end_layout
 
 \begin_layout Subsection
@@ -667,9 +667,16 @@ You will need to create a project for any serious editing with CEED.
 
 \begin_layout Standard
 The first step is to choose File -> New -> Project.
- The following dialog will appear.
- The most important choice you have to make is whether where to store the
- project file.
+ The dialog in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:creating-a-project"
+
+\end_inset
+
+ will appear.
+ The most important choice you have to make is where to store the project
+ file.
  It is recommended to store it in a directory made exclusively for the project
  to make it relocatable.
  You can optionally instruct CEED to auto create resource directories similar
@@ -699,6 +706,13 @@ status open
 
 \begin_layout Plain Layout
 first step of creating a project
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:creating-a-project"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -722,7 +736,14 @@ Project settings will pop up after the project file is created.
  will prevent many headaches (CEED uses the project to choose versions of
  new files for example!).
  Most of the options are documented in the interface as can be seen on the
- following screenshot.
+ following screenshots.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -734,8 +755,12 @@ CEED project will always be saved in some folder, all paths are saved relative
  This will by default be the same as the folder your project file is in.
  You can however set it to the base of your CEGUI resources and the rest
  of CEGUI resource paths will be relative to it.
- This allows to switch paths around faster.
+ This allows to switch paths around quickly.
  If you are unsure, just leave it as it is.
+\begin_inset VSpace defskip
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -746,9 +771,14 @@ The next thing you need to choose is the target CEGUI version.
 \end_layout
 
 \begin_layout Standard
-The most tricky aspect however is making sure the resource paths are correct
- so lets go over that in more detail.
- Following is the section with paths to CEGUI resource directories, if you
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Following is the section with paths to CEGUI resource directories, if you
  use CEGUI's directory structure (the one used in samples), you can simply
  fill or browse for the first editbox and press apply.
  Otherwise you will have to fill the resource paths manually.
@@ -758,7 +788,7 @@ relative
 \emph default
  to the project's base directory, which again is stored relative to parent
  directory of the .project file.
- This makes the whole project directory relocatable.
+ This is what makes the whole project directory relocatable.
 \end_layout
 
 \begin_layout Standard
@@ -1005,6 +1035,14 @@ time
 \end_inset
 
  should accelerate towards it, decelerate or be linear).
+\end_layout
+
+\begin_layout Part
+Troubleshooting
+\end_layout
+
+\begin_layout Standard
+todo
 \end_layout
 
 \end_body
