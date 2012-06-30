@@ -9,10 +9,10 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
+\font_roman ae
 \font_sans default
 \font_typewriter default
-\font_default_family default
+\font_default_family rmdefault
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
@@ -317,6 +317,18 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\begin_inset CommandInset line
+LatexCommand rule
+offset "0.5ex"
+width "40page%"
+height "1pt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename basics/multi_tab_context_menu.png
 	width 40page%
@@ -405,6 +417,12 @@ For some file types (mostly .imageset and .layout), it makes sense to edit
  with Visual mode.
 \end_layout
 
+\begin_layout Standard
+Code editing is currently very simplistic and doesn't even have syntax highlight
+ing! Please also note undo redo is very wasteful when it comes to code editing
+ and long editing sessions may end up with a lot of RAM being allocated.
+\end_layout
+
 \begin_layout Subsection
 Project manager
 \end_layout
@@ -469,12 +487,26 @@ File manager
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+You are advised to use project manager if at all possible, it will improve
+ workflow, especially in bigger teams.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 In addition to the project manager, CEED allows you to browse filesystem
  and simply open files for quick editing.
  Please note that this will only work for some file types (it can't work
  for schemes and layouts because CEGUI paths aren't set if project isn't
  loaded).
- This is again realised through a dock widget that hosts the functionality.
+ This is again contained in a dock widget that hosts the functionality.
  It has a very simplistic interface, displaying current path, allowing the
  user to go one level up the hierarchy and simply listing files and folder
  in the current path.
@@ -484,20 +516,13 @@ In addition to the project manager, CEED allows you to browse filesystem
 Double clicking a file opens it for editing.
 \end_layout
 
-\begin_layout Subsection
-Resizable rectangle
+\begin_layout Standard
+Furthermore, this dock widget will watch for changes on the filesystem and
+ refresh accordingly.
 \end_layout
 
-\begin_layout Standard
-A construct used reused in many places in CEED.
- Represents a rectangular object that can be resized.
- It offers features that would otherwise have to be reimplemented in many
- places.
- The main inspiration was GIMP's selection rectangle (TODO: citation).
- Can be moved by dragging the centre.
- There are 8 areas that resize the rectangle if you drag them (these are
- called resize handles) - 4 edges and 4 corners.
- Resize handles appear when you hover over them.
+\begin_layout Subsection
+Resizable rectangle
 \end_layout
 
 \begin_layout Standard
@@ -555,7 +580,8 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-resizable handles appear when you hover over them
+resizable handles appear when you hover over edges/corners, they hint at
+ which type of resize would happen if you dragged them
 \end_layout
 
 \end_inset
@@ -569,7 +595,15 @@ resizable handles appear when you hover over them
 
 \end_inset
 
-
+A construct used reused in many places in CEED.
+ Represents a rectangular object that can be resized.
+ It offers features that would otherwise have to be reimplemented in many
+ places.
+ The main inspiration was GIMP's selection rectangle (TODO: citation).
+ Can be moved by dragging the centre.
+ There are 8 areas that resize the rectangle if you drag them (these are
+ called resize handles) - 4 edges and 4 corners.
+ Resize handles appear when you hover over them.
 \end_layout
 
 \begin_layout Subsection
