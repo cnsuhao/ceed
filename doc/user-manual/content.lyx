@@ -168,7 +168,8 @@ To edit assets in
 code mode
 \emph default
  you should understand the format in question, the editor makes no effort
- to make code editing easier with highlighting or any code references.
+ to make code editing easier with highlighting or any code references (it's
+ a planned feature though).
 \end_layout
 
 \begin_layout Section
@@ -225,6 +226,19 @@ ceed-gui.exe
  If this is not the case, please report it as a bug.
 \end_layout
 
+\begin_layout Subsection
+.app bundle (MacOSX)
+\end_layout
+
+\begin_layout Standard
+CEED behaves like a proper MacOSX native application.
+ Double clicking will start the GUI, dragging it to 
+\emph on
+Applications
+\emph default
+ will install it.
+\end_layout
+
 \begin_layout Part
 Working with the application
 \end_layout
@@ -243,21 +257,140 @@ This interface hosts all the tabbed editors and provides some functionality
  It consist of an interface surrounding the application.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/main_interface.png
+	width 80page%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+overview of the interface
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Multi tab editing
 \end_layout
 
 \begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/multi_tab_reordering.png
+	width 40page%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/multi_tab_context_menu.png
+	width 40page%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+tabs offer reordering and a context menu
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The centre of the application consists of tabs, each tab represents one
  opened file.
- Any of the tabs can be closed on user's request.
- Reordering them is also possible.
+ CEED will strive not to have 2 tabs for one file opened, if you try to
+ open one file twice it will just activate the existing tab for the file.
+ Any of the tabs can be closed on user's request, if there are unsaved changes
+ the user will be asked what to do about them.
+ Reordering tabs is also possible using mouse drag-moving.
  The interface including dock widgets, toolbars, etc...
  may change when switching tabs.
+ Switching tabs doesn't count as an undo action, it is instead just a context
+ change action.
 \end_layout
 
 \begin_layout Subsection
 Multi mode editing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/multi_mode.png
+	width 40page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+switch modes by clicking the bottom mode tabs
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -274,6 +407,42 @@ For some file types (mostly .imageset and .layout), it makes sense to edit
 
 \begin_layout Subsection
 Project manager
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/project_manager.png
+	width 40page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+project manager dock widget
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -320,10 +489,87 @@ Resizable rectangle
 \end_layout
 
 \begin_layout Standard
-A concept used reused in many places in CEED.
+A construct used reused in many places in CEED.
+ Represents a rectangular object that can be resized.
+ It offers features that would otherwise have to be reimplemented in many
+ places.
+ The main inspiration was GIMP's selection rectangle (TODO: citation).
  Can be moved by dragging the centre.
  There are 8 areas that resize the rectangle if you drag them (these are
  called resize handles) - 4 edges and 4 corners.
+ Resize handles appear when you hover over them.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="1" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/resizable_rect_right_edge.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename basics/resizable_rect_top_right_corner.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+resizable handles appear when you hover over them
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -339,9 +585,39 @@ Since most tabbed editors allow undo and redo, the main interface allows
  changes and keep pressing Undo, only changes to file B gets undone, you
  have to switch to A again and undo there.
  Selections aren't undoable as they don't count as undo actions.
- Switching editing mode is an undoable action though as the changes of XML
- code don't make sense in visual code (even though just switching to XML
- mode doesn't change the file at all).
+ There is one very important aspect that breaks the 
+\begin_inset Quotes eld
+\end_inset
+
+context switching is not an undo action
+\begin_inset Quotes erd
+\end_inset
+
+ rule: Switching editing mode is an undoable action though as the changes
+ of XML code don't make sense in visual code (even though just switching
+ to XML mode doesn't change the file at all).
+\end_layout
+
+\begin_layout Standard
+Undo and Redo can be very powerful and allows free experimentation without
+ fear of losing data.
+ Apart from possible bugs in the applications, all things that affect data
+ are undo actions and are undoable.
+ Use that fact to your advantage!
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Even with undo redo, you are advised to use version control or other mechanisms.
+ Undo redo actions are lost when you close the application!
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
