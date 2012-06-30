@@ -26,7 +26,16 @@
 \index_command default
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize a4paper
 \use_geometry true
 \use_amsmath 1
@@ -144,7 +153,7 @@ PySide – python bindings for Qt
 \end_layout
 
 \begin_layout Itemize
-CEGUI 1.0
+CEGUI 1.0 (CEED supports CEGUI 0.7 as well but uses 1.0 internally)
 \end_layout
 
 \begin_layout Itemize
@@ -524,14 +533,19 @@ Furthermore, this dock widget will watch for changes on the filesystem and
 
 \begin_layout Subsection
 Resizable rectangle
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Resizable-rectangle"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-\begin_inset Wrap figure
-lines 0
-placement o
-overhang 0col%
-width "50col%"
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
@@ -581,8 +595,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-resizable handles appear when you hover over edges/corners, they hint at
- which type of resize would happen if you dragged them
+resizable handles appear when you hover over edges/corners
 \end_layout
 
 \end_inset
@@ -590,12 +603,12 @@ resizable handles appear when you hover over edges/corners, they hint at
 
 \end_layout
 
-\begin_layout Plain Layout
+\end_inset
+
 
 \end_layout
 
-\end_inset
-
+\begin_layout Standard
 A construct used reused in many places in CEED.
  Represents a rectangular object that can be resized and/or resized.
  It offers features that would otherwise have to be reimplemented in many
@@ -650,6 +663,13 @@ Even with undo redo, you are advised to use version control or other mechanisms.
  Undo redo actions are lost when you close the application!
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
 \end_inset
 
 
@@ -938,11 +958,32 @@ resource directories (all of them):
 ./
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Imageset editing
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 Imageset is practically a texture atlas, a technique used to put many smaller
  images on one texture to drastically speed up rendering (texture switching
  is still a very expensive operation, even on today's hardware).
@@ -958,13 +999,25 @@ Imageset is practically a texture atlas, a technique used to put many smaller
  is top left).
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 Opening existing imageset for editing does not require you to have a project
  opened - the underlying image is sought after in the same directory the
  .imageset file resides in in that case.
  If a project file is opened, the appropriate resource directory is used
  to search for the files instead.
- Upon opening the imageset, a dock widget containing basic imageset properties
+\end_layout
+
+\begin_layout Subsection
+Overview
+\end_layout
+
+\begin_layout Standard
+Upon opening the imageset, a dock widget containing basic imageset properties
  (all editable), list of images shows up.
  The centre part of the editor shows the underlying image and rectangles
  describing geometry of the images.
@@ -972,14 +1025,348 @@ Opening existing imageset for editing does not require you to have a project
  Selection works in both the image list and the centre part (rubber band
  selection).
  Both selections are synchronised.
- When selected, you can move the images by dragging (including multiple
- selection) or using keyboard (WSAD scheme moves the images one pixel in
- each of the directions, pressing CTRL moves them 10 pixels in each of the
- directions).
+ Names of the images will be shown as labels when the images are selected.
+ This can be disabled in settings, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Settings"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename imageset_editing/overview.png
+	width 80page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+rubber band selecting in the imageset editor
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rubber-band-selecting"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Imageset properties
+\end_layout
+
+\begin_layout Standard
+As can be seen in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rubber-band-selecting"
+
+\end_inset
+
+, imageset itself has several properties that affect all images defined
+ in it.
+\end_layout
+
+\begin_layout Standard
+The name of the imageset means different things depending on which version
+ of CEGUI you are targetting.
+ It is simply a prefix of each of the defined images' names in CEGUI 1.0
+ (ImagesetName/ImageName is the full name of a single image), in 0.7 images
+ are strictly tied to imagesets (reference to image is 
+\begin_inset Quotes eld
+\end_inset
+
+set: ImagesetName image: ImageName
+\begin_inset Quotes erd
+\end_inset
+
+ in CEGUI 0.7.
+\end_layout
+
+\begin_layout Standard
+Image is the underlying image, this is the texture that will be used to
+ draw all the images defined inside the imageset.
+\end_layout
+
+\begin_layout Standard
+The auto scaled settings affects how the imageset image sizes will be affected
+ on various resolutions.
+ In a nutshell, with disabled auto scaling the images will always have exactly
+ the size they are defined with, with any other auto scaled settings, the
+ size will be affected by the resolution CEGUI is started in (see CEGUI
+ documentation for explanations of each setting).
+ Please note that only 
+\begin_inset Quotes eld
+\end_inset
+
+false
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+true
+\begin_inset Quotes erd
+\end_inset
+
+ settings are implemented in CEGUI 0.7, the rest are new in CEGUI 1.0.
+\end_layout
+
+\begin_layout Standard
+Native resolution is the resolution this imageset was created for in simplified
+ terms.
+ If the target resolution is different, the images may be scaled, depending
+ on 
+\emph on
+auto scaled
+\emph default
+ settings.
+\end_layout
+
+\begin_layout Subsection
+Moving and resizing images
+\end_layout
+
+\begin_layout Standard
+When selected, you can move the images by dragging (including multiple selection
+) or using keyboard (WSAD scheme moves the images one pixel in each of the
+ directions, pressing CTRL moves them 10 pixels in each of the directions).
  You can also resize the images by pressing SHIFT and one of the WSAD keys,
  this moves just the bottom right 'vertex' of the image rectangle.
- You can delete a selection of images by selecting and pressing DELETE (this
- is of course undoable).
+ Image rectangles are 
+\begin_inset Quotes eld
+\end_inset
+
+resizable rectangles
+\begin_inset Quotes erd
+\end_inset
+
+, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Resizable-rectangle"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Subsection
+Deleting images
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename imageset_editing/context_menu.png
+	width 40page%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+selected images context menu
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:selected-images-context"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+You can delete a selection of images by selecting, right clicking and choosing
+ Delete in the context menu or pressing the 
+\emph on
+DELETE key
+\emph default
+ (this is of course undoable).
+ This will only delete the rectangle definitions of the images in the imageset,
+ it will not alter the underlying bitmap image in any way.
+\end_layout
+
+\begin_layout Subsection
+The property box
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:The-property-box"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "32col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename imageset_editing/image_property_box.png
+	width 25page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+image property box
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+To allow precise adjustments, user can alter all the values of selected
+ image manually using the property box.
+ Just select exactly 1 image and the property box will get filled with its
+ values.
+ Altering them will immediately preview the changes in the visual editing
+ pane.
+ All editing has undo redo support.
+ Editing image properties in the property box should always be preferred
+ to editing raw XML in code mode, it is safer and has better and faster
+ undo redo.
+\end_layout
+
+\begin_layout Subsection
+Editing image offsets
+\end_layout
+
+\begin_layout Standard
+Offsets describe where the 0, 0 position is in the image.
+ By default it is at the top left corner of the image.
+ You may want to adjust it, especially if you are working with crosshairs,
+ cursors or window edge imagery.
+ Enable editing of offsets using the context menu (see Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:selected-images-context"
+
+\end_inset
+
+) and red offset crosshairs will appear, move them around to alter the offsets.
+ You can alternatively use the property box to edit offsets manually using
+ the keyboard, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:The-property-box"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Selecting overlapping images
+\end_layout
+
+\begin_layout Standard
+When images overlap in a way that would prevent you from selecting the image
+ you need, you can select any image in the overlapping area and use the
+ 
+\emph on
+Cycle Overlapping Images
+\emph default
+ feature.
+ It will cycle all overlapping images, just stop when the desired one is
+ selected.
+ The order in which the overlapping images are cycled is not well defined,
+ just cycle until the right one is selected.
+ You can see the option in the context menu in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:selected-images-context"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+The code mode
+\end_layout
+
+\begin_layout Standard
+Raw editing of the XML is supported in imageset editing, click the 
+\begin_inset Quotes eld
+\end_inset
+
+Code
+\begin_inset Quotes erd
+\end_inset
+
+ tab in the bottom to switch to it.
+ Please note that the raw format will always be the native CEGUI 1.0 format
+ even if you selected CEGUI 0.7 as the target version the conversion will
+ only happen when you save to a file.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -987,6 +1374,20 @@ Layout editing
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
 The word layout has 2 meanings in the CEGUI world so I will first disambiguate
  it.
  The first meaning is a hierarchy of widgets (the layout describes the way
@@ -1003,6 +1404,11 @@ The word layout has 2 meanings in the CEGUI world so I will first disambiguate
  When I say widget 'Parent/Child/SubChild' I mean a widget that is a child
  of the 'Child' widget and 'Child' widget is a child of 'Parent' widget.
  I will call this notation the 'widget path'.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1035,6 +1441,21 @@ time
 \end_inset
 
  should accelerate towards it, decelerate or be linear).
+\end_layout
+
+\begin_layout Section
+Settings
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Settings"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+todo
 \end_layout
 
 \begin_layout Part
