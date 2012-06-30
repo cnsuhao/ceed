@@ -217,7 +217,7 @@ Standalone executable (Win32)
 \end_layout
 
 \begin_layout Standard
-You don't have to install anything in this case (all dependencies are bundled),
+You do not have to install anything in this case (all dependencies are bundled),
  just unzipping the archive and running 
 \emph on
 ceed-gui.exe
@@ -365,7 +365,7 @@ The centre of the application consists of tabs, each tab represents one
  Reordering tabs is also possible using mouse drag-moving.
  The interface including dock widgets, toolbars, etc...
  may change when switching tabs.
- Switching tabs doesn't count as an undo action, it is instead just a context
+ Switching tabs does not count as an undo action, it is instead just a context
  change action.
 \end_layout
 
@@ -418,9 +418,10 @@ For some file types (mostly .imageset and .layout), it makes sense to edit
 \end_layout
 
 \begin_layout Standard
-Code editing is currently very simplistic and doesn't even have syntax highlight
-ing! Please also note undo redo is very wasteful when it comes to code editing
- and long editing sessions may end up with a lot of RAM being allocated.
+Code editing is currently very simplistic and does not even have syntax
+ highlighting! Please also note undo redo is very wasteful when it comes
+ to code editing and long editing sessions may end up with a lot of RAM
+ being allocated.
 \end_layout
 
 \begin_layout Subsection
@@ -503,8 +504,8 @@ You are advised to use project manager if at all possible, it will improve
 \begin_layout Standard
 In addition to the project manager, CEED allows you to browse filesystem
  and simply open files for quick editing.
- Please note that this will only work for some file types (it can't work
- for schemes and layouts because CEGUI paths aren't set if project isn't
+ Please note that this will only work for some file types (it can not work
+ for schemes and layouts because CEGUI paths are not set if project is not
  loaded).
  This is again contained in a dock widget that hosts the functionality.
  It has a very simplistic interface, displaying current path, allowing the
@@ -618,7 +619,7 @@ Since most tabbed editors allow undo and redo, the main interface allows
  If you for example do changes to file A, then switch to file B, do some
  changes and keep pressing Undo, only changes to file B gets undone, you
  have to switch to A again and undo there.
- Selections aren't undoable as they don't count as undo actions.
+ Selections are not undoable as they do not count as undo actions.
  There is one very important aspect that breaks the 
 \begin_inset Quotes eld
 \end_inset
@@ -628,8 +629,8 @@ context switching is not an undo action
 \end_inset
 
  rule: Switching editing mode is an undoable action though as the changes
- of XML code don't make sense in visual code (even though just switching
- to XML mode doesn't change the file at all).
+ of XML code do not make sense in visual code (even though just switching
+ to XML mode does not change the file at all).
 \end_layout
 
 \begin_layout Standard
@@ -872,7 +873,7 @@ Worldforge/Ember directory structure
 
 \begin_layout Standard
 \begin_inset Note Greyedout
-status collapsed
+status open
 
 \begin_layout Plain Layout
 Project/gui_datafiles/{layouts,schemes,imagesets,...}
@@ -928,7 +929,7 @@ Imageset is practically a texture atlas, a technique used to put many smaller
 \end_layout
 
 \begin_layout Standard
-Opening existing imageset for editing doesn't require you to have a project
+Opening existing imageset for editing does not require you to have a project
  opened - the underlying image is sought after in the same directory the
  .imageset file resides in in that case.
  If a project file is opened, the appropriate resource directory is used
@@ -995,7 +996,15 @@ Animations are composed of Affectors and can work on any PropertySet based
  class (Widget, MouseCursor, …).
  Each Affector affects exactly one property.
  Affector has keyframes where each keyframe has value and a progression
- (if the 'time' should accelerate towards it, decelerate or be linear).
+ (if the 
+\begin_inset Quotes eld
+\end_inset
+
+time
+\begin_inset Quotes erd
+\end_inset
+
+ should accelerate towards it, decelerate or be linear).
 \end_layout
 
 \end_body
