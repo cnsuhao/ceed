@@ -345,6 +345,132 @@ Since most tabbed editors allow undo and redo, the main interface allows
 \end_layout
 
 \begin_layout Section
+Creating a project
+\end_layout
+
+\begin_layout Standard
+You will need to create a project for any serious editing with CEED.
+ There are some quick hints about how to do this in the quickstart guide
+ but we will dig into more details here.
+ The most tricky aspect is making sure the resource paths are correct so
+ lets go over that first.
+\end_layout
+
+\begin_layout Standard
+CEED project will always be saved in some folder, all paths are saved relative
+ to this folder.
+ This allows you to move the project directory around and share it with
+ your co-developers.
+ The first thing you need to choose is the target CEGUI version.
+ CEED supports CEGUI 1.0 and 0.7.
+\end_layout
+
+\begin_layout Standard
+Next you need to choose the base directory.
+ This will by default be the same as the folder your project file is in.
+ You can however set it to the base of your CEGUI resources and the rest
+ of CEGUI resource paths will be relative to it.
+ This allows to switch paths around faster.
+ If you are unsure, just set it to 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Following is the section with paths to CEGUI resource directories, if you
+ use CEGUI's directory structure (the one used in samples), you can simply
+ fill the first editbox and press apply.
+ Otherwise you will have to fill the resource paths manually.
+\end_layout
+
+\begin_layout Subsection
+CEGUI sample directory structure
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Project/gui_datafiles/{layouts,schemes,imagesets,...}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Very popular, especially among CEGUI beginners.
+ Only filenames are used to locate/reference CEGUI resources.
+\end_layout
+
+\begin_layout Itemize
+project file path: 
+\emph on
+Project/Project.project
+\end_layout
+
+\begin_layout Itemize
+base directory: 
+\emph on
+./gui_datafiles
+\end_layout
+
+\begin_layout Itemize
+resource directories: 
+\emph on
+./{layouts,schemes,imagesets,...}
+\end_layout
+
+\begin_layout Subsection
+Worldforge/Ember directory structure
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Project/gui_datafiles/{layouts,schemes,imagesets,...}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Also popular, used very often in proprietary games as well.
+ All paths used to locate/reference CEGUI resources are relative to ./ in
+ this case.
+\end_layout
+
+\begin_layout Itemize
+project file path: 
+\emph on
+Project/Project.project
+\end_layout
+
+\begin_layout Itemize
+base directory: 
+\emph on
+./
+\end_layout
+
+\begin_layout Itemize
+resource directories (all of them): 
+\emph on
+./
+\end_layout
+
+\begin_layout Section
 Imageset editing
 \end_layout
 

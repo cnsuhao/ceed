@@ -18,13 +18,5 @@ CEED_PACKAGE_PATH="$PARENT_DIR/../"
 
 export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$CEED_PACKAGE_PATH:$PYTHONPATH"
 
-# on MacOSX we have to add Qt frameworks to the framework path
-# and put the module path to DYLD_LIBRARY_PATH
-if [[ "`uname`" == 'Darwin' ]]; then
-    # FIXME: This is hardcoded for Qt 4.7.4 :-(
-    export DYLD_FRAMEWORK_PATH="$HOME/QtSDK/Desktop/Qt/474/gcc/lib/:$DYLD_FRAMEWORK_PATH"
-    export DYLD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/lib:$DYLD_LIBRARY_PATH"
-fi
-
 # fork a new shell to avoid polluting the environment
 bash

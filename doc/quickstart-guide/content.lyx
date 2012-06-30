@@ -242,7 +242,7 @@ Project settings
 
 \begin_layout Standard
 After the file is created you will be asked for target CEGUI version and
- paths, among other things.
+ paths, among other things (see the User manual for more details).
  Make sure you get everything right (or ask a fellow programmer from your
  project to help with this, they will know the values).
  The editor will attempt to bootstrap CEGUI based on your values after you
