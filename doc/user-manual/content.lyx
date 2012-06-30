@@ -622,6 +622,13 @@ A construct used reused in many places in CEED.
 
 \begin_layout Subsection
 Undo and Redo functionality
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Undo-and-Redo"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -995,7 +1002,7 @@ Overview
 \end_layout
 
 \begin_layout Standard
-Upon opening the imageset, a dock widget containing basic imageset properties,
+Upon opening an imageset, a dock widget containing basic imageset properties,
  which are all editable, and a list of images shows up.
  The centre part of the editor shows the underlying texture and rectangles
  describing geometry of the images.
@@ -1265,7 +1272,14 @@ To allow precise adjustments, user can alter all the values of selected
  values.
  Altering them will immediately preview the changes in the visual editing
  pane.
- All editing has undo/redo support.
+ All editing has undo/redo support, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Undo-and-Redo"
+
+\end_inset
+
+ for more details.
  Editing image properties in the property box should always be preferred
  to editing raw XML in code mode, it is safer and has better and faster
  undo/redo.
@@ -1340,8 +1354,8 @@ Code
 
  tab in the bottom to switch to it.
  Please note that the raw format will always be the native CEGUI 1.0 format
- even if you selected CEGUI 0.7 as the target version the conversion will
- only happen when you save to a file.
+ even if you selected CEGUI 0.7 as the target version.
+ The conversion will only happen when you save to a file.
 \end_layout
 
 \begin_layout Standard
@@ -1463,7 +1477,209 @@ Overview
 \end_layout
 
 \begin_layout Standard
-todo
+Upon opening a layout, dock widgets containing widget hierarchy, available
+ widgets to create and selection properties show up.
+ The centre part of the editor shows the layout as rendered using CEGUI.
+ Widgets can be selected and unselected by clicking on them, rubber band
+ selection is not available in the layout editor.
+ Coloured lines are shown to outline how the widgets are sized and positioned.
+ Properties of selected widget(s) are shown and are available for editing
+ in the bottom right part of the screen.
+\end_layout
+
+\begin_layout Standard
+There are no global properties of the GUI layout, the only objects holding
+ information are the widgets.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename layout_editing/overview.png
+	width 80page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+selecting a window when layout editing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Moving and resizing widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be moved around by dragging (including multiple selection).
+ Resizable rectangle is used for implementation of the 
+\emph on
+widget manipulators
+\emph default
+, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Resizable-rectangle"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Subsection
+Deleting widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be deleted by right clicking them in the widget hierarchy
+ dock widget to bring the context menu and choosing 
+\emph on
+Delete
+\emph default
+ or by simply selecting them and pressing the 
+\emph on
+Delete key
+\emph default
+.
+ Please note that deleting a widget also deletes all its descendants - children,
+ children of children, ...
+\end_layout
+
+\begin_layout Subsection
+Property editing
+\end_layout
+
+\begin_layout Standard
+Well implemented CEGUI widget should expose most of its properties using
+ the 
+\emph on
+PropertySet
+\emph default
+ in CEGUI.
+ All properties exposed as such will be editable within the editor in the
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Selection Properties
+\begin_inset Quotes erd
+\end_inset
+
+ dock widget.
+\end_layout
+
+\begin_layout Standard
+Simply select a widget, scroll through its properties in the dock widget,
+ choose one and double click it to alter it.
+ Such action will be recorded as an 
+\emph on
+undo action
+\emph default
+ and will be undoable, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Undo-and-Redo"
+
+\end_inset
+
+for more details.
+ You can use the property filter to quickly find the property you are looking
+ for by name, see Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:recursively-expanded-Area"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement O
+overhang 0in
+width "30col%"
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename layout_editing/complex_properties.png
+	width 25page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+recursively expanded Area property
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:recursively-expanded-Area"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+Some of the properties will show an expandable icon on the left, these are
+ usually complex properties made up from multiple pieces.
+ Clicking this icon will expand the property and allow you to edit its component
+s.
+\end_layout
+
+\begin_layout Standard
+It is possible to edit properties of multiple widgets but properties will
+ display <multiple values> if there is no single value in all of them for
+ that property.
+\end_layout
+
+\begin_layout Subsection
+Reparenting widgets
+\end_layout
+
+\begin_layout Standard
+Reparenting means changing parent of a widget or an entire hierarchy of
+ widget.
+ This can be done in the widget hierarchy dock widget, pick a widget there,
+ drag it and drop it into a widget that should be its new parent.
 \end_layout
 
 \begin_layout Subsection
@@ -1476,6 +1692,37 @@ The editor loads all schemes in the project so standard widgets get registered
  The scheme will be able to load a custom widget set module.
  The custom widget set module is able to add widget factories so you can
  even add custom made widgets and have the editor edit them.
+\end_layout
+
+\begin_layout Subsection
+The code mode
+\end_layout
+
+\begin_layout Standard
+Raw XML editing is supported in layout editing, click the 
+\begin_inset Quotes eld
+\end_inset
+
+Code
+\begin_inset Quotes erd
+\end_inset
+
+ tab in the bottom to switch to it.
+ Please note that the raw format will always be the native CEGUI 1.0 format
+ even if you selected CEGUI 0.7 as the target version.
+ The conversion will only happen when you save to a file.
+\end_layout
+
+\begin_layout Standard
+Please note that there are several errors that you can make in the layout
+ XML that will go silently ignored! This is an issue which CEED can't solve,
+ it's CEGUI that ignores this input.
+ Examples include various property values, for example the ColourRect, invalid
+ values will result in black.
+\end_layout
+
+\begin_layout Standard
+XML editing should only be used as the last resort!
 \end_layout
 
 \begin_layout Section
