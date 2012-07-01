@@ -347,6 +347,90 @@ time
 \end_layout
 
 \begin_layout Section
+Command line
+\end_layout
+
+\begin_layout Standard
+While most of this manual talks about the main executable - ceed-gui - two
+ more are offered in all releases.
+ As with most command line tools, inbuilt help is offered.
+ It would make no sense to repeat it here.
+\end_layout
+
+\begin_layout Subsection
+ceed-gui
+\end_layout
+
+\begin_layout Standard
+The main use of this executable is to bring up the CEED GUI interface.
+ Most people will probably call it with no command line arguments at all.
+ Some of the supported arguments might be very useful though, you can for
+ example call ceed-gui so that it immediately loads a certain project and
+ opens specific files.
+\end_layout
+
+\begin_layout Standard
+Call 
+\emph on
+ceed-gui --help
+\emph default
+ for more info.
+\end_layout
+
+\begin_layout Subsection
+ceed-migrate
+\end_layout
+
+\begin_layout Standard
+Allows you to use compatibility layers as described in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compatibility-layers"
+
+\end_inset
+
+ without having to start the main GUI app.
+ This can be very useful when you want to migrate all your assets to a new
+ CEGUI version.
+ You can also incorporate it to your workflow if you have to support multiple
+ CEGUI versions for some reason.
+\end_layout
+
+\begin_layout Standard
+Call 
+\emph on
+ceed-migrate --help
+\emph default
+ for more info.
+\end_layout
+
+\begin_layout Subsection
+ceed-mic
+\end_layout
+
+\begin_layout Standard
+Makes it possible to build an rectangle packed imageset out of given data.
+ Source data is a 
+\emph on
+MetaImageset
+\emph default
+.
+ See data/samples/AllStockImagery.meta-imageset for an example.
+ In a nutshell you can specify separate image files or even imagesets and
+ ceed-mic will make just one imageset with one underlying texture out of
+ them.
+ It will make effort to have the resulting texture as small as possible.
+\end_layout
+
+\begin_layout Standard
+Call 
+\emph on
+ceed-mic --help
+\emph default
+ for more info.
+\end_layout
+
+\begin_layout Section
 Settings
 \begin_inset CommandInset label
 LatexCommand label

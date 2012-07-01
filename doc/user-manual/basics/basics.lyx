@@ -526,6 +526,13 @@ Even with undo/redo, you are advised to use version control or other mechanisms.
 
 \begin_layout Subsection
 Compatibility layers
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Compatibility-layers"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
