@@ -1,0 +1,415 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Layout editing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+The word layout has 2 meanings in the CEGUI world so I will first disambiguate
+ it.
+ The first meaning is a hierarchy of widgets, the layout describes the way
+ widgets are laid out as an 
+\emph on
+N-tree
+\emph default
+.
+ The other meaning is a widget able to lay out its child widgets during
+ runtime, this is more precisely called 
+\emph on
+Layout Container
+\emph default
+.
+ I will use the word 
+\begin_inset Quotes eld
+\end_inset
+
+layout
+\begin_inset Quotes erd
+\end_inset
+
+ with the former meaning in the rest of this section unless stated otherwise.
+\end_layout
+
+\begin_layout Plain Layout
+Each layout starts with a root widget and can only have exactly one root
+ widget.
+ If you need more root widgets, just put them into a 
+\emph on
+DefaultWindow
+\emph default
+ and use the 
+\emph on
+DefaultWindow
+\emph default
+ as the root widget).
+ When CEGUI loads the layout it returns this root widget.
+ Widgets always have a name, this name only needs to be unique in the parent
+ in CEGUI 1.0, it has to be globally unique in CEGUI 0.7.
+\end_layout
+
+\begin_layout Plain Layout
+When I say widget 
+\begin_inset Quotes eld
+\end_inset
+
+Parent/Child/SubChild
+\begin_inset Quotes erd
+\end_inset
+
+ I mean a widget that is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget and the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Parent
+\begin_inset Quotes erd
+\end_inset
+
+ widget.
+ I will call this notation the 
+\emph on
+widget path
+\emph default
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Overview
+\end_layout
+
+\begin_layout Standard
+Upon opening a layout, dock widgets containing widget hierarchy, available
+ widgets to create and selection properties show up.
+ The centre part of the editor shows the layout as rendered using CEGUI.
+ Widgets can be selected and unselected by clicking on them, rubber band
+ selection is not available in the layout editor.
+ Coloured lines are shown to outline how the widgets are sized and positioned.
+ Properties of selected widget(s) are shown and are available for editing
+ in the bottom right part of the screen.
+\end_layout
+
+\begin_layout Standard
+There are no global properties of the GUI layout, the only objects holding
+ information are the widgets.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename overview.png
+	width 80page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+selecting a window when layout editing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Moving and resizing widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be moved around by dragging (including multiple selection).
+ Resizable rectangle is used for implementation of the 
+\emph on
+widget manipulators
+\emph default
+, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Resizable-rectangle"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Subsection
+Deleting widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be deleted by right clicking them in the widget hierarchy
+ dock widget to bring the context menu and choosing 
+\emph on
+Delete
+\emph default
+ or by simply selecting them and pressing the 
+\emph on
+Delete key
+\emph default
+.
+ Please note that deleting a widget also deletes all its descendants - children,
+ children of children, ...
+\end_layout
+
+\begin_layout Subsection
+Property editing
+\end_layout
+
+\begin_layout Standard
+Well implemented CEGUI widget should expose most of its properties using
+ the 
+\emph on
+PropertySet
+\emph default
+ in CEGUI.
+ All properties exposed as such will be editable within the editor in the
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Selection Properties
+\begin_inset Quotes erd
+\end_inset
+
+ dock widget.
+\end_layout
+
+\begin_layout Standard
+Simply select a widget, scroll through its properties in the dock widget,
+ choose one and double click it to alter it.
+ Such action will be recorded as an 
+\emph on
+undo action
+\emph default
+ and will be undoable, see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Undo-and-Redo"
+
+\end_inset
+
+for more details.
+ You can use the property filter to quickly find the property you are looking
+ for by name, see Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:recursively-expanded-Area"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement O
+overhang 0in
+width "30col%"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename complex_properties.png
+	width 25page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+recursively expanded Area property
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:recursively-expanded-Area"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Some of the properties will show an expandable icon on the left, these are
+ usually complex properties made up from multiple pieces.
+ Clicking this icon will expand the property and allow you to edit its component
+s.
+\end_layout
+
+\begin_layout Standard
+It is possible to edit properties of multiple widgets but properties will
+ display <multiple values> if there is no single value in all of them for
+ that property.
+\end_layout
+
+\begin_layout Subsection
+Reparenting widgets
+\end_layout
+
+\begin_layout Standard
+Reparenting means changing parent of a widget or an entire hierarchy of
+ widget.
+ This can be done in the widget hierarchy dock widget, pick a widget there,
+ drag it and drop it into a widget that should be its new parent.
+\end_layout
+
+\begin_layout Subsection
+Custom widgets
+\end_layout
+
+\begin_layout Standard
+The editor loads all schemes in the project so standard widgets get registered
+ if you have them in your scheme.
+ The scheme will be able to load a custom widget set module.
+ The custom widget set module is able to add widget factories so you can
+ even add custom made widgets and have the editor edit them.
+\end_layout
+
+\begin_layout Subsection
+The code mode
+\end_layout
+
+\begin_layout Standard
+Raw XML editing is supported in layout editing, click the 
+\begin_inset Quotes eld
+\end_inset
+
+Code
+\begin_inset Quotes erd
+\end_inset
+
+ tab in the bottom to switch to it.
+ Please note that the raw format will always be the native CEGUI 1.0 format
+ even if you selected CEGUI 0.7 as the target version.
+ The conversion will only happen when you save to a file.
+\end_layout
+
+\begin_layout Standard
+Please note that there are several errors that you can make in the layout
+ XML that will go silently ignored! This is an issue which CEED can't solve,
+ it's CEGUI that ignores this input.
+ Examples include various property values, for example the ColourRect, invalid
+ values will result in black.
+\end_layout
+
+\begin_layout Standard
+XML editing should only be used as the last resort!
+\end_layout
+
+\end_body
+\end_document
