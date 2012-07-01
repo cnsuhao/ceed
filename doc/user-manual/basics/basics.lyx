@@ -94,6 +94,13 @@ status open
 
 \begin_layout Plain Layout
 overview of the interface
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:interface-overview"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -155,6 +162,13 @@ height "1pt"
 
 \begin_layout Plain Layout
 tabs offer reordering and a context menu
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tabs-reordering-ctext-menu"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -420,6 +434,42 @@ A construct used reused in many places in CEED.
 \end_layout
 
 \begin_layout Subsection
+Zooming
+\end_layout
+
+\begin_layout Standard
+To make editing easier and possibly more precise, user is allowed to zoom
+ in the editors that support it - both imageset and layout editors support
+ zooming.
+ By default you can zoom by clicking the zoom icons in the toolbar as seen
+ in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:interface-overview"
+
+\end_inset
+
+ or holding the 
+\emph on
+Ctrl
+\emph default
+ key and scrolling with your 
+\emph on
+mouse wheel
+\emph default
+.
+ You can zoom out to 50% to get an overview or zoom in multiples of two.
+ If you are at the zoom level of 100%, one zoom in will change that to 200%,
+ another zoom in will change it to 400%, etc.
+\end_layout
+
+\begin_layout Standard
+The zoom will in no way affect your data, it will only change the context
+ you are editing in.
+ It therefore doesn't count as an undo action.
+\end_layout
+
+\begin_layout Subsection
 Undo and Redo functionality
 \begin_inset CommandInset label
 LatexCommand label
@@ -472,6 +522,85 @@ Even with undo/redo, you are advised to use version control or other mechanisms.
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Compatibility layers
+\end_layout
+
+\begin_layout Standard
+To work with as many versions of CEGUI as possible, CEED has a facility
+ called compatibility layers.
+ In a nutshell, these layers allow you to transform raw data from version
+ to version.
+ Each layer has source and target data types which describe the transformation
+ that happens when you use that particular layer.
+ Layer can be combined, if there is a path to go from data type 
+\emph on
+A
+\emph default
+ to 
+\emph on
+B
+\emph default
+ and 
+\emph on
+B
+\emph default
+ to 
+\emph on
+C
+\emph default
+, it is possible to transform 
+\emph on
+A
+\emph default
+ to 
+\emph on
+C
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Each time you are editing a file, you can right click the tab to bring out
+ a context menu and see the exact data type you are editing, see Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tabs-reordering-ctext-menu"
+
+\end_inset
+
+.
+ It is not currently possible to change the data type of a file that's been
+ opened, CEED will attempt to detect the data type when you are opening
+ the file and ask you if it can not decide for sure.
+ Make sure you set the correct CEGUI target version, as described in Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:project-settings"
+
+\end_inset
+
+.
+ The CEGUI version will affect what data type newly created files in CEED
+ will have.
+\end_layout
+
+\begin_layout Standard
+You can also use all compatibility layers using the shipped CLI tool called
+ 
+\emph on
+ceed-migrate
+\emph default
+.
+ Call 
+\emph on
+ceed-migrate --help
+\emph default
+ for more info.
 \end_layout
 
 \end_body
