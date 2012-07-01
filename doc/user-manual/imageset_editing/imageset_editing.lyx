@@ -379,13 +379,13 @@ name "sub:The-property-box"
 lines 0
 placement o
 overhang 0in
-width "32col%"
+width "37col%"
 status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename image_property_box.png
-	width 25page%
+	width 30page%
 
 \end_inset
 
