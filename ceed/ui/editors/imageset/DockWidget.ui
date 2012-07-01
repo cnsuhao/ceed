@@ -169,7 +169,7 @@
        </size>
       </property>
       <property name="title">
-       <string>Images</string>
+       <string>Image definitions</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -184,7 +184,7 @@
           <item>
            <widget class="QLineEdit" name="filterBox">
             <property name="placeholderText">
-             <string>Filter images by name</string>
+             <string>Filter definitions by name</string>
             </property>
            </widget>
           </item>
@@ -251,7 +251,7 @@
     <item>
      <widget class="QGroupBox" name="propertiesGroupBox">
       <property name="title">
-       <string>Selected image properties</string>
+       <string>Selected image definition properties</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="2">

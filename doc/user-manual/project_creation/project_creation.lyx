@@ -74,7 +74,11 @@ You will need to create a project for any serious editing with CEED.
 \end_layout
 
 \begin_layout Standard
-The first step is to choose File -> New -> Project.
+The first step is to choose 
+\emph on
+File » New » Project
+\emph default
+.
  The dialog in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -211,6 +215,10 @@ status open
 	filename settings_top.png
 	width 40page%
 
+\end_inset
+
+
+\begin_inset space \space{}
 \end_inset
 
 

@@ -9,10 +9,10 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman ae
+\font_roman default
 \font_sans default
 \font_typewriter default
-\font_default_family rmdefault
+\font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
