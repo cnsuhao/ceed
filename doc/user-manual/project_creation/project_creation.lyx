@@ -63,6 +63,10 @@
 Creating a project
 \end_layout
 
+\begin_layout Subsection
+Creating a project file
+\end_layout
+
 \begin_layout Standard
 You will need to create a project for any serious editing with CEED.
  There are some quick hints about how to do this in the quickstart guide
@@ -127,6 +131,10 @@ name "fig:creating-a-project"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Project settings
 \end_layout
 
 \begin_layout Standard
@@ -216,7 +224,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-project settings
+project settings window
 \begin_inset CommandInset label
 LatexCommand label
 name "fig:project-settings"
@@ -234,87 +242,6 @@ name "fig:project-settings"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-CEGUI sample directory structure
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-Project/gui_datafiles/{layouts,schemes,imagesets,...}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Very popular, especially among CEGUI beginners.
- Only filenames are used to locate/reference CEGUI resources.
-\end_layout
-
-\begin_layout Itemize
-project file path: 
-\emph on
-Project/Project.project
-\end_layout
-
-\begin_layout Itemize
-base directory: 
-\emph on
-./gui_datafiles
-\end_layout
-
-\begin_layout Itemize
-resource directories: 
-\emph on
-./{layouts,schemes,imagesets,...}
-\end_layout
-
-\begin_layout Subsection
-Worldforge/Ember directory structure
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-Project/gui_datafiles/{layouts,schemes,imagesets,...}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Also popular, used very often in proprietary games as well.
- All paths used to locate/reference CEGUI resources are relative to ./ in
- this case.
-\end_layout
-
-\begin_layout Itemize
-project file path: 
-\emph on
-Project/Project.project
-\end_layout
-
-\begin_layout Itemize
-base directory: 
-\emph on
-./
-\end_layout
-
-\begin_layout Itemize
-resource directories (all of them): 
-\emph on
-./
 \end_layout
 
 \end_body

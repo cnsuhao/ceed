@@ -307,6 +307,13 @@ filename "layout_editing/layout_editing.lyx"
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Animation list editing
 \end_layout
@@ -346,6 +353,13 @@ time
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Command line
 \end_layout
@@ -353,8 +367,9 @@ Command line
 \begin_layout Standard
 While most of this manual talks about the main executable - ceed-gui - two
  more are offered in all releases.
- As with most command line tools, inbuilt help is offered.
- It would make no sense to repeat it here.
+ As with most command line tools, inbuilt help is offered and it would make
+ no sense to repeat it here.
+ Instead, a brief overview of some capabilities of the tools will be presented.
 \end_layout
 
 \begin_layout Subsection
@@ -428,6 +443,13 @@ Call
 ceed-mic --help
 \emph default
  for more info.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
