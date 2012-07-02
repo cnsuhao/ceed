@@ -75,14 +75,16 @@ This interface hosts all the tabbed editors and provides some functionality
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename main_interface.png
-	width 80page%
+	width 70page%
 
 \end_inset
 
@@ -246,6 +248,32 @@ Code editing is currently very simplistic and does not even have syntax
 \end_layout
 
 \begin_layout Subsection
+Copy / Paste
+\end_layout
+
+\begin_layout Standard
+Many things you can select in the editor can be copied/cut and pasted elsewhere.
+ This is a very useful workflow feature and works even across multiple CEED
+ instances.
+ You can for example have 2 different projects and copy parts of layouts
+ between them.
+ Both projects have to have the same widget types of course!
+\end_layout
+
+\begin_layout Standard
+The default shortcuts are the expected ones depending on your platform.
+ 
+\emph on
+Ctrl + C
+\emph default
+ for copy on Windows and Linux, 
+\emph on
+Cmd + C
+\emph default
+ on Mac OS X.
+\end_layout
+
+\begin_layout Subsection
 Project manager
 \end_layout
 
@@ -305,7 +333,17 @@ File manager
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Greyedout
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
@@ -351,7 +389,20 @@ name "sub:Resizable-rectangle"
 \end_layout
 
 \begin_layout Standard
+A construct used reused in many places in CEED.
+ Represents a rectangular object that can be resized and/or resized.
+ It offers features that would otherwise have to be reimplemented in many
+ places.
+ The main inspiration was GIMP's selection rectangle (TODO: citation).
+ Can be moved by dragging any area that doesn't highlight a resize handle.
+ There are 8 areas that resize the rectangle if you drag them (these are
+ called resize handles) - 4 edges and 4 corners, they get highlighted when
+ you hover over them.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -391,18 +442,6 @@ resizable handles appear when you hover over edges/corners
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-A construct used reused in many places in CEED.
- Represents a rectangular object that can be resized and/or resized.
- It offers features that would otherwise have to be reimplemented in many
- places.
- The main inspiration was GIMP's selection rectangle (TODO: citation).
- Can be moved by dragging any area that doesn't highlight a resize handle.
- There are 8 areas that resize the rectangle if you drag them (these are
- called resize handles) - 4 edges and 4 corners, they get highlighted when
- you hover over them.
 \end_layout
 
 \begin_layout Subsection
@@ -483,12 +522,22 @@ Undo and Redo can be very powerful and allows free experimentation without
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Greyedout
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
 Even with undo/redo, you are advised to use version control or other mechanisms.
- Undo redo actions are lost when you close the application!
+ Undo/redo actions are lost when you close the application!
 \end_layout
 
 \end_inset
