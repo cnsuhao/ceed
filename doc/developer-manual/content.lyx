@@ -99,15 +99,27 @@ Because of size constrains, I won't go into the following areas:
 \end_layout
 
 \begin_layout Itemize
+
+\noun on
 Python
 \end_layout
 
 \begin_layout Itemize
-PySide and Qt
+
+\noun on
+PySide
+\noun default
+ and 
+\noun on
+Qt
 \end_layout
 
 \begin_layout Itemize
-CEGUI API
+
+\noun on
+CEGUI
+\noun default
+ API
 \end_layout
 
 \begin_layout Section
@@ -134,12 +146,29 @@ Branches and Tags
 \end_layout
 
 \begin_layout Itemize
-default - unstable forward development, likely to be based on unstable CEGUI
+
+\emph on
+default
+\emph default
+ - unstable forward development, likely to be based on unstable CEGUI
 \end_layout
 
 \begin_layout Itemize
-snapshotX - development snapshots, based on unstable CEGUI, should be considered
+
+\emph on
+snapshotX
+\emph default
+ - development snapshots, based on unstable CEGUI, should be considered
  tech previews
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+*-devel
+\emph default
+ - feature branches, are expected to be closed and merged into default at
+ some point
 \end_layout
 
 \begin_layout Section
@@ -203,8 +232,13 @@ TabbedEditor
 
 \begin_layout Standard
 A base class for editors hosted in a tab.
- There are 3 phases that need to happen before a tabbed editor shows up
- to the user:
+ If you are writing new editing functionality for CEED you definitely need
+ to inherit from this class.
+\end_layout
+
+\begin_layout Standard
+There are 3 phases that need to happen before a tabbed editor shows up to
+ the user:
 \end_layout
 
 \begin_layout Enumerate
@@ -240,9 +274,18 @@ The destruction works in the exact opposite order.
 \end_layout
 
 \begin_layout Standard
-To avoid repeating code (DRY principle), there are 2 very important classes
- that add functionality to TabbedEditor that you want to inherit if applicable
- to avoid reinventing.
+To avoid repeating code (DRY
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+don't repeat yourself
+\end_layout
+
+\end_inset
+
+ principle), there are 2 very important classes that add functionality to
+ TabbedEditor that you want to inherit if applicable to avoid reinventing.
 \end_layout
 
 \begin_layout Subsubsection
@@ -261,7 +304,7 @@ MultiModeTabbedEditor
 \begin_layout Standard
 Useful when you want multiple editing modes.
  As an example, let us take the layout editor.
- It has 3 modes - visual, code and live preview.
+ It has three modes - visual, code and live preview.
  You can freely switch between them and they each offer a different look
  at the same data.
  At any point in time you are viewing/editing in one mode only.
@@ -295,7 +338,7 @@ As CEGUI is a C++ library, making it accessible from Python is not trivial.
  I have written python bindings for CEGUI called PyCEGUI using py++ boost::pytho
 n for this purpose.
  It is important to realise though that even though I tried to make it pythonic
- and reasonably safe, mistreating PyCEGUI can still cause segfaults any
+ and reasonably safe, mistreating PyCEGUI can still cause segfaults and
  other phenomena usually prevented by using a scripting language.
 \end_layout
 
@@ -359,7 +402,7 @@ As most editing applications we have the MVC paradigm.
 \emph on
 model
 \emph default
- I mean that it encapsulates the data we are editing.
+ I mean that it encapsulates and contains the data we are editing.
  The 
 \emph on
 view
@@ -485,15 +528,70 @@ comment other things with # prefix only
 \end_layout
 
 \begin_layout Section
+Communication channels
+\end_layout
+
+\begin_layout Itemize
+IRC: #cegui on irc.freenode.net
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+see 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://freenode.net
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+email: team@cegui.org.uk
+\end_layout
+
+\begin_layout Section
 DVCS - forking
 \end_layout
 
 \begin_layout Standard
 Create a fork of 
 \emph on
+
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
 http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/CEED
+\end_layout
+
+\end_inset
+
+
 \emph default
- on bitbucket.org or elsewhere.
+ on 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://bitbucket.org
+\end_layout
+
+\end_inset
+
+ or elsewhere.
  Start each feature or substantial fix in a separate branch, this makes
  it easy to review and possibly reject some paths without rejecting everything.
  When you are finished with your branch make sure you merge all upstream
