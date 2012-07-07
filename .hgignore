@@ -10,7 +10,6 @@ Thumbs.db
 *.orig
 *.rej
 *.pyc
-*#*.lyx#
 
 xcuserdata/
 *.xcworkspace/
