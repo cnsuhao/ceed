@@ -381,6 +381,17 @@ Python
 Might need copying of some dependencies the script fails to pick up!
 \end_layout
 
+\begin_layout Standard
+Please see the cx_Freeze documentation
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cxfreezedoc"
+
+\end_inset
+
+ for more information.
+\end_layout
+
 \begin_layout Subsection
 copyright related
 \end_layout
@@ -1340,8 +1351,17 @@ visual = category.createSection(name = "visual", label = "Visual editing")
 
 \begin_layout Plain Layout
 
-visual.createEntry(name = "continuous_rendering", type = bool, label = "Continuou
-s rendering",
+visual.createEntry(name = "continuous_rendering",
+\end_layout
+
+\begin_layout Plain Layout
+
+                   type = bool,
+\end_layout
+
+\begin_layout Plain Layout
+
+                   label = "Continuous rendering",
 \end_layout
 
 \begin_layout Plain Layout
@@ -2090,14 +2110,37 @@ Lives in the
 ceed.editors.imageset
 \emph default
  package.
- We use classes from 
+ Provides editing functionality for CEGUI imagesets.
+ Please see the CEGUI imageset format documentation 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "imagesetformat"
+
+\end_inset
+
+for more details.
+\end_layout
+
+\begin_layout Subsection
+Data model
+\end_layout
+
+\begin_layout Standard
+We use classes from 
 \emph on
 ceed.editors.imageset.elements
 \emph default
  to model the data instead of using CEGUI in this editor.
  The reason is relative simplicity of the data and also big changes to the
  image API between CEGUI 0.7 and 1.0.
- It is a multimode editor with visual and code modes.
+\end_layout
+
+\begin_layout Subsection
+Multiple modes
+\end_layout
+
+\begin_layout Standard
+It is a multimode editor with visual and code modes.
 \end_layout
 
 \begin_layout Standard
@@ -2296,6 +2339,24 @@ You can alternatively just send unified diffs by email if you so desire
 team@cegui.org.uk
 \emph default
 ).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "bibliography"
+options "plain"
+
+\end_inset
+
+
 \end_layout
 
 \end_body
