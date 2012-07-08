@@ -3,6 +3,11 @@
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\usepackage{xcolor}
+\definecolor{codebg}{rgb}{0.95, 0.95, 0.95}
+\definecolor{commentfg}{rgb}{0.0, 0.6, 0.0}
+\end_preamble
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -11,7 +16,7 @@
 \fontencoding global
 \font_roman palatino
 \font_sans default
-\font_typewriter default
+\font_typewriter courier
 \font_default_family rmdefault
 \use_non_tex_fonts false
 \font_sc false
@@ -64,6 +69,7 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\listings_params "backgroundcolor={\color{codebg}},basicstyle={\ttfamily},breaklines=true,commentstyle={\color{commentfg}},frame=single,keywordstyle={\bf\color{blue}},numbers=left,numberstyle={\tiny\color{gray}},rulecolor={\color{black}},showstringspaces=false,stringstyle={\color{red}}"
 \tracking_changes false
 \output_changes false
 \html_math_output 0
