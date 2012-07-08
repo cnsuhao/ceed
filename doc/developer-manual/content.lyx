@@ -4,11 +4,6 @@
 \begin_header
 \textclass article
 \use_default_options true
-\begin_modules
-theorems-ams
-eqs-within-sections
-figs-within-sections
-\end_modules
 \maintain_unincluded_children false
 \language english
 \language_package default
@@ -144,6 +139,7 @@ Getting the source code
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "language=sh"
 inline false
 status open
 
@@ -212,6 +208,7 @@ runwrapper.sh
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "language=sh"
 inline false
 status open
 
@@ -467,6 +464,13 @@ User manual
 
 \begin_layout Subsection
 ceed-migrate
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:ceed-migrate"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -637,6 +641,13 @@ reference "sub:ceed-mic"
 
 \begin_layout Subsection
 propertytree subpackage
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:propertytree-subpackage"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -733,6 +744,10 @@ A base class for editors hosted in a tab.
  to inherit from this class.
 \end_layout
 
+\begin_layout Subsection
+Responsibilities
+\end_layout
+
 \begin_layout Standard
 \begin_inset Float figure
 placement H
@@ -757,6 +772,13 @@ status open
 
 \begin_layout Plain Layout
 tabbed editor responsibilities are highlighted in yellow
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tabbed-editor-responsibilities"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -771,6 +793,19 @@ tabbed editor responsibilities are highlighted in yellow
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+The most important part of a TabbedEditor is its widget.
+ The widget represents the central part in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tabbed-editor-responsibilities"
+
+\end_inset
+
+.
+ TabbedEditors also often add toolbars, dock widgets and other elements.
 \end_layout
 
 \begin_layout Subsection
@@ -885,17 +920,146 @@ Useful when you want multiple editing modes.
  modes is an undo action!
 \end_layout
 
+\begin_layout Standard
+Each mode has its own life cycle and depends on the life cycle of its host
+ tabbed editor.
+ First the tabbed editor gets on 
+\begin_inset Quotes eld
+\end_inset
+
+the stage
+\begin_inset Quotes erd
+\end_inset
+
+ and then the editor's mode is asked to activate itself.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# the host tabbed editor gets constructed and activated
+\end_layout
+
+\begin_layout Plain Layout
+
+A.deactivate()
+\end_layout
+
+\begin_layout Plain Layout
+
+B.activate()
+\end_layout
+
+\begin_layout Plain Layout
+
+# the user merrily edits in the B edit mode
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+process of switching from edit mode A to B
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The actual mode switch process is a bit more involved because of the necessity
+ to make mode switch an undoable action.
+ You can see the full implementation of it in 
+\emph on
+ceed.editors.multi.MultiModeTabbedEditor.slot_currentChanged
+\emph default
+.
+\end_layout
+
 \begin_layout Section
 Undo / Redo
 \end_layout
 
 \begin_layout Standard
-One of the cornerstones of CEED is the ability to undo anything.
- This is implemented using Qt's QUndoCommand class.
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "30col%"
+status open
+
+\begin_layout Plain Layout
+
 \end_layout
 
-\begin_layout Standard
-The strategy towards fully undo/redo enabled workflows is:
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename undo_redo/undo_stack.png
+	width 25page%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+example of an undo stack
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:undo-stack"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+One of the cornerstones of CEED is the ability to undo everything.
+ This is implemented using Qt's QUndoCommand class.
+ Each TabbedEditor has its own independent undo stack, undo commands are
+ never shared across editors.
+\end_layout
+
+\begin_layout Subsection
+Principles
 \end_layout
 
 \begin_layout Itemize
@@ -917,7 +1081,46 @@ independent
 
 \begin_layout Itemize
 state switching that would make some undo commands not applicable have to
- be undo commands themselves
+ be undo commands themselves3
+\end_layout
+
+\begin_layout Subsection
+Moving in the undo stack
+\end_layout
+
+\begin_layout Standard
+Let us consider the undo stack shown in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:undo-stack"
+
+\end_inset
+
+.
+ If user clicks the 
+\emph on
+<empty>
+\emph default
+ line, all the undo commands will get .undo() called in the bottom-up order.
+ If now the user clicks the 
+\emph on
+Move 'ButtonPushedFill2'
+\emph default
+ line again, the commands will get .redo() called in the top-down order.
+ It is important to notice that the undo commands are always acted upon
+ sequentially and that order of the calls matter! Some of the commands might
+ not even make any sense if they are called out of order.
+ Consider a 
+\emph on
+Create Image 'XYZ'
+\emph default
+ command followed by 
+\emph on
+Move 'XYZ'
+\emph default
+.
+ They need to be acted upon in the right order otherwise the Move command
+ is asked to move a non-existent image.
 \end_layout
 
 \begin_layout Section
@@ -928,6 +1131,156 @@ Property editing
 A lot of CEGUI classes provide basic introspection via property strings.
  CEED has a set of classes to reuse when you want to edit properties of
  widgets or any other classes that inherit from PropertySet.
+\end_layout
+
+\begin_layout Subsection
+Usage
+\end_layout
+
+\begin_layout Standard
+Even though the 
+\emph on
+propertytree
+\emph default
+ subpackage (see section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:propertytree-subpackage"
+
+\end_inset
+
+) gives you access to its very internals and allows very advanced uses,
+ including using it on classes that do not even inherit from the CEGUI::Property
+Set, only the basic usage scenarios will be discussed in this document.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+from ceed import propertysetinspector
+\end_layout
+
+\begin_layout Plain Layout
+
+from ceed import mainwindow
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# parent is a QWidget and can be None
+\end_layout
+
+\begin_layout Plain Layout
+
+inspector = propertysetinspector.PropertyInspectorWidget(parent)
+\end_layout
+
+\begin_layout Plain Layout
+
+self.inspector.ptree.setupRegistry(propertytree.editors.PropertyEditorRegistry(True)
+\end_layout
+
+\begin_layout Plain Layout
+
+pmap = mainwindow.MainWindow.instance.project.propertyMap
+\end_layout
+
+\begin_layout Plain Layout
+
+self.inspector.setPropertyManager(propertysetinspector.CEGUIPropertyManager(pmap))
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+creating a property inspector widget
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# inspector is a property inspector as created previously
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+inspector.setPropertySets([propertySetToInspect])
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+inspecting a PropertySet using a property inspector
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -957,6 +1310,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "language=Python"
 inline false
 status open
 
@@ -1025,12 +1379,14 @@ It is recommended to query the settings entry once and keep the reference
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "language=Python"
 inline false
 status open
 
@@ -1114,6 +1470,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "language=Python"
 inline false
 status open
 
@@ -1150,6 +1507,7 @@ cat.createAction(
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "language=Python"
 inline false
 status open
 
@@ -1230,13 +1588,217 @@ To make sure everything is rendered exactly as it will appear in CEGUI it
  in the editor exactly as they are in CEGUI itself.
 \end_layout
 
+\begin_layout Subsection
+PyCEGUI bindings
+\end_layout
+
 \begin_layout Standard
 As CEGUI is a C++ library, making it accessible from Python is not trivial.
- I have written python bindings for CEGUI called PyCEGUI using py++ boost::pytho
-n for this purpose.
+ I have written python bindings for CEGUI called PyCEGUI using 
+\emph on
+py++
+\emph default
+ and 
+\emph on
+boost::python
+\emph default
+ for this purpose.
  It is important to realise though that even though I tried to make it pythonic
  and reasonably safe, mistreating PyCEGUI can still cause segfaults and
  other phenomena usually prevented by using a scripting language.
+\end_layout
+
+\begin_layout Subsection
+Shared CEGUI instance
+\end_layout
+
+\begin_layout Standard
+There is only one CEGUI instance in CEED.
+ This makes tabbed editor switches slightly slower but CEED uses less memory.
+ The main reason for this design decision is that CEGUI did not have multiple
+ GUI contexts at the time CEED was being designed.
+\end_layout
+
+\begin_layout Standard
+Furthermore, the shared instance is wrapped in a 
+\begin_inset Quotes eld
+\end_inset
+
+container widget
+\begin_inset Quotes erd
+\end_inset
+
+ which provides convenience wrappers.
+ That way developer can avoid dealing with 
+\emph on
+OpenGL
+\emph default
+ and 
+\emph on
+QGLWidget
+\emph default
+ directly.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ceguiContainerWidget = mainwindow.MainWindow.instance.ceguiContainerWidget
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# parentWidget is the widget that will host the CEGUI rendering, it can
+ not be None!
+\end_layout
+
+\begin_layout Plain Layout
+
+ceguiContainerWidget.activate(parentWidget, self.scene)
+\end_layout
+
+\begin_layout Plain Layout
+
+ceguiContainerWidget.setViewFeatures(wheelZoom = True, continuousRendering
+ = True)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# you can then use CEGUI directly through PyCEGUI, the result will be rendered
+\end_layout
+
+\begin_layout Plain Layout
+
+# to the host widget specified previously
+\end_layout
+
+\begin_layout Plain Layout
+
+PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootPreviewWi
+dget)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# ...
+ rendering, interaction, etc.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# after your work is done, deactivate the container widget
+\end_layout
+
+\begin_layout Plain Layout
+
+ceguiContainerWidget.deactivate(self.ceguiPreview)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+accessing and using the CEGUI instance
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Always clean up!
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+CEGUI
+\emph default
+ container widget is shared, therefore the whole 
+\emph on
+CEGUI 
+\emph default
+instance and the default 
+\emph on
+GUIContext
+\emph default
+ are shared.
+ 
+\emph on
+CEGUI
+\emph default
+ resources are not garbage collected, they are created in the C++ world
+ and have to have their life cycles managed manually.
+ Make sure you always destroy all your widgets and other resources after
+ use.
+ They will not get cleaned up until the whole editor is closed!
+\end_layout
+
+\begin_layout Subsubsection
+Beware of name clashes!
+\end_layout
+
+\begin_layout Standard
+Becuase the CEGUI instance is shared there can be name clashes for many
+ resources - images, animation definitions, ...
+ A good way to circumvent this is to generate unique games with an integer
+ suffix and hide the fact from the user.
+\end_layout
+
+\begin_layout Standard
+This is what the 
+\emph on
+Animation list editor
+\emph default
+ does internally, see 
+\emph on
+ceed.editors.animation_list
+\emph default
+ for more details.
 \end_layout
 
 \begin_layout Section
@@ -1252,6 +1814,7 @@ Compatibility is only dealt with on data level.
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "language=Python"
 inline false
 status open
 
@@ -1287,6 +1850,28 @@ convertedData = compat.manager.transform("foo", "bar", data)
 \begin_layout Standard
 There are also facilities to guess types of arbitrary data.
  See API reference of CompatibilityManager for more info.
+\end_layout
+
+\begin_layout Subsection
+Testing compatibility layers
+\end_layout
+
+\begin_layout Standard
+Running the GUI and loading files manually by clicking is not practical
+ for compatibility layer development and testing.
+ Use the 
+\emph on
+ceed-migrate 
+\emph default
+executable instead.
+ See section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:ceed-migrate"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section
@@ -1333,6 +1918,158 @@ name "sec:Qt-designer-.ui"
 
 \end_layout
 
+\begin_layout Standard
+Qt designer allows 
+\begin_inset CommandInset nomenclature
+LatexCommand nomenclature
+symbol "RAD"
+description "Rapid Application Development"
+
+\end_inset
+
+RAD so it pays off to keep as much GUI layout in .ui files as possible.
+ Whenever you are creating a new interface, consider creating it with the
+ Qt designer instead of coding it manually.
+\end_layout
+
+\begin_layout Subsection
+Compiling
+\end_layout
+
+\begin_layout Standard
+The files have to be compiled into 
+\emph on
+Python modules
+\emph default
+.
+\end_layout
+
+\begin_layout Subsubsection
+Development mode
+\end_layout
+
+\begin_layout Standard
+The preferred method if you want to continuously develop CEED.
+ Allows automatic recompilation of all ui files.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=sh"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ vim ceed/version.py
+\end_layout
+
+\begin_layout Plain Layout
+
+# make sure the DEVELOPER_MODE line is set to True
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+turning the developer mode on
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+maintenance script
+\end_layout
+
+\begin_layout Standard
+If you only want to compile the ui files rarely you are better off with
+ the maintenance script.
+ See section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:maintenance-script"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=sh"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./maintenance compile-ui-files
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+recompiling ui files via the maintenance script
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Part
 Editing implementation
 \end_layout
@@ -1357,6 +2094,13 @@ ceed.editors.imageset.elements
  It is a multimode editor with visual and code modes.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Layout editing
 \end_layout
@@ -1373,6 +2117,13 @@ ceed.editors.layout
  It is a multimode editor with visual, code and live preview modes.
  The live preview mode does no editing, instead it just views the current
  layout and allows user to interact with it to test it.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -1396,6 +2147,13 @@ KeyFrames had to have indices added because comparing floats for equality
  from that.
  To avoid placing 2 keyframes at the exact same position we add a small
  epsilon until we have no clashes whenever we encounter this possibility.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part
