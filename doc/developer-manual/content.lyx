@@ -1829,6 +1829,13 @@ ceed.editors.animation_list
 
 \begin_layout Section
 Compatibility layers
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Compatibility-layers"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1930,7 +1937,21 @@ view
 \emph on
 controller
 \emph default
- as it does in the Qt world.
+ as it does in the Qt world so we are using one class instance for both
+ 
+\emph on
+view
+\emph default
+ and 
+\emph on
+control
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Separating model from view helps make the code more maintainable and cleaner.
+ It also makes undo command implementation easier.
 \end_layout
 
 \begin_layout Section
@@ -2118,7 +2139,7 @@ key "imagesetformat"
 
 \end_inset
 
-for more details.
+for more details about the format.
 \end_layout
 
 \begin_layout Subsection
@@ -2126,13 +2147,23 @@ Data model
 \end_layout
 
 \begin_layout Standard
-We use classes from 
+Classes from the 
 \emph on
 ceed.editors.imageset.elements
 \emph default
- to model the data instead of using CEGUI in this editor.
- The reason is relative simplicity of the data and also big changes to the
- image API between CEGUI 0.7 and 1.0.
+ package are used to model the data instead of using CEGUI in this editor.
+ The reason is relative simplicity of the data and big changes to the image
+ API between CEGUI 0.7 and 1.0.
+ Compatibility layers are used to convert given data to the native format
+ before they are loaded into the data model.
+ See section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Compatibility-layers"
+
+\end_inset
+
+ for more details.
 \end_layout
 
 \begin_layout Subsection
@@ -2140,7 +2171,8 @@ Multiple modes
 \end_layout
 
 \begin_layout Standard
-It is a multimode editor with visual and code modes.
+It is a multi-mode editor with visual and code modes.
+ The code mode always uses native CEGUI 1.0 data.
 \end_layout
 
 \begin_layout Standard
