@@ -231,7 +231,7 @@ Selected widgets can be moved around by dragging (including multiple selection).
 \emph on
 widget manipulators
 \emph default
-, see section 
+, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Resizable-rectangle"
@@ -308,7 +308,7 @@ unified dimensions of a button
 
 \begin_layout Standard
 There are several tools in CEED to deal with unified dimensions without
- having to edit them manually in the property editor (see section 
+ having to edit them manually in the property editor (see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Property-editing"
@@ -388,7 +388,7 @@ Snap to grid
 \end_layout
 
 \begin_layout Standard
-You can change snap grid settings in CEED's application settings, see section
+You can change snap grid settings in CEED's application settings, see Section
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -581,7 +581,7 @@ This feature was added in CEGUI 1.0 and it is not available in earlier versions.
 \begin_layout Standard
 Is a tool to make sure your UI isn't stretched in any way in a case where
  your display's aspect ratio differs from that of your user.
- Choose the desired AspectMode first using the property editing (see section
+ Choose the desired AspectMode first using the property editing (see Section
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -721,6 +721,7 @@ width "30col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename complex_properties.png
 	width 25page%
@@ -773,14 +774,14 @@ Simply select a widget, scroll through its properties in the dock widget,
 \emph on
 undo action
 \emph default
- and will be undoable, see section 
+ and will be undoable, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Undo-and-Redo"
 
 \end_inset
 
-for more details.
+ for more details.
  You can use the property filter to quickly find the property you are looking
  for by name, see Figure 
 \begin_inset CommandInset ref
@@ -876,7 +877,11 @@ Live preview
 \emph default
  tab in the bottom.
  It is possible to then interact with your GUI as if it were in your application.
- Nothing you do in Live preview will affect the edited layout.
+ Nothing you do in 
+\emph on
+Live preview
+\emph default
+ will affect the edited layout.
 \end_layout
 
 \begin_layout Subsection
@@ -902,8 +907,11 @@ Code
 Please note that there are several errors that you can make in the layout
  XML that will go silently ignored! This is an issue which CEED can't solve,
  it's CEGUI that ignores this input.
- Examples include various property values, for example the ColourRect, invalid
- values will result in black.
+ Examples include various property values, for example the 
+\emph on
+ColourRect
+\emph default
+, invalid values will result in black.
 \end_layout
 
 \begin_layout Standard

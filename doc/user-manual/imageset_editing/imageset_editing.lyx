@@ -124,7 +124,7 @@ Upon opening an imageset, a dock widget containing basic imageset properties,
  Both selections are synchronised.
  Names of image definitions will be shown as labels when the definitions
  are selected.
- This can be disabled in settings, see section 
+ This can be disabled in settings, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Settings"
@@ -290,7 +290,7 @@ resizable rectangles
 \begin_inset Quotes erd
 \end_inset
 
-, see section 
+, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Resizable-rectangle"
@@ -409,7 +409,7 @@ To allow precise adjustments, user can alter all the values of selected
  with its values.
  Altering them will immediately preview the changes in the visual editing
  pane.
- All editing has undo/redo support, see section 
+ All editing has undo/redo support, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Undo-and-Redo"
@@ -441,7 +441,7 @@ reference "fig:selected-images-context"
 
 ) and red offset crosshairs will appear, move them around to alter the offsets.
  You can alternatively use the property box to edit offsets manually using
- the keyboard, see section 
+ the keyboard, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:The-property-box"

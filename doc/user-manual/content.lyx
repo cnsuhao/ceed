@@ -134,7 +134,7 @@ Windows XP
 \begin_layout Itemize
 
 \noun on
-Apple MacOS X
+Apple MacOS X 10.6+
 \end_layout
 
 \begin_layout Itemize
@@ -150,8 +150,7 @@ Hardware:
 \end_layout
 
 \begin_layout Itemize
-at least Intel Pentium 4 or AMD Athlon XP (just a baseline, it may work
- on older hardware)
+at least Intel Pentium 4 or AMD Athlon XP
 \end_layout
 
 \begin_layout Itemize
@@ -246,7 +245,7 @@ Installation
 
 \begin_layout Standard
 The application is currently distributed as a source tarball that works
- on all supported platforms (if you install dependencies).
+ on all supported platforms (if you install the dependencies).
  Furthermore, binary standalone builds are made for Windows and Apple MacOS
  X.
  This only applies to official releases, mercurial code is not being built
@@ -549,7 +548,7 @@ ceed-migrate
 \end_layout
 
 \begin_layout Standard
-Allows you to use compatibility layers as described in section 
+Allows you to use compatibility layers as described in Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Compatibility-layers"
@@ -685,7 +684,7 @@ Most of the settings will apply immediately after pressing the Apply button.
  If you experience glitches related to a settings change a restart will
  very likely cure them.
  We would still appreciate it if you reported them as a bug though.
- See section 
+ See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Reporting-bugs"
@@ -962,7 +961,7 @@ Settings » Imageset editing » Use partial drawing updates
 \end_layout
 
 \begin_layout Standard
-See section 
+See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Settings"
