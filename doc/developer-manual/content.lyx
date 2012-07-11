@@ -345,7 +345,7 @@ Used to install CEED system-wide.
 
 \begin_layout Standard
 Can also be used to create tarballs, the maintenance script may be better
- for that though, see section 
+ for that though, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:maintenance-script"
@@ -500,7 +500,7 @@ runwrapper.sh
 \end_layout
 
 \begin_layout Standard
-Can be used to start CEED without having to install it, see section 
+Can be used to start CEED without having to install it, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Starting-without-installation"
@@ -515,7 +515,7 @@ build directory
 \end_layout
 
 \begin_layout Standard
-Contains results of cx_Freeze build process, see section 
+Contains results of cx_Freeze build process, see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:cx_Freezer.py"
@@ -587,7 +587,7 @@ cegui subpackage
 \end_layout
 
 \begin_layout Standard
-Wraps Embedded CEGUI (see section 
+Wraps Embedded CEGUI (see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Embedded-CEGUI"
@@ -645,7 +645,7 @@ metaimageset subpackage
 \begin_layout Standard
 Classes required for metaimageset parsing, saving and compiling are implemented
  in this subpackage.
- This is what ceed-mic (see section 
+ This is what ceed-mic (see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:ceed-mic"
@@ -704,7 +704,7 @@ Qt Designer
 Python modules
 \emph default
 .
- See section 
+ See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Qt-designer-.ui"
@@ -1159,7 +1159,7 @@ Even though the
 \emph on
 propertytree
 \emph default
- subpackage (see section 
+ subpackage (see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:propertytree-subpackage"
@@ -1897,7 +1897,7 @@ Running the GUI and loading files manually by clicking is not practical
 ceed-migrate 
 \emph default
 executable instead.
- See section 
+ See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:ceed-migrate"
@@ -2057,7 +2057,7 @@ maintenance script
 \begin_layout Standard
 If you only want to compile the ui files rarely you are better off with
  the maintenance script.
- See section 
+ See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:maintenance-script"
@@ -2156,7 +2156,7 @@ ceed.editors.imageset.elements
  API between CEGUI 0.7 and 1.0.
  Compatibility layers are used to convert given data to the native format
  before they are loaded into the data model.
- See section 
+ See Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Compatibility-layers"
@@ -2408,7 +2408,7 @@ team@cegui.org.uk
 \end_layout
 
 \begin_layout Section
-Old fashioned way - patches
+The old fashioned way - patches
 \end_layout
 
 \begin_layout Standard
@@ -2418,6 +2418,7 @@ You can alternatively just send unified diffs by email if you so desire
 team@cegui.org.uk
 \emph default
 ).
+ Make sure you state what the patchset is based on!
 \end_layout
 
 \begin_layout Standard
