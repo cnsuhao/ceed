@@ -2209,6 +2209,44 @@ ceed.editors.layout
  layout and allows user to interact with it to test it.
 \end_layout
 
+\begin_layout Subsection
+Data model
+\end_layout
+
+\begin_layout Standard
+Layout editing operates of widget hiearchies, a data model natively implemented
+ in CEGUI that we use directly.
+ Since CEGUI does not have global window names since version 1.0 we don't
+ even have to worry about name clashes.
+\end_layout
+
+\begin_layout Subsection
+Multiple modes
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+Visual
+\emph default
+, Code and 
+\emph on
+Live preview
+\emph default
+ modes are provided.
+ Code is a simple XML editing mode but the other two are implemented using
+ embedded CEGUI.
+\end_layout
+
+\begin_layout Subsection
+Copy / Paste
+\end_layout
+
+\begin_layout Standard
+Copy paste is implemented using custom MIME type and bytestreams.
+ It is even possible to copy widget hierarchies across editor instances.
+\end_layout
+
 \begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
