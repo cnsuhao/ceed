@@ -18,6 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Implements a hook that displays a dialog whenever an exception is uncaught.
+We display information to the user about where to submit a bug report and what
+to include.
+"""
+
 import sys
 
 from PySide.QtGui import QDialog, QTextBrowser, QLabel
@@ -28,14 +33,13 @@ import ceed.ui.exceptiondialog
 
 class ExceptionDialog(QDialog):
     """This is a dialog that gets shown whenever an exception is thrown and
-    isn't caught. This is realised via duck overriding the sys.excepthook.
+    isn't caught. This is done via duck overriding the sys.excepthook.
     """
 
-    # Long term TODO:
-    # Add an option to pack all the relevant data and error messages to a zip
-    # file for easier to reproduce bug reports.
+    # TODO: Add an option to pack all the relevant data and error messages
+    #       to a zip file for easier to reproduce bug reports.
 
-    def __init__(self, exc_type, exc_message, exc_traceback):
+    def __init__(self, excType, excMessage, excTraceback):
         super(ExceptionDialog, self).__init__()
 
         self.ui = ceed.ui.exceptiondialog.Ui_ExceptionDialog()
@@ -44,10 +48,10 @@ class ExceptionDialog(QDialog):
         self.details = self.findChild(QTextBrowser, "details")
         self.mantisLink = self.findChild(QLabel, "mantisLink")
 
-        self.setWindowTitle("Exception %s" % (exc_type))
+        self.setWindowTitle("Exception %s" % (excType))
 
         import traceback
-        formattedTraceback = traceback.format_tb(exc_traceback)
+        formattedTraceback = traceback.format_tb(excTraceback)
         self.tracebackStr = ""
         for line in formattedTraceback:
             self.tracebackStr += line + "\n"
@@ -59,7 +63,7 @@ class ExceptionDialog(QDialog):
         self.details.setPlainText("Exception message: %s\n\n"
                                  "Traceback:\n"
                                  "%s"
-                                 % (exc_message, self.tracebackStr))
+                                 % (excMessage, self.tracebackStr))
 
     # Convenience; internal use only
     def _stamp(self, newLine, arg):
@@ -81,15 +85,19 @@ class ExceptionDialog(QDialog):
         self._stamp("OS type: {0}", version.OS_TYPE)
         self._stamp("OS release: {0}", version.OS_RELEASE)
         self._stamp("OS version: {0}", version.OS_VERSION)
-        OSType = version.OS_TYPE
-        if OSType == "Windows":
+
+        if version.OS_TYPE == "Windows":
             self._stamp("OS Windows: {0}", version.WINDOWS)
-        elif OSType == "Linux":
+        elif version.OS_TYPE == "Linux":
             self._stamp("OS Linux: {0}", version.LINUX)
-        elif OSType == "Java":
+        elif version.OS_TYPE == "Java":
             self._stamp("OS Java: {0}", version.JAVA)
-        elif OSType == "Darwin":
+        elif version.OS_TYPE == "Darwin":
             self._stamp("OS Darwin: {0}", version.MAC)
+        else:
+            # FIXME: The {0} is a hack around the limitations
+            self._stamp("OS Unknown: {0}", "")
+
         self._stamp("SW Python: {0}", version.PYTHON)
         self._stamp("SW PySide: {0}", version.PYSIDE)
         self._stamp("SW Qt: {0}", version.QT)
@@ -112,16 +120,24 @@ class ErrorHandler(object):
         sys.excepthook = sys.__excepthook__
 
     def excepthook(self, exc_type, exc_message, exc_traceback):
+        # to be compatible with as much as possible we have the default
+        # except hook argument names in the method signature, these do not
+        # conform our guidelines so we alias them here
+
+        excType = exc_type
+        excMessage = exc_message
+        excTraceback = exc_traceback
+
         if not self.mainWindow:
-            sys.__excepthook__(exc_type, exc_message, exc_traceback)
+            sys.__excepthook__(excType, excMessage, excTraceback)
 
         else:
-            dialog = ExceptionDialog(exc_type, exc_message, exc_traceback)
+            dialog = ExceptionDialog(excType, excMessage, excTraceback)
             # we shouldn't use logging.exception here since we are not in an "except" block
-            logging.error("Uncaught exception '%s', message: '%s'\n%s'" % (exc_type, exc_message, dialog.tracebackStr))
+            logging.error("Uncaught exception '%s', message: '%s'\n%s'", excType, excMessage, dialog.tracebackStr)
             # We don't call the standard excepthook anymore since we output to stderr with the logging module
             # we also call the original excepthook which will just output things to stderr
-            #sys.__excepthook__(exc_type, exc_message, exc_traceback)
+            #sys.__excepthook__(excType, excMessage, excTraceback)
 
             result = dialog.exec_()
 
