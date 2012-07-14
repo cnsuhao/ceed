@@ -21,18 +21,23 @@
 from PySide import QtGui
 from PySide import QtCore
 
-# taken from ElementLib
+# taken from ElementLib and slightly tweaked for readability
 def indent(elem, level = 0, tabImpostor = "    "):
     i = "\n" + level * tabImpostor
     if len(elem):
         if not elem.text or not elem.text.strip():
             elem.text = i + tabImpostor
+
+        last = None
         for e in elem:
-            indent(e, level+1)
+            indent(e, level + 1)
             if not e.tail or not e.tail.strip():
                 e.tail = i + tabImpostor
-        if not e.tail or not e.tail.strip():
-            e.tail = i
+
+            last = e
+
+        if not last.tail or not last.tail.strip():
+            last.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
@@ -63,12 +68,12 @@ class XMLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         self.highlightingRules.append((QtCore.QRegExp("\\b[A-Za-z0-9_]+(?=\\=)"), attributeKeyFormat))
 
     def highlightBlock(self, text):
-        for expression, format in self.highlightingRules:
+        for expression, format_ in self.highlightingRules:
             index = expression.indexIn(text)
 
             while index >= 0:
                 length = expression.matchedLength()
-                self.setFormat(index, length, format)
+                self.setFormat(index, length, format_)
 
                 index = expression.indexIn(text, index + length)
 
