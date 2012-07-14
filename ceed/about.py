@@ -18,6 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Implements the License and About dialogs
+"""
+
+# TODO: What is LicenseDialog doing in this package?
+
 from PySide import QtGui
 
 import ceed.ui.licensedialog
@@ -26,6 +31,12 @@ import ceed.ui.aboutdialog
 from ceed import version
 
 class LicenseDialog(QtGui.QDialog):
+    """Shows GPLv3 and related info in the UI of the application as
+    FSF recommends.
+
+    Almost all of it is in the .ui file, editable with QtDesigner
+    """
+
     def __init__(self):
         super(LicenseDialog, self).__init__()
 
@@ -33,20 +44,28 @@ class LicenseDialog(QtGui.QDialog):
         self.ui.setupUi(self)
 
 class AboutDialog(QtGui.QDialog):
+    """About/Version dialog shown when user selects Help -> About.
+
+    The main goal is to show versions of various things, we can then tell the
+    user to just go to this dialog and tell us the versions when something
+    goes wrong for them.
+    """
+
     def __init__(self):
         super(AboutDialog, self).__init__()
 
         self.ui = ceed.ui.aboutdialog.Ui_AboutDialog()
         self.ui.setupUi(self)
 
-        # background
+        # background, see the data/images directory for SVG source
         self.ui.aboutImage.setPixmap(QtGui.QPixmap("images/splashscreen.png"))
 
-        # XXX: In the future, this may not be here.
-        CEEDDescription = "- Rejoice in the splendor -"
+        self.findChild(QtGui.QLabel, "CEEDDescription").setText(
+                "This is a development snapshot!\n\n"
+                "Issues are to be expected, please report them to help this project."
+                )
 
-        self.findChild(QtGui.QLabel, "CEEDDescription").setText("{0}".format(CEEDDescription))
-        self.findChild(QtGui.QLabel, "CEEDVersion").setText("CEED: {0}".format(version.CEED))
-        self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: {0}".format(version.PYSIDE))
-        self.findChild(QtGui.QLabel, "QtVersion").setText("Qt: {0}".format(version.QT))
-        self.findChild(QtGui.QLabel, "PyCEGUIVersion").setText("PyCEGUI: {0}".format(version.PYCEGUI))
+        self.findChild(QtGui.QLabel, "CEEDVersion").setText("CEED: %s" % (version.CEED))
+        self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: %s" % (version.PYSIDE))
+        self.findChild(QtGui.QLabel, "QtVersion").setText("Qt: %s" % (version.QT))
+        self.findChild(QtGui.QLabel, "PyCEGUIVersion").setText("PyCEGUI: %s" % (version.PYCEGUI))
