@@ -14,7 +14,7 @@ CEGUI_BUILD_PATH="$PARENT_DIR/../../cegui_mk2"
 CEED_PACKAGE_PATH="$PARENT_DIR/../"
 
 # Not needed with the new RPATH stuff in 1.0
-#export LD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/cegui/src/:$CEGUI_BUILD_PATH/build/cegui/src/RendererModules/OpenGL:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/lib:$LD_LIBRARY_PATH"
 
 export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$CEED_PACKAGE_PATH:$PYTHONPATH"
 

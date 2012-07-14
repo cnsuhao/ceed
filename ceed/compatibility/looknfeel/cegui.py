@@ -23,6 +23,8 @@ from ceed.compatibility import ceguihelpers
 
 from xml.etree import cElementTree as ElementTree
 
+import copy
+
 CEGUILookNFeel1 = "CEGUI LookNFeel 1"
 # superseded by LookNFeel 2 in 0.5b
 #CEGUILookNFeel2 = "CEGUI LookNFeel 2"
@@ -68,6 +70,51 @@ class LookNFeel6To7Layer(compatibility.Layer):
     def getTargetType(self):
         return CEGUILookNFeel7
 
+    @classmethod
+    def convertToOperatorDim(cls, dimOpDim):
+        # DimOperator is a tail-tree, the left node is always a leaf
+        # the right node can be a leaf or it's another DimOperator.
+
+        # We will do the most straightforward strategy there is:
+        # Dim(x, DimOp("+", Dim(y))) means "x + y"
+        # --->
+        # OpDim(x, "+", y)
+
+        # So we basically move the operator "outside" and put it as the new
+        # local root node.
+
+        # We may get very unweighted binary evaluation trees (overweight
+        # on the right) but we don't care about that at this point.
+
+        dimOp = None
+
+        for op in dimOpDim:
+            if op.tag != "DimOperator":
+                continue
+
+            assert(dimOp is None)
+            dimOp = op
+
+        # bottom of the tail recursion, no operator inside
+        if dimOp is None:
+            return dimOpDim
+
+        tailDim = None
+        for tail in dimOp:
+            tailDim = tail
+
+        dimOpDim.remove(dimOp)
+        if tailDim is not None:
+            dimOp.remove(tailDim)
+
+        dimOp.tag = "OperatorDim"
+        dimOp.append(dimOpDim)
+        dimOp.append(LookNFeel6To7Layer.convertToOperatorDim(tailDim))
+        dimOp.text = None
+        dimOpDim.text = None
+
+        return dimOp
+
     def transform(self, data):
         root = ElementTree.fromstring(data)
         # Fix for Python < 2.7.
@@ -92,8 +139,41 @@ class LookNFeel6To7Layer(compatibility.Layer):
         for element in root.iter("Image"):
             convertImageElementToName(element)
 
+            typeAttr = element.get("type")
+            if typeAttr is not None:
+                element.set("component", typeAttr)
+                del element.attrib["type"]
+
         for element in root.iter("ImageDim"):
             convertImageElementToName(element)
+
+        parentMap = dict((c, p) for p in root.iter() for c in p)
+
+        # Lets convert DimOperators to OperatorDims
+        dimopIter = root.iter("DimOperator")
+        while True:
+            try:
+                dimop = dimopIter.next()
+
+            except StopIteration:
+                break
+
+            tailTree = parentMap[dimop]
+            tailTreeCopy = copy.deepcopy(tailTree)
+
+            newTree = LookNFeel6To7Layer.convertToOperatorDim(tailTreeCopy)
+
+            ElementTree.dump(parentMap[tailTree])
+            # a trick that replaces tailTree with newTree "in place"
+            tailTree.clear()
+            tailTree.text = None #newTree.text
+            tailTree.tail = newTree.tail
+            tailTree.tag = newTree.tag
+            tailTree.attrib = newTree.attrib
+            tailTree[:] = newTree[:]
+            # end of trick
+
+            dimopIter = root.iter("DimOperator")
 
         # Carat was rightfully renamed to Caret
         for element in root.iter("ImagerySection"):
@@ -135,6 +215,13 @@ class LookNFeel7To6Layer(compatibility.Layer):
 
         for element in root.iter("Image"):
             convertImageElementToImagesetImage(element)
+
+            componentAttr = element.get("component")
+            if componentAttr is not None:
+                element.set("type", componentAttr)
+                del element.attrib["component"]
+
+        # TODO: Convert OperatorDims to DimOperators
 
         for element in root.iter("ImageDim"):
             convertImageElementToImagesetImage(element)
