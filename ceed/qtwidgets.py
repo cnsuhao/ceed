@@ -275,6 +275,11 @@ def getCheckerboardBrush(halfWidth = 5, halfHeight = 5,
     edited images are transparent
     """
 
+    # disallow too larger half sizes to prevent crashes in QPainter
+    # and slowness in general
+    halfWidth = min(halfWidth, 1000)
+    halfHeight = min(halfHeight, 1000)
+
     ret = QtGui.QBrush()
     texture = QtGui.QPixmap(2 * halfWidth, 2 * halfHeight)
     painter = QtGui.QPainter(texture)
