@@ -44,7 +44,6 @@
     <!-- End of CEGUI::NamedElement -->
 
     <!-- CEGUI::Window -->
-    <mapping propertyOrigin="Window" propertyName="ID" hidden="True" />
     <mapping propertyOrigin="Window" propertyName="LookNFeel" hidden="True" />
     <mapping propertyOrigin="Window" propertyName="WindowRenderer" hidden="True" />
 
