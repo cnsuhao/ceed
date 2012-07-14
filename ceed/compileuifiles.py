@@ -36,12 +36,15 @@ def compileUIFiles(ui_dir):
 def main():
     from ceed import paths
 
-    compileUIFiles(paths.ui_dir)
-    compileUIFiles(paths.ui_dir + "/editors")
-    compileUIFiles(paths.ui_dir + "/editors/animation_list")
-    compileUIFiles(paths.ui_dir + "/editors/imageset")
-    compileUIFiles(paths.ui_dir + "/editors/layout")
-    compileUIFiles(paths.ui_dir + "/widgets")
+    # FIXME: This is something that we may forget to maintain, ideally
+    #        it should be done automatically by detecting all subfolders
+    #        of UI_DIR
+    compileUIFiles(paths.UI_DIR)
+    compileUIFiles(os.path.join(paths.UI_DIR, "editors"))
+    compileUIFiles(os.path.join(paths.UI_DIR, "editors", "animation_list"))
+    compileUIFiles(os.path.join(paths.UI_DIR, "editors", "imageset"))
+    compileUIFiles(os.path.join(paths.UI_DIR, "editors", "layout"))
+    compileUIFiles(os.path.join(paths.UI_DIR, "widgets"))
 
 if __name__ == "__main__":
     main()

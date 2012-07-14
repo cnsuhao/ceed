@@ -24,41 +24,41 @@ environments.
 
 import os
 
-"""Whether the application is frozen using cx_Freeze"""
-frozen = False
+# Whether the application is frozen using cx_Freeze
+FROZEN = False
 
 from ceed import fake
-"""What's the absolute path to the package directory"""
-package_dir = os.path.dirname(os.path.abspath(fake.__file__))
+# What's the absolute path to the package directory
+PACKAGE_DIR = os.path.dirname(os.path.abspath(fake.__file__))
 
-if package_dir.endswith(os.path.join("library.zip", "ceed")):
-    frozen = True
-    package_dir = os.path.dirname(package_dir)
+if PACKAGE_DIR.endswith(os.path.join("library.zip", "ceed")):
+    FROZEN = True
+    PACKAGE_DIR = os.path.dirname(PACKAGE_DIR)
 
-"""What's the absolute path to the data directory"""
-data_dir = ""
-"""Potential system data dir, we check it's existence and set
-data_dir as system_data_dir if it exists
-"""
-system_data_dir = "/usr/share/ceed"
-system_data_dir_exists = False
+# What's the absolute path to the data directory
+DATA_DIR = ""
+
+# Potential system data dir, we check it's existence and set
+# data_dir as system_data_dir if it exists
+SYSTEM_DATA_DIR = "/usr/share/ceed"
+SYSTEM_DATA_DIR_EXISTS = False
 try:
-    if os.path.exists(system_data_dir):
-        data_dir = system_data_dir
-        system_data_dir_exists = True
+    if os.path.exists(SYSTEM_DATA_DIR):
+        DATA_DIR = SYSTEM_DATA_DIR
+        SYSTEM_DATA_DIR_EXISTS = True
 except:
     pass
 
-if not system_data_dir_exists:
-    data_dir = os.path.join(os.path.dirname(package_dir), "data")
+if not SYSTEM_DATA_DIR_EXISTS:
+    DATA_DIR = os.path.join(os.path.dirname(PACKAGE_DIR), "data")
 
-"""What's the absolute path to the ui directory"""
-ui_dir = os.path.join(package_dir, "ui")
+# What's the absolute path to the ui directory
+UI_DIR = os.path.join(PACKAGE_DIR, "ui")
 
 # if one of these assertions fail your installation is not valid!
-if not frozen:
+if not FROZEN:
     # these two checks will always fail in a frozen instance
-    assert(os.path.exists(package_dir))
-    assert(os.path.exists(ui_dir))
+    assert(os.path.exists(PACKAGE_DIR))
+    assert(os.path.exists(UI_DIR))
 
-assert(os.path.exists(data_dir))
+assert(os.path.exists(DATA_DIR))

@@ -46,7 +46,7 @@ def get_packages():
 
     return ret
 
-def get_directoryfilepairs(directory, base = "data", install_base = paths.system_data_dir):
+def get_directoryfilepairs(directory, base = "data", install_base = paths.SYSTEM_DATA_DIR):
     ret = []
     files = []
     for path in os.listdir(os.path.join(base, directory)):
@@ -73,5 +73,5 @@ setup(
     url = "http://www.cegui.org.uk/",
     packages = get_packages(),
     scripts = ["bin/ceed-gui", "bin/ceed-mic", "bin/ceed-migrate"],
-    data_files = get_directoryfilepairs("", "data", paths.system_data_dir)
+    data_files = get_directoryfilepairs("", "data", paths.SYSTEM_DATA_DIR)
 )
