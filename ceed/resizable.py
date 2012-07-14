@@ -158,6 +158,9 @@ class ResizingHandle(QtGui.QGraphicsRectItem):
         (with restrictions accounted for)
         """
 
+        # designed to be overriden
+        # pylint: disable-msg=R0201
+
         return value
 
     def unselectAllSiblingHandles(self):
@@ -433,6 +436,12 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
     or inside (if it's large). All this is tweakable.
     """
 
+    # This class is supposed to be inherited from and the "could be functions"
+    # methods are supposed to be overriden, the refactor messages by pylint
+    # therefore make no sense in this case
+
+    # pylint: disable-msg=R0201
+
     def __init__(self, parentItem = None):
         super(ResizableRectItem, self).__init__(parentItem)
 
@@ -466,6 +475,8 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
 
         self.hideAllHandles()
 
+        self.outerHandleSize = 0
+        self.innerHandleSize = 0
         self.setOuterHandleSize(15)
         self.setInnerHandleSize(10)
 
