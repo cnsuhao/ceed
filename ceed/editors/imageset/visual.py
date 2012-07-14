@@ -986,6 +986,11 @@ class VisualEditing(resizable.GraphicsView, multi.EditMode):
         cmd = undo.PasteCommand(self, newNames, newPositions, newRects, newOffsets)
         self.tabbedEditor.undoStack.push(cmd)
 
+        # select just the pasted image definitions for convenience
+        self.scene().clearSelection()
+        for name in newNames:
+            self.imagesetEntry.getImageEntry(name).setSelected(True)
+
         return True
 
     def performDelete(self):
