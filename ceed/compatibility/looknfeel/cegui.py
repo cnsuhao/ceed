@@ -163,7 +163,6 @@ class LookNFeel6To7Layer(compatibility.Layer):
 
             newTree = LookNFeel6To7Layer.convertToOperatorDim(tailTreeCopy)
 
-            ElementTree.dump(parentMap[tailTree])
             # a trick that replaces tailTree with newTree "in place"
             tailTree.clear()
             tailTree.text = None #newTree.text
