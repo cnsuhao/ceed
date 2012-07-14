@@ -1236,6 +1236,12 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         cmd = undo.PasteCommand(self, topMostSerialisationData, targetManipulator.widget.getNamePath())
         self.tabbedEditor.undoStack.push(cmd)
 
+        # select the topmost pasted widgets for convenience
+        self.scene.clearSelection()
+        for serialisationData in topMostSerialisationData:
+            manipulator = targetManipulator.getManipulatorByPath(serialisationData.name)
+            manipulator.setSelected(True)
+
         return True
 
     def performDelete(self):
