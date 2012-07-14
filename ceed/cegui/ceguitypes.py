@@ -1,3 +1,23 @@
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#                             and contributing authors (see AUTHORS file)
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##############################################################################
+
 """Lightweight CEGUI property value types that can parse and write text."""
 
 import abc
@@ -1009,3 +1029,30 @@ class ColourRectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return ColourRect.tryParse(strValue)
+
+class StringWrapper(Base):
+    """Simple string that does no parsing but allows us to map editors to it"""
+
+    def __init__(self, value):
+        super(StringWrapper, self).__init__()
+        self.value = value
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        return False
+
+    def __repr__(self):
+        return self.value
+
+    @classmethod
+    def getPropertyType(cls):
+        return BaseProperty
+
+class FontRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return FontRef(strValue), True

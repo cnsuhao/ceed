@@ -34,6 +34,8 @@ from . import utility
 from .properties import Property
 from .properties import EnumValue
 
+from ceed.cegui import ceguitypes as ct
+
 from PySide import QtGui
 
 class PropertyEditorRegistry(object):
@@ -396,3 +398,60 @@ class EnumValuePropertyEditor(PropertyEditor):
         super(EnumValuePropertyEditor, self).setWidgetValueFromProperty()
 
 PropertyEditorRegistry.addStandardEditor(EnumValuePropertyEditor)
+
+class DynamicChoicesEditor(PropertyEditor):
+    """Editor for strings where user chooses from several options like in a combobox.
+
+    The difference is that this combobox gets the values from an external place
+    dynamically. You simply override the getChoices method of this class.
+    """
+
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
+        super(DynamicChoicesEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
+
+    def getChoices(self):
+        raise NotImplementedError("All subclasses of DynamicChoicesEditor have to implement the 'getChoices' method!")
+
+    def createEditWidget(self, parent):
+        self.editWidget = QtGui.QComboBox(parent)
+        for name, value in self.getChoices():
+            self.editWidget.addItem(name, value)
+        self.editWidget.activated.connect(self.valueChanging)
+
+        return self.editWidget
+
+    def getWidgetValue(self):
+        idx = self.editWidget.currentIndex()
+        return (self.editWidget.itemData(idx), True) if idx != -1 else (None, False)
+
+    def setWidgetValueFromProperty(self):
+        value, valid = self.getWidgetValue()
+        if (not valid) or (self.property.value != value):
+            for idx in range(self.editWidget.count()):
+                if self.editWidget.itemData(idx) == self.property.value:
+                    self.editWidget.setCurrentIndex(idx)
+                    break
+
+        super(DynamicChoicesEditor, self).setWidgetValueFromProperty()
+
+class FontEditor(DynamicChoicesEditor):
+    @classmethod
+    def getSupportedValueTypes(cls):
+        return { ct.FontRef:0 }
+
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
+        super(FontEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
+
+    def getChoices(self):
+        ceguiInstance = mainwindow.MainWindow.instance.ceguiInstance
+
+        ret = [("", ct.FontRef(""))] # GUI Context default font
+
+        if ceguiInstance is not None:
+            ret.extend([(font, ct.FontRef(font)) for font in ceguiInstance.getAvailableFonts()])
+
+        return ret
+
+PropertyEditorRegistry.addStandardEditor(FontEditor)
+
+from ceed import mainwindow
