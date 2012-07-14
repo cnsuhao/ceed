@@ -117,6 +117,7 @@ class MainWindow(QtGui.QMainWindow):
         for factory in self.editorFactories:
             allExt.extend(factory.getFileExtensions())
         self.editorFactoryFileFilters.insert(0, "All known files (*." + " *.".join(allExt) + ")")
+        self.editorFactoryFileFilters.insert(1, "All files (*)")
 
         self._activeEditor = None
         self._project = None
