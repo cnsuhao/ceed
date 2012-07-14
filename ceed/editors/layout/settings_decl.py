@@ -38,7 +38,7 @@ def declare(settings):
 
     visual.createEntry(name = "normal_outline", type = QtGui.QPen, label = "Normal outline",
                        help = "Pen for normal outline.",
-                       defaultValue = QtGui.QPen(QtGui.QColor(255, 255, 255, 150)), widgetHint = "pen",
+                       defaultValue = QtGui.QPen(QtGui.QColor(255, 255, 0, 255)), widgetHint = "pen",
                        sortingWeight = 1)
 
     visual.createEntry(name = "hover_outline", type = QtGui.QPen, label = "Hover outline",
