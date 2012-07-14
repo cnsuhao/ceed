@@ -238,6 +238,28 @@ class Item(QtGui.QStandardItem):
 
         return ret
 
+    def referencesFilePath(self, filePath):
+        """Checks whether given absolute path is referenced by this Item
+        or any of its descendants"""
+
+        if self.itemType == Item.File:
+            return os.path.samefile(self.getAbsolutePath(), filePath)
+
+        elif self.itemType == Item.Folder:
+            i = 0
+            while i < self.rowCount():
+                subItemElement = self.child(i)
+                if subItemElement.referencesFilePath(filePath):
+                    return True
+
+                i += 1
+
+            return False
+
+        else:
+            # Unknown Item
+            return False
+
 class Project(QtGui.QStandardItemModel):
     """This class encapsulates a project edited by the editor
 
@@ -390,6 +412,21 @@ class Project(QtGui.QStandardItemModel):
             directoryPath = self.getResourceFilePath("", resourceCategory)
             if not os.path.isdir(directoryPath):
                 raise IOError("Resource directory '%s' for resources of type '%s' isn't a directory or isn't accessible" % (directoryPath, resourceCategory))
+
+    def referencesFilePath(self, filePath):
+        """Checks whether given absolute path is referenced by any File item
+        in the project"""
+
+        i = 0
+        while i < self.rowCount():
+            item = self.item(i)
+
+            if item.referencesFilePath(filePath):
+                return True
+
+            i += 1
+
+        return False
 
 class ProjectManager(QtGui.QDockWidget):
     """This is basically a view of the Project model class,
@@ -587,10 +624,34 @@ class ProjectManager(QtGui.QDockWidget):
                                                            self.project.getAbsolutePathOf(""))
         selectedIndices = self.view.selectedIndexes()
 
-        for file in files:
+        # lets see if file user wants added isn't already there
+        previousResponse = None
+        for file_ in files:
+            if self.view.model().referencesFilePath(file_):
+                # file is already in the project
+                response = None
+
+                if previousResponse == QtGui.QMessageBox.YesToAll:
+                    response = QtGui.QMessageBox.YesToAll
+                elif previousResponse == QtGui.QMessageBox.NoToAll:
+                    response = QtGui.QMessageBox.NoToAll
+                else:
+                    response = QtGui.QMessageBox.question(self, "File is already in the project!",
+                            "File '%s' that you are trying to add is already referenced in the "
+                            "project.\n\n"
+                            "Do you want to add it as a duplicate?" % (file_),
+                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No |
+                            QtGui.QMessageBox.YesToAll | QtGui.QMessageBox.NoToAll,
+                            QtGui.QMessageBox.Yes)
+
+                    previousResponse = response
+
+                if response in [QtGui.QMessageBox.No, QtGui.QMessageBox.NoToAll]:
+                    continue
+
             item = Item(self.project)
             item.itemType = Item.File
-            item.path = self.project.getRelativePathOf(file)
+            item.path = self.project.getRelativePathOf(file_)
 
             if len(selectedIndices) == 0:
                 self.project.appendRow(item)
