@@ -38,10 +38,9 @@ class TextTabbedEditor(editors.TabbedEditor):
     def initialise(self, mainWindow):
         super(TextTabbedEditor, self).initialise(mainWindow)
 
-        file_ = open(self.filePath, "r")
         self.textDocument = QtGui.QTextDocument()
-        self.textDocument.setPlainText(file_.read())
-        file_.close()
+        with open(self.filePath, "r") as file_:
+            self.textDocument.setPlainText(file_.read())
 
         self.tabWidget.setDocument(self.textDocument)
         self.textDocument.setModified(False)
@@ -49,6 +48,8 @@ class TextTabbedEditor(editors.TabbedEditor):
         self.textDocument.setUndoRedoEnabled(True)
         self.textDocument.undoAvailable.connect(self.slot_undoAvailable)
         self.textDocument.redoAvailable.connect(self.slot_redoAvailable)
+
+        self.textDocument.contentsChanged.connect(self.slot_contentsChanged)
 
     def finalise(self):
         super(TextTabbedEditor, self).finalise()
@@ -59,11 +60,9 @@ class TextTabbedEditor(editors.TabbedEditor):
         return self.textDocument.isModified()
 
     def undo(self):
-        # TODO: For some weird reason this doesn't do anything, could be a PySide bug
         self.textDocument.undo()
 
     def redo(self):
-        # TODO: For some weird reason this doesn't do anything, could be a PySide bug
         self.textDocument.redo()
 
     def slot_undoAvailable(self, available):
@@ -71,6 +70,14 @@ class TextTabbedEditor(editors.TabbedEditor):
 
     def slot_redoAvailable(self, available):
         self.mainWindow.redoAction.setEnabled(available)
+
+    def slot_contentsChanged(self):
+        self.markHasChanges(self.hasChanges())
+
+    def saveAs(self, targetPath, updateCurrentPath = True):
+        self.nativeData = self.textDocument.toPlainText()
+
+        return super(TextTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
 class TextTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
