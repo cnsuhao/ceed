@@ -454,4 +454,24 @@ class FontEditor(DynamicChoicesEditor):
 
 PropertyEditorRegistry.addStandardEditor(FontEditor)
 
+class ImageEditor(DynamicChoicesEditor):
+    @classmethod
+    def getSupportedValueTypes(cls):
+        return { ct.ImageRef:0 }
+
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
+        super(ImageEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
+
+    def getChoices(self):
+        ceguiInstance = mainwindow.MainWindow.instance.ceguiInstance
+
+        ret = [("", ct.ImageRef(""))] # GUI Context default font
+
+        if ceguiInstance is not None:
+            ret.extend([(image, ct.ImageRef(image)) for image in ceguiInstance.getAvailableImages()])
+
+        return ret
+
+PropertyEditorRegistry.addStandardEditor(ImageEditor)
+
 from ceed import mainwindow

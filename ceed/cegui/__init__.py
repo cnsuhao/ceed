@@ -421,6 +421,23 @@ class Instance(object):
 
         return fonts
 
+    def getAvailableImages(self):
+        """Retrieves images (as strings representing their names) that are available
+        from the set of schemes that were loaded.
+
+        see syncToProject
+        """
+
+        images = []
+        image_iter = PyCEGUI.ImageManager.getSingleton().getIterator()
+        while not image_iter.isAtEnd():
+            images.append(image_iter.getCurrentKey())
+            image_iter.next()
+
+        images.sort()
+
+        return images
+
     def getAvailableWidgetsBySkin(self):
         """Retrieves all mappings (string names) of all widgets that can be created
 

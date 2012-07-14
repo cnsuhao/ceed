@@ -1056,3 +1056,8 @@ class FontRef(StringWrapper):
     @classmethod
     def tryParse(cls, strValue, target=None):
         return FontRef(strValue), True
+
+class ImageRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return ImageRef(strValue), True

@@ -112,7 +112,8 @@ class CEGUIPropertyManager(object):
                 "SortMode": ct.SortMode,
                 "Colour": ct.Colour,
                 "ColourRect": ct.ColourRect,
-                "Font": ct.FontRef
+                "Font": ct.FontRef,
+                "Image": ct.ImageRef
                 }
     # TODO: Font*, Image*, UBox?
 
