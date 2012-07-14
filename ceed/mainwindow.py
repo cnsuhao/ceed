@@ -702,10 +702,22 @@ Details of this error: %s""" % (e))
             # IMO this is a reasonable compromise and plays well with the rest of
             # the editor without introducing exceptions, etc...
             if len(possibleFactories) == 0:
-                ret = editors.MessageTabbedEditor(absolutePath,
-                       "No included tabbed editor was able to accept '%s' (project relative path: '%s'), please "
-                       "check that it's a file CEED supports and that it has the correct extension "
-                       "(CEED enforces proper extensions)" % (absolutePath, projectRelativePath))
+                if absolutePath.endswith(".project"):
+                    # provide a more newbie-friendly message in case they are
+                    # trying to open a project file as if it were a file
+                    ret = editors.MessageTabbedEditor(absolutePath,
+                        "You are trying to open '%s' (project relative path: '%s') which "
+                        "seems to be a CEED project file. "
+                        "This simply is not how things are supposed to work, please use "
+                        "File -> Open Project to open your project file instead. "
+                        "(CEED enforces proper extensions)" % (absolutePath, projectRelativePath))
+
+                else:
+                    ret = editors.MessageTabbedEditor(absolutePath,
+                        "No included tabbed editor was able to accept '%s' "
+                        "(project relative path: '%s'), please check that it's a file CEED "
+                        "supports and that it has the correct extension "
+                        "(CEED enforces proper extensions)" % (absolutePath, projectRelativePath))
 
             else:
                 # one or more factories wants to accept the file
