@@ -414,7 +414,7 @@ class Instance(object):
         fonts = []
         font_iter = PyCEGUI.FontManager.getSingleton().getIterator()
         while not font_iter.isAtEnd():
-            fonts.append(font_iter.getCurrentValue().getName())
+            fonts.append(font_iter.getCurrentKey())
             font_iter.next()
 
         fonts.sort()
