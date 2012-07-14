@@ -265,7 +265,7 @@ class TopEdgeResizingHandle(EdgeResizingHandle):
 
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta, 0, 0)
+        _, dy1, _, _ = self.parentResizable.performResizing(self, 0, delta, 0, 0)
 
         return QtCore.QPointF(self.pos().x(), dy1 + self.pos().y())
 
@@ -286,7 +286,7 @@ class BottomEdgeResizingHandle(EdgeResizingHandle):
 
     def performResizing(self, value):
         delta = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, 0, delta)
+        _, _, _, dy2 = self.parentResizable.performResizing(self, 0, 0, 0, delta)
 
         return QtCore.QPointF(self.pos().x(), dy2 + self.pos().y())
 
@@ -307,7 +307,7 @@ class LeftEdgeResizingHandle(EdgeResizingHandle):
 
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta, 0, 0, 0)
+        dx1, _, _, _ = self.parentResizable.performResizing(self, delta, 0, 0, 0)
 
         return QtCore.QPointF(dx1 + self.pos().x(), self.pos().y())
 
@@ -328,7 +328,7 @@ class RightEdgeResizingHandle(EdgeResizingHandle):
 
     def performResizing(self, value):
         delta = value.x() - self.pos().x()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta, 0)
+        _, _, dx2, _ = self.parentResizable.performResizing(self, 0, 0, delta, 0)
 
         return QtCore.QPointF(dx2 + self.pos().x(), self.pos().y())
 
@@ -379,9 +379,9 @@ class TopRightCornerResizingHandle(CornerResizingHandle):
         self.setCursor(QtCore.Qt.SizeBDiagCursor)
 
     def performResizing(self, value):
-        delta_x = value.x() - self.pos().x()
-        delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, delta_y, delta_x, 0)
+        deltaX = value.x() - self.pos().x()
+        deltaY = value.y() - self.pos().y()
+        _, dy1, dx2, _ = self.parentResizable.performResizing(self, 0, deltaY, deltaX, 0)
 
         return QtCore.QPointF(dx2 + self.pos().x(), dy1 + self.pos().y())
 
@@ -392,9 +392,9 @@ class BottomRightCornerResizingHandle(CornerResizingHandle):
         self.setCursor(QtCore.Qt.SizeFDiagCursor)
 
     def performResizing(self, value):
-        delta_x = value.x() - self.pos().x()
-        delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, delta_x, delta_y)
+        deltaX = value.x() - self.pos().x()
+        deltaY = value.y() - self.pos().y()
+        _, _, dx2, dy2 = self.parentResizable.performResizing(self, 0, 0, deltaX, deltaY)
 
         return QtCore.QPointF(dx2 + self.pos().x(), dy2 + self.pos().y())
 
@@ -405,9 +405,9 @@ class BottomLeftCornerResizingHandle(CornerResizingHandle):
         self.setCursor(QtCore.Qt.SizeBDiagCursor)
 
     def performResizing(self, value):
-        delta_x = value.x() - self.pos().x()
-        delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, 0, 0, delta_y)
+        deltaX = value.x() - self.pos().x()
+        deltaY = value.y() - self.pos().y()
+        dx1, _, _, dy2 = self.parentResizable.performResizing(self, deltaX, 0, 0, deltaY)
 
         return QtCore.QPointF(dx1 + self.pos().x(), dy2 + self.pos().y())
 
@@ -418,9 +418,9 @@ class TopLeftCornerResizingHandle(CornerResizingHandle):
         self.setCursor(QtCore.Qt.SizeFDiagCursor)
 
     def performResizing(self, value):
-        delta_x = value.x() - self.pos().x()
-        delta_y = value.y() - self.pos().y()
-        dx1, dy1, dx2, dy2 = self.parentResizable.performResizing(self, delta_x, delta_y, 0, 0)
+        deltaX = value.x() - self.pos().x()
+        deltaY = value.y() - self.pos().y()
+        dx1, dy1, _, _ = self.parentResizable.performResizing(self, deltaX, deltaY, 0, 0)
 
         return QtCore.QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
 
@@ -561,14 +561,14 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
 
         return rect
 
-    def performResizing(self, handle, delta_x1, delta_y1, delta_x2, delta_y2):
+    def performResizing(self, handle, deltaX1, deltaY1, deltaX2, deltaY2):
         """Adjusts the rectangle and returns a 4-tuple of the actual used deltas
         (with restrictions accounted for)
 
         The default implementation doesn't use the handle parameter.
         """
 
-        newRect = self.rect().adjusted(delta_x1, delta_y1, delta_x2, delta_y2)
+        newRect = self.rect().adjusted(deltaX1, deltaY1, deltaX2, deltaY2)
         newRect = self.constrainResizeRect(newRect, self.rect())
 
         # TODO: the rect moves as a whole when it can't be sized any less
@@ -635,18 +635,18 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
             self.updateHandles()
 
     def absoluteXToRelative(self, value, transform):
-        x_scale = transform.m11()
+        xScale = transform.m11()
 
         # this works in this special case, not in generic case!
         # I would have to undo rotation for this to work generically
-        return value / x_scale if x_scale != 0 else 1
+        return value / xScale if xScale != 0 else 1
 
     def absoluteYToRelative(self, value, transform):
-        y_scale = transform.m22()
+        yScale = transform.m22()
 
         # this works in this special case, not in generic case!
         # I would have to undo rotation for this to work generically
-        return value / y_scale if y_scale != 0 else 1
+        return value / yScale if yScale != 0 else 1
 
     def updateHandles(self):
         """Updates all the handles according to geometry"""
