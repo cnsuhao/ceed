@@ -191,7 +191,7 @@ class ActionManager(declaration.ActionManager):
                                        menuRole = QAction.NoRole)
         projectManagement.createAction(name = "reload_resources", label = "&Reload Resources",
                                        help_ = "Reloads all CEGUI resources associated with currently opened project.",
-                                       icon = QIcon("icons/projectManagement/reload_resources.png"))
+                                       icon = QIcon("icons/project_management/reload_resources.png"))
 
         files = self.createCategory(name = "files", label = "Tabs and Files")
         files.createAction(name = "new_file", label = "&Other...", settingsLabel = "New File",
