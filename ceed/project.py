@@ -18,6 +18,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Implements project file data model and GUI for interacting with it
+"""
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -38,9 +41,9 @@ import ceed.ui.newprojectdialog
 import ceed.ui.projectsettingsdialog
 
 # TODO: Should probably be moved somewhere else because it's reusable
-def convertToPortablePath(input_path):
+def convertToPortablePath(inputPath):
     # very crude and basic for now
-    return unicode(os.path.normpath(input_path)).replace("\\", "/")
+    return unicode(os.path.normpath(inputPath)).replace("\\", "/")
 
 class Item(QtGui.QStandardItem):
     """One item in the project
@@ -579,22 +582,22 @@ class ProjectManager(QtGui.QDockWidget):
     def slot_addNewFile(self):
         ## TODO: name clashes, duplicates
 
-        file, _ = QtGui.QFileDialog.getSaveFileName(self,
+        file_, _ = QtGui.QFileDialog.getSaveFileName(self,
                                                     "Create a new file and add it to the project",
                                                     self.project.getAbsolutePathOf(""))
 
-        if file == "":
+        if file_ == "":
             # user cancelled
             return
 
         try:
-            f = open(file, "w")
+            f = open(file_, "w")
             f.close()
 
         except OSError:
             QtGui.QMessageBox.question(self,
                                        "Can't create file!",
-                                       "Creating file '%s' failed. Exception details follow:\n%s" % (file, sys.exc_info()[1]),
+                                       "Creating file '%s' failed. Exception details follow:\n%s" % (file_, sys.exc_info()[1]),
                                        QtGui.QMessageBox.Ok)
 
             return
@@ -603,7 +606,7 @@ class ProjectManager(QtGui.QDockWidget):
 
         item = Item(self.project)
         item.itemType = Item.File
-        item.path = self.project.getRelativePathOf(file)
+        item.path = self.project.getRelativePathOf(file_)
 
         if len(selectedIndices) == 0:
             self.project.appendRow(item)
@@ -808,9 +811,9 @@ class NewProjectDialog(QtGui.QDialog):
                 prefix = os.path.dirname(ret.projectFilePath)
                 dirs = ["fonts", "imagesets", "looknfeel", "schemes", "layouts", "xml_schemas"]
 
-                for dir in dirs:
-                    if not os.path.exists(os.path.join(prefix, dir)):
-                        os.mkdir(os.path.join(prefix, dir))
+                for dir_ in dirs:
+                    if not os.path.exists(os.path.join(prefix, dir_)):
+                        os.mkdir(os.path.join(prefix, dir_))
 
             except OSError as e:
                 QtGui.QMessageBox.critical(self, "Cannot create resource \
