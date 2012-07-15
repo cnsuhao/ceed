@@ -46,6 +46,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
         self.ceguiInstance = ceguiInstance
         self.scenePadding = 100
+
+        self.ceguiDisplaySize = None
         # reasonable defaults I think
         self.setCEGUIDisplaySize(800, 600, lazyUpdate = True)
 
@@ -65,7 +67,6 @@ class GraphicsScene(QtGui.QGraphicsScene):
                                         width + 2 * self.scenePadding, height + 2 * self.scenePadding))
 
         if not lazyUpdate:
-            # FIXME: Change when multi root is in CEGUI core
             PyCEGUI.System.getSingleton().notifyDisplaySizeChanged(self.ceguiDisplaySize)
 
         self.fbo = None
@@ -140,9 +141,13 @@ class GraphicsScene(QtGui.QGraphicsScene):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        # TODO: I was told that this is the slowest method to draw with OpenGL, with which I certainly agree
-        #       no profiling has been done at all and I don't suspect this to be a painful performance problem.
-        #       However changing this to a less pathetic rendering method would be great.
+        # TODO: I was told that this is the slowest method to draw with OpenGL,
+        #       with which I certainly agree.
+        #
+        #       No profiling has been done at all and I don't suspect this to be
+        #       a painful performance problem.
+        #
+        #       Still, changing this to a less pathetic rendering method would be great.
 
         GL.glBegin(GL.GL_TRIANGLES)
 
@@ -183,11 +188,12 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
 
     def __init__(self, parent = None):
         resizable.GraphicsView.__init__(self, parent)
+        cegui.GLContextProvider.__init__(self)
 
         # mainly to tone down potential antialiasing
         self.glFormat = QtOpenGL.QGLFormat()
-        self.glFormat.setSampleBuffers(True);
-        self.glFormat.setSamples(2);
+        self.glFormat.setSampleBuffers(True)
+        self.glFormat.setSamples(2)
 
         self.setViewport(QtOpenGL.QGLWidget(self.glFormat))
         # OpenGL doesn't do partial redraws (it isn't practical anyways)
@@ -223,7 +229,7 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
                 # * 1000 because QTimer thinks in milliseconds
                 lastDelta = self.scene().lastDelta if self.scene() is not None else 0
                 QtCore.QTimer.singleShot(max(0, ((1.0 / self.continuousRenderingTargetFPS) - lastDelta) * 1000),
-                                         lambda: self.updateSelfAndScene())
+                                         self.updateSelfAndScene)
 
         else:
             # we don't mark ourselves as dirty if user didn't request continuous rendering
