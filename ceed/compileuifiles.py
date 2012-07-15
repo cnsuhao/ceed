@@ -18,20 +18,27 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""This module allows to compile .ui files made in QtDesigner into python
+code that represents the same GUI layouts.
+
+To enable automatic recompilation see version.DEVELOPER_MODE.
+To recompile ui files manually see the "maintenance" script.
+"""
+
 import os
 from pysideuic import compileUi
 
 # written by Paul D Turner for CELayoutEditorII
-def compileUIFiles(ui_dir):
-    for name in os.listdir(ui_dir):
-        ui_name = os.path.join(ui_dir, name)
-        if os.path.isfile(ui_name):
+def compileUIFiles(uiDir):
+    for name in os.listdir(uiDir):
+        uiFilePath = os.path.join(uiDir, name)
+
+        if os.path.isfile(uiFilePath):
             if name.endswith(".ui"):
-                outname = name[:-3] + ".py"
-                outname = outname.lower()
-                outfile = open(os.path.join(ui_dir, outname), "w")
-                compileUi(ui_name, outfile)
-                outfile.close()
+                uiResultPath = (name[:-3] + ".py").lower()
+
+                with open(os.path.join(uiDir, uiResultPath), "w") as f:
+                    compileUi(uiFilePath, f)
 
 def main():
     from ceed import paths
