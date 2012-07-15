@@ -27,9 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # We use this for imageset optimisation and meta-imageset
 # generating code.
 
+# Minor changes by Martin Preisler
+
 from bisect import bisect_left
 
-class OutOfSpaceError(Exception): pass
+class OutOfSpaceError(Exception):
+    pass
 
 class Point(object):
     def __init__(self, x, y):
@@ -58,21 +61,21 @@ class RectanglePacker(object):
         self.packingAreaWidth = packingAreaWidth
         self.packingAreaHeight = packingAreaHeight
 
-    def Pack(self, rectangleWidth, rectangleHeight):
+    def pack(self, rectangleWidth, rectangleHeight):
         """Allocates space for a rectangle in the packing area
 
         rectangleWidth: Width of the rectangle to allocate
         rectangleHeight: Height of the rectangle to allocate
 
         Returns the location at which the rectangle has been placed"""
-        point = self.TryPack(rectangleWidth, rectangleHeight)
+        point = self.tryPack(rectangleWidth, rectangleHeight)
 
         if not point:
             raise OutOfSpaceError("Rectangle does not fit in packing area")
 
         return point
 
-    def TryPack(self, rectangleWidth, rectangleHeight):
+    def tryPack(self, rectangleWidth, rectangleHeight):
         """Tries to allocate space for a rectangle in the packing area
 
         rectangleWidth: Width of the rectangle to allocate
@@ -80,6 +83,7 @@ class RectanglePacker(object):
 
         Returns a Point instance if space for the rectangle could be allocated
         be found, otherwise returns None"""
+
         raise NotImplementedError
 
 class CygonRectanglePacker(RectanglePacker):
@@ -110,9 +114,9 @@ class CygonRectanglePacker(RectanglePacker):
         self.heightSlices = []
 
         # At the beginning, the packing area is a single slice of height 0
-        self.heightSlices.append(Point(0,0))
+        self.heightSlices.append(Point(0, 0))
 
-    def TryPack(self, rectangleWidth, rectangleHeight):
+    def tryPack(self, rectangleWidth, rectangleHeight):
         """Tries to allocate space for a rectangle in the packing area
 
         rectangleWidth: Width of the rectangle to allocate
@@ -120,6 +124,7 @@ class CygonRectanglePacker(RectanglePacker):
 
         Returns a Point instance if space for the rectangle could be allocated
         be found, otherwise returns None"""
+
         placement = None
 
         # If the rectangle is larger than the packing area in any dimension,
@@ -250,7 +255,7 @@ class CygonRectanglePacker(RectanglePacker):
             if right < self.packingAreaWidth:
                 self.heightSlices.append(Point(right, firstSliceOriginalHeight))
         else: # The rectangle doesn't start on the last slice
-            endSlice = bisect_left(self.heightSlices, Point(right,0), \
+            endSlice = bisect_left(self.heightSlices, Point(right, 0), \
             startSlice, len(self.heightSlices))
 
             # Another direct hit on the final slice's end?

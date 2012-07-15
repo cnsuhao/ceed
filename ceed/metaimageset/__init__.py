@@ -72,8 +72,6 @@ class Input(object):
 
         raise NotImplementedError("Each Input subclass must override Input.getImages!")
 
-        return []
-
 class Imageset(Input):
     class FakeImagesetEntry(imageset_elements.ImagesetEntry):
         class FakeVisual(object):
@@ -91,6 +89,7 @@ class Imageset(Input):
     def __init__(self, metaImageset):
         super(Imageset, self).__init__(metaImageset)
 
+        self.filePath = ""
         self.imagesetEntry = None
 
     def loadFromElement(self, element):
@@ -257,8 +256,8 @@ class MetaImageset(object):
         ret.set("outputTargetType", self.outputTargetType)
         ret.set("output", self.output)
 
-        for input in self.inputs:
-            element = input.saveToElement()
+        for input_ in self.inputs:
+            element = input_.saveToElement()
             ret.append(element)
 
         return ret

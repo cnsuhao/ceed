@@ -48,8 +48,8 @@ class CompilerInstance(object):
 
         area = 0
 
-        for input in self.metaImageset.inputs:
-            for image in input.getImages():
+        for input_ in self.metaImageset.inputs:
+            for image in input_.getImages():
                 area += image.qimage.width() * image.qimage.height()
 
         return math.sqrt(area)
@@ -68,9 +68,10 @@ class CompilerInstance(object):
         sideSize = getNextPOT(theoreticalMinSize) if self.metaImageset.onlyPOT else theoreticalMinSize
 
         print("Gathering and rendering all images...")
+
         images = []
-        for input in self.metaImageset.inputs:
-            images.extend(input.getImages())
+        for input_ in self.metaImageset.inputs:
+            images.extend(input_.getImages())
 
         # the image packer performs better if images are inserted by width, thinnest come first
         images = sorted(images, key = lambda image: image.qimage.width())
@@ -86,7 +87,7 @@ class CompilerInstance(object):
                 for image in images:
                     # TODO: borders to avoid artifacts
 
-                    point = packer.Pack(image.qimage.width(), image.qimage.height())
+                    point = packer.pack(image.qimage.width(), image.qimage.height())
                     imageInstances.append(ImageInstance(point.x, point.y, image))
 
                 # everything seems to have gone smoothly, lets use this configuration then
