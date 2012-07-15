@@ -21,7 +21,6 @@
 from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import multi
-from ceed import xmledit
 
 class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
@@ -30,10 +29,7 @@ class CodeEditing(multi.CodeEditMode):
         self.tabbedEditor = tabbedEditor
 
     def getNativeCode(self):
-        element = self.tabbedEditor.visual.saveToElement()
-        xmledit.indent(element)
-
-        return ElementTree.tostring(element, "utf-8")
+        return self.tabbedEditor.visual.generateNativeData()
 
     def propagateNativeCode(self, code):
         element = None

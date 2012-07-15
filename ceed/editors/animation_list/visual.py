@@ -35,6 +35,7 @@ from ceed import propertysetinspector
 from ceed import propertytree
 
 from xml.etree import cElementTree as ElementTree
+from ceed import xmledit
 
 class AnimationListDockWidget(QtGui.QDockWidget):
     """Lists animations in the currently opened animation list XML
@@ -398,6 +399,12 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
             root.append(element)
 
         return root
+
+    def generateNativeData(self):
+        element = self.saveToElement()
+        xmledit.indent(element)
+
+        return ElementTree.tostring(element, "utf-8")
 
     def setCurrentAnimation(self, animation):
         """Set animation we want to edit"""
