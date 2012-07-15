@@ -18,6 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Implementation of a convenience Qt and CEGUI interaction containment.
+
+Allows you to use CEGUI as if it were a Qt widget.
+"""
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtWebKit
@@ -110,7 +115,7 @@ class DebugInfo(QtGui.QDialog):
             self.othersBox.setText(str(self.others))
 
         # log info using the logging message, allows debug outputs without GUI
-        logging.info("CEGUI message: %s" % (message))
+        logging.info("CEGUI message: %s", message)
 
         # remove old messages
         while len(self.logMessages) >= self.logMessagesLimit:
@@ -150,7 +155,7 @@ font-size: 10px;
 
         self.currentFPSBox.setText("%0.6f" % (1.0 / lastRenderDelta))
 
-        QtCore.QTimer.singleShot(500, lambda: self.updateFPSTick())
+        QtCore.QTimer.singleShot(500, self.updateFPSTick)
 
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
@@ -306,7 +311,7 @@ class ContainerWidget(QtGui.QWidget):
                 # ignore invalid literals
                 pass
 
-    def slot_resolutionBoxChanged(self, text):
+    def slot_resolutionBoxChanged(self, _):
         self.updateResolution()
 
     def slot_debugInfoButton(self):
