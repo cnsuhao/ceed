@@ -1,7 +1,7 @@
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
-#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
 #                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -22,10 +22,10 @@
 
 from ceed import version
 
-__author__ = "Martin Preisler <preisler.m@gmail.com> and contributing authors (see AUTHORS file)"
+__author__ = "Martin Preisler <martin@preisler.me> and contributing authors (see AUTHORS file)"
 __version__ = version.CEED
 __copyright__ = __author__
-__email__ = "preisler.m@gmail.com"
+__email__ = "martin@preisler.me"
 __license__ = "GPLv3+"
 
 # __credits__ are hard to maintain, please see the AUTHORS file in the top directory

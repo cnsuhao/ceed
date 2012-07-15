@@ -3,7 +3,7 @@
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
-#   Copyright (C) 2011-2012   Martin Preisler <preisler.m@gmail.com>
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
 #                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -69,7 +69,7 @@ setup(
     version = version.CEED,
     description = "The CEGUI Unified Editor",
     author = "Martin Preisler and others (see AUTHORS)",
-    author_email = "preisler.m@gmail.com",
+    author_email = "martin@preisler.me",
     url = "http://www.cegui.org.uk/",
     packages = get_packages(),
     scripts = ["bin/ceed-gui", "bin/ceed-mic", "bin/ceed-migrate"],
