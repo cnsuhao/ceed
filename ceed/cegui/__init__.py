@@ -196,9 +196,9 @@ class Instance(object):
         schemeFiles = []
         absoluteSchemesPath = project.getAbsolutePathOf(project.schemesPath)
         if os.path.exists(absoluteSchemesPath):
-            for file in os.listdir(absoluteSchemesPath):
-                if file.endswith(".scheme"):
-                    schemeFiles.append(file)
+            for file_ in os.listdir(absoluteSchemesPath):
+                if file_.endswith(".scheme"):
+                    schemeFiles.append(file_)
         else:
             progress.reset()
             raise IOError("Can't list scheme path '%s'" % (absoluteSchemesPath))
@@ -391,18 +391,15 @@ class Instance(object):
 
         skins = []
 
-        i = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
+        it = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
+        while not it.isAtEnd():
+            currentSkin = it.getCurrentValue().d_windowType.split('/')[0]
+            if currentSkin not in skins:
+                skins.append(currentSkin)
 
-        while not i.isAtEnd():
-            current_skin = i.getCurrentValue().d_windowType.split('/')[0]
-            if current_skin not in skins:
-                skins.append(current_skin)
+            it.next()
 
-            i.next()
-
-        skins.sort()
-
-        return skins
+        return sorted(skins)
 
     def getAvailableFonts(self):
         """Retrieves fonts (as strings representing their names) that are available
@@ -412,14 +409,13 @@ class Instance(object):
         """
 
         fonts = []
-        font_iter = PyCEGUI.FontManager.getSingleton().getIterator()
-        while not font_iter.isAtEnd():
-            fonts.append(font_iter.getCurrentKey())
-            font_iter.next()
 
-        fonts.sort()
+        it = PyCEGUI.FontManager.getSingleton().getIterator()
+        while not it.isAtEnd():
+            fonts.append(it.getCurrentKey())
+            it.next()
 
-        return fonts
+        return sorted(fonts)
 
     def getAvailableImages(self):
         """Retrieves images (as strings representing their names) that are available
@@ -429,14 +425,13 @@ class Instance(object):
         """
 
         images = []
-        image_iter = PyCEGUI.ImageManager.getSingleton().getIterator()
-        while not image_iter.isAtEnd():
-            images.append(image_iter.getCurrentKey())
-            image_iter.next()
 
-        images.sort()
+        it = PyCEGUI.ImageManager.getSingleton().getIterator()
+        while not it.isAtEnd():
+            images.append(it.getCurrentKey())
+            it.next()
 
-        return images
+        return sorted(images)
 
     def getAvailableWidgetsBySkin(self):
         """Retrieves all mappings (string names) of all widgets that can be created
@@ -449,23 +444,23 @@ class Instance(object):
                              "VerticalLayoutContainer", "HorizontalLayoutContainer",
                              "GridLayoutContainer"]
 
-        i = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
-        while not i.isAtEnd():
-            #base = i.getCurrentValue().d_baseType
-            mapped_type = i.getCurrentValue().d_windowType.split('/', 1)
-            assert(len(mapped_type) == 2)
+        it = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
+        while not it.isAtEnd():
+            #base = it.getCurrentValue().d_baseType
+            mappedType = it.getCurrentValue().d_windowType.split('/', 1)
+            assert(len(mappedType) == 2)
 
-            look = mapped_type[0]
-            widget = mapped_type[1]
+            look = mappedType[0]
+            widget = mappedType[1]
 
             # insert empty list for the look if it's a new look
             if not look in ret:
                 ret[look] = []
 
-            # append widget name to the list for it's look
+            # append widget name to the list for its look
             ret[look].append(widget)
 
-            i.next()
+            it.next()
 
         # sort the lists
         for look in ret:
