@@ -25,57 +25,57 @@ def declare(actionManager):
     cat = actionManager.createCategory(name = "layout", label = "Layout Editor")
 
     cat.createAction(name = "align_hleft", label = "Align &Left (horizontally)",
-                     help = "Sets horizontal alignment of all selected widgets to left.",
+                     help_ = "Sets horizontal alignment of all selected widgets to left.",
                      icon = QtGui.QIcon("icons/layout_editing/align_hleft.png"))
     cat.createAction(name = "align_hcentre", label = "Align Centre (&horizontally)",
-                     help = "Sets horizontal alignment of all selected widgets to centre.",
+                     help_ = "Sets horizontal alignment of all selected widgets to centre.",
                      icon = QtGui.QIcon("icons/layout_editing/align_hcentre.png"))
     cat.createAction(name = "align_hright", label = "Align &Right (horizontally)",
-                     help = "Sets horizontal alignment of all selected widgets to right.",
+                     help_ = "Sets horizontal alignment of all selected widgets to right.",
                      icon = QtGui.QIcon("icons/layout_editing/align_hright.png"))
 
     cat.createAction(name = "align_vtop", label = "Align &Top (vertically)",
-                     help = "Sets vertical alignment of all selected widgets to top.",
+                     help_ = "Sets vertical alignment of all selected widgets to top.",
                      icon = QtGui.QIcon("icons/layout_editing/align_vtop.png"))
     cat.createAction(name = "align_vcentre", label = "Align Centre (&vertically)",
-                     help = "Sets vertical alignment of all selected widgets to centre.",
+                     help_ = "Sets vertical alignment of all selected widgets to centre.",
                      icon = QtGui.QIcon("icons/layout_editing/align_vcentre.png"))
     cat.createAction(name = "align_vbottom", label = "Align &Bottom (vertically)",
-                     help = "Sets vertical alignment of all selected widgets to bottom.",
+                     help_ = "Sets vertical alignment of all selected widgets to bottom.",
                      icon = QtGui.QIcon("icons/layout_editing/align_vbottom.png"))
 
     cat.createAction(name = "snap_grid", label = "Snap to &Grid",
-                     help = "When resizing and moving widgets, if checked this makes sure they snap to a snap grid (see settings for snap grid related entries), also shows the snap grid if checked.",
+                     help_ = "When resizing and moving widgets, if checked this makes sure they snap to a snap grid (see settings for snap grid related entries), also shows the snap grid if checked.",
                      icon = QtGui.QIcon("icons/layout_editing/snap_grid.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_Space)).setCheckable(True)
 
     absolute_mode = cat.createAction(
                      name = "absolute_mode", label = "&Absolute Resizing && Moving Deltas",
-                     help = "When resizing and moving widgets, if checked this makes the delta absolute, it is relative if unchecked.",
+                     help_ = "When resizing and moving widgets, if checked this makes the delta absolute, it is relative if unchecked.",
                      icon = QtGui.QIcon("icons/layout_editing/absolute_mode.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_A))
     absolute_mode.setCheckable(True)
     absolute_mode.setChecked(True)
 
     cat.createAction(name = "normalise_position", label = "Normalise &Position (cycle)",
-                     help = "If the position is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
+                     help_ = "If the position is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
                      icon = QtGui.QIcon("icons/layout_editing/normalise_position.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_D))
 
     cat.createAction(name = "normalise_size", label = "Normalise &Size (cycle)",
-                     help = "If the size is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
+                     help_ = "If the size is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
                      icon = QtGui.QIcon("icons/layout_editing/normalise_size.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_S))
 
     cat.createAction(name = "focus_property_inspector_filter_box", label = "&Focus Property Inspector Filter Box",
-                     help = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
+                     help_ = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
                      icon = QtGui.QIcon("icons/layout_editing/focus_property_inspector_filter_box.png"),
                      defaultShortcut = QtGui.QKeySequence(QtGui.QKeySequence.Find))
 
     cat.createAction(name = "copy_widget_path", label = "C&opy Widget Paths",
-                     help = "Copies the 'NamePath' properties of the selected widgets to the clipboard.",
+                     help_ = "Copies the 'NamePath' properties of the selected widgets to the clipboard.",
                      icon = QtGui.QIcon("icons/actions/copy.png"))
 
     cat.createAction(name = "rename", label = "&Rename Widget",
-                     help = "Edits the selected widget's name.",
+                     help_ = "Edits the selected widget's name.",
                      icon = QtGui.QIcon("icons/layout_editing/rename.png"))

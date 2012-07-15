@@ -30,10 +30,10 @@ class TextTabbedEditor(editors.TabbedEditor):
     """
 
     def __init__(self, filePath):
-
         super(TextTabbedEditor, self).__init__(None, filePath)
 
         self.tabWidget = QtGui.QTextEdit()
+        self.textDocument = None
 
     def initialise(self, mainWindow):
         super(TextTabbedEditor, self).initialise(mainWindow)

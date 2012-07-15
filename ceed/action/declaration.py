@@ -35,7 +35,7 @@ class Action(QAction):
     While it isn't needed/required to use this everywhere where QAction is used, it is recommended.
     """
 
-    def __init__(self, category, name, label = None, help = "", icon = QIcon(),
+    def __init__(self, category, name, label = None, help_ = "", icon = QIcon(),
                  defaultShortcut = QKeySequence(), settingsLabel = None,
                  menuRole = QAction.TextHeuristicRole):
         if label is None:
@@ -53,7 +53,7 @@ class Action(QAction):
         super(Action, self).__init__(icon, label, self.getManager().mainWindow)
 
         self.setToolTip(settingsLabel)
-        self.setStatusTip(help)
+        self.setStatusTip(help_)
         self.setMenuRole(menuRole)
 
         # we default to application shortcuts and we make sure we always disable the ones we don't need
@@ -74,7 +74,7 @@ class Action(QAction):
                                               defaultValue = self.defaultShortcut, widgetHint = "keySequence")
 
         # when the entry changes, we want to change our shortcut too!
-        self.settingsEntry.subscribe(lambda value: self.setShortcut(value))
+        self.settingsEntry.subscribe(self.setShortcut)
 
 class ActionCategory(object):
     """Actions are grouped into categories
