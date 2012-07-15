@@ -18,9 +18,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-##
-# This module contains interfaces needed to run editors tabs (multi-file editing)
-# Also groups all the editors together to avoid cluttering the root directory
+"""This module contains interfaces needed to run editors tabs (multi-file editing)
+
+Also groups all the editors together to avoid cluttering the root directory.
+"""
 
 from PySide import QtCore
 from PySide import QtGui
@@ -43,12 +44,12 @@ class NoTypeDetectedDialog(QtGui.QDialog):
 
         self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
 
-        for type in compatibilityManager.getKnownTypes():
+        for type_ in compatibilityManager.getKnownTypes():
             item = QtGui.QListWidgetItem()
-            item.setText(type)
+            item.setText(type_)
 
             # TODO: We should give a better feedback about what's compatible with what
-            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
+            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type_))))
 
             self.typeChoice.addItem(item)
 
@@ -61,17 +62,17 @@ class MultipleTypesDetectedDialog(QtGui.QDialog):
 
         self.typeChoice = self.findChild(QtGui.QListWidget, "typeChoice")
 
-        for type in compatibilityManager.getKnownTypes():
+        for type_ in compatibilityManager.getKnownTypes():
             item = QtGui.QListWidgetItem()
-            item.setText(type)
+            item.setText(type_)
 
-            if type in possibleTypes:
+            if type_ in possibleTypes:
                 font = QtGui.QFont()
                 font.setBold(True)
                 item.setFont(font)
 
             # TODO: We should give a better feedback about what's compatible with what
-            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type))))
+            item.setToolTip("Compatible with CEGUI: %s" % (", ".join(compatibilityManager.getCEGUIVersionsCompatibleWithType(type_))))
 
             self.typeChoice.addItem(item)
 
@@ -112,6 +113,8 @@ class TabbedEditor(object):
 
         self.initialised = False
         self.active = False
+
+        self.mainWindow = None
 
         self.filePath = os.path.normpath(filePath)
 
@@ -313,6 +316,7 @@ class TabbedEditor(object):
         editor. Implement this method if you want to use this menu for an editor.
         Returns two booleans: Visible, Enabled
         """
+
         return False, False
 
     def activate(self):
@@ -379,7 +383,7 @@ class TabbedEditor(object):
         that the tab in the tab list gets an icon
         """
 
-        if not hasattr(self, "mainWindow"):
+        if self.mainWindow is None:
             return
 
         if hasChanges:
@@ -420,8 +424,8 @@ class TabbedEditor(object):
             # update tab text
             self.tabLabel = os.path.basename(self.filePath)
 
-            # hasattr because this might be called even before initialise is called!
-            if hasattr(self, "mainWindow"):
+            # because this might be called even before initialise is called!
+            if self.mainWindow is not None:
                 self.mainWindow.tabs.setTabText(self.mainWindow.tabs.indexOf(self.tabWidget), self.tabLabel)
 
         self.addFileMonitor(self.filePath)
@@ -613,29 +617,29 @@ class UndoStackTabbedEditor(TabbedEditor):
         return self.undoStack
 
     def slot_undoAvailable(self, available):
-        # hasattr because this might be called even before initialise is called!
-        if hasattr(self, "mainWindow"):
+        # conditional because this might be called even before initialise is called!
+        if self.mainWindow is not None:
             self.mainWindow.undoAction.setEnabled(available)
 
     def slot_redoAvailable(self, available):
-        # hasattr because this might be called even before initialise is called!
-        if hasattr(self, "mainWindow"):
+        # conditional because this might be called even before initialise is called!
+        if self.mainWindow is not None:
             self.mainWindow.redoAction.setEnabled(available)
 
     def slot_undoTextChanged(self, text):
-        # hasattr because this might be called even before initialise is called!
-        if hasattr(self, "mainWindow"):
+        # conditional because this might be called even before initialise is called!
+        if self.mainWindow is not None:
             self.mainWindow.undoAction.setText("Undo %s" % (text))
 
     def slot_redoTextChanged(self, text):
-        # hasattr because this might be called even before initialise is called!
-        if hasattr(self, "mainWindow"):
+        # conditional because this might be called even before initialise is called!
+        if self.mainWindow is not None:
             self.mainWindow.redoAction.setText("Redo %s" % (text))
 
     def slot_cleanChanged(self, clean):
         # clean means that the undo stack is at a state where it's in sync with the underlying file
         # we set the undostack as clean usually when saving the file so we will assume that there
-        if hasattr(self, "mainWindow"):
+        if self.mainWindow is not None:
             self.mainWindow.saveAction.setEnabled(not clean)
 
         self.markHasChanges(not clean)
@@ -648,11 +652,13 @@ class TabbedEditorFactory(object):
 
     def getFileExtensions(self):
         """Returns a set of file extensions (without prefix dots) that can be edited by this factory"""
-        return []
+
+        raise NotImplementedError("All subclasses of TabbedEditorFactory have to override the 'getFileExtensions' method")
 
     def canEditFile(self, filePath):
         """This checks whether instance created by this factory can edit given file"""
-        return False
+
+        raise NotImplementedError("All subclasses of TabbedEditorFactory have to override the 'canEditFile' method")
 
     def create(self, filePath):
         """Creates the respective TabbedEditor instance
@@ -661,7 +667,7 @@ class TabbedEditorFactory(object):
         as editable by the instances
         """
 
-        return None
+        raise NotImplementedError("All subclasses of TabbedEditorFactory have to override the 'create' method")
 
     # note: destroy doesn't really make sense as python is reference counted
     #       and everything is garbage collected

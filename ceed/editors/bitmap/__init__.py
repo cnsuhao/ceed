@@ -34,6 +34,7 @@ class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
         self.ui.setupUi(self)
 
         self.tabWidget = self
+        self.preview = None
 
     def initialise(self, mainWindow):
         super(BitmapTabbedEditor, self).initialise(mainWindow)
@@ -49,7 +50,7 @@ class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
 
 class BitmapTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
-        extensions = {"png", "jpg", "jpeg", "tga", "dds"}
+        extensions = set(["png", "jpg", "jpeg", "tga", "dds"])
         return extensions
 
     def canEditFile(self, filePath):
