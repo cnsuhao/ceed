@@ -258,7 +258,7 @@ class MainWindow(QtGui.QMainWindow):
         self.connectionGroup.add(self.projectReloadResourcesAction, receiver = self.slot_projectReloadResources)
 
         self.preferencesAction = self.actionManager.getAction("general/application_settings")
-        self.connectionGroup.add(self.preferencesAction, receiver = lambda: self.settingsInterface.show())
+        self.connectionGroup.add(self.preferencesAction, receiver = self.settingsInterface.show)
 
         self.newProjectAction = self.actionManager.getAction("project_management/new_project")
         self.connectionGroup.add(self.newProjectAction, receiver = self.slot_newProject)
@@ -512,7 +512,7 @@ class MainWindow(QtGui.QMainWindow):
         tbar.addSeparator()
         tbar.addActions([self.saveAction, self.saveAsAction, self.saveProjectAction, self.saveAllAction])
         # The menubutton does not resize its icon correctly unless we tell it to do so
-        tbar.iconSizeChanged.connect(lambda size: newMenuButton.setIconSize(size))
+        tbar.iconSizeChanged.connect(newMenuButton.setIconSize)
 
         #
         # Edit toolbar
@@ -954,15 +954,15 @@ Details of this error: %s""" % (e))
                 # User selected cancel, NOOP
                 return
 
-        file, _ = QtGui.QFileDialog.getOpenFileName(self,
+        file_, _ = QtGui.QFileDialog.getOpenFileName(self,
                                                     "Open existing project file",
                                                     "",
                                                     "Project files (*.project)")
 
-        if file != "":
+        if file_ != "":
             # user actually selected something ;-)
 
-            self.openProject(file)
+            self.openProject(file_)
 
     def slot_saveProject(self):
         self.saveProject()
@@ -1028,7 +1028,7 @@ Details of this error: %s""" % (e))
 
         # load previously loaded tabs requiring a project opened
         for filePath in filePathsToLoad:
-            lastLoaded = self.openEditorTab(filePath)
+            self.openEditorTab(filePath)
 
         # previously active editor to be loaded last, this makes it active again
         if activeEditorPath != "":
@@ -1448,7 +1448,11 @@ Details of this error: %s""" % (e))
             self.showFullScreen()
 
     def slot_toggleStatusbar(self):
-        self.statusBar().hide() if self.statusBar().isVisible() else self.statusBar().show()
+        if self.statusBar().isVisible():
+            self.statusBar().hide()
+
+        else:
+            self.statusBar().show()
 
     def slot_helpQuickstart(self):
         if self.activateEditorTabByFilePath("help:///quickstart-guide"):
