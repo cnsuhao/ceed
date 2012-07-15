@@ -30,7 +30,7 @@ class Settings(declaration.Settings):
     def __init__(self, qsettings):
         super(Settings, self).__init__(name = "settings",
                                        label = "CEGUI Unified Editor settings",
-                                       help = "Provides all persistent settings of CEGUI Unified Editor (CEED), everything is divided into categories (see the tab buttons).")
+                                       help_ = "Provides all persistent settings of CEGUI Unified Editor (CEED), everything is divided into categories (see the tab buttons).")
 
         self.setPersistenceProvider(persistence.QSettingsPersistenceProvider(qsettings))
 
@@ -40,33 +40,33 @@ class Settings(declaration.Settings):
         # by default we limit the undo stack to 500 undo commands, should be enough and should
         # avoid memory drainage. keep in mind that every tabbed editor has it's own undo stack,
         # so the overall command limit is number_of_tabs * 500!
-        undoRedo.createEntry(name = "limit", type = int, label = "Limit (number of steps)",
-                          help = "Puts a limit on every tabbed editor's undo stack. You can undo at most the number of times specified here.",
+        undoRedo.createEntry(name = "limit", type_ = int, label = "Limit (number of steps)",
+                          help_ = "Puts a limit on every tabbed editor's undo stack. You can undo at most the number of times specified here.",
                           defaultValue = 500, widgetHint = "int",
                           sortingWeight = 1, changeRequiresRestart = True)
 
         app = global_.createSection(name = "app", label = "Application")
-        app.createEntry(name = "show_splash", type = bool, label = "Show splash screen",
-                       help = "Show the splash screen on startup",
+        app.createEntry(name = "show_splash", type_ = bool, label = "Show splash screen",
+                       help_ = "Show the splash screen on startup",
                        defaultValue = True, widgetHint = "checkbox",
                        sortingWeight = 1, changeRequiresRestart = False)
 
         ui = global_.createSection(name = "ui", label = "User Interface")
-        ui.createEntry(name = "toolbar_icon_size", type = int, label = "Toolbar icon size",
-                       help = "Sets the size of the toolbar icons",
+        ui.createEntry(name = "toolbar_icon_size", type_ = int, label = "Toolbar icon size",
+                       help_ = "Sets the size of the toolbar icons",
                        defaultValue = 32, widgetHint = "combobox",
                        sortingWeight = 1, changeRequiresRestart = False,
                        optionList = [ [32, "Normal"], [24, "Small"], [16, "Smaller"] ])
 
-        cegui_debug_info = global_.createSection(name = "cegui_debug_info", label = "CEGUI debug info")
-        cegui_debug_info.createEntry(name = "log_limit", type = int, label = "Log messages limit",
-                                     help = "Limits number of remembered log messages to given amount. This is there to prevent endless growth of memory consumed by CEED.",
+        ceguiDebugInfo = global_.createSection(name = "cegui_debug_info", label = "CEGUI debug info")
+        ceguiDebugInfo.createEntry(name = "log_limit", type_ = int, label = "Log messages limit",
+                                     help_ = "Limits number of remembered log messages to given amount. This is there to prevent endless growth of memory consumed by CEED.",
                                      defaultValue = 20000, widgetHint = "int",
                                      sortingWeight = 1, changeRequiresRestart = True)
 
         navigation = global_.createSection(name = "navigation", label = "Navigation")
-        navigation.createEntry(name = "ctrl_zoom", type = bool, label = "Only zoom when CTRL is pressed",
-                               help = "Mouse wheel zoom is ignored unless the Control key is pressed when it happens.",
+        navigation.createEntry(name = "ctrl_zoom", type_ = bool, label = "Only zoom when CTRL is pressed",
+                               help_ = "Mouse wheel zoom is ignored unless the Control key is pressed when it happens.",
                                defaultValue = True, widgetHint = "checkbox",
                                sortingWeight = 1, changeRequiresRestart = False)
 

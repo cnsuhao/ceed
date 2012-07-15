@@ -35,9 +35,6 @@ class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
         self.setWindowTitle(self.settings.label)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
 
-        self.createUI()
-
-    def createUI(self):
         # sort everything so that it comes at the right spot when iterating
         self.settings.sort()
 
@@ -56,7 +53,8 @@ class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
 
         # for each category, add a tab
         addTab = self.tabs.addTab
-        [addTab(interface_types.InterfaceCategory(category, self.tabs), category.label) for category in self.settings.categories]
+        for category in self.settings.categories:
+            addTab(interface_types.InterfaceCategory(category, self.tabs), category.label)
 
         # apply, cancel, etc...
         self.buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Apply | QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)

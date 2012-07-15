@@ -34,14 +34,14 @@ class Entry(object):
     editedValue = property(fset = lambda entry, value: entry._setEditedValue(value),
                            fget = lambda entry: entry._editedValue)
 
-    def __init__(self, section, name, type, defaultValue, label = None, help = "", widgetHint = STRING, sortingWeight = 0, changeRequiresRestart = False, optionList = None):
+    def __init__(self, section, name, type_, defaultValue, label = None, help_ = "", widgetHint = STRING, sortingWeight = 0, changeRequiresRestart = False, optionList = None):
         self.section = section
 
         if label is None:
             label = name
 
         self.name = name
-        self.type = type
+        self.type = type_
 
         defaultValue = self.sanitizeValue(defaultValue)
         self.defaultValue = defaultValue
@@ -49,7 +49,7 @@ class Entry(object):
         self._editedValue = defaultValue
 
         self.label = label
-        self.help = help
+        self.help = help_
         self.hasChanges = False
         self.widgetHint = widgetHint
 
@@ -79,15 +79,15 @@ class Entry(object):
 
         return value
 
-    def subscribe(self, callable):
+    def subscribe(self, callable_):
         """Subscribes a callable that gets called when the value changes (the real value, not edited value!)
         (with current value as the argument)
         """
 
-        self.subscribers.append(callable)
+        self.subscribers.append(callable_)
 
-    def unsubscribe(self, callable):
-        self.subscribers.remove(callable)
+    def unsubscribe(self, callable_):
+        self.subscribers.remove(callable_)
 
     def _setValue(self, value, uploadImmediately = True):
         value = self.sanitizeValue(value)
@@ -97,8 +97,8 @@ class Entry(object):
         if uploadImmediately:
             self.upload()
 
-        for callable in self.subscribers:
-            callable(value)
+        for callable_ in self.subscribers:
+            callable_(value)
 
     def _setEditedValue(self, value):
         value = self.sanitizeValue(value)
@@ -298,22 +298,20 @@ class Category(object):
             section.download()
 
     def sort(self, recursive = True):
-        # FIXME: This is obviously not the fastest approach
-        self.sections = sorted(self.sections, key = lambda section: section.name)
-        self.sections = sorted(self.sections, key = lambda section: section.sortingWeight)
+        self.sections = sorted(self.sections, key = lambda section: (section.sortingWeight, section.name))
 
         if recursive:
             for section in self.sections:
                 section.sort()
 
 class Settings(object):
-    def __init__(self, name, label = None, help = ""):
+    def __init__(self, name, label = None, help_ = ""):
         if label is None:
             label = name
 
         self.name = name
         self.label = label
-        self.help = help
+        self.help = help_
 
         self.categories = []
         self.persistenceProvider = None

@@ -56,7 +56,7 @@ class InterfaceEntry(QtGui.QHBoxLayout):
     def discardChanges(self):
         self.entry.hasChanges = False
 
-    def onChange(self):
+    def onChange(self, _):
         self.markAsChanged()
         self.parent.onChange(self)
 
@@ -81,7 +81,7 @@ class InterfaceEntryString(InterfaceEntry):
 
     def onChange(self, text):
         self.entry.editedValue = str(text)
-        super(InterfaceEntryString, self).onChange()
+        super(InterfaceEntryString, self).onChange(text)
 
 class InterfaceEntryInt(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -108,8 +108,8 @@ class InterfaceEntryInt(InterfaceEntry):
         except ValueError:
             ew = self.entryWidget
             ew.setText(ew.text()[:-1])
-            return
-        super(InterfaceEntryInt, self).onChange()
+
+        super(InterfaceEntryInt, self).onChange(text)
 
 class InterfaceEntryFloat(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -136,7 +136,8 @@ class InterfaceEntryFloat(InterfaceEntry):
         except ValueError:
             ew = self.entryWidget
             ew.setText(ew.text()[:-1])
-        super(InterfaceEntryFloat, self).onChange()
+
+        super(InterfaceEntryFloat, self).onChange(text)
 
 class InterfaceEntryCheckbox(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -159,7 +160,7 @@ class InterfaceEntryCheckbox(InterfaceEntry):
 
     def onChange(self, state):
         self.entry.editedValue = state
-        super(InterfaceEntryCheckbox, self).onChange()
+        super(InterfaceEntryCheckbox, self).onChange(state)
 
 class InterfaceEntryColour(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -182,7 +183,7 @@ class InterfaceEntryColour(InterfaceEntry):
 
     def onChange(self, colour):
         self.entry.editedValue = colour
-        super(InterfaceEntryColour, self).onChange()
+        super(InterfaceEntryColour, self).onChange(colour)
 
 class InterfaceEntryPen(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -205,7 +206,7 @@ class InterfaceEntryPen(InterfaceEntry):
 
     def onChange(self, pen):
         self.entry.editedValue = pen
-        super(InterfaceEntryPen, self).onChange()
+        super(InterfaceEntryPen, self).onChange(pen)
 
 class InterfaceEntryKeySequence(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -228,7 +229,7 @@ class InterfaceEntryKeySequence(InterfaceEntry):
 
     def onChange(self, keySequence):
         self.entry.editedValue = keySequence
-        super(InterfaceEntryKeySequence, self).onChange()
+        super(InterfaceEntryKeySequence, self).onChange(keySequence)
 
 class InterfaceEntryCombobox(InterfaceEntry):
     def __init__(self, entry, parent):
@@ -260,12 +261,13 @@ class InterfaceEntryCombobox(InterfaceEntry):
     def onChange(self, index):
         if index != -1:
             self.entry.editedValue = self.entryWidget.itemData(index)
-            super(InterfaceEntryCombobox, self).onChange()
+
+        super(InterfaceEntryCombobox, self).onChange(index)
 
 # Factory: Return appropriate InterfaceEntry
 # - Not exported; restricted to use within this module.
 # - Could be replaced by a static mapping.
-def _InterfaceEntryFactory(entry, parent):
+def interfaceEntryFactory(entry, parent):
     if entry.widgetHint == "string":
         return InterfaceEntryString(entry, parent)
     elif entry.widgetHint == "int":
@@ -301,12 +303,14 @@ class InterfaceSection(QtGui.QGroupBox):
             lw = QtGui.QLabel(entry.label)
             lw.setMinimumWidth(200)
             lw.setWordWrap(True)
-            self.layout.addRow(lw, _InterfaceEntryFactory(entry, self))
+
+            self.layout.addRow(lw, interfaceEntryFactory(entry, self))
 
         self.setLayout(self.layout)
 
     def discardChanges(self):
-        [entry.discardChanges() for entry in self.modifiedEntries]
+        for entry in self.modifiedEntries:
+            entry.discardChanges()
 
     def onChange(self, entry):
         self.modifiedEntries.append(entry)
@@ -339,7 +343,8 @@ class InterfaceCategory(QtGui.QScrollArea):
         self.layout = QtGui.QVBoxLayout()
 
         addWidget = self.layout.addWidget
-        [addWidget(InterfaceSection(section, self)) for section in category.sections]
+        for section in category.sections:
+            addWidget(InterfaceSection(section, self))
 
         self.layout.addStretch()
         self.inner.setLayout(self.layout)
@@ -358,7 +363,8 @@ class InterfaceCategory(QtGui.QScrollArea):
         return super(InterfaceCategory, self).eventFilter(obj, event)
 
     def discardChanges(self):
-        [section.discardChanges() for section in self.modifiedSections]
+        for section in self.modifiedSections:
+            section.discardChanges()
 
     def onChange(self, section):
         self.modifiedSections.append(section)
@@ -373,7 +379,10 @@ class InterfaceCategory(QtGui.QScrollArea):
         parent = self.parent
         self.category.markAsUnchanged()
         parent.setTabText(parent.indexOf(self), self.category.label)
-        [section.markAsUnchanged() for section in self.modifiedSections]
+
+        for section in self.modifiedSections:
+            section.markAsUnchanged()
+
         self.modifiedSections = []
 
 # Wrapper: Tabs

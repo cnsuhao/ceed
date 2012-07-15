@@ -70,7 +70,7 @@ class Action(QAction):
     def declareSettingsEntry(self):
         section = self.category.settingsSection
 
-        self.settingsEntry = section.createEntry(name = "shortcut_%s" % (self.name), type = QKeySequence, label = "%s" % (self.settingsLabel),
+        self.settingsEntry = section.createEntry(name = "shortcut_%s" % (self.name), type_ = QKeySequence, label = "%s" % (self.settingsLabel),
                                               defaultValue = self.defaultShortcut, widgetHint = "keySequence")
 
         # when the entry changes, we want to change our shortcut too!
