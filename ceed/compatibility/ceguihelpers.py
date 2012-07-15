@@ -18,9 +18,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Misc helper functionality often reused in compatibility layers
+"""
+
 from xml.sax import parseString, handler
 
-def checkDataVersion(root_element, version, data):
+def checkDataVersion(rootElement, version, data):
     """Checks that tag of the root element in data is as given
     and checks that version recorded in the root element is given
     (can be None if no version information should be there)
@@ -33,6 +36,8 @@ def checkDataVersion(root_element, version, data):
 
     class RootElement(Exception):
         def __init__(self, tag, version):
+            super(RootElement, self).__init__()
+
             self.tag = tag
             self.version = version
 
@@ -51,7 +56,7 @@ def checkDataVersion(root_element, version, data):
         parseString(data, REHandler())
 
     except RootElement as re:
-        if re.tag == root_element and re.version == version:
+        if re.tag == rootElement and re.version == version:
             return True
 
     except:

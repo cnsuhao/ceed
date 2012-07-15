@@ -18,10 +18,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-import logging
-
 """This module is the root of all compatibility support and layers in the editor
 """
+
+import logging
 
 # NOTE: It should be importable with as few dependencies as possible because
 #       this is used in the command line migration tool!
@@ -128,11 +128,11 @@ class Manager(object):
 
         return ret
 
-    def getCEGUIVersionsCompatibleWithType(self, type):
+    def getCEGUIVersionsCompatibleWithType(self, type_):
         ret = []
 
         for version, otherType in self.CEGUIVersionTypes.iteritems():
-            if type == otherType:
+            if type_ == otherType:
                 ret.append(version)
 
         return ret
@@ -159,7 +159,7 @@ class Manager(object):
               I leave this as an exercise for future generations :-D
         """
 
-        logging.debug("Attempting to transform type '%s' into '%s' (compatibility path fragments are in reverse order)" % (sourceType, targetType))
+        logging.debug("Attempting to transform type '%s' into '%s' (compatibility path fragments are in reverse order)", sourceType, targetType)
 
         # special case:
         if sourceType == targetType:
@@ -170,7 +170,7 @@ class Manager(object):
             if layer.getSourceType() == sourceType:
                 try:
                     ret = self.transform(layer.getTargetType(), targetType, layer.transform(data))
-                    logging.debug("Compatibility path fragment: '%s' <- '%s'" % (layer.getTargetType(), sourceType))
+                    logging.debug("Compatibility path fragment: '%s' <- '%s'", layer.getTargetType(), sourceType)
                     return ret
 
                 except LayerNotFoundError:
@@ -188,7 +188,7 @@ class Manager(object):
         If you pass full file path instead of the extension, the extension will be extracted from it.
         """
 
-        logging.debug("Attempting to guess type (code size: %i, extension: '%s')" % (len(code), extension))
+        logging.debug("Attempting to guess type (code size: %i, extension: '%s')", len(code), extension)
 
         extSplit = extension.rsplit(".", 1)
 
@@ -201,7 +201,7 @@ class Manager(object):
 
         for detector in self.detectors:
             if detector.matches(code, extension):
-                logging.debug("Detector '%s' reported positive match!" % (detector.getType()))
+                logging.debug("Detector '%s' reported a positive match!", detector.getType())
                 ret.append(detector.getType())
 
         if len(ret) > 1:

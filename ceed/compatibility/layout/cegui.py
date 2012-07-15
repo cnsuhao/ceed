@@ -127,8 +127,8 @@ class Layout3To4Layer(compatibility.Layer):
                 #raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
 
         # convert the properties that had 'Unified' prefix
-        for property in element.findall(tag):
-            name = property.get(nameAttribute, "")
+        for property_ in element.findall(tag):
+            name = property_.get(nameAttribute, "")
 
             if name == "ZOrderChangeEnabled":
                 name = "ZOrderingEnabled"
@@ -164,12 +164,12 @@ class Layout3To4Layer(compatibility.Layer):
                 name = "MaxSize"
 
             if name != "":
-                property.set(nameAttribute, name)
+                property_.set(nameAttribute, name)
 
-            def convertImagePropertyToName(property):
-                value = property.get(valueAttribute)
+            def convertImagePropertyToName(property_):
+                value = property_.get(valueAttribute)
                 if value is None:
-                    value = property.text
+                    value = property_.text
 
                 split = value.split("image:", 1)
                 if len(split) != 2:
@@ -181,30 +181,30 @@ class Layout3To4Layer(compatibility.Layer):
                 split[0] = split[0].strip()
                 split[1] = split[1].strip()
 
-                property.set(valueAttribute, "%s/%s" % (split[0], split[1]))
+                property_.set(valueAttribute, "%s/%s" % (split[0], split[1]))
 
             if windowType.endswith("StaticImage"):
                 if name == "Image":
-                    convertImagePropertyToName(property)
+                    convertImagePropertyToName(property_)
 
             elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
-                    convertImagePropertyToName(property)
+                    convertImagePropertyToName(property_)
 
             elif windowType.endswith("FrameWindow"):
                 if name.endswith("SizingCursorImage"):
-                    convertImagePropertyToName(property)
+                    convertImagePropertyToName(property_)
 
             elif windowType.endswith("ListHeaderSegment"):
                 if name in ["MovingCursorImage", "SizingCursorImage"]:
-                    convertImagePropertyToName(property)
+                    convertImagePropertyToName(property_)
 
             else:
                 # we have done all explicit migrations, at this point the best we can do is guess
                 # if a property name ends with Image, it is most likely an image
                 if name.endswith("Image"):
                     try:
-                        convertImagePropertyToName(property)
+                        convertImagePropertyToName(property_)
 
                     except:
                         # best effort only, we don't have enough info
@@ -221,13 +221,13 @@ class Layout3To4Layer(compatibility.Layer):
                 del layoutImport.attrib["Prefix"]
 
         Layout3To4Layer.transformPropertiesOf(window)
-        for property in window.findall("Property"):
-            property.set("name", property.get("Name"))
-            del property.attrib["Name"]
+        for property_ in window.findall("Property"):
+            property_.set("name", property_.get("Name"))
+            del property_.attrib["Name"]
 
-            if property.get("Value") is not None:
-                property.set("value", property.get("Value"))
-                del property.attrib["Value"]
+            if property_.get("Value") is not None:
+                property_.set("value", property_.get("Value"))
+                del property_.attrib["Value"]
 
         for event in window.findall("Event"):
             self.transformAttribute(event, "name")
@@ -238,11 +238,12 @@ class Layout3To4Layer(compatibility.Layer):
 
         for autoWindow in window.findall("AutoWindow"):
             self.convertAutoWindowSuffix(autoWindow)
-            self.applyChangesRecursively(childWindow)
+            self.applyChangesRecursively(autoWindow)
 
         if window.get("Name") is not None:
             window.set("name", window.get("Name"))
             del window.attrib["Name"]
+
         window.set("type", window.get("Type"))
         del window.attrib["Type"]
 
@@ -316,8 +317,8 @@ class Layout4To3Layer(compatibility.Layer):
                 #raise RuntimeError("Can't figure out windowType when transforming properties, tried attribute 'Type'")
 
         # convert the properties that had 'Unified' prefix in 0.7
-        for property in element.findall(tag):
-            name = property.get(nameAttribute, "")
+        for property_ in element.findall(tag):
+            name = property_.get(nameAttribute, "")
 
             if name == "ZOrderingEnabled":
                 name = "ZOrderChangeEnabled"
@@ -353,41 +354,41 @@ class Layout4To3Layer(compatibility.Layer):
                 name = "UnifiedMaxSize"
 
             if name != "":
-                property.set(nameAttribute, name)
+                property_.set(nameAttribute, name)
 
-            def convertImagePropertyToImagesetImage(property):
-                value = property.get(valueAttribute)
+            def convertImagePropertyToImagesetImage(property_):
+                value = property_.get(valueAttribute)
                 if value is None:
-                    value = property.text
+                    value = property_.text
 
                 split = value.split("/", 1)
                 if len(split) != 2:
                     raise RuntimeError("Failed parsing value '%s' as 1.0 image reference" % (value))
-                property.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
+                property_.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
 
             if windowType.endswith("StaticImage"):
                 if name == "Image":
-                    convertImagePropertyToImagesetImage(property)
+                    convertImagePropertyToImagesetImage(property_)
 
             elif windowType.endswith("ImageButton"):
                 if name in ["NormalImage", "HoverImage", "PushedImage"]:
-                    convertImagePropertyToImagesetImage(property)
+                    convertImagePropertyToImagesetImage(property_)
                     return
 
             elif windowType.endswith("FrameWindow"):
                 if name.endswith("SizingCursorImage"):
-                    convertImagePropertyToImagesetImage(property)
+                    convertImagePropertyToImagesetImage(property_)
 
             elif windowType.endswith("ListHeaderSegment"):
                 if name in ["MovingCursorImage", "SizingCursorImage"]:
-                    convertImagePropertyToImagesetImage(property)
+                    convertImagePropertyToImagesetImage(property_)
 
             else:
                 # we have done all explicit migrations, at this point the best we can do is guess
                 # if a property name ends with Image, it is most likely an image
                 if name.endswith("Image"):
                     try:
-                        convertImagePropertyToImagesetImage(property)
+                        convertImagePropertyToImagesetImage(property_)
 
                     except:
                         # best effort only, we don't have enough info
@@ -401,13 +402,13 @@ class Layout4To3Layer(compatibility.Layer):
             self.transformAttribute(layoutImport, "resourceGroup")
 
         Layout4To3Layer.transformPropertiesOf(window)
-        for property in window.findall("Property"):
-            property.set("Name", property.get("name"))
-            del property.attrib["name"]
+        for property_ in window.findall("Property"):
+            property_.set("Name", property_.get("name"))
+            del property_.attrib["name"]
 
-            if property.get("value") is not None:
-                property.set("Value", property.get("value"))
-                del property.attrib["value"]
+            if property_.get("value") is not None:
+                property_.set("Value", property_.get("value"))
+                del property_.attrib["value"]
 
         for event in window.findall("Event"):
             self.transformAttribute(event, "name")
@@ -418,14 +419,15 @@ class Layout4To3Layer(compatibility.Layer):
 
         for autoWindow in window.findall("AutoWindow"):
             self.convertAutoWindowSuffix(autoWindow)
-            self.applyChangesRecursively(childWindow)
+            self.applyChangesRecursively(autoWindow)
 
-        for userString in window.findall("UserString"):
-            raise NotImplementedError("Can't migrate, UserString element is not supported in layout version 3 (up to CEGUI 0.7)")
+        for _ in window.findall("UserString"):
+            raise NotImplementedError("Can't migrate, UserString element is not supported in layout version 3 (before CEGUI 0.7)")
 
         if window.get("name") is not None:
             window.set("Name", window.get("name"))
             del window.attrib["name"]
+
         window.set("Type", window.get("type"))
         del window.attrib["type"]
 

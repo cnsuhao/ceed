@@ -29,6 +29,9 @@ class Project1TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return Project1
 
+    def getPossibleExtensions(self):
+        return set(["project"])
+
     def matches(self, data, extension):
         if extension not in ["", "project"]:
             return False
