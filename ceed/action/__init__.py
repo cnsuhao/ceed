@@ -172,7 +172,7 @@ class ActionManager(declaration.ActionManager):
         general.createAction(name = "statusbar", label = "&Statusbar", settingsLabel = "Toggle Statusbar",
                              help_ = "Hides and shows the visibility status bar.").setCheckable(True)
 
-        projectManagement = self.createCategory(name = "projectManagement", label = "Project Management")
+        projectManagement = self.createCategory(name = "project_management", label = "Project Management")
         projectManagement.createAction(name = "new_project", label = "Pro&ject...", settingsLabel = "New Project",
                                        help_ = "Creates a new project from scratch. Only one project can be opened at a time so you will be asked to close your current project if any.",
                                        icon = QIcon("icons/actions/new_project.png"))
@@ -245,7 +245,7 @@ class ActionManager(declaration.ActionManager):
                            help_ = "Activates the next (right) tab.",
                            defaultShortcut = QKeySequence("Ctrl+PgDown"))
 
-        allEditors = self.createCategory(name = "allEditors", label = "All Editors")
+        allEditors = self.createCategory(name = "all_editors", label = "All Editors")
         allEditors.createAction(name = "zoom_in", label = "Zoom &In",
                                 help_ = "Increases the zoom level.",
                                 icon = QIcon("icons/actions/zoom_in.png"),
