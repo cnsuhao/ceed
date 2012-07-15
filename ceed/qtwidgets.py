@@ -88,7 +88,10 @@ class ColourButton(QtGui.QPushButton):
     def __init__(self, parent = None):
         super(ColourButton, self).__init__(parent)
 
+        self._colour = None
+
         self.setAutoFillBackground(True)
+
         # seems to look better on most systems
         self.setFlat(True)
         self.colour = QtGui.QColor(255, 255, 255, 255)
@@ -96,7 +99,7 @@ class ColourButton(QtGui.QPushButton):
         self.clicked.connect(self.slot_clicked)
 
     def setColour(self, colour):
-        if not hasattr(self, "_colour") or colour != self._colour:
+        if colour != self._colour:
             self._colour = colour
             self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
             self.setText("R: %03i, G: %03i, B: %03i, A: %03i" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
@@ -118,6 +121,8 @@ class PenButton(QtGui.QPushButton):
     def __init__(self, parent = None):
         super(PenButton, self).__init__(parent)
 
+        self._pen = None
+
         self.setAutoFillBackground(True)
         # seems to look better on most systems
         self.setFlat(True)
@@ -126,7 +131,7 @@ class PenButton(QtGui.QPushButton):
         self.clicked.connect(self.slot_clicked)
 
     def setPen(self, pen):
-        if not hasattr(self, "_pen") or pen != self._pen:
+        if pen != self._pen:
             self._pen = pen
 
             lineStyleStr = ""
@@ -205,13 +210,15 @@ class KeySequenceButton(QtGui.QPushButton):
     def __init__(self, parent = None):
         super(KeySequenceButton, self).__init__(parent)
 
+        self._keySequence = None
+
         self.setAutoFillBackground(True)
         self.keySequence = QtGui.QKeySequence()
 
         self.clicked.connect(self.slot_clicked)
 
     def setKeySequence(self, keySequence):
-        if not hasattr(self, "_keySequence") or keySequence != self._keySequence:
+        if keySequence != self._keySequence:
             self._keySequence = keySequence
             self.setText(keySequence.toString())
             self.keySequenceChanged.emit(keySequence)
@@ -275,7 +282,7 @@ def getCheckerboardBrush(halfWidth = 5, halfHeight = 5,
     edited images are transparent
     """
 
-    # disallow too larger half sizes to prevent crashes in QPainter
+    # disallow too large half sizes to prevent crashes in QPainter
     # and slowness in general
     halfWidth = min(halfWidth, 1000)
     halfHeight = min(halfHeight, 1000)
