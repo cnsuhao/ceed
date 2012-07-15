@@ -21,8 +21,6 @@
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
-from xml.etree import cElementTree as ElementTree
-
 Project1 = "CEED Project 1"
 
 class Project1TypeDetector(compatibility.TypeDetector):

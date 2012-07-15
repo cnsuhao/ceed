@@ -18,11 +18,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+"""Declares global settings entries. Provides an entry point to the settings
+system via getEntry(..).
+"""
+
 from ceed.settings import declaration
 from ceed.settings import persistence
 from ceed.settings import interface
-
-from PySide import QtGui
 
 class Settings(declaration.Settings):
     instance = None

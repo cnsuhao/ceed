@@ -21,8 +21,6 @@
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
-from xml.etree import cElementTree as ElementTree
-
 PropertyMappings1 = "CEED Property Mappings 1"
 
 class PropertyMappings1TypeDetector(compatibility.TypeDetector):
