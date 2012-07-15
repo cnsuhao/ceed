@@ -27,6 +27,9 @@ class AnimationList1TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return AnimationList1
 
+    def getPossibleExtensions(self):
+        return set(["anims"])
+
     def matches(self, data, extension):
         if extension not in ["", "anims"]:
             return False
