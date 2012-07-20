@@ -2167,6 +2167,15 @@ reference "sec:Compatibility-layers"
 \end_layout
 
 \begin_layout Subsection
+Undo data
+\end_layout
+
+\begin_layout Standard
+Undo data are implemented using string for image definition reference and
+ Python's builtin types to remember geometry.
+\end_layout
+
+\begin_layout Subsection
 Multiple modes
 \end_layout
 
@@ -2218,6 +2227,49 @@ Layout editing operates of widget hiearchies, a data model natively implemented
  in CEGUI that we use directly.
  Since CEGUI does not have global window names since version 1.0 we don't
  even have to worry about name clashes.
+\end_layout
+
+\begin_layout Subsection
+Undo data
+\end_layout
+
+\begin_layout Standard
+Undo data are implemented using strings for widget path reference and widget
+ properties are serialised using Python's builtin types.
+\end_layout
+
+\begin_layout Subsubsection*
+LookNFeel property caveat
+\end_layout
+
+\begin_layout Standard
+When you change the LookNFeel property the auto child widgets get destroyed
+ and constructed anew.
+ This breaks undo history and is not allowed at the moment.
+ I don't it is worth the effort to support this.
+ Either way we would have to 
+\begin_inset Quotes eld
+\end_inset
+
+alter history
+\begin_inset Quotes erd
+\end_inset
+
+ in some cases.
+ Changing it in code mode will of course work because the entire hierarchy
+ will be reconstructed from scratch.
+\end_layout
+
+\begin_layout Subsubsection*
+WindowRenderer property caveat
+\end_layout
+
+\begin_layout Standard
+Similar to the LookNFeel case it makes changes to the window that break
+ undo history.
+ Right now it is disallowed to change it from the editor.
+ Changing it in code mode will of course work because the entire hierarchy
+ will be reconstructed from scratch.
 \end_layout
 
 \begin_layout Subsection
