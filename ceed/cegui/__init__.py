@@ -440,7 +440,7 @@ class Instance(object):
         """
 
         ret = {}
-        ret["__no_skin__"] = ["DefaultWindow", "DragDropContainer",
+        ret["__no_skin__"] = ["DefaultWindow", "DragContainer",
                              "VerticalLayoutContainer", "HorizontalLayoutContainer",
                              "GridLayoutContainer"]
 
