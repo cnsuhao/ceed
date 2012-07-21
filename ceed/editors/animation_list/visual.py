@@ -80,6 +80,7 @@ class PropertiesDockWidget(QtGui.QDockWidget):
 
         self.inspector = propertysetinspector.PropertyInspectorWidget()
         self.inspector.ptree.setupRegistry(propertytree.editors.PropertyEditorRegistry(True))
+
         pmap = mainwindow.MainWindow.instance.project.propertyMap
         self.inspector.setPropertyManager(propertysetinspector.CEGUIPropertyManager(pmap))
 
@@ -301,6 +302,13 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
         self.tabbedEditor = tabbedEditor
 
+        # the check and return is there because we require a project but are
+        # constructed before the "project is opened" check is performed
+        # if rootPreviewWidget is None we will fail later, however that
+        # won't happen since it will be checked after construction
+        if mainwindow.MainWindow.instance.project is None:
+            return
+
         self.animationListDockWidget = AnimationListDockWidget(self)
         self.propertiesDockWidget = PropertiesDockWidget(self)
         self.keyFramePropertiesDockWidget = KeyFramePropertiesDockWidget(self)
@@ -315,13 +323,6 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.currentPreviewWidget = None
 
         self.setCurrentAnimation(None)
-
-        # the check and return is there because we require a project but are
-        # constructed before the "project is opened" check is performed
-        # if rootPreviewWidget is None we will fail later, however that
-        # won't happen since it will be checked after construction
-        if PyCEGUI.WindowManager.getSingleton() is None:
-            return
 
         self.rootPreviewWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "RootPreviewWidget")
 
