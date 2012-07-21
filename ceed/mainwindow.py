@@ -612,7 +612,7 @@ Details of this error: %s""" % (e))
         if os.path.isdir(projectBaseDirectory):
             self.fileSystemBrowser.setDirectory(projectBaseDirectory)
 
-        self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
+        self.recentlyUsedProjects.addRecentlyUsed(self.project.projectFilePath)
 
         # and enable respective actions
         self.saveProjectAction.setEnabled(True)
@@ -641,7 +641,7 @@ Details of this error: %s""" % (e))
         self.projectManager.setProject(None)
         # TODO: Do we really want to call this there? This was already called when the project was being opened.
         #       It doesn't do anything harmful but maybe is unnecessary.
-        self.recentlyUsedProjects.addRecentlyUsed(str(self.project.projectFilePath))
+        self.recentlyUsedProjects.addRecentlyUsed(self.project.projectFilePath)
         # clean resources that were potentially used with this project
         self.ceguiInstance.cleanCEGUIResources()
 
@@ -1392,7 +1392,7 @@ Details of this error: %s""" % (e))
 
     def slot_openRecentFile(self):
         if self.sender():
-            absolutePath = str(self.sender().data())
+            absolutePath = unicode(self.sender().data())
             if os.path.exists(absolutePath):
                 self.openEditorTab(absolutePath)
             else:
@@ -1411,7 +1411,7 @@ Details of this error: %s""" % (e))
 
     def slot_openRecentProject(self):
         if self.sender():
-            absolutePath = str(self.sender().data())
+            absolutePath = unicode(self.sender().data())
             if os.path.exists(absolutePath):
                 if self.project:
                     # give user a chance to save changes if needed
@@ -1435,7 +1435,7 @@ Details of this error: %s""" % (e))
 
     def slot_tabsMenuActivateTab(self):
         if self.sender():
-            absolutePath = str(self.sender().data())
+            absolutePath = unicode(self.sender().data())
             self.activateEditorTabByFilePath(absolutePath)
 
     def slot_toggleFullScreen(self):
