@@ -158,7 +158,16 @@ class LookNFeel6To7Layer(compatibility.Layer):
             except StopIteration:
                 break
 
-            tailTree = parentMap[dimop]
+            try:
+                tailTree = parentMap[dimop]
+
+            except KeyError as e:
+                raise RuntimeError("Failed to find parent of '%s'. This is most "
+                                   "likely caused by invalid data, please validate "
+                                   "them using XSD to check.\n"
+                                   "In case they are valid, this is a bug in the "
+                                   "compatibility layer, please report it!", dimop)
+
             tailTreeCopy = copy.deepcopy(tailTree)
 
             newTree = LookNFeel6To7Layer.convertToOperatorDim(tailTreeCopy)
