@@ -16,6 +16,7 @@ Markus 'Cygon' Ewald   - rectangle packing code
 Eniko                  - porting rectangle packing code to Python
 Michael Kapelko        - bug fixes
 Jorge Avila            - animation editor timeline UI design
+Chris Trenkamp         - file changes monitoring, file permissions fixes
 
 Special thanks to Martin Babka for advices and supervision of this project!
 
