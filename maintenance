@@ -31,6 +31,7 @@ import sys
 import os
 import argparse
 import subprocess
+import shutil
 
 def get_temporary_directory_path():
     temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -46,12 +47,15 @@ def compile_ui_files():
     compileuifiles.main()
 
 def build_docs():
-    print("Building XHTML and PDF versions of quickstart guide...")
-    subprocess.call(["lyx", "-e", "xhtml", "-e", "pdf", "doc/quickstart-guide/content.lyx"])
-    print("Building XHTML and PDF versions of user manual...")
-    subprocess.call(["lyx", "-e", "xhtml", "-e", "pdf", "doc/user-manual/content.lyx"])
-    print("Building XHTML and PDF versions of developer manual...")
-    subprocess.call(["lyx", "-e", "xhtml", "-e", "pdf", "doc/developer-manual/content.lyx"])
+    print("Building a PDF version of quickstart guide...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/quickstart-guide-src/quickstart-guide.lyx"])
+    shutil.move("doc/quickstart-guide-src/quickstart-guide.pdf", "doc/quickstart-guide.pdf")
+    print("Building a PDF version of user manual...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/user-manual-src/user-manual.lyx"])
+    shutil.move("doc/user-manual-src/user-manual.pdf", "doc/user-manual.pdf")
+    print("Building a PDF version of developer manual...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/developer-manual-src/developer-manual.lyx"])
+    shutil.move("doc/developer-manual-src/developer-manual.pdf", "doc/developer-manual.pdf")
     print("All done!")
 
 def fetch_datafiles():
@@ -85,8 +89,6 @@ def fetch_datafiles():
 
         def copy_datafiles(branch, target_path):
             print("*** Preparing to copy datafiles from the '%s' branch to '%s'" % (branch, target_path))
-            import shutil
-
             subprocess.call(["hg", "update", "-C", branch])
 
             if os.path.exists(target_path):
@@ -120,7 +122,6 @@ def archive():
     from ceed import version
     target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
 
-    import shutil
     import glob
 
     if os.path.exists(target_temp_directory_path):
@@ -153,8 +154,6 @@ def archive():
     print("*** The resulting archive is ready at '%s'" % (target_archive_path))
 
 def clean():
-    import shutil
-
     temp_directory_path = get_temporary_directory_path()
     shutil.rmtree(temp_directory_path)
 

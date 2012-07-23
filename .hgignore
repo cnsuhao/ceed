@@ -22,8 +22,7 @@ xcuserdata/
 pylint-output
 
 doc/API/
-doc/*/*.pdf
-doc/*/*.xhtml
+doc/*.pdf
 
 data/samples/datafiles0_7/
 data/samples/datafiles1_0/
