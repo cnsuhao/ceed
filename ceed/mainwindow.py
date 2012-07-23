@@ -23,6 +23,8 @@ from PySide import QtGui
 
 import os
 
+from ceed import paths
+
 from ceed import settings
 from ceed import action
 
@@ -1455,10 +1457,10 @@ Details of this error: %s""" % (e))
             self.statusBar().show()
 
     def slot_helpQuickstart(self):
-        QtGui.QDesktopServices.openUrl("../doc/quickstart-guide.pdf")
+        QtGui.QDesktopServices.openUrl(os.path.join(paths.DOC_DIR, "quickstart-guide.pdf"))
 
     def slot_helpUserManual(self):
-        QtGui.QDesktopServices.openUrl("../doc/user-manual.pdf")
+        QtGui.QDesktopServices.openUrl(os.path.join(paths.DOC_DIR, "user-manual.pdf"))
 
     def slot_helpWikiPage(self):
         QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")

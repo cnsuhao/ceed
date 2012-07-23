@@ -23,6 +23,7 @@ environments.
 """
 
 import os
+from ceed import version
 
 # Whether the application is frozen using cx_Freeze
 FROZEN = False
@@ -39,7 +40,7 @@ if PACKAGE_DIR.endswith(os.path.join("library.zip", "ceed")):
 DATA_DIR = ""
 
 # Potential system data dir, we check it's existence and set
-# data_dir as system_data_dir if it exists
+# DATA_DIR as system_data_dir if it exists
 SYSTEM_DATA_DIR = "/usr/share/ceed"
 SYSTEM_DATA_DIR_EXISTS = False
 try:
@@ -51,6 +52,23 @@ except:
 
 if not SYSTEM_DATA_DIR_EXISTS:
     DATA_DIR = os.path.join(os.path.dirname(PACKAGE_DIR), "data")
+
+# What's the absolute path to the doc directory
+DOC_DIR = ""
+
+# Potential system doc dir, we check it's existence and set
+# DOC_DIR as system_data_dir if it exists
+SYSTEM_DOC_DIR = "/usr/share/doc/ceed-%s" % (version.CEED)
+SYSTEM_DOC_DIR_EXISTS = False
+try:
+    if os.path.exists(SYSTEM_DOC_DIR):
+        DOC_DIR = SYSTEM_DOC_DIR
+        SYSTEM_DOC_DIR_EXISTS = True
+except:
+    pass
+
+if not SYSTEM_DOC_DIR_EXISTS:
+    DOC_DIR = os.path.join(os.path.dirname(PACKAGE_DIR), "doc")
 
 # What's the absolute path to the ui directory
 UI_DIR = os.path.join(PACKAGE_DIR, "ui")

@@ -137,7 +137,9 @@ def archive():
     shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
                     ignore = shutil.ignore_patterns("*~", "*.orig"))
     shutil.copytree("doc", os.path.join(target_temp_directory_path, "doc"),
-                    ignore = shutil.ignore_patterns("*~", "*.orig"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig")) #, "*-src"))
+    # the *-src ignore pattern is commented because we want documentation sources
+    # in the source tarball, we do not want it installed however
 
     # we don't copy doc for now, there is almost nothing there
     shutil.copy("AUTHORS", target_temp_directory_path)

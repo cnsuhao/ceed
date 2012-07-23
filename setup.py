@@ -73,5 +73,11 @@ setup(
     url = "http://www.cegui.org.uk/",
     packages = get_packages(),
     scripts = ["bin/ceed-gui", "bin/ceed-mic", "bin/ceed-migrate"],
-    data_files = get_directoryfilepairs("", "data", paths.SYSTEM_DATA_DIR)
+    data_files =
+        get_directoryfilepairs("", "data", paths.SYSTEM_DATA_DIR) +
+        [(paths.SYSTEM_DOC_DIR, [
+            "doc/quickstart-guide.pdf",
+            "doc/user-manual.pdf",
+            "doc/developer-manual.pdf"
+        ])]
 )
