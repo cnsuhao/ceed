@@ -1455,22 +1455,10 @@ Details of this error: %s""" % (e))
             self.statusBar().show()
 
     def slot_helpQuickstart(self):
-        if self.activateEditorTabByFilePath("help:///quickstart-guide"):
-            return
-
-        ret = editors_htmlview.HTMLViewTabbedEditor("help:///quickstart-guide", open("../doc/quickstart-guide/content.xhtml").read())
-        ret.initialise(self)
-        self.tabEditors.append(ret)
-        ret.makeCurrent()
+        QtGui.QDesktopServices.openUrl("../doc/quickstart-guide.pdf")
 
     def slot_helpUserManual(self):
-        if self.activateEditorTabByFilePath("help:///user-manual"):
-            return
-
-        ret = editors_htmlview.HTMLViewTabbedEditor("help:///user-manual", open("../doc/user-manual/content.xhtml").read())
-        ret.initialise(self)
-        self.tabEditors.append(ret)
-        ret.makeCurrent()
+        QtGui.QDesktopServices.openUrl("../doc/user-manual.pdf")
 
     def slot_helpWikiPage(self):
         QtGui.QDesktopServices.openUrl("http://www.cegui.org.uk/wiki/index.php/CEED")
