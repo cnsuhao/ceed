@@ -85,7 +85,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename main_interface.png
-	width 70page%
+	width 80col%
 
 \end_inset
 
@@ -93,6 +93,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Caption
 
 \begin_layout Plain Layout
@@ -129,9 +130,10 @@ width "50col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename multi_tab_reordering.png
-	width 40page%
+	width 50col%
 
 \end_inset
 
@@ -146,9 +148,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename multi_tab_context_menu.png
-	width 40page%
+	width 50col%
 
 \end_inset
 
@@ -206,9 +209,10 @@ width "50col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename multi_mode.png
-	width 40page%
+	width 40col%
 
 \end_inset
 
@@ -287,9 +291,10 @@ width "50col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename project_manager.png
-	width 40page%
+	width 40col%
 
 \end_inset
 

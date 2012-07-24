@@ -105,9 +105,10 @@ width "50col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename first_step.png
-	width 40page%
+	width 50col%
 
 \end_inset
 
@@ -153,7 +154,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename settings_top.png
-	width 35page%
+	width 45col%
 
 \end_inset
 
@@ -164,7 +165,7 @@ status open
 
 \begin_inset Graphics
 	filename settings_resource_paths.png
-	width 35page%
+	width 45col%
 
 \end_inset
 

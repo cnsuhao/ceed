@@ -118,7 +118,18 @@ Apple MacOS X 10.6+
 \noun on
 *BSD
 \noun default
- system with X11 (not officially supported)
+ system with X11
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+CEED has been reported to work on BSD but this platform is not officially
+ supported.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -249,7 +260,7 @@ CEED-${version}
 status open
 
 \begin_layout Plain Layout
-terminal emulator on UNIXes, cmd.exe on Windows
+Use terminal emulator of choice on UNIXes, cmd.exe on Windows.
 \end_layout
 
 \end_inset
@@ -263,7 +274,15 @@ python setup.py install
 status open
 
 \begin_layout Plain Layout
-use su/sudo on UNIXes, Run as administrator on Windows
+Use su/sudo on UNIXes, 
+\begin_inset Quotes eld
+\end_inset
+
+Run as administrator
+\begin_inset Quotes erd
+\end_inset
+
+ on Windows.
 \end_layout
 
 \end_inset
@@ -617,7 +636,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename settings/overview.png
-	width 60page%
+	width 70col%
 
 \end_inset
 
@@ -710,9 +729,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename settings/changing_key_seq.png
-	width 40page%
+	width 50col%
 
 \end_inset
 
@@ -981,7 +1001,7 @@ IRC: #cegui on irc.freenode.net
 status open
 
 \begin_layout Plain Layout
-see 
+See 
 \begin_inset Flex URL
 status collapsed
 
@@ -992,7 +1012,7 @@ http://freenode.net
 
 \end_inset
 
-
+ for information about the FreeNode network.
 \end_layout
 
 \end_inset
@@ -1039,6 +1059,7 @@ Software gets complex really quickly, nobody is pretending that CEED does
 status open
 
 \begin_layout Plain Layout
+We have a Mantis tracker at 
 \begin_inset Flex URL
 status collapsed
 
@@ -1049,7 +1070,7 @@ http://cegui.org.uk/mantis
 
 \end_inset
 
-
+.
 \end_layout
 
 \end_inset
@@ -1084,6 +1105,7 @@ Documenting is a very hard task, any help is welcome in that area.
 status open
 
 \begin_layout Plain Layout
+Wiki of the project is at 
 \begin_inset Flex URL
 status collapsed
 
@@ -1094,23 +1116,17 @@ http://cegui.org.uk/wiki
 
 \end_inset
 
-
+.
 \end_layout
 
 \end_inset
 
 .
  If you feel up to it you can also send patches to the manuals, they are
- written in LyX
-\begin_inset Foot
-status open
-
-\begin_layout Plain Layout
-http://lyx.org
-\end_layout
-
-\end_inset
-
+ written in 
+\emph on
+LyX
+\emph default
  so it should not be a problem to correct typos or even add new content.
 \end_layout
 

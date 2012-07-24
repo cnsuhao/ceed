@@ -143,9 +143,10 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename overview.png
-	width 80page%
+	width 80col%
 
 \end_inset
 
@@ -316,9 +317,10 @@ width "50col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename context_menu.png
-	width 40page%
+	width 50col%
 
 \end_inset
 
@@ -384,9 +386,10 @@ width "37col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename image_property_box.png
-	width 30page%
+	width 40col%
 
 \end_inset
 

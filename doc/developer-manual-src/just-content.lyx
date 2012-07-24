@@ -756,7 +756,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename tabbed_editor/responsibilities.png
-	width 80page%
+	width 80col%
 
 \end_inset
 
@@ -2447,10 +2447,6 @@ team@cegui.org.uk
 \emph default
 ).
  Make sure you state what the patchset is based on!
-\end_layout
-
-\begin_layout Standard
-
 \end_layout
 
 \end_body

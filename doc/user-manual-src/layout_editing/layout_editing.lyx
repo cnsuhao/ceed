@@ -195,9 +195,10 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename overview.png
-	width 80page%
+	width 80col%
 
 \end_inset
 
@@ -281,9 +282,10 @@ width "32col%"
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename button_udims.png
-	width 25page%
+	width 35col%
 
 \end_inset
 
@@ -411,7 +413,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename snapgrid_unaligned.png
-	width 26page%
+	width 26col%
 
 \end_inset
 
@@ -422,7 +424,7 @@ status open
 
 \begin_inset Graphics
 	filename snapgrid_in_progress.png
-	width 26page%
+	width 26col%
 
 \end_inset
 
@@ -433,7 +435,7 @@ status open
 
 \begin_inset Graphics
 	filename snapgrid_aligned.png
-	width 26page%
+	width 26col%
 
 \end_inset
 
@@ -485,7 +487,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename editbox_centred.png
-	width 30page%
+	width 30col%
 
 \end_inset
 
@@ -496,7 +498,7 @@ status open
 
 \begin_inset Graphics
 	filename alignment_icons.png
-	width 25page%
+	width 25col%
 
 \end_inset
 
@@ -507,7 +509,7 @@ status open
 
 \begin_inset Graphics
 	filename alignment_properties.png
-	width 25page%
+	width 25col%
 
 \end_inset
 
@@ -636,7 +638,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename aspect_ratio_properties.png
-	width 30page%
+	width 30col%
 
 \end_inset
 
@@ -647,7 +649,7 @@ status open
 
 \begin_inset Graphics
 	filename aspect_ratio_shrunk.png
-	width 25page%
+	width 25col%
 
 \end_inset
 
@@ -658,7 +660,7 @@ status open
 
 \begin_inset Graphics
 	filename aspect_ratio_expanded.png
-	width 25page%
+	width 25col%
 
 \end_inset
 
@@ -725,7 +727,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename complex_properties.png
-	width 25page%
+	width 35col%
 
 \end_inset
 
@@ -847,9 +849,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename live_preview.png
-	width 20page%
+	width 30col%
 
 \end_inset
 
