@@ -69,34 +69,6 @@ Creating a project file
 \end_layout
 
 \begin_layout Standard
-You will need to create a project for any serious editing with CEED.
- There are some quick hints about how to do this in the quickstart guide
- but we will dig into more details here.
-\end_layout
-
-\begin_layout Standard
-The first step is to choose 
-\emph on
-File » New » Project
-\emph default
-.
- The dialog in Figure 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:creating-a-project"
-
-\end_inset
-
- will appear.
- The most important choice you have to make is where to store the project
- file.
- It is recommended to store it in a directory made exclusively for the project
- to make it relocatable.
- You can optionally instruct CEED to auto create resource directories similar
- to the CEGUI sample datafiles directory structure.
-\end_layout
-
-\begin_layout Standard
 \begin_inset Wrap figure
 lines 0
 placement r
@@ -139,8 +111,58 @@ name "fig:creating-a-project"
 
 \end_layout
 
+\begin_layout Standard
+You will need to create a project for any serious editing with CEED.
+ There are some quick hints about how to do this in the 
+\emph on
+Quickstart Guide
+\emph default
+ but we will dig into more details here.
+\end_layout
+
+\begin_layout Standard
+The first step is to choose 
+\emph on
+File » New » Project
+\emph default
+.
+ The dialog in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:creating-a-project"
+
+\end_inset
+
+ will appear.
+ The most important choice you have to make is where to store the project
+ file.
+ It is recommended to store it in a directory made exclusively for the project.
+ Doing so ensures that it is relocatable.
+ You can optionally instruct CEED to auto create resource directories similar
+ to the CEGUI sample datafiles directory structure.
+\end_layout
+
 \begin_layout Subsection
 Project settings
+\end_layout
+
+\begin_layout Standard
+Project settings will pop up after the project file is created.
+ You can always return to project settings to change settings later.
+ It is recommended to get the basics down when creating the project as that
+ will prevent many headaches
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+CEED uses the project to choose versions of new files for example!
+\end_layout
+
+\end_inset
+
+.
+ Most of the options are documented in the interface as can be seen on the
+ following screenshots.
 \end_layout
 
 \begin_layout Standard
@@ -194,16 +216,6 @@ name "fig:project-settings"
 \end_layout
 
 \begin_layout Standard
-Project settings will pop up after the project file is created.
- You can always return to project settings to change settings later.
- It is recommended to get the basics down when creating the project as that
- will prevent many headaches (CEED uses the project to choose versions of
- new files for example!).
- Most of the options are documented in the interface as can be seen on the
- following screenshots.
-\end_layout
-
-\begin_layout Standard
 \begin_inset VSpace defskip
 \end_inset
 
@@ -211,8 +223,8 @@ Project settings will pop up after the project file is created.
 \end_layout
 
 \begin_layout Standard
-CEED project will always be saved in some folder, all paths are saved relative
- to this folder.
+All paths stores in the project file are relative to the parent directory
+ of the project file.
  This allows you to move the project directory around and share it with
  your co-developers.
  First thing you need to choose is the base directory.
@@ -242,9 +254,9 @@ The next thing you need to choose is the target CEGUI version.
 \end_layout
 
 \begin_layout Standard
-Following is the section with paths to CEGUI resource directories, if you
- use CEGUI's directory structure (the one used in samples), you can simply
- fill or browse for the first editbox and press apply.
+Following is the section with paths to CEGUI resource directories.
+ If you use CEGUI's directory structure (the one used in samples), you can
+ simply fill or browse for the first editbox and press apply.
  Otherwise you will have to fill the resource paths manually.
  Even though the paths are shown as absolute, they are stored 
 \emph on

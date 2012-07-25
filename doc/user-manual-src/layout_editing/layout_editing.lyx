@@ -79,12 +79,12 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-The word layout has 2 meanings in the CEGUI world so I will first disambiguate
+The word layout has two meanings in the CEGUI world so I will first disambiguate
  it.
  The first meaning is a hierarchy of widgets, the layout describes the way
  widgets are laid out as an 
 \emph on
-N-tree
+n-tree
 \emph default
 .
  The other meaning is a widget able to lay out its child widgets during
@@ -107,7 +107,7 @@ layout
 \begin_layout Plain Layout
 Each layout starts with a root widget and can only have exactly one root
  widget.
- If you need more root widgets, just put them into a 
+ If you need more top widgets, just put them into a 
 \emph on
 DefaultWindow
 \emph default
@@ -115,7 +115,7 @@ DefaultWindow
 \emph on
 DefaultWindow
 \emph default
- as the root widget).
+ as the root widget.
  When CEGUI loads the layout it returns this root widget.
  Widgets always have a name, this name only needs to be unique in the parent
  in CEGUI 1.0, it has to be globally unique in CEGUI 0.7.
@@ -157,7 +157,7 @@ Parent
  widget.
  I will call this notation the 
 \emph on
-widget path
+name path
 \emph default
 .
 \end_layout
@@ -228,7 +228,7 @@ Moving and sizing widgets
 \end_layout
 
 \begin_layout Standard
-Selected widgets can be moved around by dragging (including multiple selection).
+Selected widgets can be moved around by dragging.
  Resizable rectangle is used for implementation of the 
 \emph on
 widget manipulators
@@ -243,7 +243,7 @@ reference "sub:Resizable-rectangle"
  for more details.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Unified dimensions
 \end_layout
 
@@ -367,12 +367,12 @@ Whenever you select a widget, its position and size are shown by the means
  represents the offset component.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Snap to grid
 \end_layout
 
 \begin_layout Standard
-It is really hard to keep your widgets align and it is quite easy to spot
+It is really hard to keep your widgets aligned and it is quite easy to spot
  for your users that they do not align properly.
  CEED has a tool to help you align your widgets to a grid.
  You can enable it by pressing the 
@@ -451,16 +451,12 @@ snapping to grid, zoom at 200%
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Alignment
 \end_layout
 
@@ -469,7 +465,11 @@ Position of a widget in CEGUI is relative to a certain pivot.
  By default this pivot is the top left corner of the widget's parent widget
  client area.
  You can change this by selecting a different alignment.
- Choosing Centre for both horizontal and vertical alignments.
+ Choosing 
+\emph on
+Centre
+\emph default
+ for both horizontal and vertical alignments.
 \end_layout
 
 \begin_layout Standard
@@ -534,7 +534,7 @@ alignment of widgets
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Minimum and maximum size
 \end_layout
 
@@ -552,7 +552,7 @@ The maximum and minimum sizes are unified dimensions but there is one big
  to the widget's parent!
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Aspect ratio
 \end_layout
 
@@ -582,7 +582,7 @@ This feature was added in CEGUI 1.0 and it is not available in earlier versions.
 \end_layout
 
 \begin_layout Standard
-Is a tool to make sure your UI isn't stretched in any way in a case where
+Is a tool to make sure your UI is not stretched in any way in a case where
  your display's aspect ratio differs from that of your user.
  Choose the desired AspectMode first using the property editing (see Section
  
@@ -606,7 +606,7 @@ Shrink
 Expand
 \emph default
 .
- Ignore ignores your chosen aspect ratio and doesn't affect the sizes in
+ Ignore ignores your chosen aspect ratio and does not affect the sizes in
  any way.
  Shrink makes sure to comply to the aspect ratio by shrinking one of the
  dimensions until the ratio is satisfied.
@@ -760,13 +760,9 @@ PropertySet
  in CEGUI.
  All properties exposed as such will be editable within the editor in the
  
-\begin_inset Quotes eld
-\end_inset
-
+\emph on
 Selection Properties
-\begin_inset Quotes erd
-\end_inset
-
+\emph default
  dock widget.
 \end_layout
 
@@ -818,18 +814,6 @@ Reparenting means changing parent of a widget or an entire hierarchy of
  widget.
  This can be done in the widget hierarchy dock widget, pick a widget there,
  drag it and drop it into a widget that should be its new parent.
-\end_layout
-
-\begin_layout Subsection
-Custom widgets
-\end_layout
-
-\begin_layout Standard
-The editor loads all schemes in the project so standard widgets get registered
- if you have them in your scheme.
- The scheme will be able to load a custom widget set module.
- The custom widget set module is able to add widget factories so you can
- even add custom made widgets and have the editor edit them.
 \end_layout
 
 \begin_layout Subsection
@@ -889,18 +873,26 @@ Live preview
 \end_layout
 
 \begin_layout Subsection
+Custom widgets
+\end_layout
+
+\begin_layout Standard
+The editor loads all schemes in the project so standard widgets get registered
+ if you have them in your scheme.
+ The scheme will be able to load a custom widget set module.
+ The custom widget set module is able to add widget factories so you can
+ even add custom made widgets and have the editor edit them.
+\end_layout
+
+\begin_layout Subsection
 The code mode
 \end_layout
 
 \begin_layout Standard
 Raw XML editing is supported in layout editing, click the 
-\begin_inset Quotes eld
-\end_inset
-
+\emph on
 Code
-\begin_inset Quotes erd
-\end_inset
-
+\emph default
  tab in the bottom to switch to it.
  Please note that the raw format will always be the native CEGUI 1.0 format
  even if you selected CEGUI 0.7 as the target version.
@@ -909,8 +901,8 @@ Code
 
 \begin_layout Standard
 Please note that there are several errors that you can make in the layout
- XML that will go silently ignored! This is an issue which CEED can't solve,
- it's CEGUI that ignores this input.
+ XML that will go silently ignored! This is an issue which CEED cannot solve,
+ it is CEGUI that ignores this input.
  Examples include various property values, for example the 
 \emph on
 ColourRect

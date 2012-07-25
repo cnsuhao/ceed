@@ -80,8 +80,7 @@ status open
 
 \begin_layout Plain Layout
 An imageset is practically a texture atlas, a technique used to put many
- smaller images on one texture to drastically speed up rendering (texture
- switching is still a very expensive operation, even on modern hardware).
+ smaller images on one texture to drastically speed up rendering.
  Each imageset has a name, underlying texture file path, autoscaled settings,
  native resolution and a set of images.
  
@@ -94,7 +93,7 @@ Image
 
  means a rectangle selection of the underlying texture.
  Each of these images has a position (x, y), width, height and an offset
- (x, y).
+ (x, y).2
 \end_layout
 
 \end_inset
@@ -104,9 +103,10 @@ Image
 
 \begin_layout Standard
 Opening existing imagesets for editing does not require you to have a project
- opened - the underlying texture file is sought after in the same directory
- the .imageset file resides in.
- If a project file is opened, the appropriate resource directory is used
+ opened.
+ The underlying texture file is sought after in the same directory the .imageset
+ file resides in.
+ If a project file is opened the appropriate resource directory is used
  to search for the files instead.
 \end_layout
 
@@ -115,8 +115,8 @@ Overview
 \end_layout
 
 \begin_layout Standard
-Upon opening an imageset, a dock widget containing basic imageset properties,
- which are all editable, and a list of image definitions shows up.
+A dock widget containing basic imageset properties and a list of image definitio
+ns shows up upon opening an imageset file.
  The centre part of the editor shows the underlying texture and rectangles
  describing geometry of image definitions.
  Image definitions can be selected (including multiple selection).
@@ -224,8 +224,8 @@ The auto scaled settings affects how the imageset's image definition sizes
  will be affected on various resolutions.
  In a nutshell, with disabled auto scaling the image definitions will always
  have exactly the size they are defined with, with any other auto scaled
- settings, the size will be affected by the resolution CEGUI is started
- in (see CEGUI documentation for explanations of each setting).
+ settings, the size will be affected by the resolution CEGUI is currently
+ rendered in (see CEGUI documentation for explanations of each setting).
  Please note that only 
 \begin_inset Quotes eld
 \end_inset
@@ -261,8 +261,7 @@ Moving and resizing image definitions
 \end_layout
 
 \begin_layout Standard
-When selected, you can move the image definitions by dragging (including
- multiple selection) or using keyboard (
+You can move selected image definitions by dragging or using keyboard (
 \emph on
 WSAD
 \emph default
@@ -320,7 +319,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename context_menu.png
-	width 50col%
+	width 35col%
 
 \end_inset
 
@@ -361,9 +360,9 @@ Delete
 \emph on
 Delete key
 \emph default
- (this is of course undoable).
- This will only delete the rectangle definitions of the images in the imageset,
- it will not alter the underlying texture in any way.
+.
+ This will only delete the image definitions, it will not alter the underlying
+ texture in any way.
 \end_layout
 
 \begin_layout Subsection
@@ -389,7 +388,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename image_property_box.png
-	width 40col%
+	width 35col%
 
 \end_inset
 
@@ -409,8 +408,8 @@ image property box
 
 To allow precise adjustments, user can alter all the values of selected
  image definition manually using the property box.
- Just select exactly 1 image definition and the property box will get filled
- with its values.
+ Just select exactly one image definition and the property box will get
+ filled with its values.
  Altering them will immediately preview the changes in the visual editing
  pane.
  All editing has undo/redo support, see Section 
@@ -431,7 +430,11 @@ Editing image definition offsets
 \end_layout
 
 \begin_layout Standard
-Offsets describe where the 0, 0 position is in the image definition.
+Offsets describe where the 
+\emph on
+0, 0
+\emph default
+ position is in the image definition.
  By default it is at the top left corner of the rectangle of the image definitio
 n.
  You may want to adjust it, especially if you are working with crosshairs,

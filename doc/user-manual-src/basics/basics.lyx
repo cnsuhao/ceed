@@ -69,9 +69,9 @@ Main interface
 \end_layout
 
 \begin_layout Standard
-This interface hosts all the tabbed editors and provides some functionality
- that is shared by all the editors.
- It consist of an interface surrounding the application.
+This interface hosts all the tabbed editors and provides functionality that
+ is shared by all the editors.
+ It surrounds the application.
 \end_layout
 
 \begin_layout Standard
@@ -185,10 +185,10 @@ name "fig:tabs-reordering-ctext-menu"
 \begin_layout Standard
 The centre of the application consists of tabs, each tab represents one
  opened file.
- CEED will strive not to have 2 tabs for one file opened, if you try to
+ CEED will strive not to have two tabs for one file opened, if you try to
  open one file twice it will just activate the existing tab for the file.
- Any of the tabs can be closed on user's request, if there are unsaved changes
- the user will be asked what to do about them.
+ Any of the tabs can be closed on request.
+ If there are unsaved changes the user will be asked what to do about them.
  Reordering tabs is also possible using mouse drag-moving.
  The interface including dock widgets, toolbars, etc...
  may change when switching tabs.
@@ -234,15 +234,14 @@ switch modes by clicking the bottom mode tabs
 \end_layout
 
 \begin_layout Standard
-For some file types (mostly .imageset and .layout), it makes sense to edit
- in both visual mode (WYSIWYG more or less) as well as XML (editing plain
- text XML code).
- Undo and redo is transparent between mode switching as mode switching counts
- as an undo action.
+For some file types (mostly .imageset and .layout) it makes sense to edit
+ in both visual mode as well as code mode (raw XML).
+ Undo and redo are transparent between mode switching as mode switching
+ counts as an undo action.
  You can switch modes by clicking on the bottom tab pane.
- All files are by default opened in Visual mode and XML is regarded as a
- clutch mechanism, a tool to make tedious mass changes or work around problems
- with Visual mode.
+ All files are opened in Visual mode by default.
+ Code editing is regarded as a crutch mechanism, a tool to make tedious
+ mass changes or work around problems with Visual mode.
 \end_layout
 
 \begin_layout Standard
@@ -262,7 +261,7 @@ Many things you can select in the editor can be copied/cut and pasted elsewhere.
  instances.
  You can for example have 2 different projects and copy parts of layouts
  between them.
- Both projects have to have the same widget types of course!
+ Both projects have to have all widget types that or copied of course!
 \end_layout
 
 \begin_layout Standard
@@ -319,8 +318,11 @@ project manager dock widget
 Allows user to manage a project (project is a set of related files), browse
  through files, open any file for editing, add new or existing files to
  the project and remove files from the project.
- Most of the project managing takes place in the 'Project Manager' dock
- widget.
+ Most of the project managing takes place in the 
+\emph on
+Project Manager
+\emph default
+ dock widget.
  The dock widgets lists all files currently in the project and allows user
  to edit/view them by double clicking them.
  Right clicking brings up a context menu with the ability to add files to
@@ -328,10 +330,10 @@ Allows user to manage a project (project is a set of related files), browse
  The main reason for project management is to have CEGUI resource path settings
  shared for all the files in the project.
  The project files are designed to be committed to a repository and used
- on different computers for as robust and trouble-free workflow as possible,
- so all paths are relative to the project file (even though you may see
- absolute paths in the editor itself, they get converted to relative paths
- in the end).
+ on different computers.
+ All paths are stored relative to the project file, even though you may
+ see absolute paths in the editor itself, they get converted to relative
+ paths in the end.
 \end_layout
 
 \begin_layout Subsection
@@ -399,11 +401,18 @@ A construct used reused in many places in CEED.
  Represents a rectangular object that can be resized and/or resized.
  It offers features that would otherwise have to be reimplemented in many
  places.
- The main inspiration was GIMP's selection rectangle (TODO: citation).
- Can be moved by dragging any area that doesn't highlight a resize handle.
- There are 8 areas that resize the rectangle if you drag them (these are
- called resize handles) - 4 edges and 4 corners, they get highlighted when
- you hover over them.
+ The main inspiration was GIMP's selection rectangle 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gimprectselectweb"
+
+\end_inset
+
+.
+ Can be moved by dragging the middle area.
+ There are eight areas that resize the rectangle if you drag them.
+ These are called resize handles - four edges and four corners.
+ They get highlighted when you hover over them.
 \end_layout
 
 \begin_layout Standard
@@ -456,8 +465,8 @@ Zooming
 
 \begin_layout Standard
 To make editing easier and possibly more precise, user is allowed to zoom
- in the editors that support it - both imageset and layout editors support
- zooming.
+ in the editors that support it.
+ Both imageset and layout editors support zooming.
  By default you can zoom by clicking the zoom icons in the toolbar as seen
  in Figure 
 \begin_inset CommandInset ref
@@ -481,9 +490,9 @@ mouse wheel
 \end_layout
 
 \begin_layout Standard
-The zoom will in no way affect your data, it will only change the context
- you are editing in.
- It therefore doesn't count as an undo action.
+The zoom level will in no way affect your data, it will only change the
+ context you are editing in.
+ It therefore is not an undo action.
 \end_layout
 
 \begin_layout Subsection
@@ -500,11 +509,29 @@ name "sub:Undo-and-Redo"
 \begin_layout Standard
 Since most tabbed editors allow undo and redo, the main interface allows
  you to perform these actions via shared means in the top toolbar.
- Undo & Redo are per-file, so whenever you switch tabs, the undo stack gets
- changed to a completely different stack (all stacks are independent).
- If you for example do changes to file A, then switch to file B, do some
- changes and keep pressing Undo, only changes to file B gets undone, you
- have to switch to A again and undo there.
+ Undo/redo are per-file, so whenever you switch tabs the undo stack gets
+ changed to a completely different stack.
+ If you for example do changes to file 
+\emph on
+A
+\emph default
+, then switch to file 
+\emph on
+B,
+\emph default
+ do some changes and keep pressing 
+\emph on
+undo
+\emph default
+, only changes to file 
+\emph on
+B
+\emph default
+ gets undone, You have to switch to 
+\emph on
+A
+\emph default
+ again and undo there.
  Selections are not undoable as they do not count as undo actions.
  There is one very important aspect that breaks the 
 \begin_inset Quotes eld
@@ -514,9 +541,9 @@ context switching is not an undo action
 \begin_inset Quotes erd
 \end_inset
 
- rule: Switching editing mode is an undoable action though as the changes
- of XML code do not make sense in visual code (even though just switching
- to XML mode does not change the file at all).
+ rule.
+ Switching editing mode is an undoable action because the changes of XML
+ code do not make sense in visual mode.
 \end_layout
 
 \begin_layout Standard
@@ -563,13 +590,12 @@ name "sub:Compatibility-layers"
 \end_layout
 
 \begin_layout Standard
-To work with as many versions of CEGUI as possible, CEED has a facility
- called compatibility layers.
- In a nutshell, these layers allow you to transform raw data from version
+CEED has a facility called compatibility layers which allows it to work
+ with data from many versions of CEGUI.
+ In a nutshell these layers allow you to transform raw data from version
  to version.
- Each layer has source and target data types which describe the transformation
- that happens when you use that particular layer.
- Layer can be combined, if there is a path to go from data type 
+ Each layer has source and target data types that describe the transformation.
+ Layers can be chained, if there is a path to go from data type 
 \emph on
 A
 \emph default
@@ -609,8 +635,8 @@ reference "fig:tabs-reordering-ctext-menu"
 .
  It is not currently possible to change the data type of a file that's been
  opened, CEED will attempt to detect the data type when you are opening
- the file and ask you if it can not decide for sure.
- Make sure you set the correct CEGUI target version, as described in Figure
+ the file and ask you if it cannot decide for sure.
+ Make sure you set the correct CEGUI target version as described in Figure
  
 \begin_inset CommandInset ref
 LatexCommand ref

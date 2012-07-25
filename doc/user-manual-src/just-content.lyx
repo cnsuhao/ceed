@@ -374,24 +374,6 @@ If you have made custom changes to CEGUI that you use with your application,
 
 \end_layout
 
-\begin_layout Subsection
-Third party packages
-\end_layout
-
-\begin_layout Standard
-This application may be packaged by third parties for various 
-\noun on
-GNU/Linux
-\noun default
- or 
-\noun on
-BSD
-\noun default
- distributions.
- If this is the case for your distribution of choice, installing it from
- the repository is the preferred method.
-\end_layout
-
 \begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
@@ -450,53 +432,7 @@ filename "layout_editing/layout_editing.lyx"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Newpage newpage
-\end_inset
 
-
-\end_layout
-
-\begin_layout Section
-Animation list editing
-\end_layout
-
-\begin_layout Standard
-\begin_inset Box Boxed
-position "t"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-use_makebox 0
-width "100col%"
-special "none"
-height "1in"
-height_special "totalheight"
-status open
-
-\begin_layout Plain Layout
-Animations are composed of Affectors and can work on any PropertySet based
- class (Widget, MouseCursor, …).
- Each Affector affects exactly one property.
- Affector has keyframes where each keyframe has value and a progression
- (if the 
-\begin_inset Quotes eld
-\end_inset
-
-time
-\begin_inset Quotes erd
-\end_inset
-
- should accelerate towards it, decelerate or be linear).
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-TODO: The UI is not stable enough yet to warrant a manual.
 \end_layout
 
 \begin_layout Standard
