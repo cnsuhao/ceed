@@ -708,7 +708,7 @@ Shortcuts
  Clicking the button in the middle will allow you to press your desired
  combination to change to it.
  Only combination keypresses are supported, preferably with modifier keys.
- Discrete sequences or key chords can not be used for shortcuts.
+ Discrete sequences or key chords cannot be used for shortcuts.
 \end_layout
 
 \begin_layout Chapter
@@ -720,7 +720,7 @@ Common issues
 \end_layout
 
 \begin_layout Subsection*
-Can not find PyCEGUI
+Cannot find PyCEGUI
 \end_layout
 
 \begin_layout Standard
@@ -743,7 +743,7 @@ You can also use the runwrapper.sh script if you use a UNIX system but that
 \end_layout
 
 \begin_layout Subsection*
-Can not find XYZ
+Cannot find XYZ
 \end_layout
 
 \begin_layout Standard
@@ -833,7 +833,7 @@ This may also be a newly introduced bug that may be worth reporting! Use
 \end_layout
 
 \begin_layout Subsection*
-Can not start 'hg'
+Cannot start 'hg'
 \end_layout
 
 \begin_layout Standard
@@ -1027,7 +1027,7 @@ best effort
 \begin_inset Quotes erd
 \end_inset
 
- to fix tickets but can not possibly give you a reliable time frame.
+ to fix tickets but cannot possibly give you a reliable time frame.
 \end_layout
 
 \begin_layout Subsection

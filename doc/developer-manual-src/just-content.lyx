@@ -1666,8 +1666,8 @@ ceguiContainerWidget = mainwindow.MainWindow.instance.ceguiContainerWidget
 
 \begin_layout Plain Layout
 
-# parentWidget is the widget that will host the CEGUI rendering, it can
- not be None!
+# parentWidget is the widget that will host the CEGUI rendering, it cannot
+ be None!
 \end_layout
 
 \begin_layout Plain Layout

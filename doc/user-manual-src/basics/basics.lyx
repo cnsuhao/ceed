@@ -367,7 +367,7 @@ You are advised to use project manager if at all possible, it will improve
 \begin_layout Standard
 In addition to the project manager, CEED allows you to browse the filesystem
  and simply open files for quick editing.
- Please note that this will only work for some file types (it can not work
+ Please note that this will only work for some file types (it cannot work
  for schemes and layouts because CEGUI paths are not set if project is not
  loaded).
  This is again contained in a dock widget that hosts the functionality.
