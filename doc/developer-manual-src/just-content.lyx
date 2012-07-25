@@ -382,46 +382,6 @@ bin directory
 \end_layout
 
 \begin_layout Standard
-\begin_inset Wrap figure
-lines 0
-placement o
-overhang 0in
-width "25col%"
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename directory_structure/bin_dir.png
-	width 20page%
-
-\end_inset
-
-
-\begin_inset Caption
-
-\begin_layout Plain Layout
-bin directory listing
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 All contents are executable, these are entry points to various functionality
  of CEED.
 \end_layout
@@ -506,42 +466,6 @@ ceed directory
 \end_layout
 
 \begin_layout Standard
-\begin_inset Wrap figure
-lines 0
-placement o
-overhang 0in
-width "30col%"
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename directory_structure/ceed_dir.png
-	width 25page%
-
-\end_inset
-
-
-\begin_inset Caption
-
-\begin_layout Plain Layout
-ceed directory listing
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
 This is where the bulk of the codebase resides.
  The directory is a 
 \emph on
