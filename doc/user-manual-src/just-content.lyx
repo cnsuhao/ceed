@@ -468,9 +468,18 @@ The main use of this executable is to bring up the CEED GUI interface.
 
 \begin_layout Standard
 Call 
-\emph on
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
 ceed-gui --help
-\emph default
+\end_layout
+
+\end_inset
+
  for more info.
 \end_layout
 
@@ -495,10 +504,19 @@ reference "sub:Compatibility-layers"
 
 \begin_layout Standard
 Call 
-\emph on
-ceed-migrate --help
-\emph default
- for more info.
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ceed-migrate --help 
+\end_layout
+
+\end_inset
+
+for more info.
 \end_layout
 
 \begin_layout Subsection
@@ -512,7 +530,6 @@ Makes it possible to build an rectangle packed imageset out of given data.
 MetaImageset
 \emph default
 .
- See data/samples/AllStockImagery.meta-imageset for an example.
  In a nutshell you can specify separate image files or even imagesets and
  ceed-mic will make just one imageset with one underlying texture out of
  them.
@@ -520,10 +537,27 @@ MetaImageset
 \end_layout
 
 \begin_layout Standard
-Call 
+See 
 \emph on
-ceed-mic --help
+data/samples/AllStockImagery.meta-imageset
 \emph default
+ for an example.
+\end_layout
+
+\begin_layout Standard
+Call 
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ceed-mic --help
+\end_layout
+
+\end_inset
+
  for more info.
 \end_layout
 
@@ -614,8 +648,8 @@ Most of the settings will apply immediately after pressing the Apply button.
  will even require you to restart the application.
  If you experience glitches related to a settings change a restart will
  very likely cure them.
- We would still appreciate it if you reported them as a bug though.
- See Section 
+ We would still appreciate it if you reported them as a bug though, for
+ further detail see Section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Reporting-bugs"

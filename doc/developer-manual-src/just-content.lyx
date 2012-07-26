@@ -177,14 +177,37 @@ name "sec:Starting-without-installation"
 \end_layout
 
 \begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This section is UNIX only!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 It is extremely valuable to start the editor without installing it.
  You can do so by using the 
 \emph on
 runwrapper.sh
 \emph default
- script contained in the repository (it is not shipped in release tarballs!).
- This script will spawn a new bash shell that will contain environment variables
- set so that CEED finds its own modules as well as PyCEGUI.
+ script in the repository.
+ This script will spawn a new shell that will have environment set so that
+ CEED finds its own modules and PyCEGUI.
  By default it assumes the following directory structure:
 \end_layout
 
@@ -798,18 +821,15 @@ Derived classes
 \end_layout
 
 \begin_layout Standard
-To avoid repeating code (DRY
-\begin_inset Foot
-status open
-
-\begin_layout Plain Layout
-don't repeat yourself
-\end_layout
+To avoid repeating code and adhere to the DRY principle 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cppcodingstandardsbook"
 
 \end_inset
 
- principle), there are 2 very important classes that add functionality to
- TabbedEditor that you want to inherit if applicable to avoid reinventing.
+, there are 2 very important classes that add functionality to TabbedEditor
+ that you want to inherit if applicable to avoid reinventing.
 \end_layout
 
 \begin_layout Subsubsection*
@@ -834,7 +854,7 @@ Useful when you want multiple editing modes.
  at the same data.
  At any point in time you are viewing/editing in one mode only.
  Please note that you must be using UndoStack in this situation as switching
- modes is an undo action!
+ modes is an undo action.
 \end_layout
 
 \begin_layout Standard
@@ -998,7 +1018,7 @@ independent
 
 \begin_layout Itemize
 state switching that would make some undo commands not applicable have to
- be undo commands themselves3
+ be undo commands themselves
 \end_layout
 
 \begin_layout Subsection
@@ -1675,7 +1695,7 @@ accessing and using the CEGUI instance
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Always clean up!
 \end_layout
 
@@ -1704,7 +1724,7 @@ CEGUI
  They will not get cleaned up until the whole editor is closed!
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Beware of name clashes!
 \end_layout
 
@@ -1720,11 +1740,11 @@ This is what the
 \emph on
 Animation list editor
 \emph default
- does internally, see 
+ does internally, for more details see 
 \emph on
 ceed.editors.animation_list
 \emph default
- for more details.
+.
 \end_layout
 
 \begin_layout Section
@@ -1812,7 +1832,14 @@ Model View (Controller)
 \end_layout
 
 \begin_layout Standard
-As most editing applications we have the MVC paradigm.
+As most editing applications we have the MVC paradigm 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "designpatternscppqt4book"
+
+\end_inset
+
+.
  When I say something is the 
 \emph on
 model
@@ -1891,7 +1918,7 @@ Python modules
 .
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 Development mode
 \end_layout
 
@@ -1950,7 +1977,7 @@ turning the developer mode on
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsubsection*
 maintenance script
 \end_layout
 
@@ -2039,7 +2066,7 @@ key "imagesetformat"
 
 \end_inset
 
-for more details about the format.
+ for more details about the format.
 \end_layout
 
 \begin_layout Subsection
@@ -2289,7 +2316,7 @@ IRC: #cegui on irc.freenode.net
 status open
 
 \begin_layout Plain Layout
-see 
+See 
 \begin_inset Flex URL
 status collapsed
 
@@ -2300,7 +2327,7 @@ http://freenode.net
 
 \end_inset
 
-
+ for more information about the network.
 \end_layout
 
 \end_inset
@@ -2364,13 +2391,14 @@ The old fashioned way - patches
 \end_layout
 
 \begin_layout Standard
-You can alternatively just send unified diffs by email if you so desire
- (
+You can alternatively just send unified diff patches by email if you so
+ desire.
+ Use the
 \emph on
-team@cegui.org.uk
+ team@cegui.org.uk
 \emph default
-).
- Make sure you state what the patchset is based on!
+ email address.
+ Make sure you state what the patchset is based on.
 \end_layout
 
 \end_body

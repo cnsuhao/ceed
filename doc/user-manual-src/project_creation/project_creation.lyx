@@ -147,15 +147,16 @@ Project settings
 \end_layout
 
 \begin_layout Standard
-Project settings will pop up after the project file is created.
- You can always return to project settings to change settings later.
- It is recommended to get the basics down when creating the project as that
- will prevent many headaches
+Project settings window will pop up after the project file is created.
+ You can always return to the project settings window to change settings
+ later.
+ It is recommended to get the basics right when creating the project as
+ that will prevent many headaches
 \begin_inset Foot
 status open
 
 \begin_layout Plain Layout
-CEED uses the project to choose versions of new files for example!
+CEED uses the project to choose versions of new files for example.
 \end_layout
 
 \end_inset
