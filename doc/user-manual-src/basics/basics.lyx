@@ -270,7 +270,7 @@ The default shortcuts are the expected ones depending on your platform.
 \emph on
 Ctrl + C
 \emph default
- for copy on Windows and Linux, 
+ for copy on Windows and GNU/Linux, 
 \emph on
 Cmd + C
 \emph default
