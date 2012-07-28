@@ -276,9 +276,9 @@ Both position and size have two components in CEGUI - scale and offset.
 \begin_layout Standard
 \begin_inset Wrap figure
 lines 0
-placement o
+placement O
 overhang 0in
-width "32col%"
+width "40col%"
 status open
 
 \begin_layout Plain Layout
@@ -720,7 +720,7 @@ name "sub:Property-editing"
 lines 0
 placement O
 overhang 0in
-width "30col%"
+width "40col%"
 status open
 
 \begin_layout Plain Layout
@@ -825,12 +825,8 @@ Live preview
 lines 0
 placement o
 overhang 0in
-width "25col%"
+width "35col%"
 status open
-
-\begin_layout Plain Layout
-
-\end_layout
 
 \begin_layout Plain Layout
 \align center

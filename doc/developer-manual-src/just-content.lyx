@@ -1341,7 +1341,11 @@ To use the Action API you have to define your actions first, this is usually
  done in a separate file to keep things clean.
  See 
 \emph on
-editors/{layout,imageset}/action_decl.py
+editors/imageset/action_decl.py
+\emph default
+ and 
+\emph on
+editors/layout/action_decl.py
 \emph default
 .
  Then you query for this action in your code and connect your signals to
