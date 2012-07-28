@@ -155,9 +155,9 @@ class ImageEntry(resizable.ResizableRectItem):
     ypos = property(lambda self: int(self.pos().y()),
                     lambda self, value: self.setPos(self.pos().x(), value))
     width = property(lambda self: int(self.rect().width()),
-                     lambda self, value: self.setRect(QtCore.QRectF(0, 0, value, self.height)))
+                     lambda self, value: self.setRect(QtCore.QRectF(0, 0, max(1, value), self.height)))
     height = property(lambda self: int(self.rect().height()),
-                      lambda self, value: self.setRect(QtCore.QRectF(0, 0, self.width, value)))
+                      lambda self, value: self.setRect(QtCore.QRectF(0, 0, self.width, max(1, value))))
 
     xoffset = property(lambda self: int(-(self.offset.pos().x() - 0.5)),
                        lambda self, value: self.offset.setX(-float(value) + 0.5))
