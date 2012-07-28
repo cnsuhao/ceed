@@ -65,7 +65,7 @@
 \begin_body
 
 \begin_layout Title
-CEGUI Unified Editor Quickstart guide
+CEGUI Unified Editor Quickstart Guide
 \end_layout
 
 \begin_layout Standard
@@ -83,8 +83,8 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-This is just a really quick introductory document! See the User manual for
- more info.
+This is just a quick and informal introductory document.
+ See the User manual for more information.
 \end_layout
 
 \end_inset
@@ -97,8 +97,8 @@ This is just a really quick introductory document! See the User manual for
 \end_layout
 
 \begin_layout Standard
-Now that you've started the editor, it's time to take a few minutes to learn
- basic concepts of it.
+Now that you have started the editor, it is time to take a few minutes to
+ learn basic concepts of it.
  Lets start with some terminology.
 \end_layout
 
@@ -125,8 +125,17 @@ CEGUI resources
 Compatibility layer
 \emph default
  - a facility that can convert a CEGUI resource from one version to another
- (there usually are 2 layers to provide conversion both ways but it's not
- a strict requirement)
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+There usually are two layers to provide conversion both ways but it is not
+ a strict requirement.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
@@ -204,17 +213,17 @@ target CEGUI version
 \end_layout
 
 \begin_layout Itemize
-paths! same as you use in DefaultResourceProvider setResourceGroup calls
- (in CEGUI stock data it's the 
-\emph on
-datafile
-\emph default
-s folder)
+paths
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Same as you would use in DefaultResourceProvider::setResourceGroup calls.
 \end_layout
 
-\begin_layout Standard
-Not much is needed, right? Yet many have trouble coming up with a project
- file, so listen up!
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -232,10 +241,31 @@ version control friendly
 \begin_inset Quotes erd
 \end_inset
 
- and is relocatable (you can simply move it around on the disk).
+ and is relocatable
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+You can simply move it around on the disk and it continues to work as a
+ whole.
+\end_layout
+
+\end_inset
+
+.
  Your colleagues can clone/checkout and move it somewhere else and it will
- still work unless you do something stupid, like reference files across
- different drives (Windows only).
+ still work unless you do something wrong like reference files across different
+ drives
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+This only applies to Windows.
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -245,7 +275,7 @@ Moment of creation
 \begin_layout Standard
 
 \emph on
-File / New / Project
+File » New » Project
 \emph default
  will ask you for a name and where to save the new project file.
  Choose a fitting name and select the relocatable folder and a file in it
@@ -255,8 +285,8 @@ File / New / Project
 Game.project
 \emph default
 ) and press OK.
- Project name and the filename of the project file are separate, even though
- they will be same or similar in most cases.
+ Project name and the filename of the project file are separate.
+ Though they will be same or similar in most cases.
 \end_layout
 
 \begin_layout Subsection
@@ -264,14 +294,24 @@ Project settings
 \end_layout
 
 \begin_layout Standard
-After the file is created you will be asked for target CEGUI version and
- paths, among other things (see the User manual for more details).
- Make sure you get everything right (or ask a fellow programmer from your
- project to help with this, they will know the values).
+After the file is created you will be asked for target CEGUI version, paths
+ and several other things
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+See the User manual for more details.
+\end_layout
+
+\end_inset
+
+.
+ Make sure you get everything right or ask a fellow programmer from your
+ project to help with this, they will surely know the right values.
  The editor will attempt to bootstrap CEGUI based on your values after you
  press OK.
- Don't continue with this guide unless everything goes smoothly and no error
- dialogs are shown!
+ Do not continue with this guide unless everything goes smoothly and no
+ error dialogs are shown!
 \end_layout
 
 \begin_layout Subsection
@@ -279,24 +319,45 @@ Referencing files
 \end_layout
 
 \begin_layout Standard
-OK, your project file has been creating and embedded CEGUI tied to it started
- correctly.
- You are almost there, congrats!
+OK, your project file has been created and embedded CEGUI is working correctly
+ with the project.
 \end_layout
 
 \begin_layout Standard
-Now, lets add some files to the project so that it's easier to work with
+Now, let us add some files to the project so that it is easier to work with
  it.
  The project file has a simple tree of nodes, each node referencing a file.
  It does not automatically scan and add anything.
- You have to add files manually and explicitly.
- (The editor may provide some auto-discovery tool in the future.)
+ You have to add files manually and explicitly
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+The editor may provide some auto-discovery tool in the future.
+\end_layout
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-Start by right clicking the project manager and selecting Create folder.
- This will create a container for your file references (no folder is created
- on disk, this is all project file-only).
+Start by right clicking the project manager and selecting 
+\emph on
+Create folder
+\emph default
+.
+ This will create a container for your file references
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+No folder is created on disk, this is all project file only.
+\end_layout
+
+\end_inset
+
+.
  You can then add files, either new or existing on disk already.
  Make sure to avoid adding files from outside the 
 \begin_inset Quotes eld
@@ -321,11 +382,20 @@ Creating new files
 \begin_layout Standard
 
 \emph on
-File / New / Type of file
+File » New » Type of file
 \emph default
  will create a new empty file of given type.
- The editor will detect that it's empty when you try to open it (if the
- file only has CR and/or LF characters, it is deemed empty).
+ The editor will detect that it is empty when you try to open it
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+If the file only has CR and/or LF characters, it is deemed empty.
+\end_layout
+
+\end_inset
+
+.
  You can start working on the file after you open it.
 \end_layout
 
@@ -339,8 +409,8 @@ This has been just a really quick run through the basics to get you started.
 \emph on
 User manual
 \emph default
- for more in-depth documentation (please read it before asking questions
- on IRC / forum).
+ for more in-depth documentation.
+ Please read it fully before asking questions on IRC or the forum.
  You can also find the 
 \emph on
 Developer manual

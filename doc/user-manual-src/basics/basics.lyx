@@ -122,6 +122,15 @@ Multi tab editing
 \end_layout
 
 \begin_layout Standard
+The centre of the application consists of tabs, each tab represents one
+ opened file.
+ CEED will strive not to have two tabs for one file opened, if you try to
+ open one file twice it will just activate the existing tab for the file.
+ Any of the tabs can be closed on request.
+ If there are unsaved changes the user will be asked what to do about them.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Wrap figure
 lines 0
 placement o
@@ -179,17 +188,7 @@ name "fig:tabs-reordering-ctext-menu"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-The centre of the application consists of tabs, each tab represents one
- opened file.
- CEED will strive not to have two tabs for one file opened, if you try to
- open one file twice it will just activate the existing tab for the file.
- Any of the tabs can be closed on request.
- If there are unsaved changes the user will be asked what to do about them.
- Reordering tabs is also possible using mouse drag-moving.
+Reordering tabs is also possible using mouse drag-moving.
  The interface including dock widgets, toolbars, etc...
  may change when switching tabs.
  Switching tabs does not count as an undo action, it is instead just a context

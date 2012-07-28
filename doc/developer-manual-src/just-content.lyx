@@ -891,7 +891,7 @@ Undo / Redo
 lines 0
 placement o
 overhang 0in
-width "30col%"
+width "45col%"
 status open
 
 \begin_layout Plain Layout
@@ -902,7 +902,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename undo_redo/undo_stack.png
-	width 25page%
+	width 40col%
 
 \end_inset
 
@@ -2194,7 +2194,7 @@ KeyFrames had to have indices added because comparing floats for equality
  is unreliable.
  So in the end we sort all keyframes by position and figure out their indices
  from that.
- To avoid placing 2 keyframes at the exact same position we add a small
+ To avoid placing two keyframes at the exact same position we add a small
  epsilon until we have no clashes whenever we encounter this possibility.
 \end_layout
 
@@ -2237,8 +2237,29 @@ use CamelCase for class naming
 \end_layout
 
 \begin_layout Itemize
-do not use wildcard imports! (no from abc import * can appear anywhere in
- the code)
+do not use wildcard imports 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "language=Python"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+from package import *
+\end_layout
+
+\end_inset
+
+ cannot appear anywhere in the code.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
@@ -2250,7 +2271,7 @@ document methods and classes with the triple quote docstyle syntax
 \end_layout
 
 \begin_layout Itemize
-comment other things with # prefix only
+comment all other things with # prefix only
 \end_layout
 
 \begin_layout Section
