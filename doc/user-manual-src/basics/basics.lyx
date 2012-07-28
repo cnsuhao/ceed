@@ -555,6 +555,7 @@ Undo and Redo can be very powerful and allows free experimentation without
 \end_layout
 
 \begin_layout Standard
+\noindent
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"

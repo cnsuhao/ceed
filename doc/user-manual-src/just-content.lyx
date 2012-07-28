@@ -137,7 +137,7 @@ Hardware:
 \end_layout
 
 \begin_layout Itemize
-at least Intel Pentium 4 or AMD Athlon XP
+At least Intel Pentium 4 or AMD Athlon XP
 \end_layout
 
 \begin_layout Itemize
@@ -146,6 +146,20 @@ at least Intel Pentium 4 or AMD Athlon XP
 
 \begin_layout Itemize
 Graphics card capable of accelerated OpenGL with FBO support
+\end_layout
+
+\begin_layout Itemize
+Display with resolution of at least 800*600 px
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Vertical resolution of at least 800 px is recommended.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -311,6 +325,7 @@ ceed-gui.exe
 \end_layout
 
 \begin_layout Standard
+\noindent
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"
@@ -350,6 +365,7 @@ Applications
 \end_layout
 
 \begin_layout Standard
+\noindent
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"
@@ -808,6 +824,7 @@ Make sure your GPU supports FBO and that it supports it properly.
 \end_layout
 
 \begin_layout Standard
+\noindent
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"
@@ -822,8 +839,8 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-This may also be a newly introduced bug that may be worth reporting! Use
- common sense.
+This may also be a newly introduced bug that may be worth reporting.
+ Use common sense.
 \end_layout
 
 \end_inset
@@ -843,6 +860,7 @@ Make sure your GPU supports FBO.
 \end_layout
 
 \begin_layout Standard
+\noindent
 \begin_inset Box Boxed
 position "t"
 hor_pos "c"
@@ -857,8 +875,8 @@ height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-This may also be a newly introduced bug that may be worth reporting! Use
- common sense.
+This may also be a newly introduced bug that may be worth reporting.
+ Use common sense.
 \end_layout
 
 \end_inset
