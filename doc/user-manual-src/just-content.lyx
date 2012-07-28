@@ -149,12 +149,12 @@ Graphics card capable of accelerated OpenGL with FBO support
 \end_layout
 
 \begin_layout Itemize
-Display with resolution of at least 800*600 px
+Display area of at least 800*600 px available to the application
 \begin_inset Foot
 status open
 
 \begin_layout Plain Layout
-Vertical resolution of at least 800 px is recommended.
+Vertical screen estate of at least 800 px is recommended.
 \end_layout
 
 \end_inset
@@ -193,7 +193,14 @@ Qt
 \end_layout
 
 \begin_layout Itemize
-CEGUI 1.0 (
+CEGUI 1.0
+\noun on
+
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
 \noun on
 CEED
 \noun default
@@ -201,7 +208,12 @@ CEED
 \noun on
 CEGUI
 \noun default
- 0.7 as well but uses 1.0 internally)
+ 0.7 data as well but uses 1.0 internally.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
