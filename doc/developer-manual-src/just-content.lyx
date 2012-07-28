@@ -88,31 +88,8 @@ Knowledge requirements
 \end_layout
 
 \begin_layout Standard
-Because of size constrains, I will not cover the following areas:
-\end_layout
-
-\begin_layout Itemize
-
-\noun on
-Python
-\end_layout
-
-\begin_layout Itemize
-
-\noun on
-PySide
-\noun default
- and 
-\noun on
-Qt
-\end_layout
-
-\begin_layout Itemize
-
-\noun on
-CEGUI
-\noun default
- API
+Because of size constrains, I will not cover Python, PySide, Qt and CEGUI
+ API.
 \end_layout
 
 \begin_layout Section
@@ -249,42 +226,6 @@ Directory structure
 
 \begin_layout Section
 Top directory
-\end_layout
-
-\begin_layout Standard
-\begin_inset Wrap figure
-lines 0
-placement o
-overhang 0in
-width "25col%"
-status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename directory_structure/top_dir.png
-	width 20page%
-
-\end_inset
-
-
-\begin_inset Caption
-
-\begin_layout Plain Layout
-top directory listing
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -575,8 +516,7 @@ reference "sub:ceed-mic"
 
 \end_inset
 
-) uses internally to compile a metaimageset into a resulting imageset and
- an underlying texture.
+) uses internally to compile a metaimageset.
 \end_layout
 
 \begin_layout Subsection
@@ -595,13 +535,11 @@ UI to inspect and change properties of any
 \emph on
  
 \emph default
-class inheriting from 
+class inheriting 
 \emph on
 CEGUI::PropertySet
 \emph default
 .
- Provides support for composite properties, various helpers CEGUI data parsing,
- ...
 \end_layout
 
 \begin_layout Subsection
@@ -750,6 +688,10 @@ reference "fig:tabbed-editor-responsibilities"
 
 \begin_layout Subsection
 Life cycle
+\end_layout
+
+\begin_layout Standard
+Each tabbed editor goes through the following cycle:
 \end_layout
 
 \begin_layout Enumerate
@@ -2272,13 +2214,18 @@ Coding style
 \end_layout
 
 \begin_layout Standard
-CEED does not follow PEP8 python style recommendation when it comes to method
- and variable naming.
+CEED does not follow the 
+\emph on
+PEP8
+\emph default
+ style recommendation when it comes to method and variable naming.
  The reason I chose to use camelCase for methods and variables is that PySide
  and CEGUI both use that and CEED calls a lot of methods form these 2 APIs.
  The code looked much better with camelCase naming.
- Whether that was or was not a good call is debatable but that is the way
- it is.
+\end_layout
+
+\begin_layout Standard
+Use the following rules for all contributed code to CEED:
 \end_layout
 
 \begin_layout Itemize
@@ -2308,6 +2255,10 @@ comment other things with # prefix only
 
 \begin_layout Section
 Communication channels
+\end_layout
+
+\begin_layout Standard
+You can reach the CEGUI team using:
 \end_layout
 
 \begin_layout Itemize
