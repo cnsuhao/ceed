@@ -88,6 +88,36 @@ Martin Preisler
 \end_layout
 
 \begin_layout Standard
+\noindent
+\begin_inset Box ovalbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This document has been laid out for a computer screen viewing and thus may
+ be unsuitable for printing.
+ LyX sources are available in 
+\emph on
+doc/user-manual-src
+\emph default
+ in the source tarball if you wish to relayout.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset CommandInset toc
 LatexCommand tableofcontents
 
