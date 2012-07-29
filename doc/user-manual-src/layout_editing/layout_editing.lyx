@@ -122,15 +122,15 @@ DefaultWindow
 \end_layout
 
 \begin_layout Plain Layout
-When I say widget 
+Saying 
 \begin_inset Quotes eld
 \end_inset
 
-Parent/Child/SubChild
+widget Parent/Child/SubChild
 \begin_inset Quotes erd
 \end_inset
 
- I mean a widget that is a child of the 
+ means a widget that is a child of the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -155,7 +155,7 @@ Parent
 \end_inset
 
  widget.
- I will call this notation the 
+ This notation is called the 
 \emph on
 name path
 \emph default
@@ -606,12 +606,23 @@ Shrink
 Expand
 \emph default
 .
- Ignore ignores your chosen aspect ratio and does not affect the sizes in
- any way.
- Shrink makes sure to comply to the aspect ratio by shrinking one of the
- dimensions until the ratio is satisfied.
- Expand behaves similarly but expands one of the dimensions until the ratio
- is satisfied.
+ 
+\emph on
+Ignore
+\emph default
+ ignores your chosen aspect ratio and does not affect the sizes in any way.
+ 
+\emph on
+Shrink
+\emph default
+ makes sure to comply to the aspect ratio by shrinking one of the dimensions
+ until the ratio is satisfied.
+ 
+\emph on
+Expand
+\emph default
+ behaves similarly but expands one of the dimensions until the ratio is
+ satisfied.
 \end_layout
 
 \begin_layout Standard
@@ -755,9 +766,9 @@ name "fig:recursively-expanded-Area"
 A well implemented CEGUI widget should expose most of its properties using
  the 
 \emph on
-PropertySet
+CEGUI::PropertySet
 \emph default
- in CEGUI.
+ class.
  All properties exposed as such will be editable within the editor in the
  
 \emph on

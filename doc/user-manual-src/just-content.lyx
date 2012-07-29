@@ -552,7 +552,7 @@ ceed-mic
 \end_layout
 
 \begin_layout Standard
-Makes it possible to build an rectangle packed imageset out of given data.
+Makes it possible to build a rectangle packed imageset out of given data.
  Source data is a 
 \emph on
 MetaImageset
@@ -944,8 +944,8 @@ There are two configurable modes of drawing the imageset editing viewport.
 In cases where you edit really big imagesets and/or have a slow GPU you
  can use the alternative mode.
  It uses software QPainter and only redraws portions that need it.
- This makes it a bit predictable with occasional stalls but it will be faster
- if you edit in a small area.
+ This makes it a bit unpredictable with occasional stalls but it will be
+ faster if you edit in a small area.
 \end_layout
 
 \begin_layout Standard

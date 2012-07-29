@@ -322,7 +322,7 @@ Might need copying of some dependencies the script fails to pick up!
 \end_layout
 
 \begin_layout Standard
-Please see the cx_Freeze documentation
+Please see the cx_Freeze documentation 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "cxfreezedoc"
@@ -337,8 +337,15 @@ copyright related
 \end_layout
 
 \begin_layout Standard
-Also includes AUTHOR file with CEED contributors and several COPYING files
- of libraries we bundle in Windows and MacOS X builds.
+Also includes the 
+\emph on
+AUTHORS
+\emph default
+ file with CEED contributors and several 
+\emph on
+COPYING
+\emph default
+ files of libraries we bundle in Windows and MacOS X builds.
 \end_layout
 
 \begin_layout Section
@@ -372,7 +379,7 @@ name "sub:ceed-mic"
 \end_layout
 
 \begin_layout Standard
-This is the CLI metaimageset compiler, see 
+This is the CLI metaimageset compiler, see the 
 \emph on
 User manual
 \emph default
@@ -591,7 +598,15 @@ doc directory
 \begin_layout Standard
 Contains LyX source code for developer manual, quickstart guide and user
  manual.
- Also contains the original LibreOffice Calc specification file.
+ Also contains the PDF versions after ./maintenance build-docs has been executed
+ (see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:maintenance-script"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
@@ -1035,6 +1050,7 @@ Set, only the basic usage scenarios will be discussed in this document.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -1112,6 +1128,7 @@ creating a property inspector widget
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -1455,7 +1472,7 @@ defining new actions
 \end_layout
 
 \begin_layout Standard
-You can check out the shortcut remap UI generated for you in 
+You can check the shortcut remap UI generated for you in 
 \emph on
 Settings » Shortcuts
 \emph default
@@ -1942,6 +1959,7 @@ reference "sub:maintenance-script"
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2098,7 +2116,7 @@ Data model
 \begin_layout Standard
 Layout editing operates of widget hiearchies, a data model natively implemented
  in CEGUI that we use directly.
- Since CEGUI does not have global window names since version 1.0 we don't
+ Since CEGUI does not have global window names since version 1.0 we do not
  even have to worry about name clashes.
 \end_layout
 
@@ -2348,10 +2366,11 @@ http://bitbucket.org
 
  or elsewhere.
  Start each feature or substantial fix in a separate branch, this makes
- it easy to review and possibly reject some paths without rejecting everything.
+ it easy to review and possibly reject some parts without rejecting everything.
  When you are finished with your branch make sure you merge all upstream
  changes if any.
- Having to deal with merge conflicts makes the reviewers cranky.
+ Having to deal with merge conflicts makes the reviewers more likely to
+ postpone integration.
  After all of this is done, simply contact upstream developer to merge your
  changes into the main repository.
  You can usually reach someone through IRC (freenode/#cegui), mantis bug

@@ -93,7 +93,7 @@ Image
 
  means a rectangle selection of the underlying texture.
  Each of these images has a position (x, y), width, height and an offset
- (x, y).2
+ (x, y).
 \end_layout
 
 \end_inset
@@ -216,7 +216,7 @@ set: ImagesetName image: ImageName
 
 \begin_layout Standard
 Underlying texture is the texture that will be used to draw the imagery
- as of image definitions inside the imageset.
+ of image definitions inside the imageset.
 \end_layout
 
 \begin_layout Standard
@@ -463,8 +463,8 @@ Selecting overlapping image definitions
 \end_layout
 
 \begin_layout Standard
-When image definitions overlap in a way that would prevent you from selecting
- the image definition you need.
+Sometimes the image definitions overlap in a way that would prevent you
+ from selecting the image definition you need.
  You can select any image definition in the overlapping area and use the
  
 \emph on
