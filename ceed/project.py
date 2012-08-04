@@ -246,7 +246,35 @@ class Item(QtGui.QStandardItem):
         or any of its descendants"""
 
         if self.itemType == Item.File:
-            return os.path.samefile(self.getAbsolutePath(), filePath)
+            # samefile isn't implemented on Windows and possibly other platforms
+            if hasattr(os.path, "samefile"):
+                return os.path.samefile(self.getAbsolutePath(), filePath)
+
+            else:
+                # Figuring out whether 2 paths lead to the same file is a tricky
+                # business. We will do our best but this definitely doesn't
+                # work in all cases!
+
+                thisPath = os.path.normpath(self.getAbsolutePath())
+                otherPath = os.path.normpath(filePath)
+
+                # This clearly is just our best guess! The file might actually
+                # be on a case sensitive filesystem AND have a sibling that has
+                # the same name except uppercase, the test will fail in that case.
+                thisPathCaseInsensitive = os.path.exists(unicode(thisPath).upper()) and \
+                                          os.path.exists(unicode(thisPath).lower())
+
+                otherPathCaseInsensitive = os.path.exists(unicode(otherPath).upper()) and \
+                                           os.path.exists(unicode(otherPath).lower())
+
+                if thisPathCaseInsensitive != otherPathCaseInsensitive:
+                    return False
+
+                if thisPathCaseInsensitive: # the other will also be case insensitive
+                    thisPath = unicode(thisPath).lower()
+                    otherPath = unicode(thisPath).lower()
+
+                return thisPath == otherPath
 
         elif self.itemType == Item.Folder:
             i = 0
