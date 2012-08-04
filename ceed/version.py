@@ -33,7 +33,7 @@ DEVELOPER_MODE = False
 try:
     import subprocess
 
-    MERCURIAL_REVISION = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE).stdout.read()
+    MERCURIAL_REVISION = subprocess.Popen(["hg", "log", "-l", "1", "--template", "Revision:{node|short} ({author})"], stdout = subprocess.PIPE, stderr = subprocess.STDOUT).stdout.read()
     if MERCURIAL_REVISION.startswith("Revision:"):
         MERCURIAL_REVISION = MERCURIAL_REVISION[9:]
     else:
