@@ -78,8 +78,10 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         self.autoScaled = self.findChild(QtGui.QComboBox, "autoScaled")
         self.autoScaled.currentIndexChanged.connect(self.slot_autoScaledChanged)
         self.nativeHorzRes = self.findChild(QtGui.QLineEdit, "nativeHorzRes")
+        self.nativeHorzRes.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.nativeHorzRes.textEdited.connect(self.slot_nativeResolutionEdited)
         self.nativeVertRes = self.findChild(QtGui.QLineEdit, "nativeVertRes")
+        self.nativeVertRes.setValidator(QtGui.QIntValidator(0, 9999999, self))
         self.nativeVertRes.textEdited.connect(self.slot_nativeResolutionEdited)
 
         self.filterBox = self.findChild(QtGui.QLineEdit, "filterBox")
@@ -305,8 +307,13 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
     def slot_nativeResolutionEdited(self, newValue):
         oldHorzRes = self.imagesetEntry.nativeHorzRes
         oldVertRes = self.imagesetEntry.nativeVertRes
-        newHorzRes = int(self.nativeHorzRes.text())
-        newVertRes = int(self.nativeVertRes.text())
+
+        try:
+            newHorzRes = int(self.nativeHorzRes.text())
+            newVertRes = int(self.nativeVertRes.text())
+
+        except ValueError:
+            return
 
         if oldHorzRes == newHorzRes and oldVertRes == newVertRes:
             return
