@@ -167,6 +167,10 @@ class ImageEntry(resizable.ResizableRectItem):
     def __init__(self, imagesetEntry):
         super(ImageEntry, self).__init__(imagesetEntry)
 
+        self.nativeHorzRes = 0
+        self.nativeVertRes = 0
+        self.autoScaled = ""
+
         self.imagesetEntry = imagesetEntry
 
         self.setAcceptsHoverEvents(True)
@@ -213,6 +217,10 @@ class ImageEntry(resizable.ResizableRectItem):
         self.xoffset = int(element.get("xOffset", 0))
         self.yoffset = int(element.get("yOffset", 0))
 
+        self.nativeHorzRes = int(element.get("nativeHorzRes", 0))
+        self.nativeVertRes = int(element.get("nativeVertRes", 0))
+        self.autoScaled = element.get("autoScaled", "")
+
     def saveToElement(self):
         ret = ElementTree.Element("Image")
 
@@ -227,6 +235,15 @@ class ImageEntry(resizable.ResizableRectItem):
         if self.xoffset != 0 or self.yoffset != 0:
             ret.set("xOffset", str(self.xoffset))
             ret.set("yOffset", str(self.yoffset))
+
+        if self.nativeHorzRes != 0:
+            ret.set("nativeHorzRes", str(self.nativeHorzRes))
+
+        if self.nativeVertRes != 0:
+            ret.set("nativeVertRes", str(self.nativeVertRes))
+
+        if self.autoScaled != "":
+            ret.set("autoScaled", self.autoScaled)
 
         return ret
 
