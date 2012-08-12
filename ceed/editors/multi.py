@@ -297,7 +297,7 @@ class MultiModeTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
             newTabIndex = -1
 
         elif isinstance(newTabIndex, QWidget):
-            for i in range(0, self.count()):
+            for i in xrange(0, self.count()):
                 if newTabIndex is self.widget(i):
                     newTabIndex = i
                     break

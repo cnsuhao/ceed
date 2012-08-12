@@ -427,7 +427,7 @@ class DynamicChoicesEditor(PropertyEditor):
     def setWidgetValueFromProperty(self):
         value, valid = self.getWidgetValue()
         if (not valid) or (self.property.value != value):
-            for idx in range(self.editWidget.count()):
+            for idx in xrange(self.editWidget.count()):
                 if self.editWidget.itemData(idx) == self.property.value:
                     self.editWidget.setCurrentIndex(idx)
                     break

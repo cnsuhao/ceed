@@ -98,11 +98,11 @@ class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
             self.reject()
 
             # - Reset any entries with changes to their stored value.
-            for tabIndex in range(self.tabs.count()):
+            for tabIndex in xrange(self.tabs.count()):
                 self.tabs.widget(tabIndex).discardChanges()
 
         # - Regardless of the action above, all categories are now unchanged.
-        for tabIndex in range(self.tabs.count()):
+        for tabIndex in xrange(self.tabs.count()):
             self.tabs.widget(tabIndex).markAsUnchanged()
 
         # FIXME: That is not entirely true; using the 'X' to close the Settings

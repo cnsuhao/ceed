@@ -1149,7 +1149,7 @@ Details of this error: %s""" % (e))
             index = -1
 
         elif isinstance(index, QtGui.QWidget):
-            for i in range(0, self.tabs.count()):
+            for i in xrange(0, self.tabs.count()):
                 if index is self.tabs.widget(i):
                     index = i
                     break

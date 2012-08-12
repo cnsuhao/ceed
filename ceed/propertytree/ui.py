@@ -129,7 +129,7 @@ class PropertyTreeRow(object):
 
     def childRows(self):
         """Get the child rows; self.nameItem must exist and be valid."""
-        return [self.nameItem.child(childRowIndex).propertyTreeRow for childRowIndex in range(0, self.nameItem.rowCount())]
+        return [self.nameItem.child(childRowIndex).propertyTreeRow for childRowIndex in xrange(0, self.nameItem.rowCount())]
 
     def appendChildRow(self, row):
         self.nameItem.appendRow([row.nameItem, row.valueItem])
@@ -540,7 +540,7 @@ class PropertyTreeWidget(QtGui.QWidget):
 
         # finalise rows that are being removed
         def rowsAboutToBeRemoved(parentIndex, start, end):
-            for i in range(start, end+1):
+            for i in xrange(start, end + 1):
                 mi = self.model.index(i, 0, parentIndex)
                 item = self.model.itemFromIndex(mi)
                 if not item.finalised:

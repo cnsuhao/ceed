@@ -612,7 +612,7 @@ class Manipulator(resizable.ResizableRectItem):
             if not widget.isAutoWindow():
                 return True
 
-            for i in range(widget.getChildCount()):
+            for i in xrange(widget.getChildCount()):
                 child = widget.getChildAtIdx(i)
 
                 if impl_hasNonAutoWidgetDescendants(child):
