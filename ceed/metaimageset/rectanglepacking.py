@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Thanks to Markus 'Cygon' Ewald (original CygonPacker author)
 #       and Eniko (porting CygonPacker to python)
 #
-# found at: http://enichan.darksiren.net/wordpress/?p=49
+# currently at: http://projectdrake.net/blog/?p=129
+# originally found at: http://enichan.darksiren.net/wordpress/?p=49
 #
 #       Cygon furthermore allowed this to be relicensed under
 #       GPL3 and newer so I got around the fact that CPL is not
