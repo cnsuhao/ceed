@@ -108,8 +108,8 @@ class Instance(object):
             # we don't want CEGUI Exceptions to output to stderr every time
             # they are constructed
             PyCEGUI.Exception.setStdErrEnabled(False)
-            # FIXME: TTT_NONE because OpenGLRenderer nukes our FBOs otherwise
-            PyCEGUIOpenGLRenderer.OpenGLRenderer.bootstrapSystem(PyCEGUIOpenGLRenderer.OpenGLRenderer.TTT_NONE)
+            # FBOs are for sure supported at this point because CEED uses them internally
+            PyCEGUIOpenGLRenderer.OpenGLRenderer.bootstrapSystem(PyCEGUIOpenGLRenderer.OpenGLRenderer.TTT_FBO)
             self.initialised = True
 
             self.setDefaultResourceGroups()
