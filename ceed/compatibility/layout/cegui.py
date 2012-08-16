@@ -112,7 +112,7 @@ class Layout3To4Layer(compatibility.Layer):
         return ret
 
     def convertAutoWindowSuffix(self, autoWindow):
-        autoWindow.set("NamePath", autoWindow.get("NameSuffix"))
+        autoWindow.set("namePath", autoWindow.get("NameSuffix"))
         del autoWindow.attrib["NameSuffix"]
 
         for childAutoWindow in autoWindow.findall("AutoWindow"):
@@ -244,8 +244,9 @@ class Layout3To4Layer(compatibility.Layer):
             window.set("name", window.get("Name"))
             del window.attrib["Name"]
 
-        window.set("type", window.get("Type"))
-        del window.attrib["Type"]
+        if window.get("Type") is not None:
+            window.set("type", window.get("Type"))
+            del window.attrib["Type"]
 
         return ret
 
@@ -302,8 +303,8 @@ class Layout4To3Layer(compatibility.Layer):
         return ret
 
     def convertAutoWindowSuffix(self, autoWindow):
-        autoWindow.set("NameSuffix", autoWindow.get("NamePath"))
-        del autoWindow.attrib["NamePath"]
+        autoWindow.set("NameSuffix", autoWindow.get("namePath"))
+        del autoWindow.attrib["namePath"]
 
         for childAutoWindow in autoWindow.findall("AutoWindow"):
             self.convertAutoWindowSuffix(childAutoWindow)
@@ -428,8 +429,9 @@ class Layout4To3Layer(compatibility.Layer):
             window.set("Name", window.get("name"))
             del window.attrib["name"]
 
-        window.set("Type", window.get("type"))
-        del window.attrib["type"]
+        if window.get("type") is not None:
+            window.set("Type", window.get("type"))
+            del window.attrib["type"]
 
         return ret
 
