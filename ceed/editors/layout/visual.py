@@ -638,8 +638,8 @@ class WidgetTypeTreeWidget(QtGui.QTreeWidget):
 
                         tooltipText = "<img src=\"data:image/png;base64,%s\" />" % (ba.toBase64())
 
-                except:
-                    tooltipText = "Couldn't render a widgetType preview..."
+                except Exception as e:
+                    tooltipText = "Couldn't render a widgetType preview... (exception: %s)" % (e)
 
                 item.setToolTip(0, "<small>Drag to the layout to create!</small><br />%s" % (tooltipText))
 
