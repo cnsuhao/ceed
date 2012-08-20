@@ -114,12 +114,12 @@ class ExceptionDialog(QDialog):
             self._stamp("GL vendor: {0}", GL.glGetString(GL.GL_VENDOR))
             self._stamp("GL renderer: {0}", GL.glGetString(GL.GL_RENDERER))
             # FIXME: This is not available in OpenGL 3.1 and above
-            self._stamp("GL extensions: {0}", GL.glGetString(GL.GL_EXTENSIONS))
+            self._stamp("GL extensions:\n    - {0}",
+                    ",\n    - ".join(unicode(GL.glGetString(GL.GL_EXTENSIONS)).split(" ")))
 
         else:
             # FIXME: The {0} is a hack around the limitations
             self._stamp("Can't query OpenGL info, CEGUI instance hasn't been started!{0}", "")
-
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
