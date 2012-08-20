@@ -32,3 +32,4 @@ ui/**.py
 build/
 maintenance-temp/
 
+bin/profile_data
