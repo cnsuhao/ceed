@@ -29,6 +29,7 @@ from PySide import QtGui
 from PySide import QtSvg
 
 import os
+import glob
 from xml.etree import cElementTree as ElementTree
 
 class Image(object):
@@ -135,7 +136,6 @@ class Bitmap(Input):
         self.xoffset = int(element.get("xoffset", "0"))
         self.yoffset = int(element.get("yoffset", "0"))
 
-        import glob
         self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
 
         for path in self.paths:
@@ -172,7 +172,6 @@ class SVG(Input):
         self.xoffset = int(element.get("xoffset", "0"))
         self.yoffset = int(element.get("yoffset", "0"))
 
-        import glob
         self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
 
         for path in self.paths:
