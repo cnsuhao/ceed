@@ -1,8 +1,0 @@
-#!/usr/bin/env sh
-
-#pushd bin
-#./runwrapper.sh
-PYTHONPATH="../cegui_mk2/build/lib:$PYTHONPATH" pylint --rcfile pylint.cfg ceed > pylint-output
-#exit
-#popd
-

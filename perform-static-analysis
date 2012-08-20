@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+OUTPUT_FILE="static-analysis-output"
+
+echo "Output from static analysis tools" > $OUTPUT_FILE
+echo "=================================" >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+
+echo "Running pylint 1/3..."
+echo "pylint:" >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+pylint --rcfile pylint.cfg ceed >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+
+echo "Running pychecker 2/3..."
+echo "pychecker:" >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+find ceed/ -name "*\.py" -print0 | xargs --null pychecker --limit 0 2>&1 >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+
+echo "Running pyflakes 3/3..."
+echo "pyflakes:" >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+pyflakes ceed >> $OUTPUT_FILE
+echo >> $OUTPUT_FILE
+
+echo "Static analysis finished, output in $OUTPUT_FILE"

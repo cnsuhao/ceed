@@ -19,7 +19,7 @@ xcuserdata/
 .cproject
 .pydevproject
 
-pylint-output
+static-analysis-output
 
 doc/API/
 doc/*.pdf
