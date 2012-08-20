@@ -28,6 +28,8 @@ import sys
 from PySide.QtGui import QDialog, QTextBrowser, QLabel
 import logging
 
+from OpenGL import GL
+
 from ceed import version
 import ceed.ui.exceptiondialog
 
@@ -39,7 +41,7 @@ class ExceptionDialog(QDialog):
     # TODO: Add an option to pack all the relevant data and error messages
     #       to a zip file for easier to reproduce bug reports.
 
-    def __init__(self, excType, excMessage, excTraceback):
+    def __init__(self, excType, excMessage, excTraceback, mainWindow):
         super(ExceptionDialog, self).__init__()
 
         self.ui = ceed.ui.exceptiondialog.Ui_ExceptionDialog()
@@ -56,14 +58,15 @@ class ExceptionDialog(QDialog):
         for line in formattedTraceback:
             self.tracebackStr += line + "\n"
 
+        self.mainWindow = mainWindow
+
         # Add some extra info.
         self._stampMercurialInfo()
         self._stampVersionInfo()
 
         self.details.setPlainText("Exception message: %s\n\n"
-                                 "Traceback:\n"
-                                 "%s"
-                                 % (excMessage, self.tracebackStr))
+                                  "Traceback:\n"
+                                  "%s" % (excMessage, self.tracebackStr))
 
     # Convenience; internal use only
     def _stamp(self, newLine, arg):
@@ -101,8 +104,22 @@ class ExceptionDialog(QDialog):
         self._stamp("SW Python: {0}", version.PYTHON)
         self._stamp("SW PySide: {0}", version.PYSIDE)
         self._stamp("SW Qt: {0}", version.QT)
-        self._stamp("SW OpenGL: {0}", version.OPENGL)
         self._stamp("SW PyCEGUI: {0}", version.PYCEGUI)
+
+        self._stamp("GL bindings version: {0}", version.OPENGL)
+
+        if self.mainWindow.ceguiInstance is not None:
+            self.mainWindow.ceguiInstance.makeGLContextCurrent()
+            self._stamp("GL version: {0}", GL.glGetString(GL.GL_VERSION))
+            self._stamp("GL vendor: {0}", GL.glGetString(GL.GL_VENDOR))
+            self._stamp("GL renderer: {0}", GL.glGetString(GL.GL_RENDERER))
+            # FIXME: This is not available in OpenGL 3.1 and above
+            self._stamp("GL extensions: {0}", GL.glGetString(GL.GL_EXTENSIONS))
+
+        else:
+            # FIXME: The {0} is a hack around the limitations
+            self._stamp("Can't query OpenGL info, CEGUI instance hasn't been started!{0}", "")
+
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
@@ -132,7 +149,7 @@ class ErrorHandler(object):
             sys.__excepthook__(excType, excMessage, excTraceback)
 
         else:
-            dialog = ExceptionDialog(excType, excMessage, excTraceback)
+            dialog = ExceptionDialog(excType, excMessage, excTraceback, self.mainWindow)
             # we shouldn't use logging.exception here since we are not in an "except" block
             logging.error("Uncaught exception '%s', message: '%s'\n%s'", excType, excMessage, dialog.tracebackStr)
             # We don't call the standard excepthook anymore since we output to stderr with the logging module
