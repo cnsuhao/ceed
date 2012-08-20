@@ -59,6 +59,9 @@ class PropertyTreeItem(QtGui.QStandardItem):
 
     def setBold(self, value):
         font = self.font()
+        if font.bold() == value:
+            return
+
         font.setBold(value)
         self.setFont(font)
 
