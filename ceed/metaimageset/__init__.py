@@ -31,6 +31,8 @@ from PySide import QtSvg
 import os
 import glob
 from xml.etree import cElementTree as ElementTree
+import tempfile
+import subprocess
 
 class Image(object):
     """Instance of the image, containing a bitmap (QImage)
@@ -157,6 +159,14 @@ class Bitmap(Input):
         return self.images
 
 class SVG(Input):
+    """Simplistic SVGTiny renderer from Qt. This might not interpret effects
+    and other features of your SVGs but will be drastically faster and does
+    not require Inkscape to be installed.
+
+    It also misses features that might be crucial like exporting components
+    from SVG with custom coords and layers.
+    """
+
     def __init__(self, metaImageset):
         super(SVG, self).__init__(metaImageset)
 
@@ -200,6 +210,136 @@ class SVG(Input):
     def getImages(self):
         return self.images
 
+class InkscapeSVG(Input):
+    """Just one particular SVGs, support advanced features and renders everything
+    using Inkscape, the output should be of higher quality than the SVGTiny renderer
+    above. Requires Inkscape to be installed and the inkscape binary to be in $PATH.
+
+    Each component is one "image" to be passed to the metaimageset compiler.
+    """
+
+    INKSCAPE_PATH = "inkscape"
+
+    class Component(object):
+        def __init__(self, svg):
+            self.svg = svg
+
+            self.name = ""
+
+            self.x = 0
+            self.y = 0
+            self.width = 1
+            self.height = 1
+
+            self.layers = []
+
+        @staticmethod
+        def getAllSVGLayers(svgPath):
+            """Retrieves all Inkscape layers defined in given SVG.
+
+            Note: I couldn't figure out how to do this with inkscape CLI
+            """
+
+            ret = []
+
+            doc = ElementTree.ElementTree(file = svgPath)
+            for g in doc.findall(".//{http://www.w3.org/2000/svg}g"):
+                if g.get("{http://www.inkscape.org/namespaces/inkscape}groupmode") == "layer":
+                    ret.append(g.get("{http://www.inkscape.org/namespaces/inkscape}label"))
+
+            return ret
+
+        @staticmethod
+        def showOnlySVGLayers(svgPath, layers, targetSvg):
+            doc = ElementTree.ElementTree(file = svgPath)
+            for g in doc.findall(".//{http://www.w3.org/2000/svg}g"):
+                if g.get("{http://www.inkscape.org/namespaces/inkscape}groupmode") == "layer":
+                    if g.get("{http://www.inkscape.org/namespaces/inkscape}label") in layers:
+                        g.set("style", "display:inline")
+                    else:
+                        g.set("style", "display:none")
+
+            doc.write(targetSvg, encoding = "utf-8")
+
+        @staticmethod
+        def exportSVG(svgPath, layers, targetPngPath):
+            allLayers = set(InkscapeSVG.Component.getAllSVGLayers(svgPath))
+            for layer in layers:
+                if not layer in allLayers:
+                    raise RuntimeError("Can't export with layer \"%s\", it isn't defined in the SVG \"%s\"!" % (layer, svgPath))
+
+            temporarySvg = tempfile.NamedTemporaryFile(suffix = ".svg")
+            InkscapeSVG.Component.showOnlySVGLayers(svgPath, layers, temporarySvg.name)
+
+            cmdLine = [InkscapeSVG.INKSCAPE_PATH, "--file=%s" % (temporarySvg.name), "--export-png=%s" % (targetPngPath)]
+            subprocess.call(cmdLine)
+
+        def loadFromElement(self, element):
+            self.name = element.get("name", "")
+
+            self.x = int(element.get("x", "0"))
+            self.y = int(element.get("y", "0"))
+            self.width = int(element.get("width", "1"))
+            self.height = int(element.get("height", "1"))
+
+            self.xoffset = int(element.get("xoffset", "0"))
+            self.yoffset = int(element.get("yoffset", "0"))
+
+            self.layers = element.get("layers", "").split(" ")
+
+        def saveToElement(self):
+            ret = ElementTree.Element("Component")
+
+            ret.set("name", self.name)
+            ret.set("x", str(self.x))
+            ret.set("y", str(self.y))
+            ret.set("width", str(self.width))
+            ret.set("height", str(self.height))
+
+            ret.set("xoffset", str(self.xoffset))
+            ret.set("yoffset", str(self.yoffset))
+
+            ret.set("layers", " ".join(self.layers))
+
+            return ret
+
+        def generateQImage(self):
+            temporaryPng = tempfile.NamedTemporaryFile(suffix = ".png")
+            InkscapeSVG.Component.exportSVG(self.svg.path, self.layers, temporaryPng.name)
+
+            qimage = QtGui.QImage(temporaryPng.name)
+            return qimage.copy(self.x, self.y, self.width, self.height)
+
+        def getImage(self):
+            return Image(self.name, self.generateQImage(), self.xoffset, self.yoffset)
+
+    def __init__(self, metaImageset):
+        super(InkscapeSVG, self).__init__(metaImageset)
+
+        self.path = ""
+        self.components = []
+
+    def loadFromElement(self, element):
+        self.path = element.get("path", "")
+
+        for componentElement in element.findall("Component"):
+            component = InkscapeSVG.Component(self)
+            component.loadFromElement(componentElement)
+
+            self.components.append(component)
+
+    def saveToElement(self):
+        ret = ElementTree.Element("InkscapeSVG")
+        ret.set("path", self.path)
+
+        for component in self.components:
+            ret.append(component.saveToElement())
+
+        return ret
+
+    def getImages(self):
+        return [component.getImage() for component in self.components]
+
 class MetaImageset(object):
     def __init__(self, filePath):
         self.filePath = filePath
@@ -241,6 +381,12 @@ class MetaImageset(object):
 
         for childElement in element.findall("SVG"):
             svg = SVG(self)
+            svg.loadFromElement(childElement)
+
+            self.inputs.append(svg)
+
+        for childElement in element.findall("InkscapeSVG"):
+            svg = InkscapeSVG(self)
             svg.loadFromElement(childElement)
 
             self.inputs.append(svg)
