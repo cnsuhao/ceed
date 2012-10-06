@@ -47,79 +47,79 @@ class ExceptionDialog(QDialog):
         self.ui = ceed.ui.exceptiondialog.Ui_ExceptionDialog()
         self.ui.setupUi(self)
 
+        self.mainWindow = mainWindow
+
         self.details = self.findChild(QTextBrowser, "details")
         self.mantisLink = self.findChild(QLabel, "mantisLink")
 
-        self.setWindowTitle("Exception %s" % (excType))
+        self.setWindowTitle("Uncaught exception '%s'" % (excType))
 
-        import traceback
-        formattedTraceback = traceback.format_tb(excTraceback)
-        self.tracebackStr = ""
-        for line in formattedTraceback:
-            self.tracebackStr += line + "\n"
-
-        self.mainWindow = mainWindow
-
-        # Add some extra info.
-        self._stampMercurialInfo()
-        self._stampVersionInfo()
-
-        self.details.setPlainText("Exception message: %s\n\n"
+        self.detailsStr = unicode("Exception message: %s\n\n"
                                   "Traceback:\n"
-                                  "%s" % (excMessage, self.tracebackStr))
+                                  "========================\n"
+                                  "%s\n"
+                                  "Versions:\n"
+                                  "========================\n"
+                                  "%s" % (excMessage, self.getTracebackStr(excTraceback), self.getVersionsStr()))
 
-    # Convenience; internal use only
-    def _stamp(self, newLine, arg):
-        self.tracebackStr = "\n".join([self.tracebackStr, newLine.format(arg)])
+        self.details.setPlainText(self.detailsStr)
 
-    # Appends Mercurial info to traceback string
-    def _stampMercurialInfo(self):
-        self._stamp("CEED revision: {0}", version.MERCURIAL_REVISION)
+    def getTracebackStr(self, excTraceback):
+        import traceback
 
-    # Appends version info to traceback string
-    def _stampVersionInfo(self):
-        # If the versioning info was stored in an object, not a module,
-        # we could iterate ... hint hint.
-        self._stamp("CEED version: {0}", version.CEED)
+        formattedTraceback = traceback.format_tb(excTraceback)
+        return "\n".join(formattedTraceback)
 
-        self._stamp("HW architecture: {0}", version.SYSTEM_ARCH)
-        self._stamp("HW type: {0}", version.SYSTEM_TYPE)
-        self._stamp("HW processor: {0}", version.SYSTEM_PROCESSOR)
-        self._stamp("OS type: {0}", version.OS_TYPE)
-        self._stamp("OS release: {0}", version.OS_RELEASE)
-        self._stamp("OS version: {0}", version.OS_VERSION)
+    def getVersionsStr(self):
+        lines = []
+        lines.append("CEED revision: %s" % (version.MERCURIAL_REVISION))
+
+        lines.append("CEED version: %s" % (version.CEED))
+
+        lines.append("HW architecture: %s" % (unicode(version.SYSTEM_ARCH)))
+        lines.append("HW type: %s" % (version.SYSTEM_TYPE))
+        lines.append("HW processor: %s" % (version.SYSTEM_PROCESSOR))
+        lines.append("OS type: %s" % (version.OS_TYPE))
+        lines.append("OS release: %s" % (version.OS_RELEASE))
+        lines.append("OS version: %s" % (version.OS_VERSION))
 
         if version.OS_TYPE == "Windows":
-            self._stamp("OS Windows: {0}", version.WINDOWS)
+            lines.append("OS Windows: %s" % (unicode(version.WINDOWS)))
         elif version.OS_TYPE == "Linux":
-            self._stamp("OS Linux: {0}", version.LINUX)
+            lines.append("OS Linux: %s" % (unicode(version.LINUX)))
         elif version.OS_TYPE == "Java":
-            self._stamp("OS Java: {0}", version.JAVA)
+            lines.append("OS Java: %s" % (unicode(version.JAVA)))
         elif version.OS_TYPE == "Darwin":
-            self._stamp("OS Darwin: {0}", version.MAC)
+            lines.append("OS Darwin: %s" % (unicode(version.MAC)))
         else:
-            # FIXME: The {0} is a hack around the limitations
-            self._stamp("OS Unknown: {0}", "")
+            lines.append("OS Unknown: No version info available")
 
-        self._stamp("SW Python: {0}", version.PYTHON)
-        self._stamp("SW PySide: {0}", version.PYSIDE)
-        self._stamp("SW Qt: {0}", version.QT)
-        self._stamp("SW PyCEGUI: {0}", version.PYCEGUI)
+        lines.append("SW Python: %s" % (version.PYTHON))
+        lines.append("SW PySide: %s" % (version.PYSIDE))
+        lines.append("SW Qt: %s" % (version.QT))
+        lines.append("SW PyCEGUI: %s" % (version.PYCEGUI))
 
-        self._stamp("GL bindings version: {0}", version.OPENGL)
+        lines.append("GL bindings version: %s" % (version.OPENGL))
 
         if self.mainWindow.ceguiInstance is not None:
             self.mainWindow.ceguiInstance.makeGLContextCurrent()
-            self._stamp("GL version: {0}", GL.glGetString(GL.GL_VERSION))
-            self._stamp("GL vendor: {0}", GL.glGetString(GL.GL_VENDOR))
-            self._stamp("GL renderer: {0}", GL.glGetString(GL.GL_RENDERER))
+            lines.append("GL version: %s" % (GL.glGetString(GL.GL_VERSION)))
+            lines.append("GL vendor: %s" % (GL.glGetString(GL.GL_VENDOR)))
+            lines.append("GL renderer: %s" % (GL.glGetString(GL.GL_RENDERER)))
+
             # FIXME: This is not available in OpenGL 3.1 and above
-            self._stamp("GL extensions:\n    - {0}",
-                    ",\n    - ".join(unicode(GL.glGetString(GL.GL_EXTENSIONS)).split(" ")))
+            extensionList = unicode(GL.glGetString(GL.GL_EXTENSIONS)).split(" ")
+            # sometimes the OpenGL vendors return superfluous spaces at the
+            # end of the extension str, this causes the last element be ""
+            if extensionList[-1] == "":
+                extensionList.pop()
+            lines.append("GL extensions:\n    - %s" %
+                    (",\n    - ".join(extensionList)))
 
         else:
-            # FIXME: The {0} is a hack around the limitations
-            self._stamp("Can't query OpenGL info, CEGUI instance hasn't been started!{0}", "")
+            lines.append("Can't query OpenGL info, CEGUI instance hasn't been started!")
+
+        return "\n".join(lines)
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.
@@ -151,14 +151,14 @@ class ErrorHandler(object):
         else:
             dialog = ExceptionDialog(excType, excMessage, excTraceback, self.mainWindow)
             # we shouldn't use logging.exception here since we are not in an "except" block
-            logging.error("Uncaught exception '%s', message: '%s'\n%s'", excType, excMessage, dialog.tracebackStr)
+            logging.error("Uncaught exception '%s'\n%s", excType, dialog.detailsStr)
+
             # We don't call the standard excepthook anymore since we output to stderr with the logging module
-            # we also call the original excepthook which will just output things to stderr
             #sys.__excepthook__(excType, excMessage, excTraceback)
 
             result = dialog.exec_()
 
-            # if the dialog was reject, the user chose to quit the whole app immediately (coward...)
+            # if the dialog was rejected, the user chose to quit the whole app immediately (coward...)
             if result == QDialog.Rejected:
                 # stop annoying the user
                 self.uninstallExceptionHook()
