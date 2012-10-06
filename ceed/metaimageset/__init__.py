@@ -44,6 +44,10 @@ class Image(object):
 
         self.qimage = qimage
 
+        # X and Y offsets are related to the "crosshair" effect for images
+        # moving the origin of image around...
+        # These have nothing to do with packing and the final x, y position
+        # on the texture atlas.
         self.xoffset = xoffset
         self.yoffset = yoffset
 
