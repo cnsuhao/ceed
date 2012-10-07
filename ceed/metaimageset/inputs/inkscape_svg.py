@@ -178,23 +178,23 @@ class InkscapeSVG(inputs.Input):
             skip = componentElement.get("skip", "").split(" ")
 
             if "centre" not in skip:
-                centre = Component(self, "%sCentre" % (name), x + cornerWidth, y + cornerHeight, width - 2 * cornerWidth, height - 2 * cornerHeight, layers)
+                centre = Component(self, "%sCentre" % (name), x + cornerWidth + 1, y + cornerHeight + 1, width - 2 * cornerWidth - 2, height - 2 * cornerHeight - 2, layers)
                 self.components.append(centre)
 
             if "top" not in skip:
-                top = Component(self, "%sTop" % (name), x + cornerWidth, y, width - 2 * cornerWidth, cornerHeight, layers)
+                top = Component(self, "%sTop" % (name), x + cornerWidth + 1, y, width - 2 * cornerWidth - 2, cornerHeight, layers)
                 self.components.append(top)
 
             if "bottom" not in skip:
-                bottom = Component(self, "%sBottom" % (name), x + cornerWidth, y + height - cornerHeight, width - 2 * cornerWidth, cornerHeight, layers)
+                bottom = Component(self, "%sBottom" % (name), x + cornerWidth + 1, y + height - cornerHeight, width - 2 * cornerWidth - 2, cornerHeight, layers)
                 self.components.append(bottom)
 
             if "left" not in skip:
-                left = Component(self, "%sLeft" % (name), x, y + cornerHeight, cornerWidth, height - 2 * cornerHeight, layers)
+                left = Component(self, "%sLeft" % (name), x, y + cornerHeight + 1, cornerWidth, height - 2 * cornerHeight - 2, layers)
                 self.components.append(left)
 
             if "right" not in skip:
-                right = Component(self, "%sRight" % (name), x + width - cornerWidth, y + cornerHeight, cornerWidth, height - 2 * cornerHeight, layers)
+                right = Component(self, "%sRight" % (name), x + width - cornerWidth, y + cornerHeight + 1, cornerWidth, height - 2 * cornerHeight - 2, layers)
                 self.components.append(right)
 
             if "topLeft" not in skip:
