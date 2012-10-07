@@ -24,10 +24,10 @@ from these inputs.
 
 class Image(object):
     """Instance of the image, containing a bitmap (QImage)
-    and xoffset and yoffset
+    and xOffset and yOffset
     """
 
-    def __init__(self, name, qimage, xoffset = 0, yoffset = 0):
+    def __init__(self, name, qimage, xOffset = 0, yOffset = 0):
         self.name = name
 
         self.qimage = qimage
@@ -36,8 +36,8 @@ class Image(object):
         # moving the origin of image around...
         # These have nothing to do with packing and the final x, y position
         # on the texture atlas.
-        self.xoffset = xoffset
-        self.yoffset = yoffset
+        self.xOffset = xOffset
+        self.yOffset = yOffset
 
 class Input(object):
     """Describes any input image source for the meta imageset.
@@ -58,7 +58,7 @@ class Input(object):
 
     def getImages(self):
         """Retrieves list of Image objects each containing a bitmap representation
-        of some image this input provided, xoffset and yoffset.
+        of some image this input provided, xOffset and yOffset.
 
         For simple images, this will return [ImageInstance(QImage(self.path))],
         For imagesets, this will return list of all images in the imageset

@@ -71,7 +71,7 @@ def exportSVG(svgPath, layers, targetPngPath):
     subprocess.call(cmdLine)
 
 class Component(object):
-    def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xoffset = 0, yoffset = 0):
+    def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xOffset = 0, yOffset = 0):
         self.svg = svg
 
         self.name = name
@@ -81,8 +81,8 @@ class Component(object):
         self.width = width
         self.height = height
 
-        self.xoffset = xoffset
-        self.yoffset = yoffset
+        self.xOffset = xOffset
+        self.yOffset = yOffset
 
         self.layers = layers.split(" ")
 
@@ -96,8 +96,8 @@ class Component(object):
         self.width = int(element.get("width", "1"))
         self.height = int(element.get("height", "1"))
 
-        self.xoffset = int(element.get("xoffset", "0"))
-        self.yoffset = int(element.get("yoffset", "0"))
+        self.xOffset = int(element.get("xOffset", "0"))
+        self.yOffset = int(element.get("yOffset", "0"))
 
         self.layers = element.get("layers", "").split(" ")
 
@@ -110,8 +110,8 @@ class Component(object):
         ret.set("width", str(self.width))
         ret.set("height", str(self.height))
 
-        ret.set("xoffset", str(self.xoffset))
-        ret.set("yoffset", str(self.yoffset))
+        ret.set("xOffset", str(self.xOffset))
+        ret.set("yOffset", str(self.yOffset))
 
         ret.set("layers", " ".join(self.layers))
 
@@ -128,7 +128,7 @@ class Component(object):
         # FIXME: This is a really nasty optimisation, it can be done way better
         #        but would probably require a slight redesign of inputs.Input
         if self.cachedImage is None:
-            self.cachedImage = inputs.Image(self.name, self.generateQImage(), self.xoffset, self.yoffset)
+            self.cachedImage = inputs.Image(self.name, self.generateQImage(), self.xOffset, self.yOffset)
 
         return self.cachedImage
 

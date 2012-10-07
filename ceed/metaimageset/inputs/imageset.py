@@ -73,6 +73,6 @@ class Imageset(inputs.Input):
         ret = []
 
         for imageEntry in self.imagesetEntry.imageEntries:
-            ret.append(inputs.Image(self.imagesetEntry.name + "/" + imageEntry.name, imageEntry.getPixmap().toImage(), imageEntry.xoffset, imageEntry.yoffset))
+            ret.append(inputs.Image(self.imagesetEntry.name + "/" + imageEntry.name, imageEntry.getPixmap().toImage(), imageEntry.xOffset, imageEntry.yOffset))
 
         return ret

@@ -36,14 +36,14 @@ class Bitmap(inputs.Input):
         self.path = ""
         self.paths = []
 
-        self.xoffset = 0
-        self.yoffset = 0
+        self.xOffset = 0
+        self.yOffset = 0
         self.images = []
 
     def loadFromElement(self, element):
         self.path = element.get("path", "")
-        self.xoffset = int(element.get("xoffset", "0"))
-        self.yoffset = int(element.get("yoffset", "0"))
+        self.xOffset = int(element.get("xOffset", "0"))
+        self.yOffset = int(element.get("yOffset", "0"))
 
         self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
 
@@ -51,14 +51,14 @@ class Bitmap(inputs.Input):
             pathSplit = path.rsplit(".", 1)
             name = os.path.basename(pathSplit[0])
 
-            image = Image(name, QtGui.QImage(path), self.xoffset, self.yoffset)
+            image = Image(name, QtGui.QImage(path), self.xOffset, self.yOffset)
             self.images.append(image)
 
     def saveToElement(self):
         ret = ElementTree.Element("Bitmap")
         ret.set("path", self.path)
-        ret.set("xoffset", str(self.xoffset))
-        ret.set("yoffset", str(self.yoffset))
+        ret.set("xOffset", str(self.xOffset))
+        ret.set("yOffset", str(self.yOffset))
 
         return ret
 

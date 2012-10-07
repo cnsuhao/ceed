@@ -46,14 +46,14 @@ class QSVG(inputs.Input):
         self.path = ""
         self.paths = []
 
-        self.xoffset = 0
-        self.yoffset = 0
+        self.xOffset = 0
+        self.yOffset = 0
         self.images = []
 
     def loadFromElement(self, element):
         self.path = element.get("path", "")
-        self.xoffset = int(element.get("xoffset", "0"))
-        self.yoffset = int(element.get("yoffset", "0"))
+        self.xOffset = int(element.get("xOffset", "0"))
+        self.yOffset = int(element.get("yOffset", "0"))
 
         self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
 
@@ -69,14 +69,14 @@ class QSVG(inputs.Input):
             svgRenderer.render(painter)
             painter.end()
 
-            image = Image(name, qimage, self.xoffset, self.yoffset)
+            image = Image(name, qimage, self.xOffset, self.yOffset)
             self.images.append(image)
 
     def saveToElement(self):
         ret = ElementTree.Element("QSVG")
         ret.set("path", self.path)
-        ret.set("xoffset", str(self.xoffset))
-        ret.set("yoffset", str(self.yoffset))
+        ret.set("xOffset", str(self.xOffset))
+        ret.set("yOffset", str(self.yOffset))
 
         return ret
 

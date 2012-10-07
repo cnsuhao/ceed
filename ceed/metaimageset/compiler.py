@@ -166,7 +166,7 @@ class CompilerInstance(object):
         for imageInstance in imageInstances:
             paddingOffset = 1 if self.padding else 0
 
-            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" yOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x + paddingOffset, imageInstance.y + paddingOffset, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
+            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" yOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x + paddingOffset, imageInstance.y + paddingOffset, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xOffset, imageInstance.image.yOffset)
 
         nativeData += "</Imageset>\n"
 
