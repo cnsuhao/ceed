@@ -37,9 +37,9 @@ class ImageInstance(object):
 class CompilerInstance(object):
     def __init__(self, metaImageset):
         self.sizeIncrement = 5
-        # this is the size of the pixels around the image that are there to
-        # avoid UV related artefacts
-        self.padding = 1
+        # if True, the images will be padded on all sizes to prevent UV
+        # rounding/interpolation artefacts
+        self.padding = True
 
         self.metaImageset = metaImageset
 
@@ -53,7 +53,10 @@ class CompilerInstance(object):
 
         for input_ in self.metaImageset.inputs:
             for image in input_.getImages():
-                area += (image.qimage.width() + 2 * self.padding) * (image.qimage.height() + 2 * self.padding)
+                if self.padding:
+                    area += (image.qimage.width() + 2) * (image.qimage.height() + 2)
+                else:
+                    area += (image.qimage.width()) * (image.qimage.height())
 
         return math.sqrt(area)
 
@@ -88,9 +91,11 @@ class CompilerInstance(object):
                 imageInstances = []
 
                 for image in images:
-                    # TODO: borders to avoid artifacts
+                    if self.padding:
+                        point = packer.pack(image.qimage.width() + 2, image.qimage.height() + 2)
+                    else:
+                        point = packer.pack(image.qimage.width(), image.qimage.height())
 
-                    point = packer.pack(image.qimage.width() + 2 * self.padding, image.qimage.height() + 2 * self.padding)
                     imageInstances.append(ImageInstance(point.x, point.y, image))
 
                 # everything seems to have gone smoothly, lets use this configuration then
@@ -115,11 +120,36 @@ class CompilerInstance(object):
         painter.begin(underlyingImage)
 
         for imageInstance in imageInstances:
-            # TODO: borders
+            qimage = imageInstance.image.qimage
 
-            # and then draw the real image on top
-            painter.drawImage(QtCore.QPointF(imageInstance.x + self.padding, imageInstance.y + self.padding),
-                              imageInstance.image.qimage)
+            if self.padding:
+                # FIXME: This could use a review!
+
+                # top without corners
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1, imageInstance.y), qimage.copy(0, 0, qimage.width(), 1))
+                # bottom without corners
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1, imageInstance.y + 1 + qimage.height()), qimage.copy(0, qimage.height() - 1, qimage.width(), 1))
+                # left without corners
+                painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y + 1), qimage.copy(0, 0, 1, qimage.height()))
+                # right without corners
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1 + qimage.width(), imageInstance.y + 1), qimage.copy(qimage.width() - 1, 0, 1, qimage.height()))
+
+                # top left corner
+                painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y), qimage.copy(0, 0, 1, 1))
+                # top right corner
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1 + qimage.width(), imageInstance.y), qimage.copy(qimage.width() - 1, 0, 1, 1))
+                # bottom left corner
+                painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y + 1 + qimage.height()), qimage.copy(0, qimage.height() - 1, 1, 1))
+                # bottom right corner
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1 + qimage.width(), imageInstance.y + 1 + qimage.height()), qimage.copy(qimage.width() - 1, qimage.height() - 1, 1, 1))
+
+                # and then draw the real image on top
+                painter.drawImage(QtCore.QPointF(imageInstance.x + 1, imageInstance.y + 1),
+                                  qimage)
+            else:
+                # padding disabled, just draw the real image
+                painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y),
+                                  qimage)
 
         painter.end()
 
@@ -134,7 +164,9 @@ class CompilerInstance(object):
 
         nativeData = "<Imageset name=\"%s\" imagefile=\"%s\" nativeHorzRes=\"%i\" nativeVertRes=\"%i\" autoScaled=\"%s\" version=\"2\">\n" % (self.metaImageset.name, underlyingImageFileName, self.metaImageset.nativeHorzRes, self.metaImageset.nativeVertRes, self.metaImageset.autoScaled)
         for imageInstance in imageInstances:
-            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x + self.padding, imageInstance.y + self.padding, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
+            paddingOffset = 1 if self.padding else 0
+
+            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x + paddingOffset, imageInstance.y + paddingOffset, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
 
         nativeData += "</Imageset>\n"
 
