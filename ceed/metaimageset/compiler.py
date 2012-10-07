@@ -37,6 +37,9 @@ class ImageInstance(object):
 class CompilerInstance(object):
     def __init__(self, metaImageset):
         self.sizeIncrement = 5
+        # this is the size of the pixels around the image that are there to
+        # avoid UV related artefacts
+        self.padding = 1
 
         self.metaImageset = metaImageset
 
@@ -50,7 +53,7 @@ class CompilerInstance(object):
 
         for input_ in self.metaImageset.inputs:
             for image in input_.getImages():
-                area += image.qimage.width() * image.qimage.height()
+                area += (image.qimage.width() + 2 * self.padding) * (image.qimage.height() + 2 * self.padding)
 
         return math.sqrt(area)
 
@@ -87,7 +90,7 @@ class CompilerInstance(object):
                 for image in images:
                     # TODO: borders to avoid artifacts
 
-                    point = packer.pack(image.qimage.width(), image.qimage.height())
+                    point = packer.pack(image.qimage.width() + 2 * self.padding, image.qimage.height() + 2 * self.padding)
                     imageInstances.append(ImageInstance(point.x, point.y, image))
 
                 # everything seems to have gone smoothly, lets use this configuration then
@@ -115,7 +118,7 @@ class CompilerInstance(object):
             # TODO: borders
 
             # and then draw the real image on top
-            painter.drawImage(QtCore.QPointF(imageInstance.x, imageInstance.y),
+            painter.drawImage(QtCore.QPointF(imageInstance.x + self.padding, imageInstance.y + self.padding),
                               imageInstance.image.qimage)
 
         painter.end()
@@ -131,7 +134,7 @@ class CompilerInstance(object):
 
         nativeData = "<Imageset name=\"%s\" imagefile=\"%s\" nativeHorzRes=\"%i\" nativeVertRes=\"%i\" autoScaled=\"%s\" version=\"2\">\n" % (self.metaImageset.name, underlyingImageFileName, self.metaImageset.nativeHorzRes, self.metaImageset.nativeVertRes, self.metaImageset.autoScaled)
         for imageInstance in imageInstances:
-            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x, imageInstance.y, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
+            nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x + self.padding, imageInstance.y + self.padding, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
 
         nativeData += "</Imageset>\n"
 
