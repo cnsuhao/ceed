@@ -129,7 +129,7 @@ class CompilerInstance(object):
         # CEGUI imageset format is very simple and easy to work with, using serialisation in the editor for this
         # seemed like a wasted effort :-)
 
-        nativeData = "<Imageset name=\"%s\" imagefile=\"%s\" nativeHorzRes=\"%i\" nativeVertRes=\"%i\" autoScaled=\"%s\" version=\"2\">\n" % (self.metaImageset.name, underlyingImageFileName, self.metaImageset.nativeHorzRes, self.metaImageset.nativeVertRes, "true" if self.metaImageset.autoScaled else "false")
+        nativeData = "<Imageset name=\"%s\" imagefile=\"%s\" nativeHorzRes=\"%i\" nativeVertRes=\"%i\" autoScaled=\"%s\" version=\"2\">\n" % (self.metaImageset.name, underlyingImageFileName, self.metaImageset.nativeHorzRes, self.metaImageset.nativeVertRes, self.metaImageset.autoScaled)
         for imageInstance in imageInstances:
             nativeData += "    <Image name=\"%s\" xPos=\"%i\" yPos=\"%i\" width=\"%i\" height=\"%i\" xOffset=\"%i\" YOffset=\"%i\" />\n" % (imageInstance.image.name, imageInstance.x, imageInstance.y, imageInstance.image.qimage.width(), imageInstance.image.qimage.height(), imageInstance.image.xoffset, imageInstance.image.yoffset)
 

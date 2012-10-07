@@ -225,17 +225,22 @@ class InkscapeSVG(Input):
     INKSCAPE_PATH = "inkscape"
 
     class Component(object):
-        def __init__(self, svg):
+        def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xoffset = 0, yoffset = 0):
             self.svg = svg
 
-            self.name = ""
+            self.name = name
 
-            self.x = 0
-            self.y = 0
-            self.width = 1
-            self.height = 1
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
 
-            self.layers = []
+            self.xoffset = xoffset
+            self.yoffset = yoffset
+
+            self.layers = layers.split(" ")
+
+            self.cachedImage = None
 
         @staticmethod
         def getAllSVGLayers(svgPath):
@@ -315,7 +320,10 @@ class InkscapeSVG(Input):
             return qimage.copy(self.x, self.y, self.width, self.height)
 
         def getImage(self):
-            return Image(self.name, self.generateQImage(), self.xoffset, self.yoffset)
+            if self.cachedImage is None:
+                self.cachedImage = Image(self.name, self.generateQImage(), self.xoffset, self.yoffset)
+
+            return self.cachedImage
 
     def __init__(self, metaImageset):
         super(InkscapeSVG, self).__init__(metaImageset)
@@ -331,6 +339,34 @@ class InkscapeSVG(Input):
             component.loadFromElement(componentElement)
 
             self.components.append(component)
+
+        # FrameComponent is a shortcut to avoid having to type out 9 components
+        for componentElement in element.findall("FrameComponent"):
+            # TODO: This doesn't save the same way it loads!
+
+            name = componentElement.get("name", "")
+
+            x = int(componentElement.get("x", "0"))
+            y = int(componentElement.get("y", "0"))
+            width = int(componentElement.get("width", "1"))
+            height = int(componentElement.get("height", "1"))
+            cornerWidth = int(componentElement.get("cornerWidth", "1"))
+            cornerHeight = int(componentElement.get("cornerHeight", "1"))
+            layers = componentElement.get("layers", "")
+
+            centre = InkscapeSVG.Component(self, "%sCentre" % (name), x + cornerWidth, y + cornerHeight, width - 2 * cornerWidth, height - 2 * cornerHeight, layers)
+
+            top = InkscapeSVG.Component(self, "%sTop" % (name), x + cornerWidth, y, width - 2 * cornerWidth, cornerHeight, layers)
+            bottom = InkscapeSVG.Component(self, "%sBottom" % (name), x + cornerWidth, y + height - cornerHeight, width - 2 * cornerWidth, cornerHeight, layers)
+            left = InkscapeSVG.Component(self, "%sLeft" % (name), x, y + cornerHeight, cornerWidth, height - 2 * cornerHeight, layers)
+            right = InkscapeSVG.Component(self, "%sRight" % (name), x + width - cornerWidth, y + cornerHeight, cornerWidth, height - 2 * cornerHeight, layers)
+
+            topLeft = InkscapeSVG.Component(self, "%sTopLeft" % (name), x, y, cornerWidth, cornerHeight, layers)
+            topRight = InkscapeSVG.Component(self, "%sTopRight" % (name), x + width - cornerWidth, y, cornerWidth, cornerHeight, layers)
+            bottomLeft = InkscapeSVG.Component(self, "%sBottomLeft" % (name), x, y + height - cornerHeight, cornerWidth, cornerHeight, layers)
+            bottomRight = InkscapeSVG.Component(self, "%sBottomRight" % (name), x + width - cornerWidth, y + height - cornerHeight, cornerWidth, cornerHeight, layers)
+
+            self.components.extend([centre, top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight])
 
     def saveToElement(self):
         ret = ElementTree.Element("InkscapeSVG")
@@ -366,7 +402,7 @@ class MetaImageset(object):
         self.name = element.get("name", "")
         self.nativeHorzRes = int(element.get("nativeHorzRes", "800"))
         self.nativeVertRes = int(element.get("nativeVertRes", "600"))
-        self.autoScaled = element.get("autoScaled", "false") == "true"
+        self.autoScaled = element.get("autoScaled", "false")
 
         self.outputTargetType = element.get("outputTargetType", imageset_compatibility.manager.EditorNativeType)
         self.output = element.get("output", "")
@@ -400,7 +436,7 @@ class MetaImageset(object):
         ret.set("name", self.name)
         ret.set("nativeHorzRes", str(self.nativeHorzRes))
         ret.set("nativeVertRes", str(self.nativeVertRes))
-        ret.set("autoScaled", "true" if self.autoScaled else "false")
+        ret.set("autoScaled", self.autoScaled)
 
         ret.set("outputTargetType", self.outputTargetType)
         ret.set("output", self.output)
