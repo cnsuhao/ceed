@@ -112,8 +112,9 @@ class Layout3To4Layer(compatibility.Layer):
         return ret
 
     def convertAutoWindowSuffix(self, autoWindow):
-        autoWindow.set("namePath", autoWindow.get("NameSuffix"))
-        del autoWindow.attrib["NameSuffix"]
+        if autoWindow.get("NameSuffix") is not None:
+            autoWindow.set("namePath", autoWindow.get("NameSuffix"))
+            del autoWindow.attrib["NameSuffix"]
 
         for childAutoWindow in autoWindow.findall("AutoWindow"):
             self.convertAutoWindowSuffix(childAutoWindow)
@@ -237,6 +238,8 @@ class Layout3To4Layer(compatibility.Layer):
             self.applyChangesRecursively(childWindow)
 
         for autoWindow in window.findall("AutoWindow"):
+            print window.findall("AutoWindow")
+            print window.attrib
             self.convertAutoWindowSuffix(autoWindow)
             self.applyChangesRecursively(autoWindow)
 
