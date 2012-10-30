@@ -118,8 +118,10 @@ class Component(object):
         return ret
 
     def generateQImage(self):
+        full_path = os.path.join(os.path.dirname(self.svg.metaImageset.filePath), self.svg.path)
+
         temporaryPng = tempfile.NamedTemporaryFile(suffix = ".png")
-        exportSVG(self.svg.path, self.layers, temporaryPng.name)
+        exportSVG(full_path, self.layers, temporaryPng.name)
 
         qimage = QtGui.QImage(temporaryPng.name)
         return qimage.copy(self.x, self.y, self.width, self.height)
