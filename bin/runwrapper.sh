@@ -18,5 +18,7 @@ export LD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/lib:$LD_LIBRARY_PATH"
 
 export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$CEED_PACKAGE_PATH:$PYTHONPATH"
 
-# fork a new shell to avoid polluting the environment
-bash
+if [ "x$RUNWRAPPER_NO_FORK" != "x1" ]; then
+    # fork a new shell to avoid polluting the environment
+    bash
+fi
