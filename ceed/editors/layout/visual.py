@@ -68,15 +68,20 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
                       QtCore.Qt.ItemIsSelectable |
                       QtCore.Qt.ItemIsEditable |
                       QtCore.Qt.ItemIsDropEnabled |
-                      QtCore.Qt.ItemIsDragEnabled)
+                      QtCore.Qt.ItemIsDragEnabled |
+                      QtCore.Qt.ItemIsUserCheckable)
+
+        self.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
 
     def clone(self):
         ret = WidgetHierarchyItem(self.manipulator)
+        ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.QtCheckStateRole)
         return ret
 
     def refreshPathData(self):
         """Updates the stored path data for the item and its children
         """
+
         if self.manipulator is not None:
             self.setData(self.manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
             childrenCount = self.rowCount()
@@ -84,6 +89,13 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
             while i < childrenCount:
                 self.child(i).refreshPathData()
                 i += 1
+
+    def setData(self, value, role):
+        if role == QtCore.Qt.CheckStateRole and self.manipulator is not None:
+            # synchronise the manipulator with the lock state
+            self.manipulator.setLocked(value == QtCore.Qt.Checked)
+
+        return super(WidgetHierarchyItem, self).setData(value, role)
 
 class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
     def __init__(self, dockWidget):
