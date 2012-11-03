@@ -25,9 +25,9 @@ architecture - which are used in the event of errors/exceptions.
 """
 
 # CEED
-CEED = "snapshot10"
+CEED = "snapshot11"
 # if this is True, all .ui files will be recompiled every time CEED.py is run
-DEVELOPER_MODE = False
+DEVELOPER_MODE = True
 
 # Mercurial
 try:
