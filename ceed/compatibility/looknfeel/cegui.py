@@ -161,7 +161,7 @@ class LookNFeel6To7Layer(compatibility.Layer):
             try:
                 tailTree = parentMap[dimop]
 
-            except KeyError as e:
+            except KeyError:
                 raise RuntimeError("Failed to find parent of '%s'. This is most "
                                    "likely caused by invalid data, please validate "
                                    "them using XSD to check.\n"

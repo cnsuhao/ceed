@@ -25,16 +25,16 @@ from ceed.metaimageset.inputs import bitmap, imageset, qsvg, inkscape_svg
 
 def loadFromElement(metaImageset, element):
     for childElement in element.findall("Imageset"):
-        imageset = imageset.Imageset(metaImageset)
-        imageset.loadFromElement(childElement)
+        im = imageset.Imageset(metaImageset)
+        im.loadFromElement(childElement)
 
-        metaImageset.inputs.append(imageset)
+        metaImageset.inputs.append(im)
 
     for childElement in element.findall("Bitmap"):
-        bitmap = bitmap.Bitmap(metaImageset)
-        bitmap.loadFromElement(childElement)
+        b = bitmap.Bitmap(metaImageset)
+        b.loadFromElement(childElement)
 
-        metaImageset.inputs.append(bitmap)
+        metaImageset.inputs.append(b)
 
     for childElement in element.findall("QSVG"):
         svg = qsvg.QSVG(metaImageset)

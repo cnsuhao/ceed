@@ -69,7 +69,7 @@ class QSVG(inputs.Input):
             svgRenderer.render(painter)
             painter.end()
 
-            image = Image(name, qimage, self.xOffset, self.yOffset)
+            image = inputs.Image(name, qimage, self.xOffset, self.yOffset)
             self.images.append(image)
 
     def saveToElement(self):

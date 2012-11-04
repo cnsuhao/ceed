@@ -75,7 +75,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
 
     def clone(self):
         ret = WidgetHierarchyItem(self.manipulator)
-        ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.QtCheckStateRole)
+        ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.CheckStateRole)
         return ret
 
     def refreshPathData(self):

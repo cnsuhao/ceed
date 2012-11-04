@@ -51,7 +51,7 @@ class Bitmap(inputs.Input):
             pathSplit = path.rsplit(".", 1)
             name = os.path.basename(pathSplit[0])
 
-            image = Image(name, QtGui.QImage(path), self.xOffset, self.yOffset)
+            image = inputs.Image(name, QtGui.QImage(path), self.xOffset, self.yOffset)
             self.images.append(image)
 
     def saveToElement(self):
