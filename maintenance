@@ -141,12 +141,9 @@ def archive():
     # the *-src ignore pattern is commented because we want documentation sources
     # in the source tarball, we do not want it installed however
 
-    # we don't copy doc for now, there is almost nothing there
     shutil.copy("AUTHORS", target_temp_directory_path)
     shutil.copy("LICENSE", target_temp_directory_path)
     shutil.copy("README", target_temp_directory_path)
-    for file in glob.glob("*-COPYING"):
-        shutil.copy(file, target_temp_directory_path)
 
     import tarfile
     target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
