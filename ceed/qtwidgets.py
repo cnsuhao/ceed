@@ -196,6 +196,9 @@ class KeySequenceButton(QtGui.QPushButton):
             self.keyCombination = self.findChild(QtGui.QLineEdit, "keyCombination")
 
         def setKeySequence(self, keySequence):
+            if keySequence is None:
+                keySequence = QtGui.QKeySequence()
+
             self.keySequence = keySequence
             self.keyCombination.setText(self.keySequence.toString())
 
