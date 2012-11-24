@@ -84,11 +84,9 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
 
         if self.manipulator is not None:
             self.setData(self.manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
-            childrenCount = self.rowCount()
-            i = 0
-            while i < childrenCount:
+
+            for i in range(self.rowCount()):
                 self.child(i).refreshPathData()
-                i += 1
 
     def setData(self, value, role):
         if role == QtCore.Qt.CheckStateRole and self.manipulator is not None:
@@ -96,6 +94,26 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
             self.manipulator.setLocked(value == QtCore.Qt.Checked)
 
         return super(WidgetHierarchyItem, self).setData(value, role)
+
+    def setLocked(self, locked, recursive = False):
+        """Locks or unlocks this item.
+
+        locked - if True this item gets locked = user won't be able to move it
+                 in the visual editing mode.
+        recursive - if True, all children of this item will also get affected
+                    They will get locked or unlocked depending on the "locked"
+                    argument, independent of their previous lock state.
+        """
+
+        # we do it this way around to make sure the checkbox's check state
+        # is always up to date
+        self.setData(QtCore.Qt.Checked if locked else QtCore.Qt.Unchecked,
+                     QtCore.Qt.CheckStateRole)
+
+        if recursive:
+            for i in range(self.rowCount()):
+                child = self.child(i)
+                child.setLocked(locked, True)
 
 class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
     def __init__(self, dockWidget):
@@ -376,6 +394,17 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu.addSeparator()
 
+        self.lockAction = action.getAction("layout/lock_widget")
+        self.contextMenu.addAction(self.lockAction)
+        self.unlockAction = action.getAction("layout/unlock_widget")
+        self.contextMenu.addAction(self.unlockAction)
+        self.recursivelyLockAction = action.getAction("layout/recursively_lock_widget")
+        self.contextMenu.addAction(self.recursivelyLockAction)
+        self.recursivelyUnlockAction = action.getAction("layout/recursively_unlock_widget")
+        self.contextMenu.addAction(self.recursivelyUnlockAction)
+
+        self.contextMenu.addSeparator()
+
         self.cutAction = action.getAction("all_editors/cut")
         self.contextMenu.addAction(self.cutAction)
         self.copyAction = action.getAction("all_editors/copy")
@@ -403,6 +432,12 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
         haveSel = len(selectedIndices) > 0
         self.copyNamePathAction.setEnabled(haveSel)
         self.renameAction.setEnabled(haveSel)
+
+        self.lockAction.setEnabled(haveSel)
+        self.unlockAction.setEnabled(haveSel)
+        self.recursivelyLockAction.setEnabled(haveSel)
+        self.recursivelyUnlockAction.setEnabled(haveSel)
+
         self.deleteAction.setEnabled(haveSel)
 
         self.contextMenu.exec_(event.globalPos())
@@ -429,6 +464,22 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
             # sort (otherwise the order is the item selection order)
             paths.sort()
             QtGui.QApplication.clipboard().setText(os.linesep.join(paths))
+
+    def setSelectedWidgetsLocked(self, locked, recursive = False):
+        selectedIndices = self.selectedIndexes()
+        if len(selectedIndices) == 0:
+            return
+
+        # It is possible that we will make superfluous lock actions if user
+        # selects widgets in a hierarchy (parent & child) and then does
+        # a recursive lock. This doesn't do anything harmful so we don't
+        # have any logic to prevent that.
+
+        paths = []
+        for index in selectedIndices:
+            item = self.model().itemFromIndex(index)
+            if item.manipulator is not None:
+                item.setLocked(locked, recursive)
 
 class HierarchyDockWidget(QtGui.QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
@@ -1031,10 +1082,20 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
 
         # general
-        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
-        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
         self.renameWidgetAction = action.getAction("layout/rename")
         self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
+
+        self.lockWidgetAction = action.getAction("layout/lock_widget")
+        self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
+        self.unlockWidgetAction = action.getAction("layout/unlock_widget")
+        self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
+        self.recursivelyLockWidgetAction = action.getAction("layout/recursively_lock_widget")
+        self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
+        self.recursivelyUnlockWidgetAction = action.getAction("layout/recursively_unlock_widget")
+        self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
+
+        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
+        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
 
 
     def setupToolBar(self):

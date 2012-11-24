@@ -79,3 +79,19 @@ def declare(actionManager):
     cat.createAction(name = "rename", label = "&Rename Widget",
                      help_ = "Edits the selected widget's name.",
                      icon = QtGui.QIcon("icons/layout_editing/rename.png"))
+
+    cat.createAction(name = "lock_widget", label = "&Lock Widget",
+                     help_ = "Locks the widget for moving and resizing in the visual editing mode.",
+                     icon = QtGui.QIcon("icons/layout_editing/lock_widget.png"))
+
+    cat.createAction(name = "unlock_widget", label = "&Unlock Widget",
+                     help_ = "Unlocks the widget for moving and resizing in the visual editing mode.",
+                     icon = QtGui.QIcon("icons/layout_editing/unlock_widget.png"))
+
+    cat.createAction(name = "recursively_lock_widget", label = "&Lock Widget (recursively)",
+                     help_ = "Locks the widget and all its child widgets for moving and resizing in the visual editing mode.",
+                     icon = QtGui.QIcon("icons/layout_editing/lock_widget_recursively.png"))
+
+    cat.createAction(name = "recursively_unlock_widget", label = "&Unlock Widget (recursively)",
+                     help_ = "Unlocks the widget and all its child widgets for moving and resizing in the visual editing mode.",
+                     icon = QtGui.QIcon("icons/layout_editing/unlock_widget_recursively.png"))
