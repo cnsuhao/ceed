@@ -119,6 +119,9 @@ class CompilerInstance(object):
         painter = QtGui.QPainter()
         painter.begin(underlyingImage)
 
+        # Sort image instances by name to give us nicer diffs of the resulting imageset
+        imageInstances = sorted(imageInstances, key = lambda instance: instance.image.name)
+
         for imageInstance in imageInstances:
             qimage = imageInstance.image.qimage
 
