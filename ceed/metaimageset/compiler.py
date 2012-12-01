@@ -43,47 +43,40 @@ class CompilerInstance(object):
 
         self.metaImageset = metaImageset
 
-    def estimateMinimalSize(self):
+    def estimateMinimalSize(self, images):
         """Tries to estimate minimal side of the underlying image of the output imageset.
 
         This is used merely as a starting point in the packing process.
         """
 
-        area = 0
-
-        for input_ in self.metaImageset.inputs:
-            for image in input_.getImages():
-                if self.padding:
-                    area += (image.qimage.width() + 2) * (image.qimage.height() + 2)
-                else:
-                    area += (image.qimage.width()) * (image.qimage.height())
-
-        return math.sqrt(area)
-
-    def compile(self):
         def getNextPOT(number):
             """Returns the next power of two that is greater than given number"""
 
             return int(2 ** math.ceil(math.log(number + 1, 2)))
 
+        area = 0
+        for image in images:
+            if self.padding:
+                area += (image.qimage.width() + 2) * (image.qimage.height() + 2)
+            else:
+                area += (image.qimage.width()) * (image.qimage.height())
+
+        ret = math.sqrt(area)
+
+        if ret < 1:
+            ret = 1
+
+        if self.metaImageset.onlyPOT:
+            ret = getNextPOT(ret)
+
+        return ret
+
+    def findSideSize(self, startingSideSize, images):
+        sideSize = startingSideSize
         imageInstances = []
 
-        theoreticalMinSize = self.estimateMinimalSize()
-        if theoreticalMinSize < 1:
-            theoreticalMinSize = 1
-        sideSize = getNextPOT(theoreticalMinSize) if self.metaImageset.onlyPOT else theoreticalMinSize
-
-        print("Gathering and rendering all images...")
-
-        images = []
-        for input_ in self.metaImageset.inputs:
-            images.extend(input_.getImages())
-
-        # the image packer performs better if images are inserted by width, thinnest come first
-        images = sorted(images, key = lambda image: image.qimage.width())
-
-        print("Performing texture side size determination...")
         i = 0
+
         # This could be way sped up if we used some sort of a "binary search" approach
         while True:
             packer = rectanglepacking.CygonRectanglePacker(sideSize, sideSize)
@@ -111,6 +104,22 @@ class CompilerInstance(object):
                 continue
 
         print("Correct texture side size found after %i iterations" % (i))
+        return sideSize, imageInstances
+
+    def compile(self):
+        print("Gathering and rendering all images...")
+
+        images = []
+        for input_ in self.metaImageset.inputs:
+            images.extend(input_.getImages())
+
+        theoreticalMinSize = self.estimateMinimalSize(images)
+
+        # the image packer performs better if images are inserted by width, thinnest come first
+        images = sorted(images, key = lambda image: image.qimage.width())
+
+        print("Performing texture side size determination...")
+        sideSize, imageInstances = self.findSideSize(theoreticalMinSize, images)
 
         print("Rendering the underlying image...")
         underlyingImage = QtGui.QImage(sideSize, sideSize, QtGui.QImage.Format_ARGB32)
