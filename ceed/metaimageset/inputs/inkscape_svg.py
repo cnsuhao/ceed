@@ -86,7 +86,7 @@ class Component(object):
 
         self.layers = layers.split(" ")
 
-        self.cachedImage = None
+        self.cachedImages = None
 
     def loadFromElement(self, element):
         self.name = element.get("name", "")
@@ -105,6 +105,7 @@ class Component(object):
         ret = ElementTree.Element("Component")
 
         ret.set("name", self.name)
+
         ret.set("x", str(self.x))
         ret.set("y", str(self.y))
         ret.set("width", str(self.width))
@@ -126,13 +127,165 @@ class Component(object):
         qimage = QtGui.QImage(temporaryPng.name)
         return qimage.copy(self.x, self.y, self.width, self.height)
 
-    def getImage(self):
+    def getImages(self):
         # FIXME: This is a really nasty optimisation, it can be done way better
         #        but would probably require a slight redesign of inputs.Input
-        if self.cachedImage is None:
-            self.cachedImage = inputs.Image(self.name, self.generateQImage(), self.xOffset, self.yOffset)
+        if self.cachedImages is None:
+            self.cachedImages = [inputs.Image(self.name, self.generateQImage(), self.xOffset, self.yOffset)]
 
-        return self.cachedImage
+        return self.cachedImages
+
+class FrameComponent(object):
+    def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, cornerWidth = 1, cornerHeight = 1, layers = "", skip = ""):
+        self.svg = svg
+
+        self.name = name
+
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        self.cornerWidth = cornerWidth
+        self.cornerHeight = cornerHeight
+
+        self.layers = layers.split(" ")
+        self.skip = skip.split(" ")
+
+        self.cachedImages = None
+        self.cachedQImage = None
+
+    def loadFromElement(self, element):
+        self.name = element.get("name", "")
+
+        self.x = int(element.get("x", "0"))
+        self.y = int(element.get("y", "0"))
+        self.width = int(element.get("width", "1"))
+        self.height = int(element.get("height", "1"))
+
+        self.cornerWidth = int(element.get("cornerWidth", "1"))
+        self.cornerHeight = int(element.get("cornerHeight", "1"))
+
+        self.layers = element.get("layers", "").split(" ")
+        self.skip = element.get("skip", "").split(" ")
+
+    def saveToElement(self):
+        ret = ElementTree.Element("Component")
+
+        ret.set("name", self.name)
+
+        ret.set("x", str(self.x))
+        ret.set("y", str(self.y))
+        ret.set("width", str(self.width))
+        ret.set("height", str(self.height))
+
+        ret.set("cornerWidth", str(self.cornerWidth))
+        ret.set("cornerHeight", str(self.cornerHeight))
+
+        ret.set("layers", " ".join(self.layers))
+        ret.set("skip", " ".join(self.layers))
+
+        return ret
+
+    def generateQImage(self, x, y, width, height):
+        if self.cachedQImage is None:
+            full_path = os.path.join(os.path.dirname(self.svg.metaImageset.filePath), self.svg.path)
+
+            temporaryPng = tempfile.NamedTemporaryFile(suffix = ".png")
+            exportSVG(full_path, self.layers, temporaryPng.name)
+
+            self.cachedQImage = QtGui.QImage(temporaryPng.name)
+
+        return self.cachedQImage.copy(x, y, width, height)
+
+    def getImages(self):
+        # FIXME: This is a really nasty optimisation, it can be done way better
+        #        but would probably require a slight redesign of inputs.Input
+        if self.cachedImages is None:
+            self.cachedImages = []
+
+            if "centre" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sCentre" % (self.name),
+                        self.generateQImage(
+                            self.x + self.cornerWidth + 1, self.y + self.cornerHeight + 1,
+                            self.width - 2 * self.cornerWidth - 2, self.height - 2 * self.cornerHeight - 2),
+                        0, 0)
+                    )
+
+            if "top" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sTop" % (self.name),
+                        self.generateQImage(
+                            self.x + self.cornerWidth + 1, self.y,
+                            self.width - 2 * self.cornerWidth - 2, self.cornerHeight),
+                        0, 0)
+                    )
+
+            if "bottom" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sBottom" % (self.name),
+                        self.generateQImage(
+                            self.x + self.cornerWidth + 1, self.y + self.height - self.cornerHeight,
+                            self.width - 2 * self.cornerWidth - 2, self.cornerHeight),
+                        0, 0)
+                    )
+
+            if "left" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sLeft" % (self.name),
+                        self.generateQImage(
+                            self.x, self.y + self.cornerHeight + 1,
+                            self.cornerWidth, self.height - 2 * self.cornerHeight - 2),
+                        0, 0)
+                    )
+
+            if "right" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sRight" % (self.name),
+                        self.generateQImage(
+                            self.x + self.width - self.cornerWidth, self.y + self.cornerHeight + 1,
+                            self.cornerWidth, self.height - 2 * self.cornerHeight - 2),
+                        0, 0)
+                    )
+
+            if "topLeft" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sTopLeft" % (self.name),
+                        self.generateQImage(
+                            self.x, self.y,
+                            self.cornerWidth, self.cornerHeight),
+                        0, 0)
+                    )
+
+            if "topRight" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sTopRight" % (self.name),
+                        self.generateQImage(
+                            self.x + self.width - self.cornerWidth, self.y,
+                            self.cornerWidth, self.cornerHeight),
+                        0, 0)
+                    )
+
+            if "bottomLeft" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sBottomLeft" % (self.name),
+                        self.generateQImage(
+                            self.x, self.y + self.height - self.cornerHeight,
+                            self.cornerWidth, self.cornerHeight),
+                        0, 0)
+                    )
+
+            if "bottomRight" not in self.skip:
+                self.cachedImages.append(
+                    inputs.Image("%sBottomRight" % (self.name),
+                        self.generateQImage(
+                            self.x + self.width - self.cornerWidth, self.y + self.height - self.cornerHeight,
+                            self.cornerWidth, self.cornerHeight),
+                        0, 0)
+                    )
+
+        return self.cachedImages
 
 class InkscapeSVG(inputs.Input):
     """Just one particular SVGs, support advanced features and renders everything
@@ -159,61 +312,10 @@ class InkscapeSVG(inputs.Input):
 
         # FrameComponent is a shortcut to avoid having to type out 9 components
         for componentElement in element.findall("FrameComponent"):
-            # TODO: This doesn't save the same way it loads!
+            component = FrameComponent(self)
+            component.loadFromElement(componentElement)
 
-            # Doing processing in the parsing stage may be evil
-            # but we do it anyways!
-
-            name = componentElement.get("name", "")
-
-            x = int(componentElement.get("x", "0"))
-            y = int(componentElement.get("y", "0"))
-            width = int(componentElement.get("width", "1"))
-            height = int(componentElement.get("height", "1"))
-            cornerWidth = int(componentElement.get("cornerWidth", "1"))
-            cornerHeight = int(componentElement.get("cornerHeight", "1"))
-            layers = componentElement.get("layers", "")
-
-            # This allows the user to tell us to skip particular images of
-            # the frame. This is useful when the fill in the middle is split
-            # for example.
-            skip = componentElement.get("skip", "").split(" ")
-
-            if "centre" not in skip:
-                centre = Component(self, "%sCentre" % (name), x + cornerWidth + 1, y + cornerHeight + 1, width - 2 * cornerWidth - 2, height - 2 * cornerHeight - 2, layers)
-                self.components.append(centre)
-
-            if "top" not in skip:
-                top = Component(self, "%sTop" % (name), x + cornerWidth + 1, y, width - 2 * cornerWidth - 2, cornerHeight, layers)
-                self.components.append(top)
-
-            if "bottom" not in skip:
-                bottom = Component(self, "%sBottom" % (name), x + cornerWidth + 1, y + height - cornerHeight, width - 2 * cornerWidth - 2, cornerHeight, layers)
-                self.components.append(bottom)
-
-            if "left" not in skip:
-                left = Component(self, "%sLeft" % (name), x, y + cornerHeight + 1, cornerWidth, height - 2 * cornerHeight - 2, layers)
-                self.components.append(left)
-
-            if "right" not in skip:
-                right = Component(self, "%sRight" % (name), x + width - cornerWidth, y + cornerHeight + 1, cornerWidth, height - 2 * cornerHeight - 2, layers)
-                self.components.append(right)
-
-            if "topLeft" not in skip:
-                topLeft = Component(self, "%sTopLeft" % (name), x, y, cornerWidth, cornerHeight, layers)
-                self.components.append(topLeft)
-
-            if "topRight" not in skip:
-                topRight = Component(self, "%sTopRight" % (name), x + width - cornerWidth, y, cornerWidth, cornerHeight, layers)
-                self.components.append(topRight)
-
-            if "bottomLeft" not in skip:
-                bottomLeft = Component(self, "%sBottomLeft" % (name), x, y + height - cornerHeight, cornerWidth, cornerHeight, layers)
-                self.components.append(bottomLeft)
-
-            if "bottomRight" not in skip:
-                bottomRight = Component(self, "%sBottomRight" % (name), x + width - cornerWidth, y + height - cornerHeight, cornerWidth, cornerHeight, layers)
-                self.components.append(bottomRight)
+            self.components.append(component)
 
     def saveToElement(self):
         ret = ElementTree.Element("InkscapeSVG")
@@ -225,4 +327,9 @@ class InkscapeSVG(inputs.Input):
         return ret
 
     def getImages(self):
-        return [component.getImage() for component in self.components]
+        ret = []
+
+        for component in self.components:
+            ret.extend(component.getImages())
+
+        return ret
