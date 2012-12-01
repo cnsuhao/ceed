@@ -29,6 +29,7 @@ import ceed.compatibility.imageset as imageset_compatibility
 import os.path
 from xml.etree import cElementTree as ElementTree
 
+from PySide import QtGui
 
 class Imageset(inputs.Input):
     class FakeImagesetEntry(imageset_elements.ImagesetEntry):
@@ -67,12 +68,19 @@ class Imageset(inputs.Input):
 
         return ret
 
-    def getImages(self):
+    def getDescription(self):
+        return "Imageset '%s'" % (self.filePath)
+
+    def buildImages(self):
         assert(self.imagesetEntry is not None)
 
         ret = []
 
+        entireImage = QtGui.QImage(self.imagesetEntry.getAbsoluteImageFile())
+
         for imageEntry in self.imagesetEntry.imageEntries:
-            ret.append(inputs.Image(self.imagesetEntry.name + "/" + imageEntry.name, imageEntry.getPixmap().toImage(), imageEntry.xOffset, imageEntry.yOffset))
+            subImage = entireImage.copy(imageEntry.xpos, imageEntry.ypos, imageEntry.width, imageEntry.height)
+
+            ret.append(inputs.Image(self.imagesetEntry.name + "/" + imageEntry.name, subImage, imageEntry.xoffset, imageEntry.yoffset))
 
         return ret

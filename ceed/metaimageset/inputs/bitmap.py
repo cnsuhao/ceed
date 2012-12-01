@@ -34,25 +34,14 @@ class Bitmap(inputs.Input):
         super(Bitmap, self).__init__(metaImageset)
 
         self.path = ""
-        self.paths = []
 
         self.xOffset = 0
         self.yOffset = 0
-        self.images = []
 
     def loadFromElement(self, element):
         self.path = element.get("path", "")
         self.xOffset = int(element.get("xOffset", "0"))
         self.yOffset = int(element.get("yOffset", "0"))
-
-        self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
-
-        for path in self.paths:
-            pathSplit = path.rsplit(".", 1)
-            name = os.path.basename(pathSplit[0])
-
-            image = inputs.Image(name, QtGui.QImage(path), self.xOffset, self.yOffset)
-            self.images.append(image)
 
     def saveToElement(self):
         ret = ElementTree.Element("Bitmap")
@@ -62,5 +51,18 @@ class Bitmap(inputs.Input):
 
         return ret
 
-    def getImages(self):
-        return self.images
+    def getDescription(self):
+        return "Bitmap image(s) '%s'" % (self.path)
+
+    def buildImages(self):
+        paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
+
+        images = []
+        for path in paths:
+            pathSplit = path.rsplit(".", 1)
+            name = os.path.basename(pathSplit[0])
+
+            image = inputs.Image(name, QtGui.QImage(path), self.xOffset, self.yOffset)
+            images.append(image)
+
+        return images

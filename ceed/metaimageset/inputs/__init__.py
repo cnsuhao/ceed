@@ -56,7 +56,10 @@ class Input(object):
     def saveToElement(self):
         raise NotImplementedError("Each Input subclass must override Input.saveToElement!")
 
-    def getImages(self):
+    def getDescription(self):
+        raise NotImplementedError("Each Input subclass must override Input.getDescription")
+
+    def buildImages(self):
         """Retrieves list of Image objects each containing a bitmap representation
         of some image this input provided, xOffset and yOffset.
 
@@ -65,4 +68,4 @@ class Input(object):
         (Each QImage containing only the specified portion of the underlying image)
         """
 
-        raise NotImplementedError("Each Input subclass must override Input.getImages!")
+        raise NotImplementedError("Each Input subclass must override Input.buildImages!")

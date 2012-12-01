@@ -26,6 +26,7 @@ import ceed.compatibility.imageset as imageset_compatibility
 
 import threading
 import Queue
+import sys
 
 from PySide import QtCore
 from PySide import QtGui
@@ -108,6 +109,8 @@ class CompilerInstance(object):
                 continue
 
         print("Correct texture side size found after %i iterations" % (i))
+        print("")
+
         return sideSize, imageInstances
 
     def buildAllImages(self, inputs, parallelJobs):
@@ -119,21 +122,32 @@ class CompilerInstance(object):
         for input_ in inputs:
             queue.put_nowait(input_)
 
+        # we use a nasty trick of adding None elements to a list
+        # because Python's int type is immutable
+        doneTasks = []
+
         def imageBuilder():
             while True:
                 try:
                     input_ = queue.get(False)
 
                     # We do not have to do anything extra thanks to GIL
-                    images.extend(input_.getImages())
+                    images.extend(input_.buildImages())
+
                     queue.task_done()
+                    doneTasks.append(None)
+
+                    percent = "{0:6.2f}%".format(float(len(doneTasks) * 100) / len(inputs))
+
+                    # same as above
+                    sys.stdout.write("[%s] Images from %s\n" % (percent, input_.getDescription()))
 
                 except Queue.Empty:
                     break
 
         workers = []
         for workerId in range(parallelJobs):
-            worker = threading.Thread(name = "MetaImageset compiler Image builder worker %i" % (workerId), target = imageBuilder)
+            worker = threading.Thread(name = "MetaImageset compiler image builder worker #%i" % (workerId), target = imageBuilder)
             workers.append(worker)
             worker.start()
 
@@ -142,9 +156,11 @@ class CompilerInstance(object):
         return images
 
     def compile(self):
-        print("Gathering and rendering all images...")
+        print("Gathering and rendering all images in %i parallel jobs..." % (self.jobs))
+        print("")
 
         images = self.buildAllImages(self.metaImageset.inputs, self.jobs)
+        print("")
 
         theoreticalMinSize = self.estimateMinimalSize(images)
 
@@ -221,8 +237,12 @@ class CompilerInstance(object):
         print("All done and saved!")
         print("")
 
-        print("Theoretical minimum texture size: %i x %i" % (theoreticalMinSize, theoreticalMinSize))
-        print("Actual texture size: %i x %i" % (sideSize, sideSize))
+        rjustChars = 40
+        print("Amount of inputs: ".rjust(rjustChars) + "%i" % (len(self.metaImageset.inputs)))
+        print("Amount of images on the atlas: ".rjust(rjustChars) + "%i" % (len(imageInstances)))
         print("")
-        print("Side size overhead: %f%%" % ((sideSize - theoreticalMinSize) / (theoreticalMinSize) * 100))
-        print("Area (squared) overhead: %f%%" % ((sideSize * sideSize - theoreticalMinSize * theoreticalMinSize) / (theoreticalMinSize * theoreticalMinSize) * 100))
+        print("Theoretical minimum texture size: ".rjust(rjustChars) + "%i x %i" % (theoreticalMinSize, theoreticalMinSize))
+        print("Actual texture size: ".rjust(rjustChars) + "%i x %i" % (sideSize, sideSize))
+        print("")
+        print("Side size overhead: ".rjust(rjustChars) + "%f%%" % ((sideSize - theoreticalMinSize) / (theoreticalMinSize) * 100))
+        print("Area (squared) overhead: ".rjust(rjustChars) + "%f%%" % ((sideSize * sideSize - theoreticalMinSize * theoreticalMinSize) / (theoreticalMinSize * theoreticalMinSize) * 100))

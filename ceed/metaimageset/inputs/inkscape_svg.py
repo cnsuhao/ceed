@@ -29,6 +29,7 @@ import os.path
 from xml.etree import cElementTree as ElementTree
 import tempfile
 import subprocess
+import cStringIO as StringIO
 
 INKSCAPE_PATH = "inkscape"
 
@@ -68,7 +69,8 @@ def exportSVG(svgPath, layers, targetPngPath):
     showOnlySVGLayers(svgPath, layers, temporarySvg.name)
 
     cmdLine = [INKSCAPE_PATH, "--file=%s" % (temporarySvg.name), "--export-png=%s" % (targetPngPath)]
-    subprocess.call(cmdLine)
+    stdout = subprocess.check_output(cmdLine, stderr = subprocess.STDOUT)
+    # FIXME: debug logging of stdout?
 
 class Component(object):
     def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xOffset = 0, yOffset = 0):
@@ -127,7 +129,7 @@ class Component(object):
         qimage = QtGui.QImage(temporaryPng.name)
         return qimage.copy(self.x, self.y, self.width, self.height)
 
-    def getImages(self):
+    def buildImages(self):
         # FIXME: This is a really nasty optimisation, it can be done way better
         #        but would probably require a slight redesign of inputs.Input
         if self.cachedImages is None:
@@ -198,7 +200,7 @@ class FrameComponent(object):
 
         return self.cachedQImage.copy(x, y, width, height)
 
-    def getImages(self):
+    def buildImages(self):
         # FIXME: This is a really nasty optimisation, it can be done way better
         #        but would probably require a slight redesign of inputs.Input
         if self.cachedImages is None:
@@ -326,10 +328,13 @@ class InkscapeSVG(inputs.Input):
 
         return ret
 
-    def getImages(self):
+    def getDescription(self):
+        return "Inkscape SVG '%s' with %i components" % (self.path, len(self.components))
+
+    def buildImages(self):
         ret = []
 
         for component in self.components:
-            ret.extend(component.getImages())
+            ret.extend(component.buildImages())
 
         return ret

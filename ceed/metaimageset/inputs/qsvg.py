@@ -44,20 +44,31 @@ class QSVG(inputs.Input):
         super(QSVG, self).__init__(metaImageset)
 
         self.path = ""
-        self.paths = []
 
         self.xOffset = 0
         self.yOffset = 0
-        self.images = []
 
     def loadFromElement(self, element):
         self.path = element.get("path", "")
         self.xOffset = int(element.get("xOffset", "0"))
         self.yOffset = int(element.get("yOffset", "0"))
 
-        self.paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
+    def saveToElement(self):
+        ret = ElementTree.Element("QSVG")
+        ret.set("path", self.path)
+        ret.set("xOffset", str(self.xOffset))
+        ret.set("yOffset", str(self.yOffset))
 
-        for path in self.paths:
+        return ret
+
+    def getDescription(self):
+        return "QSvg '%s'" % (self.path)
+
+    def buildImages(self):
+        paths = glob.glob(os.path.join(os.path.dirname(self.metaImageset.filePath), self.path))
+
+        images = []
+        for path in paths:
             pathSplit = path.rsplit(".", 1)
             name = os.path.basename(pathSplit[0])
 
@@ -70,15 +81,6 @@ class QSVG(inputs.Input):
             painter.end()
 
             image = inputs.Image(name, qimage, self.xOffset, self.yOffset)
-            self.images.append(image)
+            images.append(image)
 
-    def saveToElement(self):
-        ret = ElementTree.Element("QSVG")
-        ret.set("path", self.path)
-        ret.set("xOffset", str(self.xOffset))
-        ret.set("yOffset", str(self.yOffset))
-
-        return ret
-
-    def getImages(self):
-        return self.images
+        return images
