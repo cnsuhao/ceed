@@ -24,6 +24,9 @@ import os.path
 from ceed.metaimageset import rectanglepacking
 import ceed.compatibility.imageset as imageset_compatibility
 
+import threading
+import Queue
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -36,6 +39,7 @@ class ImageInstance(object):
 
 class CompilerInstance(object):
     def __init__(self, metaImageset):
+        self.jobs = 1
         self.sizeIncrement = 5
         # if True, the images will be padded on all sizes to prevent UV
         # rounding/interpolation artefacts
@@ -106,12 +110,41 @@ class CompilerInstance(object):
         print("Correct texture side size found after %i iterations" % (i))
         return sideSize, imageInstances
 
+    def buildAllImages(self, inputs, parallelJobs):
+        assert(parallelJobs >= 1)
+
+        images = []
+
+        queue = Queue.Queue()
+        for input_ in inputs:
+            queue.put_nowait(input_)
+
+        def imageBuilder():
+            while True:
+                try:
+                    input_ = queue.get(False)
+
+                    # We do not have to do anything extra thanks to GIL
+                    images.extend(input_.getImages())
+                    queue.task_done()
+
+                except Queue.Empty:
+                    break
+
+        workers = []
+        for workerId in range(parallelJobs):
+            worker = threading.Thread(name = "MetaImageset compiler Image builder worker %i" % (workerId), target = imageBuilder)
+            workers.append(worker)
+            worker.start()
+
+        queue.join()
+
+        return images
+
     def compile(self):
         print("Gathering and rendering all images...")
 
-        images = []
-        for input_ in self.metaImageset.inputs:
-            images.extend(input_.getImages())
+        images = self.buildAllImages(self.metaImageset.inputs, self.jobs)
 
         theoreticalMinSize = self.estimateMinimalSize(images)
 

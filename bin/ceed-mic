@@ -39,6 +39,8 @@ def main():
 
         from xml.etree import cElementTree as ElementTree
 
+        import multiprocessing
+
         parser = argparse.ArgumentParser(description = "Compile given meta imageset")
 
         parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
@@ -47,6 +49,8 @@ def main():
 
         parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5,
                             help = "Number of pixels the size is increased as a step in the size determination.")
+        parser.add_argument("--jobs", metavar = "PARALLEL_JOBS", type = int, required = False, default = multiprocessing.cpu_count(),
+                            help = "Number of parallel jobs that will be used by the compiler. Defaults to number of logical CPUs (recommended).")
         parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
                             help = "Input file to be processed.")
 
@@ -68,6 +72,7 @@ def main():
 
         compiler = metaimageset_compiler.CompilerInstance(metaImageset)
         compiler.sizeIncrement = args.sizeIncrement
+        compiler.jobs = args.jobs
         compiler.compile()
 
         print("")
