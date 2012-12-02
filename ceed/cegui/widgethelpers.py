@@ -68,6 +68,9 @@ class Manipulator(resizable.ResizableRectItem):
         self.preMovePos = None
         self.lastMoveNewPos = None
 
+    def getWidgetPath(self):
+        return self.widget.getNamePath() if self.widget is not None else "<Unknown>"
+
     def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
         """Creates a child manipulator suitable for a child widget of manipulated widget
 

@@ -166,16 +166,23 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
     def constructSubtree(self, manipulator):
         ret = WidgetHierarchyItem(manipulator)
 
+        manipulatorChildren = []
+
         for item in manipulator.childItems():
             if isinstance(item, widgethelpers.Manipulator):
-                if item.widget.isAutoWindow() and \
-                   settings.getEntry("layout/visual/hide_deadend_autowidgets").value and \
-                   not item.hasNonAutoWidgetDescendants():
-                    # skip this branch as per settings
-                    continue
+                manipulatorChildren.append(item)
 
-                childSubtree = self.constructSubtree(item)
-                ret.appendRow(childSubtree)
+        manipulatorChildren = sorted(manipulatorChildren, key = lambda item: item.getWidgetPath())
+
+        for item in manipulatorChildren:
+            if item.widget.isAutoWindow() and \
+               settings.getEntry("layout/visual/hide_deadend_autowidgets").value and \
+               not item.hasNonAutoWidgetDescendants():
+                # skip this branch as per settings
+                continue
+
+            childSubtree = self.constructSubtree(item)
+            ret.appendRow(childSubtree)
 
         return ret
 
