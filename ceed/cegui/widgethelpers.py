@@ -192,6 +192,15 @@ class Manipulator(resizable.ResizableRectItem):
 
         raise LookupError("Can't find widget manipulator of path '" + widgetPath + "'")
 
+    def getChildManipulators(self):
+        ret = []
+
+        for child in self.childItems():
+            if isinstance(child, Manipulator):
+                ret.append(child)
+
+        return ret
+
     def getAllDescendantManipulators(self):
         ret = []
 
