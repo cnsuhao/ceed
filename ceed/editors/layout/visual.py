@@ -574,7 +574,7 @@ class HierarchyDockWidget(QtGui.QDockWidget):
 
         self.rootWidgetManipulator = root
         self.model.setRootManipulator(root)
-        self.treeView.expandAll()
+        self.treeView.expandToDepth(0)
 
     def refresh(self):
         """Refreshes the entire hierarchy completely from scratch"""
