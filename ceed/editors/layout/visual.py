@@ -83,6 +83,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
         """
 
         if self.manipulator is not None:
+            self.setText(self.manipulator.widget.getName())
             self.setData(self.manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
 
             if recursive:
