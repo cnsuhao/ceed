@@ -2,6 +2,12 @@
 
 OUTPUT_FILE="static-analysis-output"
 
+which pylint && which pychecker && which pyflakes
+if [ $? -ne 0 ]; then
+    echo "One or more dependencies were not found!"
+    exit 1
+fi
+
 echo "Output from static analysis tools" > $OUTPUT_FILE
 echo "=================================" >> $OUTPUT_FILE
 echo >> $OUTPUT_FILE
