@@ -60,15 +60,18 @@ class test_Layout3and4Layers(unittest.TestCase):
 
     def _test_conversion(self, layout):
         previousCwd = os.getcwdu()
-        os.chdir(os.path.dirname(__file__))
 
-        layout3 = file("layout_data/%s_0_7.layout" % (layout), "r").read()
-        layout4 = file("layout_data/%s_1_0.layout" % (layout), "r").read()
+        try:
+            os.chdir(os.path.dirname(__file__))
 
-        self.assertMultiLineEqual(layout4, self.layer3to4.transform(layout3))
-        self.assertMultiLineEqual(layout3, self.layer4to3.transform(layout4))
+            layout3 = file("layout_data/%s_0_7.layout" % (layout), "r").read()
+            layout4 = file("layout_data/%s_1_0.layout" % (layout), "r").read()
 
-        os.chdir(previousCwd)
+            self.assertMultiLineEqual(layout4, self.layer3to4.transform(layout3))
+            self.assertMultiLineEqual(layout3, self.layer4to3.transform(layout4))
+
+        finally:
+            os.chdir(previousCwd)
 
     def test_tabPage1(self):
         self._test_conversion("TabPage1")
