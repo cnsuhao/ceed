@@ -32,10 +32,10 @@ class test_CommandLineTools(unittest.TestCase):
             fullCliTool = os.path.join(self.basePath, "bin", cliTool)
             fullArgs = [fullCliTool] + args
 
-            output = subprocess.check_output(fullArgs, stderr = subprocess.STDOUT)
+            subprocess.check_output(fullArgs, stderr = subprocess.STDOUT)
 
         except subprocess.CalledProcessError as e:
-            self.fail(msg = "%s\n\nException message: %s" % (output, e))
+            self.fail(msg = "%s\n\nException message: %s" % (e.output, e))
 
     def test_ceed_mic(self):
         sampleMI = os.path.join(self.basePath, "data", "samples", "Basic.meta-imageset")
