@@ -26,6 +26,8 @@ doc/*.pdf
 
 data/samples/datafiles0_7/
 data/samples/datafiles1_0/
+data/samples/Basic.png
+data/samples/Basic.imageset
 
 ui/**.py
 

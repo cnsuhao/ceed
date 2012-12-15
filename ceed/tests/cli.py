@@ -35,11 +35,11 @@ class test_CommandLineTools(unittest.TestCase):
             output = subprocess.check_output(fullArgs, stderr = subprocess.STDOUT)
 
         except subprocess.CalledProcessError as e:
-            self.fail(msg = "%s\n\nOutput: %s" % (output, e))
+            self.fail(msg = "%s\n\nException message: %s" % (output, e))
 
-    #def test_ceed_mic(self):
-    #    sampleMI = os.path.join(self.basePath, "data", "samples", "AllStockImagery.meta-imageset")
-    #    self._test_run("ceed-mic", [sampleMI])
+    def test_ceed_mic(self):
+        sampleMI = os.path.join(self.basePath, "data", "samples", "Basic.meta-imageset")
+        self._test_run("ceed-mic", [sampleMI])
 
     def test_ceed_migrate(self):
         layoutPath = os.path.join(self.basePath, "ceed/tests/compatibility/layout_data", "VanillaWindows_0_7.layout")
