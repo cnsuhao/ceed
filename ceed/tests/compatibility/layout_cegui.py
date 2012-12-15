@@ -23,6 +23,8 @@ import unittest
 from ceed.compatibility.layout import cegui
 from xml.etree import cElementTree as ElementTree
 
+import os
+
 class test_Layout3To4Layer(unittest.TestCase):
     def setUp(self):
         self.layer = cegui.Layout3To4Layer()
@@ -48,3 +50,31 @@ class test_Layout3To4Layer(unittest.TestCase):
 
         self.assertEqual(element.get("Name"), "Root")
         self.assertEqual(childElement.get("Name"), "Child")
+
+class test_Layout3and4Layers(unittest.TestCase):
+    def setUp(self):
+        self.maxDiff = None
+
+        self.layer3to4 = cegui.Layout3To4Layer()
+        self.layer4to3 = cegui.Layout4To3Layer()
+
+    def _test_conversion(self, layout):
+        previousCwd = os.getcwdu()
+        os.chdir(os.path.dirname(__file__))
+
+        layout3 = file("layout_data/%s_0_7.layout" % (layout), "r").read()
+        layout4 = file("layout_data/%s_1_0.layout" % (layout), "r").read()
+
+        self.assertMultiLineEqual(layout4, self.layer3to4.transform(layout3))
+        self.assertMultiLineEqual(layout3, self.layer4to3.transform(layout4))
+
+        os.chdir(previousCwd)
+
+    def test_tabPage1(self):
+        self._test_conversion("TabPage1")
+
+    def test_textDemo(self):
+        self._test_conversion("TextDemo")
+
+    def test_vanillaWindows(self):
+        self._test_conversion("VanillaWindows")
