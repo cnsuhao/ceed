@@ -9,7 +9,7 @@
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # relative to where you run the script from or absolute (probably a more robust solution)
-CEGUI_BUILD_PATH="$PARENT_DIR/../../cegui_mk2"
+CEGUI_BUILD_PATH="$PARENT_DIR/../../cegui"
 # directory where the "ceed" package is located
 CEED_PACKAGE_PATH="$PARENT_DIR/../"
 

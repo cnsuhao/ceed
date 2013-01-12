@@ -73,19 +73,19 @@ def fetch_datafiles():
 
         os.chdir(temp_directory_path)
 
-        print("*** Making sure the cegui_mk2 working copy is up to date...")
-        if os.path.exists("cegui_mk2"):
-            os.chdir("cegui_mk2")
+        print("*** Making sure the cegui working copy is up to date...")
+        if os.path.exists("cegui"):
+            os.chdir("cegui")
             subprocess.call(["hg", "pull"])
             os.chdir(temp_directory_path)
         else:
             subprocess.call(["hg", "clone",
-                             "http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/cegui_mk2",
-                             "cegui_mk2"])
+                             "https://bitbucket.org/cegui/cegui",
+                             "cegui"])
 
-        print("*** cegui_mk2 is up to date now!")
+        print("*** cegui is up to date now!")
 
-        os.chdir("cegui_mk2")
+        os.chdir("cegui")
 
         def copy_datafiles(branch, target_path):
             print("*** Preparing to copy datafiles from the '%s' branch to '%s'" % (branch, target_path))

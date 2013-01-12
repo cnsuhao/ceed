@@ -104,7 +104,7 @@ status open
 
 \begin_layout Plain Layout
 
-$ hg clone http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/CEED
+$ hg clone https://bitbucket.org/cegui/ceed
 \end_layout
 
 \end_inset
@@ -201,7 +201,7 @@ $prefix/CEED/bin/runwrapper.sh
 
 \begin_layout Plain Layout
 
-$prefix/cegui_mk2/build/lib/PyCEGUI.so
+$prefix/cegui/build/lib/PyCEGUI.so
 \end_layout
 
 \end_inset
@@ -2346,7 +2346,7 @@ status collapsed
 
 \begin_layout Plain Layout
 
-http://crayzedsgui.hg.sourceforge.net:8000/hgroot/crayzedsgui/CEED
+https://bitbucket.org/cegui/ceed
 \end_layout
 
 \end_inset
