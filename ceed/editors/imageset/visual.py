@@ -113,6 +113,8 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         self.offsetY = self.findChild(QtGui.QLineEdit, "offsetY")
         self.offsetY.setValidator(QtGui.QIntValidator(-9999999, 9999999, self))
         self.offsetY.textChanged.connect(self.slot_offsetYChanged)
+        self.autoScaledPerImage = self.findChild(QtGui.QComboBox, "autoScaledPerImage")
+        self.autoScaledPerImage.currentIndexChanged.connect(self.slot_autoScaledPerImageChanged)
 
         self.setActiveImageEntry(None)
 
@@ -194,6 +196,8 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
             self.offsetX.setEnabled(False)
             self.offsetY.setText("")
             self.offsetY.setEnabled(False)
+            self.autoScaledPerImage.setCurrentIndex(0)
+            self.autoScaledPerImage.setEnabled(False)
 
         else:
             self.positionX.setText(str(self.activeImageEntry.xpos))
@@ -208,6 +212,8 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
             self.offsetX.setEnabled(True)
             self.offsetY.setText(str(self.activeImageEntry.yoffset))
             self.offsetY.setEnabled(True)
+            self.autoScaledPerImage.setCurrentIndex(self.autoScaledPerImage.findText(self.activeImageEntry.autoScaled))
+            self.autoScaledPerImage.setEnabled(True)
 
     def keyReleaseEvent(self, event):
         # if we are editing, we should discard key events
@@ -321,7 +327,7 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         cmd = undo.ImagesetChangeNativeResolutionCommand(self.visual, oldHorzRes, oldVertRes, newHorzRes, newVertRes)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
-    def metaslot_propertyChanged(self, propertyName, newTextValue):
+    def metaslot_propertyChangedInt(self, propertyName, newTextValue):
         if not self.activeImageEntry:
             return
 
@@ -340,23 +346,44 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         cmd = undo.PropertyEditCommand(self.visual, self.activeImageEntry.name, propertyName, oldValue, newValue)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
+    def metaslot_propertyChangedString(self, propertyName, newValue):
+        if not self.activeImageEntry:
+            return
+
+        oldValue = getattr(self.activeImageEntry, propertyName)
+
+        if oldValue == newValue:
+            return
+
+        cmd = undo.PropertyEditCommand(self.visual, self.activeImageEntry.name, propertyName, oldValue, newValue)
+        self.visual.tabbedEditor.undoStack.push(cmd)
+
     def slot_positionXChanged(self, text):
-        self.metaslot_propertyChanged("xpos", text)
+        self.metaslot_propertyChangedInt("xpos", text)
 
     def slot_positionYChanged(self, text):
-        self.metaslot_propertyChanged("ypos", text)
+        self.metaslot_propertyChangedInt("ypos", text)
 
     def slot_widthChanged(self, text):
-        self.metaslot_propertyChanged("width", text)
+        self.metaslot_propertyChangedInt("width", text)
 
     def slot_heightChanged(self, text):
-        self.metaslot_propertyChanged("height", text)
+        self.metaslot_propertyChangedInt("height", text)
 
     def slot_offsetXChanged(self, text):
-        self.metaslot_propertyChanged("xoffset", text)
+        self.metaslot_propertyChangedInt("xoffset", text)
 
     def slot_offsetYChanged(self, text):
-        self.metaslot_propertyChanged("yoffset", text)
+        self.metaslot_propertyChangedInt("yoffset", text)
+
+    def slot_autoScaledPerImageChanged(self, index):
+        if index == 0:
+            # first is the "default" / inheriting state
+            text = ""
+        else:
+            text = self.autoScaledPerImage.currentText()
+
+        self.metaslot_propertyChangedString("autoScaled", text)
 
 class VisualEditing(resizable.GraphicsView, multi.EditMode):
     """This is the "Visual" tab for imageset editing
