@@ -113,8 +113,15 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         self.offsetY = self.findChild(QtGui.QLineEdit, "offsetY")
         self.offsetY.setValidator(QtGui.QIntValidator(-9999999, 9999999, self))
         self.offsetY.textChanged.connect(self.slot_offsetYChanged)
+
         self.autoScaledPerImage = self.findChild(QtGui.QComboBox, "autoScaledPerImage")
         self.autoScaledPerImage.currentIndexChanged.connect(self.slot_autoScaledPerImageChanged)
+        self.nativeHorzResPerImage = self.findChild(QtGui.QLineEdit, "nativeHorzResPerImage")
+        self.nativeHorzResPerImage.setValidator(QtGui.QIntValidator(0, 9999999, self))
+        self.nativeHorzResPerImage.textEdited.connect(self.slot_nativeResolutionPerImageEdited)
+        self.nativeVertResPerImage = self.findChild(QtGui.QLineEdit, "nativeVertResPerImage")
+        self.nativeVertResPerImage.setValidator(QtGui.QIntValidator(0, 9999999, self))
+        self.nativeVertResPerImage.textEdited.connect(self.slot_nativeResolutionPerImageEdited)
 
         self.setActiveImageEntry(None)
 
@@ -196,8 +203,13 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
             self.offsetX.setEnabled(False)
             self.offsetY.setText("")
             self.offsetY.setEnabled(False)
+
             self.autoScaledPerImage.setCurrentIndex(0)
             self.autoScaledPerImage.setEnabled(False)
+            self.nativeHorzResPerImage.setText("")
+            self.nativeHorzResPerImage.setEnabled(False)
+            self.nativeVertResPerImage.setText("")
+            self.nativeVertResPerImage.setEnabled(False)
 
         else:
             self.positionX.setText(str(self.activeImageEntry.xpos))
@@ -212,8 +224,13 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
             self.offsetX.setEnabled(True)
             self.offsetY.setText(str(self.activeImageEntry.yoffset))
             self.offsetY.setEnabled(True)
+
             self.autoScaledPerImage.setCurrentIndex(self.autoScaledPerImage.findText(self.activeImageEntry.autoScaled))
             self.autoScaledPerImage.setEnabled(True)
+            self.nativeHorzResPerImage.setText(str(self.activeImageEntry.nativeHorzRes))
+            self.nativeHorzResPerImage.setEnabled(True)
+            self.nativeVertResPerImage.setText(str(self.activeImageEntry.nativeVertRes))
+            self.nativeVertResPerImage.setEnabled(True)
 
     def keyReleaseEvent(self, event):
         # if we are editing, we should discard key events
@@ -384,6 +401,31 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
             text = self.autoScaledPerImage.currentText()
 
         self.metaslot_propertyChangedString("autoScaled", text)
+
+    def slot_nativeResolutionPerImageEdited(self, newValue):
+        oldHorzRes = self.activeImageEntry.nativeHorzRes
+        oldVertRes = self.activeImageEntry.nativeVertRes
+
+        newHorzRes = self.nativeHorzResPerImage.text()
+        newVertRes = self.nativeVertResPerImage.text()
+
+        if newHorzRes == "":
+            newHorzRes = 0
+        if newVertRes == "":
+            newVertRes = 0
+
+        try:
+            newHorzRes = int(newHorzRes)
+            newVertRes = int(newVertRes)
+
+        except ValueError:
+            return
+
+        if oldHorzRes == newHorzRes and oldVertRes == newVertRes:
+            return
+
+        cmd = undo.PropertyEditCommand(self.visual, self.activeImageEntry.name, "nativeRes", (oldHorzRes, oldVertRes), (newHorzRes, newVertRes))
+        self.visual.tabbedEditor.undoStack.push(cmd)
 
 class VisualEditing(resizable.GraphicsView, multi.EditMode):
     """This is the "Visual" tab for imageset editing

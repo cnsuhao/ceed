@@ -164,6 +164,9 @@ class ImageEntry(resizable.ResizableRectItem):
     yoffset = property(lambda self: int(-(self.offset.pos().y() - 0.5)),
                        lambda self, value: self.offset.setY(-float(value) + 0.5))
 
+    nativeRes = property(lambda self: (self.nativeHorzRes, self.nativeVertRes),
+                         lambda self, value: self.setNativeRes(value))
+
     def __init__(self, imagesetEntry):
         super(ImageEntry, self).__init__(imagesetEntry)
 
@@ -416,6 +419,10 @@ class ImageEntry(resizable.ResizableRectItem):
         if self.isSelected():
             painter.setPen(QtGui.QColor(255, 255, 0, 255))
             painter.drawRect(self.rect())
+
+    def setNativeRes(self, value):
+        # NB: This is just a wrapper to make the property setter lambda work
+        self.nativeHorzRes, self.nativeVertRes = value
 
 class ImagesetEntry(QtGui.QGraphicsPixmapItem):
     """This is the whole imageset containing all the images (ImageEntries).

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>337</width>
-    <height>701</height>
+    <height>728</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,7 +22,7 @@
   <property name="minimumSize">
    <size>
     <width>337</width>
-    <height>487</height>
+    <height>525</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -63,13 +63,13 @@
        <string>Imageset</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="4" column="2">
+       <item row="5" column="2">
         <widget class="QLineEdit" name="nativeVertRes"/>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <widget class="QLineEdit" name="nativeHorzRes"/>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="nativeResolutionLabel">
          <property name="toolTip">
           <string>Native resolution</string>
@@ -79,7 +79,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1" colspan="2">
+       <item row="4" column="1" colspan="2">
         <widget class="QComboBox" name="autoScaled">
          <item>
           <property name="text">
@@ -150,10 +150,17 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="autoScaledLabel">
          <property name="text">
           <string>Auto scaled</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="3">
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
@@ -294,7 +301,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="autoScaledPerImageLabel">
          <property name="text">
           <string>Auto scaled</string>
@@ -333,7 +340,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1" colspan="2">
+       <item row="5" column="1" colspan="2">
         <widget class="QComboBox" name="autoScaledPerImage">
          <item>
           <property name="text">
@@ -370,6 +377,26 @@
            <string>true</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="nativeResPerImageLabel">
+         <property name="text">
+          <string>Native res.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="nativeHorzResPerImage"/>
+       </item>
+       <item row="6" column="2">
+        <widget class="QLineEdit" name="nativeVertResPerImage"/>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
         </widget>
        </item>
       </layout>
