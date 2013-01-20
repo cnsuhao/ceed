@@ -19,6 +19,7 @@
 ##############################################################################
 
 from ceed import compatibility
+from ceed.compatibility import layout as compatibility_layout
 from ceed.compatibility import ceguihelpers
 
 from xml.etree import cElementTree as ElementTree
@@ -191,10 +192,10 @@ class LookNFeel6To7Layer(compatibility.Layer):
 
         # transform properties
         for element in root.iter("WidgetLook"):
-            compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
+            compatibility_layout.cegui.Layout3To4Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
 
             for childElement in element.iter("Child"):
-                compatibility.layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
+                compatibility_layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
         return ElementTree.tostring(root, "utf-8")
 
@@ -242,9 +243,9 @@ class LookNFeel7To6Layer(compatibility.Layer):
 
         # transform properties
         for element in root.iter("WidgetLook"):
-            compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
+            compatibility_layout.cegui.Layout4To3Layer.transformPropertiesOf(element, nameAttribute = "name", valueAttribute = "value", windowType = element.get("name"))
 
             for childElement in element.iter("Child"):
-                compatibility.layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
+                compatibility_layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
         return ElementTree.tostring(root, "utf-8")
