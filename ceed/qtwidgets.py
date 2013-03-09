@@ -111,7 +111,65 @@ class ColourButton(QtGui.QPushButton):
         if colour.isValid():
             self.colour = colour
 
+# this depends on ColourButton, can't be moved upwards
+import ceed.ui.widgets.penbuttondialog
+
 class PenButton(QtGui.QPushButton):
+    class Dialog(QtGui.QDialog):
+        def __init__(self, parent = None):
+            super(PenButton.Dialog, self).__init__(parent)
+
+            self.ui = ceed.ui.widgets.penbuttondialog.Ui_PenButtonDialog()
+            self.ui.setupUi(self)
+
+            self.colour = self.findChild(ColourButton, "colour")
+            self.lineStyle = self.findChild(QtGui.QComboBox, "lineStyle")
+            self.lineWidth = self.findChild(QtGui.QDoubleSpinBox, "lineWidth")
+
+        def setPen(self, pen):
+            self.colour.setColour(pen.color())
+
+            if pen.style() == QtCore.Qt.SolidLine:
+                self.lineStyle.setCurrentIndex(0)
+            elif pen.style() == QtCore.Qt.DashLine:
+                self.lineStyle.setCurrentIndex(1)
+            elif pen.style() == QtCore.Qt.DotLine:
+                self.lineStyle.setCurrentIndex(2)
+            elif pen.style() == QtCore.Qt.DashDotLine:
+                self.lineStyle.setCurrentIndex(3)
+            elif pen.style() == QtCore.Qt.DashDotDotLine:
+                self.lineStyle.setCurrentIndex(4)
+            else:
+                # unknown line style
+                assert(False)
+
+            self.lineWidth.setValue(pen.widthF())
+
+        def getPen(self):
+            ret = QtGui.QPen()
+
+            ret.setColor(self.colour.colour)
+
+            style = QtCore.Qt.SolidLine
+            if self.lineStyle.currentIndex() == 0:
+                style = QtCore.Qt.SolidLine
+            elif self.lineStyle.currentIndex() == 1:
+                style = QtCore.Qt.DashLine
+            elif self.lineStyle.currentIndex() == 2:
+                style = QtCore.Qt.DotLine
+            elif self.lineStyle.currentIndex() == 3:
+                style = QtCore.Qt.DashDotLine
+            elif self.lineStyle.currentIndex() == 4:
+                style = QtCore.Qt.DashDotDotLine
+            else:
+                # unknown combobox index
+                assert(False)
+
+            ret.setStyle(style)
+            ret.setWidth(self.lineWidth.value())
+
+            return ret
+
     # TODO: This is not implemented at all pretty much
     penChanged = QtCore.Signal(QtGui.QPen)
 
@@ -150,6 +208,7 @@ class PenButton(QtGui.QPushButton):
             else:
                 raise RuntimeError("Unknown pen line style!")
 
+            """
             capStyleStr = ""
             if pen.capStyle() == QtCore.Qt.FlatCap:
                 capStyleStr = "flat"
@@ -171,16 +230,20 @@ class PenButton(QtGui.QPushButton):
                 joinStyleStr = "svg miter"
             else:
                 raise RuntimeError("Unknown pen join style!")
+            """
 
-            self.setText("width: %i, line style: %s, cap style: %s, join style: %s" % (pen.width(), lineStyleStr, capStyleStr, joinStyleStr))
+            self.setText("line style: %s, width: %g" % (lineStyleStr, pen.widthF()))
             colour = pen.color()
-            self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
+            #self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
 
             self.penChanged.emit(pen)
 
     def slot_clicked(self):
-        # TODO
-        pass
+        dialog = PenButton.Dialog(self)
+        dialog.setPen(self.pen)
+
+        if dialog.exec_() == QtGui.QDialog.Accepted:
+            self.pen = dialog.getPen()
 
 class KeySequenceButton(QtGui.QPushButton):
     class Dialog(QtGui.QDialog):
