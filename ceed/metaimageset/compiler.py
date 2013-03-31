@@ -126,14 +126,24 @@ class CompilerInstance(object):
         # because Python's int type is immutable
         doneTasks = []
 
+        errorsEncountered = threading.Event()
+
         def imageBuilder():
             while True:
                 try:
                     input_ = queue.get(False)
 
-                    # We do not have to do anything extra thanks to GIL
-                    images.extend(input_.buildImages())
+                    # In case an error occurs in any of the builders, we short circuit
+                    # everything.
+                    if not errorsEncountered.is_set():
+                        try:
+                            # We do not have to do anything extra thanks to GIL
+                            images.extend(input_.buildImages())
+                        except Exception as e:
+                            print("Error building input '%s'. %s" % (input_.getDescription(), e))
+                            errorsEncountered.set()
 
+                    # If an exception was caught above, fake the task as done to allow the builders to end
                     queue.task_done()
                     doneTasks.append(None)
 
@@ -152,6 +162,9 @@ class CompilerInstance(object):
             worker.start()
 
         queue.join()
+
+        if errorsEncountered.is_set():
+            raise RuntimeError("Errors encountered when building images!")
 
         return images
 
