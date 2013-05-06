@@ -23,6 +23,7 @@ environments.
 """
 
 import os
+import platform
 from ceed import version
 
 # Whether the application is frozen using cx_Freeze
@@ -41,7 +42,7 @@ DATA_DIR = ""
 
 # Potential system data dir, we check it's existence and set
 # DATA_DIR as system_data_dir if it exists
-SYSTEM_DATA_DIR = "/usr/share/ceed"
+SYSTEM_DATA_DIR = "/usr/share/ceed" if platform.system() <> "Windows" else os.path.join(os.path.dirname(PACKAGE_DIR), "data")
 SYSTEM_DATA_DIR_EXISTS = False
 try:
     if os.path.exists(SYSTEM_DATA_DIR):
@@ -58,7 +59,7 @@ DOC_DIR = ""
 
 # Potential system doc dir, we check it's existence and set
 # DOC_DIR as system_data_dir if it exists
-SYSTEM_DOC_DIR = "/usr/share/doc/ceed-%s" % (version.CEED)
+SYSTEM_DOC_DIR = "/usr/share/doc/ceed-%s" % (version.CEED) if platform.system() <> "Windows" else os.path.join(os.path.dirname(PACKAGE_DIR), "doc")
 SYSTEM_DOC_DIR_EXISTS = False
 try:
     if os.path.exists(SYSTEM_DOC_DIR):
