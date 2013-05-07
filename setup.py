@@ -22,12 +22,17 @@
 
 import os
 import os.path
+import platform
 
 from distutils.core import setup
 from ceed import version
 from ceed import paths
 
 from ceed import compileuifiles
+
+if platform.system() == "Windows":
+    raise NotImplementedError("Installing CEED like this is not supported on Windows")
+
 # always compile UI files to ensure they are up to date before installing
 compileuifiles.main()
 
