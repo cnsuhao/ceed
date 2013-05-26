@@ -8,6 +8,9 @@
 # parent dir of this script
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# when we are at it, add ceed-gui, ceed-mic and ceed-migrate to $PATH
+export PATH=$PARENT_DIR:$PATH
+
 # relative to where you run the script from or absolute (probably a more robust solution)
 CEGUI_BUILD_PATH="$PARENT_DIR/../../cegui"
 # directory where the "ceed" package is located
