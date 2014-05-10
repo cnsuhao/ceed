@@ -50,7 +50,7 @@ class Manager(compatibility.Manager):
         self.CEGUIVersionType = {
             "0.6" : Project1,
             "0.7" : Project1,
-            "1.0" : Project1
+            "0.8" : Project1
         }
 
         self.detectors.append(Project1TypeDetector())

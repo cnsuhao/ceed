@@ -194,7 +194,7 @@ reference "fig:rubber-band-selecting"
 The name of the imageset means different things depending on which version
  of CEGUI you are targeting.
  It is simply a prefix of each of the defined image definitions' names in
- CEGUI 1.0 with 
+ CEGUI 0.8 with 
 \begin_inset Quotes eld
 \end_inset
 
@@ -242,7 +242,7 @@ true
 \begin_inset Quotes erd
 \end_inset
 
- settings are implemented in CEGUI 0.7, the rest are new in CEGUI 1.0.
+ settings are implemented in CEGUI 0.7, the rest are new in CEGUI 0.8.
 \end_layout
 
 \begin_layout Standard
@@ -499,7 +499,7 @@ Code
 \end_inset
 
  tab in the bottom to switch to it.
- Please note that the raw format will always be the native CEGUI 1.0 format
+ Please note that the raw format will always be the native CEGUI 0.8 format
  even if you selected CEGUI 0.7 as the target version.
  The conversion will only happen when you save to a file.
 \end_layout

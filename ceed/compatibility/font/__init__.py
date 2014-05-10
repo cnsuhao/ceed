@@ -33,7 +33,7 @@ class Manager(compatibility.Manager):
             "0.5" : cegui.CEGUIFont2, # font rewrite
             "0.6" : cegui.CEGUIFont2,
             "0.7" : cegui.CEGUIFont2,
-            "1.0" : cegui.CEGUIFont3
+            "0.8" : cegui.CEGUIFont3
         }
 
         self.detectors.append(cegui.Font2TypeDetector())

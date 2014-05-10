@@ -32,7 +32,7 @@ class Manager(compatibility.Manager):
             "0.5" : cegui.CEGUIScheme2,
             "0.6" : cegui.CEGUIScheme3,
             "0.7" : cegui.CEGUIScheme4,
-            "1.0" : cegui.CEGUIScheme5
+            "0.8" : cegui.CEGUIScheme5
         }
 
         self.EditorNativeType = cegui.CEGUIScheme5

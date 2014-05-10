@@ -193,7 +193,7 @@ Qt
 \end_layout
 
 \begin_layout Itemize
-CEGUI 1.0
+CEGUI 0.8
 \noun on
 
 \begin_inset Foot
@@ -208,7 +208,7 @@ CEED
 \noun on
 CEGUI
 \noun default
- 0.7 data as well but uses 1.0 internally.
+ 0.7 data as well but uses 0.8 internally.
 \end_layout
 
 \end_inset
@@ -221,7 +221,7 @@ CEGUI
 \noun on
 PyCEGUI
 \noun default
- 1.0
+ 0.8
 \end_layout
 
 \begin_layout Section

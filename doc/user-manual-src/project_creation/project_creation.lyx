@@ -242,7 +242,7 @@ All paths stores in the project file are relative to the parent directory
 
 \begin_layout Standard
 The next thing you need to choose is the target CEGUI version.
- CEED supports CEGUI 1.0 and 0.7.
+ CEED supports CEGUI 0.8 and 0.7.
  This has very drastic consequences, especially on any resource files you
  create from scratch, so make sure you set it correctly.
 \end_layout

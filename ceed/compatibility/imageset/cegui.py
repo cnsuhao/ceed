@@ -164,7 +164,7 @@ class CEGUI2ToCEGUI1Layer(compatibility.Layer):
             del image.attrib["name"]
 
             if image.get("type", "BasicImage") != "BasicImage":
-                raise NotImplementedError("Can't convert non-BasicImage in imageset version 2 (1.0+) to older version, such stuff wasn't supported in imagesets version 1 (everything up to 0.7)")
+                raise NotImplementedError("Can't convert non-BasicImage in imageset version 2 (CEGUI 0.8+) to older version, such stuff wasn't supported in imagesets version 1 (everything up to CEGUI 0.7)")
 
             # TODO: We only deal with basic image here
             if image.get("Type", "BasicImage") == "BasicImage":

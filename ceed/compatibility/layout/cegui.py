@@ -259,7 +259,7 @@ class Layout3To4Layer(compatibility.Layer):
         # version 4 has a version attribute
         root.set("version", "4")
 
-        # no parent attribute in layout version 4 (CEGUI 1.0+)
+        # no parent attribute in layout version 4 (CEGUI 0.8+)
         if root.get("Parent") is not None:
             del root.attrib["Parent"]
 
@@ -366,7 +366,7 @@ class Layout4To3Layer(compatibility.Layer):
 
                 split = value.split("/", 1)
                 if len(split) != 2:
-                    raise RuntimeError("Failed parsing value '%s' as 1.0 image reference" % (value))
+                    raise RuntimeError("Failed parsing value '%s' as CEGUI 0.8+ image reference" % (value))
                 property_.set(valueAttribute, "set:%s image:%s" % (split[0], split[1]))
 
             if windowType.endswith("StaticImage"):

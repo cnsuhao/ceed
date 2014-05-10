@@ -2044,7 +2044,7 @@ ceed.editors.imageset.elements
 \emph default
  package are used to model the data instead of using CEGUI in this editor.
  The reason is relative simplicity of the data and big changes to the image
- API between CEGUI 0.7 and 1.0.
+ API between CEGUI 0.7 and 0.8.
  Compatibility layers are used to convert given data to the native format
  before they are loaded into the data model.
  See Section 
@@ -2072,7 +2072,7 @@ Multiple modes
 
 \begin_layout Standard
 It is a multi-mode editor with visual and code modes.
- The code mode always uses and displays native CEGUI 1.0 data.
+ The code mode always uses and displays native CEGUI data.
 \end_layout
 
 \begin_layout Subsection
@@ -2116,7 +2116,7 @@ Data model
 \begin_layout Standard
 Layout editing operates of widget hiearchies, a data model natively implemented
  in CEGUI that we use directly.
- Since CEGUI does not have global window names since version 1.0 we do not
+ Since CEGUI does not have global window names since version 0.8 we do not
  even have to worry about name clashes.
 \end_layout
 

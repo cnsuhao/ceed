@@ -16,7 +16,7 @@ CEGUI_BUILD_PATH="$PARENT_DIR/../../cegui-v0-8"
 # directory where the "ceed" package is located
 CEED_PACKAGE_PATH="$PARENT_DIR/../"
 
-# Not needed with the new RPATH stuff in 1.0
+# Not needed with the new RPATH stuff in 0.8
 export LD_LIBRARY_PATH="$CEGUI_BUILD_PATH/build/lib:$LD_LIBRARY_PATH"
 
 export PYTHONPATH="$CEGUI_BUILD_PATH/build/lib:$CEED_PACKAGE_PATH:$PYTHONPATH"

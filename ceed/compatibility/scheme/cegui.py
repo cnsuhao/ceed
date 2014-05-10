@@ -124,7 +124,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
 
             if falagardMapping.get("renderer") is not None:
                 rendererValue = falagardMapping.get("renderer")
-                # system button got removed in CEGUI 1.0
+                # system button got removed in CEGUI 0.8
                 # no need for reverse action in the backwards layer
                 if rendererValue == "Falagard/SystemButton":
                     rendererValue = "Falagard/Button"

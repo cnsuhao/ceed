@@ -60,7 +60,7 @@ def build_docs():
 
 def fetch_datafiles():
     v0_7_branch = "v0-7"
-    v1_0_branch = "default"
+    v0_8_branch = "v0-8"
 
     old_cwd = os.getcwd()
 
@@ -69,7 +69,7 @@ def fetch_datafiles():
         sample_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                              os.path.join("data", "samples")))
         v0_7_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles0_7")
-        v1_0_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles1_0")
+        v0_8_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles0_8")
 
         os.chdir(temp_directory_path)
 
@@ -106,7 +106,7 @@ def fetch_datafiles():
             os.remove(os.path.join(v0_7_sample_datafiles_path, "schemes", "%s.scheme" % (scheme)))
         print("*** Done")
 
-        copy_datafiles(v1_0_branch, v1_0_sample_datafiles_path)
+        copy_datafiles(v0_8_branch, v0_8_sample_datafiles_path)
 
     finally:
         os.chdir(old_cwd)
@@ -182,7 +182,7 @@ def main():
         clean()
 
     else:
-        print("*** Y U NO PROVIDE VALID TASK!!!!")
+        print("INVALID TASK. Use --help.")
         sys.exit(1)
 
 if __name__ == "__main__":
