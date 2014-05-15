@@ -7,7 +7,7 @@ rem relative directory where the "ceed" package is located
 set CEED_PACKAGE_PATH=%DIR_PARENT_OF_FILE%/../
 
 rem relative path to where you run the script from or absolute (probably a more robust solution)
-set CEGUI_BUILD_PATH=%CEED_PACKAGE_PATH%/../CEGUI
+set CEGUI_BUILD_PATH=%CEED_PACKAGE_PATH%/../cegui-v0-8
 
 
 set PATH=%CEGUI_BUILD_PATH%/build/bin;%PATH%
