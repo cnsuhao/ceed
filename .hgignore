@@ -35,3 +35,6 @@ build/
 maintenance-temp/
 
 bin/profile_data
+
+*.bak
+.idea/*
