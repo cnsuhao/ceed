@@ -1218,6 +1218,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addSeparator() # ---------------------------
         self.toolBar.addAction(action.getAction("layout/snap_grid"))
         self.toolBar.addAction(action.getAction("layout/absolute_mode"))
+        self.toolBar.addAction(action.getAction("layout/abs_integers_mode"))
         self.toolBar.addAction(action.getAction("layout/normalise_position"))
         self.toolBar.addAction(action.getAction("layout/normalise_size"))
         self.toolBar.addAction(action.getAction("layout/round_position"))
@@ -1237,6 +1238,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         editorMenu.addSeparator() # ---------------------------
         editorMenu.addAction(action.getAction("layout/snap_grid"))
         editorMenu.addAction(action.getAction("layout/absolute_mode"))
+        editorMenu.addAction(action.getAction("layout/abs_integers_mode"))
         editorMenu.addAction(action.getAction("layout/normalise_position"))
         editorMenu.addAction(action.getAction("layout/normalise_size"))
         editorMenu.addAction(action.getAction("layout/round_position"))
