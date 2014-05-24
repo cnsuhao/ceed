@@ -948,7 +948,41 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if len(widgetPaths) > 0:
             cmd = undoCommand(self.visual, widgetPaths, oldPositions, oldSizes)
             self.visual.tabbedEditor.undoStack.push(cmd)
+            
+    def roundPositionOfSelectedWidgets(self):
+        widgetPaths = []
+        oldPositions = {}
 
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+
+                widgetPaths.append(widgetPath)
+                oldPositions[widgetPath] = item.widget.getPosition()
+
+        if len(widgetPaths) > 0:
+            cmd = undo.RoundPositionCommand(self.visual, widgetPaths, oldPositions)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+        
+    def roundSizeOfSelectedWidgets(self):
+        widgetPaths = []
+        oldPositions = {}
+        oldSizes = {}
+
+        selection = self.selectedItems()
+        for item in selection:
+            if isinstance(item, widgethelpers.Manipulator):
+                widgetPath = item.widget.getNamePath()
+
+                widgetPaths.append(widgetPath)
+                oldPositions[widgetPath] = item.widget.getPosition()
+                oldSizes[widgetPath] = item.widget.getSize()
+
+        if len(widgetPaths) > 0:
+            cmd = undo.RoundSizeCommand(self.visual, widgetPaths, oldPositions, oldSizes)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+        
     def slot_selectionChanged(self):
         selection = self.selectedItems()
 
@@ -1144,9 +1178,14 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.focusPropertyInspectorFilterBoxAction = action.getAction("layout/focus_property_inspector_filter_box")
         self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
 
+        # normalise actions
         self.connectionGroup.add("layout/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
         self.connectionGroup.add("layout/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
 
+        # rounding position and size actions
+        self.connectionGroup.add("layout/round_position", receiver = lambda: self.scene.roundPositionOfSelectedWidgets())
+        self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())      
+                
         # general
         self.renameWidgetAction = action.getAction("layout/rename")
         self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
@@ -1181,7 +1220,10 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addAction(action.getAction("layout/absolute_mode"))
         self.toolBar.addAction(action.getAction("layout/normalise_position"))
         self.toolBar.addAction(action.getAction("layout/normalise_size"))
-
+        self.toolBar.addAction(action.getAction("layout/round_position"))
+        self.toolBar.addAction(action.getAction("layout/round_size"))
+        
+        
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
         # similar to the toolbar, includes the focus filter box action
@@ -1197,6 +1239,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         editorMenu.addAction(action.getAction("layout/absolute_mode"))
         editorMenu.addAction(action.getAction("layout/normalise_position"))
         editorMenu.addAction(action.getAction("layout/normalise_size"))
+        editorMenu.addAction(action.getAction("layout/round_position"))
+        editorMenu.addAction(action.getAction("layout/round_size"))
         editorMenu.addSeparator() # ---------------------------
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
