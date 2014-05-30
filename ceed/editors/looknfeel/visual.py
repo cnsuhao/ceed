@@ -33,8 +33,8 @@ from ceed.editors import multi
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
-from ceed.editors.lnf import undo
-from ceed.editors.lnf import widgethelpers
+from ceed.editors.looknfeel import undo
+from ceed.editors.looknfeel import widgethelpers
 
 from ceed.propertysetinspector import PropertyInspectorWidget
 from ceed.propertysetinspector import CEGUIPropertyManager
@@ -168,7 +168,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
     def shouldManipulatorBeSkipped(self, manipulator):
         return \
            manipulator.widget.isAutoWindow() and \
-           settings.getEntry("lnf/visual/hide_deadend_autowidgets").value and \
+           settings.getEntry("looknfeel/visual/hide_deadend_autowidgets").value and \
            not manipulator.hasNonAutoWidgetDescendants()
 
     def constructSubtree(self, manipulator):
@@ -455,18 +455,18 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu = QtGui.QMenu(self)
 
-        self.renameAction = action.getAction("lnf/rename")
+        self.renameAction = action.getAction("looknfeel/rename")
         self.contextMenu.addAction(self.renameAction)
 
         self.contextMenu.addSeparator()
 
-        self.lockAction = action.getAction("lnf/lock_widget")
+        self.lockAction = action.getAction("looknfeel/lock_widget")
         self.contextMenu.addAction(self.lockAction)
-        self.unlockAction = action.getAction("lnf/unlock_widget")
+        self.unlockAction = action.getAction("looknfeel/unlock_widget")
         self.contextMenu.addAction(self.unlockAction)
-        self.recursivelyLockAction = action.getAction("lnf/recursively_lock_widget")
+        self.recursivelyLockAction = action.getAction("looknfeel/recursively_lock_widget")
         self.contextMenu.addAction(self.recursivelyLockAction)
-        self.recursivelyUnlockAction = action.getAction("lnf/recursively_unlock_widget")
+        self.recursivelyUnlockAction = action.getAction("looknfeel/recursively_unlock_widget")
         self.contextMenu.addAction(self.recursivelyUnlockAction)
 
         self.contextMenu.addSeparator()
@@ -482,7 +482,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu.addSeparator()
 
-        self.copyNamePathAction = action.getAction("lnf/copy_widget_path")
+        self.copyNamePathAction = action.getAction("looknfeel/copy_widget_path")
         self.contextMenu.addAction(self.copyNamePathAction)
 
     def contextMenuEvent(self, event):
@@ -556,7 +556,7 @@ class HierarchyDockWidget(QtGui.QDockWidget):
 
         self.visual = visual
 
-        self.ui = ceed.ui.editors.lnf.hierarchydockwidget.Ui_HierarchyDockWidget()
+        self.ui = ceed.ui.editors.looknfeel.hierarchydockwidget.Ui_HierarchyDockWidget()
         self.ui.setupUi(self)
 
         self.ignoreSelectionChanges = False
@@ -783,7 +783,7 @@ class CreateWidgetDockWidget(QtGui.QDockWidget):
 
         self.visual = visual
 
-        self.ui = ceed.ui.editors.lnf.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
+        self.ui = ceed.ui.editors.looknfeel.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
         self.ui.setupUi(self)
 
         self.tree = self.findChild(WidgetTypeTreeWidget, "tree")
@@ -1112,9 +1112,9 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.propertiesDockWidget = PropertiesDockWidget(self)
         self.createWidgetDockWidget = CreateWidgetDockWidget(self)
 
-        lnf = QtGui.QVBoxLayout(self)
-        lnf.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(lnf)
+        looknfeel = QtGui.QVBoxLayout(self)
+        looknfeel.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(looknfeel)
 
         self.scene = EditingScene(self)
 
@@ -1126,47 +1126,47 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
         # horizontal alignment actions
-        self.alignHLeftAction = action.getAction("lnf/align_hleft")
+        self.alignHLeftAction = action.getAction("looknfeel/align_hleft")
         self.connectionGroup.add(self.alignHLeftAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
-        self.alignHCentreAction = action.getAction("lnf/align_hcentre")
+        self.alignHCentreAction = action.getAction("looknfeel/align_hcentre")
         self.connectionGroup.add(self.alignHCentreAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
-        self.alignHRightAction = action.getAction("lnf/align_hright")
+        self.alignHRightAction = action.getAction("looknfeel/align_hright")
         self.connectionGroup.add(self.alignHRightAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
 
         # vertical alignment actions
-        self.alignVTopAction = action.getAction("lnf/align_vtop")
+        self.alignVTopAction = action.getAction("looknfeel/align_vtop")
         self.connectionGroup.add(self.alignVTopAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
-        self.alignVCentreAction = action.getAction("lnf/align_vcentre")
+        self.alignVCentreAction = action.getAction("looknfeel/align_vcentre")
         self.connectionGroup.add(self.alignVCentreAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
-        self.alignVBottomAction = action.getAction("lnf/align_vbottom")
+        self.alignVBottomAction = action.getAction("looknfeel/align_vbottom")
         self.connectionGroup.add(self.alignVBottomAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
 
-        self.focusPropertyInspectorFilterBoxAction = action.getAction("lnf/focus_property_inspector_filter_box")
+        self.focusPropertyInspectorFilterBoxAction = action.getAction("looknfeel/focus_property_inspector_filter_box")
         self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
 
-        self.connectionGroup.add("lnf/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
-        self.connectionGroup.add("lnf/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
+        self.connectionGroup.add("looknfeel/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
+        self.connectionGroup.add("looknfeel/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
 
         # general
-        self.renameWidgetAction = action.getAction("lnf/rename")
+        self.renameWidgetAction = action.getAction("looknfeel/rename")
         self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
 
-        self.lockWidgetAction = action.getAction("lnf/lock_widget")
+        self.lockWidgetAction = action.getAction("looknfeel/lock_widget")
         self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
-        self.unlockWidgetAction = action.getAction("lnf/unlock_widget")
+        self.unlockWidgetAction = action.getAction("looknfeel/unlock_widget")
         self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
-        self.recursivelyLockWidgetAction = action.getAction("lnf/recursively_lock_widget")
+        self.recursivelyLockWidgetAction = action.getAction("looknfeel/recursively_lock_widget")
         self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
-        self.recursivelyUnlockWidgetAction = action.getAction("lnf/recursively_unlock_widget")
+        self.recursivelyUnlockWidgetAction = action.getAction("looknfeel/recursively_unlock_widget")
         self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
 
-        self.copyNamePathAction = action.getAction("lnf/copy_widget_path")
+        self.copyNamePathAction = action.getAction("looknfeel/copy_widget_path")
         self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
 
 
     def setupToolBar(self):
-        self.toolBar = QtGui.QToolBar("lnf")
-        self.toolBar.setObjectName("lnfToolbar")
+        self.toolBar = QtGui.QToolBar("looknfeel")
+        self.toolBar.setObjectName("looknfeelToolbar")
         self.toolBar.setIconSize(QtCore.QSize(32, 32))
 
         self.toolBar.addAction(self.alignHLeftAction)
@@ -1177,10 +1177,10 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addAction(self.alignVCentreAction)
         self.toolBar.addAction(self.alignVBottomAction)
         self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(action.getAction("lnf/snap_grid"))
-        self.toolBar.addAction(action.getAction("lnf/absolute_mode"))
-        self.toolBar.addAction(action.getAction("lnf/normalise_position"))
-        self.toolBar.addAction(action.getAction("lnf/normalise_size"))
+        self.toolBar.addAction(action.getAction("looknfeel/snap_grid"))
+        self.toolBar.addAction(action.getAction("looknfeel/absolute_mode"))
+        self.toolBar.addAction(action.getAction("looknfeel/normalise_position"))
+        self.toolBar.addAction(action.getAction("looknfeel/normalise_size"))
 
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
@@ -1193,10 +1193,10 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         editorMenu.addAction(self.alignVCentreAction)
         editorMenu.addAction(self.alignVBottomAction)
         editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(action.getAction("lnf/snap_grid"))
-        editorMenu.addAction(action.getAction("lnf/absolute_mode"))
-        editorMenu.addAction(action.getAction("lnf/normalise_position"))
-        editorMenu.addAction(action.getAction("lnf/normalise_size"))
+        editorMenu.addAction(action.getAction("looknfeel/snap_grid"))
+        editorMenu.addAction(action.getAction("looknfeel/absolute_mode"))
+        editorMenu.addAction(action.getAction("looknfeel/normalise_position"))
+        editorMenu.addAction(action.getAction("looknfeel/normalise_size"))
         editorMenu.addSeparator() # ---------------------------
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
@@ -1246,7 +1246,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
                                                                             middleButtonScroll = True,
-                                                                            continuousRendering = settings.getEntry("lnf/visual/continuous_rendering").value)
+                                                                            continuousRendering = settings.getEntry("looknfeel/visual/continuous_rendering").value)
 
         PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
 
@@ -1387,8 +1387,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         return self.scene.deleteSelectedWidgets()
 
 # needs to be at the end to sort circular deps
-import ceed.ui.editors.lnf.hierarchydockwidget
-import ceed.ui.editors.lnf.createwidgetdockwidget
+import ceed.ui.editors.looknfeel.hierarchydockwidget
+import ceed.ui.editors.looknfeel.createwidgetdockwidget
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow

@@ -20,7 +20,7 @@
 
 from ceed import commands
 
-from ceed.editors.lnf import widgethelpers
+from ceed.editors.looknfeel import widgethelpers
 import PyCEGUI
 
 idbase = 1200

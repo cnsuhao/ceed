@@ -21,7 +21,7 @@
 from PySide import QtGui
 
 def declare(settings):
-    category = settings.createCategory(name = "lnf", label = "Look n' Feel editing")
+    category = settings.createCategory(name = "looknfeel", label = "Look n' Feel editing")
 
     visual = category.createSection(name = "visual", label = "Visual editing")
 

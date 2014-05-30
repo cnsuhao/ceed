@@ -24,7 +24,7 @@ from PySide import QtGui
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
 class Manipulator(cegui_widgethelpers.Manipulator):
-    """lnf editing specific widget manipulator"""
+    """Look n' Feel editing specific widget manipulator"""
     snapGridBrush = None
 
     @classmethod
@@ -32,10 +32,10 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         """Retrieves a (cached) snap grid brush
         """
 
-        snapGridX = settings.getEntry("lnf/visual/snap_grid_x").value
-        snapGridY = settings.getEntry("lnf/visual/snap_grid_y").value
-        snapGridPointColour = settings.getEntry("lnf/visual/snap_grid_point_colour").value
-        snapGridPointShadowColour = settings.getEntry("lnf/visual/snap_grid_point_shadow_colour").value
+        snapGridX = settings.getEntry("looknfeel/visual/snap_grid_x").value
+        snapGridY = settings.getEntry("looknfeel/visual/snap_grid_y").value
+        snapGridPointColour = settings.getEntry("looknfeel/visual/snap_grid_point_colour").value
+        snapGridPointShadowColour = settings.getEntry("looknfeel/visual/snap_grid_point_shadow_colour").value
 
         # if snap grid wasn't created yet or if it's parameters changed, create it anew!
         if (cls.snapGridBrush is None) or (cls.snapGridX != snapGridX) or (cls.snapGridY != snapGridY) or (cls.snapGridPointColour != snapGridPointColour) or (cls.snapGridPointShadowColour != snapGridPointShadowColour):
@@ -79,13 +79,13 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.visual = visual
 
         self.showOutline = True
-        if widget.isAutoWindow() and not settings.getEntry("lnf/visual/auto_widgets_show_outline").value:
+        if widget.isAutoWindow() and not settings.getEntry("looknfeel/visual/auto_widgets_show_outline").value:
             # don't show outlines unless instructed to do so
             self.showOutline = False
 
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)
 
-        if widget.isAutoWindow() and not settings.getEntry("lnf/visual/auto_widgets_selectable").value:
+        if widget.isAutoWindow() and not settings.getEntry("looknfeel/visual/auto_widgets_selectable").value:
             # make this widget not focusable, selectable, movable and resizable
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
@@ -99,9 +99,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.snapGridNonClientArea = False
         self.ignoreSnapGrid = False
 
-        self.snapGridAction = action.getAction("lnf/snap_grid")
+        self.snapGridAction = action.getAction("looknfeel/snap_grid")
 
-        self.absoluteModeAction = action.getAction("lnf/absolute_mode")
+        self.absoluteModeAction = action.getAction("looknfeel/absolute_mode")
         self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
 
     def __del__(self):
@@ -118,16 +118,16 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             self.update()
 
     def getNormalPen(self):
-        return settings.getEntry("lnf/visual/normal_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
+        return settings.getEntry("looknfeel/visual/normal_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
 
     def getHoverPen(self):
-        return settings.getEntry("lnf/visual/hover_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
+        return settings.getEntry("looknfeel/visual/hover_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
 
     def getPenWhileResizing(self):
-        return settings.getEntry("lnf/visual/resizing_outline").value
+        return settings.getEntry("looknfeel/visual/resizing_outline").value
 
     def getPenWhileMoving(self):
-        return settings.getEntry("lnf/visual/moving_outline").value
+        return settings.getEntry("looknfeel/visual/moving_outline").value
 
     def getDragAcceptableHintPen(self):
         ret = QtGui.QPen()
@@ -188,7 +188,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         if data:
             widgetType = data.data()
 
-            from ceed.editors.lnf import undo
+            from ceed.editors.looknfeel import undo
             cmd = undo.CreateCommand(self.visual, self.widget.getNamePath(), widgetType, self.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
             self.visual.tabbedEditor.undoStack.push(cmd)
 
@@ -246,7 +246,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         Override to change the behavior
         """
 
-        return settings.getEntry("lnf/visual/prevent_manipulator_overlap").value
+        return settings.getEntry("looknfeel/visual/prevent_manipulator_overlap").value
 
     def impl_paint(self, painter, option, widget):
         super(Manipulator, self).impl_paint(painter, option, widget)
@@ -273,7 +273,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         xOffset = childRect.d_min.d_x - self.scenePos().x()
 
         # point is in local space
-        snapGridX = settings.getEntry("lnf/visual/snap_grid_x").value
+        snapGridX = settings.getEntry("looknfeel/visual/snap_grid_x").value
         return xOffset + round((x - xOffset) / snapGridX) * snapGridX
 
     def snapYCoordToGrid(self, y):
@@ -282,7 +282,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         yOffset = childRect.d_min.d_y - self.scenePos().y()
 
         # point is in local space
-        snapGridY = settings.getEntry("lnf/visual/snap_grid_y").value
+        snapGridY = settings.getEntry("looknfeel/visual/snap_grid_y").value
         return yOffset + round((y - yOffset) / snapGridY) * snapGridY
 
     def constrainMovePoint(self, point):

@@ -24,20 +24,21 @@ from PySide import QtGui
 from ceed import settings
 from ceed import editors
 
-import ceed.compatibility.lnf as lnf_compatibility
+import ceed.compatibility.looknfeel as looknfeel_compatibility
 
-from ceed.editors.lnf import visual
-from ceed.editors.lnf import code
-from ceed.editors.lnf import preview
+from ceed.editors.looknfeel import visual
+from ceed.editors.looknfeel import code
+from ceed.editors.looknfeel import preview
 
 import PyCEGUI
 
-class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
-    """Binds all lnf editing functionality together
+
+class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
+    """Binds all Look n' Feel editing functionality together
     """
 
     def __init__(self, filePath):
-        super(lnfTabbedEditor, self).__init__(lnf_compatibility.manager, filePath)
+        super(LookNFeelTabbedEditor, self).__init__(looknfeel_compatibility.manager, filePath)
 
         self.requiresProject = True
 
@@ -47,14 +48,14 @@ class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.code = code.CodeEditing(self)
         self.addTab(self.code, "Code")
 
-        # lnf Previewer is not actually an edit mode, you can't edit the lnf from it,
+        # Look n' Feel Previewer is not actually an edit mode, you can't edit the Look n' Feel from it,
         # however for everything to work smoothly we do push edit mode changes to it to the
         # undo stack.
         #
         # TODO: This could be improved at least a little bit if 2 consecutive edit mode changes
         #       looked like this: A->Preview, Preview->C.  We could simply turn this into A->C,
         #       and if A = C it would eat the undo command entirely.
-        self.previewer = preview.lnfPreviewer(self)
+        self.previewer = preview.LookNFeelPreviewerPreviewer(self)
         self.addTab(self.previewer, "Live Preview")
 
         self.tabWidget = self
@@ -66,34 +67,34 @@ class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.tbIconSizeEntry.subscribe(self.tbIconSizeCallback)
 
     def initialise(self, mainWindow):
-        super(lnfTabbedEditor, self).initialise(mainWindow)
+        super(LookNFeelTabbedEditor, self).initialise(mainWindow)
 
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
 
         root = None
         if self.nativeData != "":
-            root = PyCEGUI.WindowManager.getSingleton().loadlnfFromString(self.nativeData)
+            root = PyCEGUI.WindowManager.getSingleton().loadLookNFeelFromString(self.nativeData)
 
         self.visual.initialise(root)
 
     def finalise(self):
-        super(lnfTabbedEditor, self).finalise()
+        super(LookNFeelTabbedEditor, self).finalise()
 
     def destroy(self):
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
 
-        super(lnfTabbedEditor, self).destroy()
+        super(LookNFeelTabbedEditor, self).destroy()
 
     def rebuildEditorMenu(self, editorMenu):
-        editorMenu.setTitle("&lnf")
+        editorMenu.setTitle("&Look and Feel")
         self.visual.rebuildEditorMenu(editorMenu)
 
         return True, self.currentWidget() == self.visual
 
     def activate(self):
-        super(lnfTabbedEditor, self).activate()
+        super(LookNFeelTabbedEditor, self).activate()
 
         self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
         self.visual.hierarchyDockWidget.setVisible(True)
@@ -115,7 +116,7 @@ class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
         self.mainWindow.removeToolBar(self.visual.toolBar)
 
-        super(lnfTabbedEditor, self).deactivate()
+        super(LookNFeelTabbedEditor, self).deactivate()
 
     def saveAs(self, targetPath, updateCurrentPath = True):
         codeMode = self.currentWidget() is self.code
@@ -126,14 +127,7 @@ class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
         if codeMode:
             self.code.propagateToVisual()
 
-        currentRootWidget = self.visual.getCurrentRootWidget()
-
-        if currentRootWidget is None:
-            QtGui.QMessageBox.warning(self.mainWindow, "No root widget in the Look n' Feel!", "I am refusing to save your Look n' Feel, CEGUI Look n' Feel are invalid unless they have a root widget!\n\nPlease create a root widget before saving.")
-            return False
-
-        self.nativeData = PyCEGUI.WindowManager.getSingleton().getlnfAsString(currentRootWidget)
-        return super(lnfTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
+        return super(LookNFeelTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
     def performCut(self):
         if self.currentWidget() is self.visual:
@@ -171,9 +165,10 @@ class lnfTabbedEditor(editors.multi.MultiModeTabbedEditor):
         if self.currentWidget() is self.visual:
             self.visual.scene.views()[0].zoomOriginal()
 
-class lnfTabbedEditorFactory(editors.TabbedEditorFactory):
+
+class LookNFeelTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
-        extensions = lnf_compatibility.manager.getAllPossibleExtensions()
+        extensions = looknfeel_compatibility.manager.getAllPossibleExtensions()
         return extensions
 
     def canEditFile(self, filePath):
@@ -186,4 +181,4 @@ class lnfTabbedEditorFactory(editors.TabbedEditorFactory):
         return False
 
     def create(self, filePath):
-        return lnfTabbedEditor(filePath)
+        return LookNFeelTabbedEditor(filePath)

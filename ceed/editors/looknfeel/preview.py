@@ -24,23 +24,23 @@ from ceed.editors import multi
 
 import PyCEGUI
 
-class LnfPreviewer(QtGui.QWidget, multi.EditMode):
+class LookNFeelPreviewer(QtGui.QWidget, multi.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """
 
     def __init__(self, tabbedEditor):
-        super(LnfPreviewer, self).__init__()
+        super(LookNFeelPreviewer, self).__init__()
 
         self.tabbedEditor = tabbedEditor
         self.rootWidget = None
 
-        lnf = QtGui.QVBoxLayout(self)
-        lnf.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(lnf)
+        looknfeel = QtGui.QVBoxLayout(self)
+        looknfeel.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(looknfeel)
 
     def activate(self):
-        super(LnfPreviewer, self).activate()
+        super(LookNFeelPreviewer, self).activate()
 
         assert(self.rootWidget is None)
 
@@ -62,10 +62,10 @@ class LnfPreviewer(QtGui.QWidget, multi.EditMode):
             PyCEGUI.WindowManager.getSingleton().destroyWindow(self.rootWidget)
             self.rootWidget = None
 
-        return super(LnfPreviewer, self).deactivate()
+        return super(LookNFeelPreviewer, self).deactivate()
 
     def showEvent(self, event):
-        super(LnfPreviewer, self).showEvent(event)
+        super(LookNFeelPreviewer, self).showEvent(event)
 
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self)
         # we always want continuous rendering in live preview
@@ -82,7 +82,7 @@ class LnfPreviewer(QtGui.QWidget, multi.EditMode):
         if self.rootWidget:
             PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(None)
 
-        super(LnfPreviewer, self).hideEvent(event)
+        super(LookNFeelPreviewer, self).hideEvent(event)
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow
