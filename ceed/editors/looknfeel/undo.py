@@ -270,7 +270,7 @@ class CreateCommand(commands.UndoCommand):
         manipulator = self.visual.scene.getManipulatorByPath(self.parentWidgetPath + "/" + self.widgetName if self.parentWidgetPath != "" else self.widgetName)
         manipulator.detach(destroyWidget = True)
 
-        self.visual.hierarchyDockWidget.refresh()
+        self.visual.lookNFeelHierarchyDockWidget.refresh()
 
     def redo(self):
         data = widgethelpers.SerialisationData(self.visual)
@@ -288,7 +288,7 @@ class CreateCommand(commands.UndoCommand):
         # ensure this isn't obscured by it's parent
         result.moveToFront()
 
-        self.visual.hierarchyDockWidget.refresh()
+        self.visual.lookNFeelHierarchyDockWidget.refresh()
 
         super(CreateCommand, self).redo()
 
@@ -535,7 +535,7 @@ class ReparentCommand(commands.UndoCommand):
         super(ReparentCommand, self).undo()
 
         self.visual.scene.clearSelection()
-        self.visual.hierarchyDockWidget.treeView.clearSelection()
+        self.visual.lookNFeelHierarchyDockWidget.treeView.clearSelection()
 
         i = 0
         while i < len(self.newWidgetPaths):
@@ -569,11 +569,11 @@ class ReparentCommand(commands.UndoCommand):
 
             i += 1
 
-        self.visual.hierarchyDockWidget.refresh()
+        self.visual.lookNFeelHierarchyDockWidget.refresh()
 
     def redo(self):
         self.visual.scene.clearSelection()
-        self.visual.hierarchyDockWidget.treeView.clearSelection()
+        self.visual.lookNFeelHierarchyDockWidget.treeView.clearSelection()
 
         i = 0
         while i < len(self.oldWidgetPaths):
@@ -607,7 +607,7 @@ class ReparentCommand(commands.UndoCommand):
 
             i += 1
 
-        self.visual.hierarchyDockWidget.refresh()
+        self.visual.lookNFeelHierarchyDockWidget.refresh()
         super(ReparentCommand, self).redo()
 
 class PasteCommand(commands.UndoCommand):
@@ -666,7 +666,7 @@ class PasteCommand(commands.UndoCommand):
 
             serialisationData.reconstruct(self.visual.scene.rootManipulator)
 
-        self.visual.hierarchyDockWidget.refresh()
+        self.visual.lookNFeelHierarchyDockWidget.refresh()
 
         super(PasteCommand, self).redo()
 
@@ -816,6 +816,7 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
     def id(self):
         return idbase + 13
 
+
 class RenameCommand(commands.UndoCommand):
     """This command changes the name of the given widget
     """
@@ -867,7 +868,6 @@ class RenameCommand(commands.UndoCommand):
 
         widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
 
-
     def redo(self):
         widgetManipulator = self.visual.scene.getManipulatorByPath(self.oldWidgetPath)
         assert(hasattr(widgetManipulator, "treeItem"))
@@ -880,3 +880,33 @@ class RenameCommand(commands.UndoCommand):
         widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
 
         super(RenameCommand, self).redo()
+
+
+class TargetWidgetChangeCommand(commands.UndoCommand):
+    """This command changes the Look n' Feel widget targeted for editing to another one
+    """
+
+    def __init__(self, visual, oldTargetWidget, newTargetWidget):
+        super(TargetWidgetChangeCommand, self).__init__()
+
+        self.visual = visual
+
+        self.oldTargetWidget = oldTargetWidget
+        self.newTargetWidget = newTargetWidget
+
+        self.refreshText()
+
+    def refreshText(self):
+        self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidget + "\" to \"" + self.newTargetWidget + "\"")
+
+    def id(self):
+        return idbase + 15
+
+    def mergeWith(self, cmd):
+        return False
+
+    def undo(self):
+        super(TargetWidgetChangeCommand, self).undo()
+
+    def redo(self):
+        super(TargetWidgetChangeCommand, self).redo()

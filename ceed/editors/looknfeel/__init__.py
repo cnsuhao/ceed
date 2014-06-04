@@ -55,10 +55,13 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # TODO: This could be improved at least a little bit if 2 consecutive edit mode changes
         #       looked like this: A->Preview, Preview->C.  We could simply turn this into A->C,
         #       and if A = C it would eat the undo command entirely.
-        self.previewer = preview.LookNFeelPreviewerPreviewer(self)
+        self.previewer = preview.LookNFeelPreviewer(self)
         self.addTab(self.previewer, "Live Preview")
 
         self.tabWidget = self
+
+        # The name of the widget we are targeting for editing
+        self.targetWidgetName = ""
 
         # set the toolbar icon size according to the setting and subscribe to it
         self.tbIconSizeEntry = settings.getEntry("global/ui/toolbar_icon_size")
@@ -72,11 +75,10 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
 
-        root = None
-        if self.nativeData != "":
-            root = PyCEGUI.WindowManager.getSingleton().loadLookNFeelFromString(self.nativeData)
+        ''' TODO: Ident - if loading a specific LNF - load the LNF into the program in a way it doesnt collide with the existing LNF definitions from the project
+        PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(self.nativeData)'''
 
-        self.visual.initialise(root)
+        '''self.visual.initialise()'''
 
     def finalise(self):
         super(LookNFeelTabbedEditor, self).finalise()
@@ -96,12 +98,12 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
     def activate(self):
         super(LookNFeelTabbedEditor, self).activate()
 
-        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.hierarchyDockWidget)
-        self.visual.hierarchyDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.propertiesDockWidget)
-        self.visual.propertiesDockWidget.setVisible(True)
-        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.createWidgetDockWidget)
-        self.visual.createWidgetDockWidget.setVisible(True)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelWidgetSelectorWidget)
+        self.visual.lookNFeelWidgetSelectorWidget.setVisible(True)
+
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelHierarchyDockWidget)
+        self.visual.lookNFeelHierarchyDockWidget.setVisible(True)
+
         self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
 
@@ -111,9 +113,9 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.visual.toolBar.setIconSize(QtCore.QSize(size, size))
 
     def deactivate(self):
-        self.mainWindow.removeDockWidget(self.visual.hierarchyDockWidget)
-        self.mainWindow.removeDockWidget(self.visual.propertiesDockWidget)
-        self.mainWindow.removeDockWidget(self.visual.createWidgetDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.lookNFeelHierarchyDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.lookNFeelWidgetSelectorWidget)
+
         self.mainWindow.removeToolBar(self.visual.toolBar)
 
         super(LookNFeelTabbedEditor, self).deactivate()

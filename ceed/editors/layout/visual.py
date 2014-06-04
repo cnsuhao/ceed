@@ -547,6 +547,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
             if item.manipulator is not None:
                 item.setLocked(locked, recursive)
 
+
 class HierarchyDockWidget(QtGui.QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
     """

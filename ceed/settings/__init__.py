@@ -26,6 +26,7 @@ from ceed.settings import declaration
 from ceed.settings import persistence
 from ceed.settings import interface
 
+
 class Settings(declaration.Settings):
     instance = None
 
@@ -81,8 +82,12 @@ class Settings(declaration.Settings):
         import ceed.editors.layout.settings_decl as layout_settings
         layout_settings.declare(self)
 
+        import ceed.editors.looknfeel.settings_decl as looknfeel_settings
+        looknfeel_settings.declare(self)
+
         assert(Settings.instance is None)
         Settings.instance = self
+
 
 def getEntry(path):
     """This is a convenience method to make settings retrieval easier
