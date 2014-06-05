@@ -25,6 +25,7 @@ import PyCEGUI
 
 idbase = 1200
 
+
 class MoveCommand(commands.UndoCommand):
     """This command simply moves given widgets from old positions to new
     """
@@ -88,6 +89,7 @@ class MoveCommand(commands.UndoCommand):
 
         super(MoveCommand, self).redo()
 
+
 class ResizeCommand(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
@@ -150,6 +152,7 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator.triggerPropertyManagerCallback({"Size", "Position", "Area"})
 
         super(ResizeCommand, self).redo()
+
 
 class DeleteCommand(commands.UndoCommand):
     """This command deletes given widgets"""
@@ -240,6 +243,7 @@ class DeleteCommand(commands.UndoCommand):
 
         super(DeleteCommand, self).redo()
 
+
 class CreateCommand(commands.UndoCommand):
     """This command creates one widget"""
 
@@ -292,6 +296,7 @@ class CreateCommand(commands.UndoCommand):
 
         super(CreateCommand, self).redo()
 
+
 class PropertyEditCommand(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
@@ -338,7 +343,7 @@ class PropertyEditCommand(commands.UndoCommand):
         if self.propertyName == "Size":
             related = set([ "Area" ])
         elif self.propertyName == "Area":
-            related = { "Position", "Size" }
+            related = {"Position", "Size"}
         elif self.propertyName == "Position":
             related = set([ "Area" ])
 
@@ -372,6 +377,7 @@ class PropertyEditCommand(commands.UndoCommand):
         self.visual.scene.update()
 
         super(PropertyEditCommand, self).redo()
+
 
 class HorizontalAlignCommand(commands.UndoCommand):
     """This command aligns selected widgets accordingly
@@ -499,6 +505,7 @@ class VerticalAlignCommand(commands.UndoCommand):
 
         super(VerticalAlignCommand, self).redo()
 
+
 class ReparentCommand(commands.UndoCommand):
     """This command changes parent of given windows
     """
@@ -610,6 +617,7 @@ class ReparentCommand(commands.UndoCommand):
         self.visual.hierarchyDockWidget.refresh()
         super(ReparentCommand, self).redo()
 
+
 class PasteCommand(commands.UndoCommand):
     """This command pastes clipboard data to the given widget
     """
@@ -670,18 +678,19 @@ class PasteCommand(commands.UndoCommand):
 
         super(PasteCommand, self).redo()
 
+
 class NormaliseSizeCommand(ResizeCommand):
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         newSizes = {}
-        for widgetPath, oldSize in oldSizes.iteritems():
-            newSizes[widgetPath] = self.normaliseSize(widgetPath, oldSize)
+        for widgetPath in widgetPaths:
+            newSizes[widgetPath] = self.normaliseSize(widgetPath)
 
         # we use oldPositions as newPositions because this command never changes positions of anything
         super(NormaliseSizeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes, oldPositions, newSizes)
 
         self.refreshText()
 
-    def normaliseSize(self, widgetPath, size):
+    def normaliseSize(self, widgetPath):
         raise NotImplementedError("Each subclass of NormaliseSizeCommand must implement the normaliseSize method")
 
     def refreshText(self):
@@ -694,6 +703,7 @@ class NormaliseSizeCommand(ResizeCommand):
         # we never merge size normalising commands
         return False
 
+
 class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         # even though this will be set again in the ResizeCommand constructor we need to set it right now
@@ -702,7 +712,7 @@ class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
 
         super(NormaliseSizeToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
 
-    def normaliseSize(self, widgetPath, size):
+    def normaliseSize(self, widgetPath):
         manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         pixelSize = manipulator.widget.getPixelSize()
         baseSize = manipulator.getBaseSize()
@@ -719,6 +729,7 @@ class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
     def id(self):
         return idbase + 10
 
+
 class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         # even though this will be set again in the ResizeCommand constructor we need to set it right now
@@ -727,7 +738,7 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
 
         super(NormaliseSizeToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes)
 
-    def normaliseSize(self, widgetPath, size):
+    def normaliseSize(self, widgetPath):
         manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
         pixelSize = manipulator.widget.getPixelSize()
 
@@ -743,6 +754,7 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
     def id(self):
         return idbase + 11
 
+
 class NormalisePositionCommand(MoveCommand):
     def __init__(self, visual, widgetPaths, oldPositions):
         newPositions = {}
@@ -753,7 +765,7 @@ class NormalisePositionCommand(MoveCommand):
 
         self.refreshText()
 
-    def normalisePosition(self, widgetPath, size):
+    def normalisePosition(self, widgetPath, oldPosition):
         raise NotImplementedError("Each subclass of NormalisePositionCommand must implement the normalisePosition method")
 
     def refreshText(self):
@@ -766,6 +778,7 @@ class NormalisePositionCommand(MoveCommand):
         # we never merge position normalising commands
         return False
 
+
 class NormalisePositionToRelativeCommand(NormalisePositionCommand):
     def __init__(self, visual, widgetPaths, oldPositions):
         # even though this will be set again in the MoveCommand constructor we need to set it right now
@@ -774,9 +787,8 @@ class NormalisePositionToRelativeCommand(NormalisePositionCommand):
 
         super(NormalisePositionToRelativeCommand, self).__init__(visual, widgetPaths, oldPositions)
 
-    def normalisePosition(self, widgetPath, size):
+    def normalisePosition(self, widgetPath, position):
         manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
-        position = manipulator.widget.getPosition()
         baseSize = manipulator.getBaseSize()
 
         return PyCEGUI.UVector2(PyCEGUI.UDim((position.d_x.d_offset + position.d_x.d_scale * baseSize.d_width) / baseSize.d_width, 0),
@@ -791,6 +803,7 @@ class NormalisePositionToRelativeCommand(NormalisePositionCommand):
     def id(self):
         return idbase + 12
 
+
 class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
     def __init__(self, visual, widgetPaths, oldPositions):
         # even though this will be set again in the MoveCommand constructor we need to set it right now
@@ -799,9 +812,8 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
 
         super(NormalisePositionToAbsoluteCommand, self).__init__(visual, widgetPaths, oldPositions)
 
-    def normalisePosition(self, widgetPath, size):
+    def normalisePosition(self, widgetPath, position):
         manipulator = self.visual.scene.getManipulatorByPath(widgetPath)
-        position = manipulator.widget.getPosition()
         baseSize = manipulator.getBaseSize()
 
         return PyCEGUI.UVector2(PyCEGUI.UDim(0, position.d_x.d_offset + position.d_x.d_scale * baseSize.d_width),
@@ -815,6 +827,7 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
 
     def id(self):
         return idbase + 13
+
 
 class RenameCommand(commands.UndoCommand):
     """This command changes the name of the given widget
@@ -867,7 +880,6 @@ class RenameCommand(commands.UndoCommand):
 
         widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
 
-
     def redo(self):
         widgetManipulator = self.visual.scene.getManipulatorByPath(self.oldWidgetPath)
         assert(hasattr(widgetManipulator, "treeItem"))
@@ -880,3 +892,64 @@ class RenameCommand(commands.UndoCommand):
         widgetManipulator.triggerPropertyManagerCallback({"Name", "NamePath"})
 
         super(RenameCommand, self).redo()
+
+
+class RoundPositionCommand(MoveCommand):
+    def __init__(self, visual, widgetPaths, oldPositions):
+
+        # calculate the new, rounded positions for the widget(s)
+        newPositions = {}
+        for widgetPath, oldPosition in oldPositions.iteritems():
+            newPositions[widgetPath] = self.roundAbsolutePosition(oldPosition)
+
+        super(RoundPositionCommand, self).__init__(visual, widgetPaths, oldPositions, newPositions)
+
+        self.refreshText()
+
+    @staticmethod
+    def roundAbsolutePosition(oldPosition):
+        return PyCEGUI.UVector2(PyCEGUI.UDim(oldPosition.d_x.d_scale, PyCEGUI.CoordConverter.alignToPixels(oldPosition.d_x.d_offset)),
+                                PyCEGUI.UDim(oldPosition.d_y.d_scale, PyCEGUI.CoordConverter.alignToPixels(oldPosition.d_y.d_offset)))
+
+    def refreshText(self):
+        if len(self.widgetPaths) == 1:
+            self.setText("Round absolute position of '%s' to nearest integer" % (self.widgetPaths[0]))
+        else:
+            self.setText("Round absolute positions of %i widgets to nearest integers" % (len(self.widgetPaths)))
+
+    def id(self):
+        return idbase + 15
+
+    def mergeWith(self, cmd):
+        return False
+
+
+class RoundSizeCommand(ResizeCommand):
+    def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
+
+        # calculate the new, rounded sizes for the widget(s)
+        newSizes = {}
+        for widgetPath, oldSize in oldSizes.iteritems():
+            newSizes[widgetPath] = self.roundAbsoluteSize(oldSize)
+
+        # we use oldPositions as newPositions because this command never changes positions of anything
+        super(RoundSizeCommand, self).__init__(visual, widgetPaths, oldPositions, oldSizes, oldPositions, newSizes)
+
+        self.refreshText()
+
+    @staticmethod
+    def roundAbsoluteSize(oldSize):
+        return PyCEGUI.USize(PyCEGUI.UDim(oldSize.d_width.d_scale, PyCEGUI.CoordConverter.alignToPixels(oldSize.d_width.d_offset)),
+                             PyCEGUI.UDim(oldSize.d_height.d_scale, PyCEGUI.CoordConverter.alignToPixels(oldSize.d_height.d_offset)))
+
+    def refreshText(self):
+        if len(self.widgetPaths) == 1:
+            self.setText("Round absolute size of '%s' to nearest integer" % (self.widgetPaths[0]))
+        else:
+            self.setText("Round absolute sizes of %i widgets to nearest integers" % (len(self.widgetPaths)))
+
+    def id(self):
+        return idbase + 16
+
+    def mergeWith(self, cmd):
+        return False

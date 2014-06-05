@@ -104,6 +104,8 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.absoluteModeAction = action.getAction("layout/absolute_mode")
         self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
 
+        self.absoluteIntegersOnlyModeAction = action.getAction("layout/abs_integers_mode")
+
     def __del__(self):
         self.absoluteModeAction.toggled.disconnect(self.slot_absoluteModeToggled)
 
@@ -202,6 +204,12 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
     def useAbsoluteCoordsForResize(self):
         return self.absoluteModeAction.isChecked()
+
+    def useIntegersForAbsoluteMove(self):
+        return self.absoluteIntegersOnlyModeAction.isChecked()
+
+    def useIntegersForAbsoluteResize(self):
+        return self.absoluteIntegersOnlyModeAction.isChecked()
 
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()

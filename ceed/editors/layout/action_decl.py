@@ -57,6 +57,16 @@ def declare(actionManager):
     absolute_mode.setCheckable(True)
     absolute_mode.setChecked(True)
 
+    abs_integers_mode = cat.createAction(
+                     name = "abs_integers_mode", label = "Only Increase/Decrease by Integers When Moving or Resizing",
+                     help_ = "If checked, while resizing or moving widgets in the editor only integer values (e.g. no"
+                             "0.25 or 0.5 etc.) will be added to the current absolute values. This is only relevant if editing"
+                             "in zoomed-in view while 'Absolute Resizing and Moving' is activated.",
+                     icon = QtGui.QIcon("icons/layout_editing/abs_integers_mode.png"),
+                     defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_Q))
+    abs_integers_mode.setCheckable(True)
+    abs_integers_mode.setChecked(True)
+
     cat.createAction(name = "normalise_position", label = "Normalise &Position (cycle)",
                      help_ = "If the position is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
                      icon = QtGui.QIcon("icons/layout_editing/normalise_position.png"),
@@ -66,6 +76,15 @@ def declare(actionManager):
                      help_ = "If the size is mixed (absolute and relative) it becomes relative only, if it's relative it becomes absolute, if it's absolute it becomes relative.",
                      icon = QtGui.QIcon("icons/layout_editing/normalise_size.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_S))
+
+    cat.createAction(name = "round_position", label = "Rounds the absolute position to nearest integer",
+                     help_ = "The value of the absolute position will be rounded to the nearest integer value (e.g.: 1.7 will become 2.0 and -4.2 will become -4.0",
+                     icon = QtGui.QIcon("icons/layout_editing/round_position.png"),
+                     defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_M))
+    cat.createAction(name = "round_size", label = "Rounds the absolute size to nearest integer",
+                     help_ = "The value of the absolute size will be rounded to the nearest integer value (e.g.: 1.7 will become 2.0 and -4.2 will become -4.0",
+                     icon = QtGui.QIcon("icons/layout_editing/round_size.png"),
+                     defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_N))
 
     cat.createAction(name = "focus_property_inspector_filter_box", label = "&Focus Property Inspector Filter Box",
                      help_ = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",

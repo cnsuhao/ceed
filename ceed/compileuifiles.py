@@ -51,7 +51,7 @@ def main():
     compileUIFiles(os.path.join(paths.UI_DIR, "editors", "animation_list"))
     compileUIFiles(os.path.join(paths.UI_DIR, "editors", "imageset"))
     compileUIFiles(os.path.join(paths.UI_DIR, "editors", "layout"))
-    compileUIFiles(os.path.join(paths.UI_DIR, "editors", "lnf"))
+    compileUIFiles(os.path.join(paths.UI_DIR, "editors", "looknfeel"))
     compileUIFiles(os.path.join(paths.UI_DIR, "widgets"))
 
 if __name__ == "__main__":

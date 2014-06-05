@@ -33,8 +33,8 @@ from ceed.editors import multi
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
-from ceed.editors.lnf import undo
-from ceed.editors.lnf import widgethelpers
+from ceed.editors.looknfeel import undo
+from ceed.editors.looknfeel import widgethelpers
 
 from ceed.propertysetinspector import PropertyInspectorWidget
 from ceed.propertysetinspector import CEGUIPropertyManager
@@ -44,12 +44,12 @@ import ceed.propertytree as pt
 from ceed.propertytree.editors import PropertyEditorRegistry
 
 
-class WidgetHierarchyItem(QtGui.QStandardItem):
+class LookNFeelHierarchyItem(QtGui.QStandardItem):
     def __init__(self, manipulator):
         self.manipulator = manipulator
 
         if manipulator is not None:
-            super(WidgetHierarchyItem, self).__init__(manipulator.widget.getName())
+            super(LookNFeelHierarchyItem, self).__init__(manipulator.widget.getName())
 
             self.setToolTip("type: %s" % (manipulator.widget.getType()))
 
@@ -62,7 +62,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
             manipulator.treeItem = self
 
         else:
-            super(WidgetHierarchyItem, self).__init__("<No widget>")
+            super(LookNFeelHierarchyItem, self).__init__("<No Look n' Feel element>")
 
         self.setFlags(QtCore.Qt.ItemIsEnabled |
                       QtCore.Qt.ItemIsSelectable |
@@ -74,7 +74,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
         self.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
 
     def clone(self):
-        ret = WidgetHierarchyItem(self.manipulator)
+        ret = LookNFeelHierarchyItem(self.manipulator)
         ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.CheckStateRole)
         return ret
 
@@ -95,7 +95,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
             # synchronise the manipulator with the lock state
             self.manipulator.setLocked(value == QtCore.Qt.Checked)
 
-        return super(WidgetHierarchyItem, self).setData(value, role)
+        return super(LookNFeelHierarchyItem, self).setData(value, role)
 
     def setLocked(self, locked, recursive = False):
         """Locks or unlocks this item.
@@ -117,15 +117,16 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
                 child = self.child(i)
                 child.setLocked(locked, True)
 
-class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
+
+class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
     def __init__(self, dockWidget):
-        super(WidgetHierarchyTreeModel, self).__init__()
+        super(LookNFeelHierarchyTreeModel, self).__init__()
 
         self.dockWidget = dockWidget
-        self.setItemPrototype(WidgetHierarchyItem(None))
+        self.setItemPrototype(LookNFeelHierarchyItem(None))
 
     def data(self, index, role = QtCore.Qt.DisplayRole):
-        return super(WidgetHierarchyTreeModel, self).data(index, role)
+        return super(LookNFeelHierarchyTreeModel, self).data(index, role)
 
     def setData(self, index, value, role = QtCore.Qt.EditRole):
         if role == QtCore.Qt.EditRole:
@@ -135,44 +136,22 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
             if value == item.manipulator.widget.getName():
                 return False
 
-            # validate the new name, cancel if invalid
-            value = widgethelpers.Manipulator.getValidWidgetName(value)
-            if not value:
-                msgBox = QtGui.QMessageBox()
-                msgBox.setText("The name was not changed because the new name is invalid.")
-                msgBox.setIcon(QtGui.QMessageBox.Warning)
-                msgBox.exec_()
-                return False
-
-            # check if the new name is unique in the parent, cancel if not
-            parentWidget = item.manipulator.widget.getParent()
-            if parentWidget is not None and parentWidget.isChild(value):
-                msgBox = QtGui.QMessageBox()
-                msgBox.setText("The name was not changed because the new name is in use by a sibling widget.")
-                msgBox.setIcon(QtGui.QMessageBox.Warning)
-                msgBox.exec_()
-                return False
-
-            # the name is good, apply it
-            cmd = undo.RenameCommand(self.dockWidget.visual, item.manipulator.widget.getNamePath(), value)
-            self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
-
             # return false because the undo command has changed the text of the item already
             return False
 
-        return super(WidgetHierarchyTreeModel, self).setData(index, value, role)
+        return super(LookNFeelHierarchyTreeModel, self).setData(index, value, role)
 
     def flags(self, index):
-        return super(WidgetHierarchyTreeModel, self).flags(index)
+        return super(LookNFeelHierarchyTreeModel, self).flags(index)
 
     def shouldManipulatorBeSkipped(self, manipulator):
         return \
            manipulator.widget.isAutoWindow() and \
-           settings.getEntry("lnf/visual/hide_deadend_autowidgets").value and \
+           settings.getEntry("looknfeel/visual/hide_deadend_autowidgets").value and \
            not manipulator.hasNonAutoWidgetDescendants()
 
     def constructSubtree(self, manipulator):
-        ret = WidgetHierarchyItem(manipulator)
+        ret = LookNFeelHierarchyItem(manipulator)
 
         manipulatorChildren = []
 
@@ -401,14 +380,15 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
 
         return False
 
-class WidgetHierarchyTreeView(QtGui.QTreeView):
+
+class LookNFeelHierarchyTreeView(QtGui.QTreeView):
     """The actual widget hierarchy tree widget - what a horrible name
     This is a Qt widget that does exactly the same as QTreeWidget for now,
     it is a placeholder that will be put to use once the need arises - and it will.
     """
 
     def __init__(self, parent = None):
-        super(WidgetHierarchyTreeView, self).__init__(parent)
+        super(LookNFeelHierarchyTreeView, self).__init__(parent)
 
         self.dockWidget = None
 
@@ -416,7 +396,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
         """Synchronizes tree selection with scene selection.
         """
 
-        super(WidgetHierarchyTreeView, self).selectionChanged(selected, deselected)
+        super(LookNFeelHierarchyTreeView, self).selectionChanged(selected, deselected)
 
         # we are running synchronization the other way, this prevents infinite loops and recursion
         if self.dockWidget.ignoreSelectionChanges:
@@ -427,7 +407,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
         for index in selected.indexes():
             item = self.model().itemFromIndex(index)
 
-            if isinstance(item, WidgetHierarchyItem):
+            if isinstance(item, LookNFeelHierarchyItem):
                 manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
@@ -439,7 +419,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
         for index in deselected.indexes():
             item = self.model().itemFromIndex(index)
 
-            if isinstance(item, WidgetHierarchyItem):
+            if isinstance(item, LookNFeelHierarchyItem):
                 manipulatorPath = item.data(QtCore.Qt.UserRole)
                 manipulator = None
                 if manipulatorPath is not None:
@@ -455,18 +435,18 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu = QtGui.QMenu(self)
 
-        self.renameAction = action.getAction("lnf/rename")
+        self.renameAction = action.getAction("looknfeel/rename")
         self.contextMenu.addAction(self.renameAction)
 
         self.contextMenu.addSeparator()
 
-        self.lockAction = action.getAction("lnf/lock_widget")
+        self.lockAction = action.getAction("looknfeel/lock_widget")
         self.contextMenu.addAction(self.lockAction)
-        self.unlockAction = action.getAction("lnf/unlock_widget")
+        self.unlockAction = action.getAction("looknfeel/unlock_widget")
         self.contextMenu.addAction(self.unlockAction)
-        self.recursivelyLockAction = action.getAction("lnf/recursively_lock_widget")
+        self.recursivelyLockAction = action.getAction("looknfeel/recursively_lock_widget")
         self.contextMenu.addAction(self.recursivelyLockAction)
-        self.recursivelyUnlockAction = action.getAction("lnf/recursively_unlock_widget")
+        self.recursivelyUnlockAction = action.getAction("looknfeel/recursively_unlock_widget")
         self.contextMenu.addAction(self.recursivelyUnlockAction)
 
         self.contextMenu.addSeparator()
@@ -482,7 +462,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu.addSeparator()
 
-        self.copyNamePathAction = action.getAction("lnf/copy_widget_path")
+        self.copyNamePathAction = action.getAction("looknfeel/copy_widget_path")
         self.contextMenu.addAction(self.copyNamePathAction)
 
     def contextMenuEvent(self, event):
@@ -547,22 +527,23 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
             if item.manipulator is not None:
                 item.setLocked(locked, recursive)
 
-class HierarchyDockWidget(QtGui.QDockWidget):
-    """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
+
+class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
+    """Displays and manages the widget hierarchy. Contains the LookNFeelHierarchyTreeWidget.
     """
 
     def __init__(self, visual):
-        super(HierarchyDockWidget, self).__init__()
+        super(LookNFeelHierarchyDockWidget, self).__init__()
 
         self.visual = visual
 
-        self.ui = ceed.ui.editors.lnf.hierarchydockwidget.Ui_HierarchyDockWidget()
+        self.ui = ceed.ui.editors.looknfeel.looknfeelhierarchydockwidget.Ui_LookNFeelHierarchyDockWidget()
         self.ui.setupUi(self)
 
         self.ignoreSelectionChanges = False
 
-        self.model = WidgetHierarchyTreeModel(self)
-        self.treeView = self.findChild(WidgetHierarchyTreeView, "treeView")
+        self.model = LookNFeelHierarchyTreeModel(self)
+        self.treeView = self.findChild(LookNFeelHierarchyTreeView, "treeView")
         self.treeView.dockWidget = self
         self.treeView.setModel(self.model)
 
@@ -589,7 +570,8 @@ class HierarchyDockWidget(QtGui.QDockWidget):
             if handled:
                 return True
 
-        return super(HierarchyDockWidget, self).keyReleaseEvent(event)
+        return super(LookNFeelHierarchyDockWidget, self).keyReleaseEvent(event)
+
 
 class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
     """Overrides the default MultiPropertyWrapper to update the 'inner properties'
@@ -774,44 +756,48 @@ class WidgetTypeTreeWidget(QtGui.QTreeWidget):
 
         return super(WidgetTypeTreeWidget, self).viewportEvent(event)
 
-class CreateWidgetDockWidget(QtGui.QDockWidget):
+
+class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
     """This lists available widgets you can create and allows their creation (by drag N drop)
     """
 
-    def __init__(self, visual):
-        super(CreateWidgetDockWidget, self).__init__()
+    def __init__(self, visual, tabbedEditor):
+        super(LookNFeelWidgetSelectorWidget, self).__init__()
+
+        self.tabbedEditor = tabbedEditor
 
         self.visual = visual
 
-        self.ui = ceed.ui.editors.lnf.createwidgetdockwidget.Ui_CreateWidgetDockWidget()
+        self.ui = ceed.ui.editors.looknfeel.looknfeelwidgetselectorwidget.Ui_LookNFeelWidgetSelector()
         self.ui.setupUi(self)
 
-        self.tree = self.findChild(WidgetTypeTreeWidget, "tree")
-        self.tree.setVisual(visual)
+        self.widgetLookNameBox = self.findChild(QtGui.QComboBox, "widgetLookNameBox")
 
-    def populate(self):
-        self.tree.clear()
+        self.editWidgetButton = self.findChild(QtGui.QPushButton, "editWidgetButton")
+        self.editWidgetButton.pressed.connect(self.slot_editWidgetButtonPressed)
+
+        self.populateWidgetLookComboBox()
+
+    def slot_editWidgetButtonPressed(self):
+
+        widgetLookNameBoxIndex = self.widgetLookNameBox.currentIndex()
+        widgetLookName = self.widgetLookNameBox.itemText(widgetLookNameBoxIndex)
+
+        command = undo.TargetWidgetChangeCommand(self.visual, self.tabbedEditor, widgetLookName)
+        self.visual.tabbedEditor.undoStack.push(command)
+
+    def populateWidgetLookComboBox(self):
+        self.widgetLookNameBox.clear
 
         wl = mainwindow.MainWindow.instance.ceguiInstance.getAvailableWidgetsBySkin()
 
-        for skin, widgets in wl.iteritems():
-            skinItem = None
-
-            if skin == "__no_skin__":
-                skinItem = self.tree.invisibleRootItem()
-            else:
-                skinItem = QtGui.QTreeWidgetItem()
-                skinItem.setText(0, skin)
-                # this makes sure the skin item isn't draggable
-                skinItem.setFlags(QtCore.Qt.ItemIsEnabled)
-                self.tree.addTopLevelItem(skinItem)
-
-            # skinItem now represents the skin node, we add all widgets in that skin to it
-
-            for widget in widgets:
-                widgetItem = QtGui.QTreeWidgetItem()
-                widgetItem.setText(0, widget)
-                skinItem.addChild(widgetItem)
+        # Iterate through all widgets present in a skin and add to combobox
+        for skin, widgetNames in wl.iteritems():
+            skinName = skin
+            if skinName != "__no_skin__":
+                for widgetName in widgetNames:
+                    widgetLookName = "%s/%s" % (skinName, widgetName)
+                    self.widgetLookNameBox.addItem(widgetLookName)
 
 class EditingScene(cegui_widgethelpers.GraphicsScene):
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
@@ -859,96 +845,6 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if hasattr(self, "rootManipulator") and self.rootManipulator is not None:
             self.rootManipulator.updateFromWidget()
 
-    def deleteSelectedWidgets(self):
-        widgetPaths = []
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPaths.append(item.widget.getNamePath())
-
-        if len(widgetPaths) > 0:
-            cmd = undo.DeleteCommand(self.visual, widgetPaths)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def alignSelectionHorizontally(self, alignment):
-        widgetPaths = []
-        oldAlignments = {}
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-                widgetPaths.append(widgetPath)
-                oldAlignments[widgetPath] = item.widget.getHorizontalAlignment()
-
-        if len(widgetPaths) > 0:
-            cmd = undo.HorizontalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def alignSelectionVertically(self, alignment):
-        widgetPaths = []
-        oldAlignments = {}
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-                widgetPaths.append(widgetPath)
-                oldAlignments[widgetPath] = item.widget.getVerticalAlignment()
-
-        if len(widgetPaths) > 0:
-            cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def normalisePositionOfSelectedWidgets(self):
-        widgetPaths = []
-        oldPositions = {}
-
-        # if there will be no non-zero offsets, we will normalise to absolute
-        undoCommand = undo.NormalisePositionToAbsoluteCommand
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-
-                widgetPaths.append(widgetPath)
-                oldPositions[widgetPath] = item.widget.getPosition()
-
-                # if we find any non-zero offset, normalise to relative
-                if (item.widget.getPosition().d_x.d_offset != 0) or (item.widget.getPosition().d_y.d_offset != 0):
-                    undoCommand = undo.NormalisePositionToRelativeCommand
-
-        if len(widgetPaths) > 0:
-            cmd = undoCommand(self.visual, widgetPaths, oldPositions)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def normaliseSizeOfSelectedWidgets(self):
-        widgetPaths = []
-        oldPositions = {}
-        oldSizes = {}
-
-        # if there will be no non-zero offsets, we will normalise to absolute
-        undoCommand = undo.NormaliseSizeToAbsoluteCommand
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-
-                widgetPaths.append(widgetPath)
-                oldPositions[widgetPath] = item.widget.getPosition()
-                oldSizes[widgetPath] = item.widget.getSize()
-
-                # if we find any non-zero offset, normalise to relative
-                if (item.widget.getSize().d_width.d_offset != 0) or (item.widget.getSize().d_height.d_offset != 0):
-                    undoCommand = undo.NormaliseSizeToRelativeCommand
-
-        if len(widgetPaths) > 0:
-            cmd = undoCommand(self.visual, widgetPaths, oldPositions, oldSizes)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
     def slot_selectionChanged(self):
         selection = self.selectedItems()
 
@@ -966,19 +862,20 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
 
+        '''
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
 
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
-            self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
+            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = True
 
-            self.visual.hierarchyDockWidget.treeView.clearSelection()
+            self.visual.lookNFeelHierarchyDockWidget.treeView.clearSelection()
             for item in selection:
                 if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
-                        self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
+                        self.visual.lookNFeelHierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
 
-            self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
+            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = False '''
 
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
@@ -1097,115 +994,57 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             else:
                 event.ignore()
 
-class VisualEditing(QtGui.QWidget, multi.EditMode):
+
+class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode
     """
 
     def __init__(self, tabbedEditor):
-        super(VisualEditing, self).__init__()
+        super(LookNFeelVisualEditing, self).__init__()
 
         self.tabbedEditor = tabbedEditor
 
-        self.hierarchyDockWidget = HierarchyDockWidget(self)
-        self.propertiesDockWidget = PropertiesDockWidget(self)
-        self.createWidgetDockWidget = CreateWidgetDockWidget(self)
+        self.lookNFeelHierarchyDockWidget = LookNFeelHierarchyDockWidget(self)
+        self.lookNFeelWidgetSelectorWidget = LookNFeelWidgetSelectorWidget(self, tabbedEditor)
 
-        lnf = QtGui.QVBoxLayout(self)
-        lnf.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(lnf)
+        looknfeel = QtGui.QVBoxLayout(self)
+        looknfeel.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(looknfeel)
 
         self.scene = EditingScene(self)
 
         self.setupActions()
         self.setupToolBar()
-        self.hierarchyDockWidget.treeView.setupContextMenu()
+        self.lookNFeelHierarchyDockWidget.treeView.setupContextMenu()
 
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
-        # horizontal alignment actions
-        self.alignHLeftAction = action.getAction("lnf/align_hleft")
-        self.connectionGroup.add(self.alignHLeftAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
-        self.alignHCentreAction = action.getAction("lnf/align_hcentre")
-        self.connectionGroup.add(self.alignHCentreAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
-        self.alignHRightAction = action.getAction("lnf/align_hright")
-        self.connectionGroup.add(self.alignHRightAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
-
-        # vertical alignment actions
-        self.alignVTopAction = action.getAction("lnf/align_vtop")
-        self.connectionGroup.add(self.alignVTopAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
-        self.alignVCentreAction = action.getAction("lnf/align_vcentre")
-        self.connectionGroup.add(self.alignVCentreAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
-        self.alignVBottomAction = action.getAction("lnf/align_vbottom")
-        self.connectionGroup.add(self.alignVBottomAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
-
-        self.focusPropertyInspectorFilterBoxAction = action.getAction("lnf/focus_property_inspector_filter_box")
-        self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
-
-        self.connectionGroup.add("lnf/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
-        self.connectionGroup.add("lnf/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
-
-        # general
-        self.renameWidgetAction = action.getAction("lnf/rename")
-        self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
-
-        self.lockWidgetAction = action.getAction("lnf/lock_widget")
-        self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
-        self.unlockWidgetAction = action.getAction("lnf/unlock_widget")
-        self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
-        self.recursivelyLockWidgetAction = action.getAction("lnf/recursively_lock_widget")
-        self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
-        self.recursivelyUnlockWidgetAction = action.getAction("lnf/recursively_unlock_widget")
-        self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
-
-        self.copyNamePathAction = action.getAction("lnf/copy_widget_path")
-        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
-
-
     def setupToolBar(self):
-        self.toolBar = QtGui.QToolBar("lnf")
-        self.toolBar.setObjectName("lnfToolbar")
+        self.toolBar = QtGui.QToolBar("looknfeel")
+        self.toolBar.setObjectName("looknfeelToolbar")
         self.toolBar.setIconSize(QtCore.QSize(32, 32))
-
-        self.toolBar.addAction(self.alignHLeftAction)
-        self.toolBar.addAction(self.alignHCentreAction)
-        self.toolBar.addAction(self.alignHRightAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.alignVTopAction)
-        self.toolBar.addAction(self.alignVCentreAction)
-        self.toolBar.addAction(self.alignVBottomAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(action.getAction("lnf/snap_grid"))
-        self.toolBar.addAction(action.getAction("lnf/absolute_mode"))
-        self.toolBar.addAction(action.getAction("lnf/normalise_position"))
-        self.toolBar.addAction(action.getAction("lnf/normalise_size"))
 
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
         # similar to the toolbar, includes the focus filter box action
-        editorMenu.addAction(self.alignHLeftAction)
-        editorMenu.addAction(self.alignHCentreAction)
-        editorMenu.addAction(self.alignHRightAction)
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(self.alignVTopAction)
-        editorMenu.addAction(self.alignVCentreAction)
-        editorMenu.addAction(self.alignVBottomAction)
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(action.getAction("lnf/snap_grid"))
-        editorMenu.addAction(action.getAction("lnf/absolute_mode"))
-        editorMenu.addAction(action.getAction("lnf/normalise_position"))
-        editorMenu.addAction(action.getAction("lnf/normalise_size"))
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
-    def initialise(self, rootWidget):
-        pmap = mainwindow.MainWindow.instance.project.propertyMap
-        self.propertiesDockWidget.inspector.setPropertyManager(CEGUIWidgetPropertyManager(pmap, self))
-
+    def initialise(self):
+        rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
         self.setRootWidget(rootWidget)
-        self.createWidgetDockWidget.populate()
+
+    def displayTargetWidgetLook(self):
+        rootWidget = self.getCurrentRootWidget()
+
+        while rootWidget.getChildCount() != 0:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
+
+        widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
+
+        rootWidget.addChild(widgetLookWindow)
+        self.scene.update()
 
     def getCurrentRootWidget(self):
         return self.scene.rootManipulator.widget if self.scene.rootManipulator is not None else None
@@ -1214,7 +1053,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         oldRoot = self.getCurrentRootWidget()
 
         self.scene.setRootWidgetManipulator(manipulator)
-        self.hierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
+        self.lookNFeelHierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
 
         PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
 
@@ -1227,32 +1066,27 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
     def setRootWidget(self, widget):
         """Sets the root widget we want to edit
         """
-
-        if widget is None:
-            self.setRootWidgetManipulator(None)
-
-        else:
-            self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
+        self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
 
     def notifyWidgetManipulatorsAdded(self, manipulators):
-        self.hierarchyDockWidget.refresh()
+        self.lookNFeelHierarchyDockWidget.refresh()
 
     def notifyWidgetManipulatorsRemoved(self, widgetPaths):
         """We are passing widget paths because manipulators might be destroyed at this point"""
 
-        self.hierarchyDockWidget.refresh()
+        self.lookNFeelHierarchyDockWidget.refresh()
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
         mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
                                                                             middleButtonScroll = True,
-                                                                            continuousRendering = settings.getEntry("lnf/visual/continuous_rendering").value)
+                                                                            continuousRendering = settings.getEntry("looknfeel/visual/continuous_rendering").value)
 
         PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
 
-        self.hierarchyDockWidget.setEnabled(True)
-        self.propertiesDockWidget.setEnabled(True)
-        self.createWidgetDockWidget.setEnabled(True)
+        self.lookNFeelHierarchyDockWidget.setEnabled(True)
+        self.lookNFeelWidgetSelectorWidget.setEnabled(True)
+
         self.toolBar.setEnabled(True)
         if self.tabbedEditor.editorMenu() is not None:
             self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
@@ -1266,22 +1100,22 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # connect all our actions
         self.connectionGroup.connectAll()
 
-        super(VisualEditing, self).showEvent(event)
+        super(LookNFeelVisualEditing, self).showEvent(event)
 
     def hideEvent(self, event):
         # disconnected all our actions
         self.connectionGroup.disconnectAll()
 
-        self.hierarchyDockWidget.setEnabled(False)
-        self.propertiesDockWidget.setEnabled(False)
-        self.createWidgetDockWidget.setEnabled(False)
+        self.lookNFeelHierarchyDockWidget.setEnabled(False)
+        self.lookNFeelWidgetSelectorWidget.setEnabled(False)
+
         self.toolBar.setEnabled(False)
         if self.tabbedEditor.editorMenu() is not None:
             self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
 
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
 
-        super(VisualEditing, self).hideEvent(event)
+        super(LookNFeelVisualEditing, self).hideEvent(event)
 
     def focusPropertyInspectorFilterBox(self):
         """Focuses into property set inspector filter
@@ -1387,8 +1221,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         return self.scene.deleteSelectedWidgets()
 
 # needs to be at the end to sort circular deps
-import ceed.ui.editors.lnf.hierarchydockwidget
-import ceed.ui.editors.lnf.createwidgetdockwidget
+import ceed.ui.editors.looknfeel.looknfeelhierarchydockwidget
+import ceed.ui.editors.looknfeel.looknfeelwidgetselectorwidget
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow

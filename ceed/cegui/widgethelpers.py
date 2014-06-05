@@ -25,6 +25,8 @@ from ceed import resizable
 from ceed.cegui import qtgraphics
 import PyCEGUI
 
+import math
+
 # This module contains helping classes for CEGUI widget handling
 
 class GraphicsScene(qtgraphics.GraphicsScene):
@@ -291,6 +293,12 @@ class Manipulator(resizable.ResizableRectItem):
     def useAbsoluteCoordsForResize(self):
         return False
 
+    def useIntegersForAbsoluteMove(self):
+        return False
+
+    def useIntegersForAbsoluteResize(self):
+        return False
+
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()
 
@@ -312,8 +320,12 @@ class Manipulator(resizable.ResizableRectItem):
         deltaSize = None
 
         if self.useAbsoluteCoordsForResize():
-            deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
-            deltaSize = PyCEGUI.USize(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
+            if self.useIntegersForAbsoluteResize():
+                deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, math.floor(pixelDeltaPos.x())), PyCEGUI.UDim(0, math.floor(pixelDeltaPos.y())))
+                deltaSize = PyCEGUI.USize(PyCEGUI.UDim(0, math.floor(pixelDeltaSize.width())), PyCEGUI.UDim(0, math.floor(pixelDeltaSize.height())))
+            else:
+                deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
+                deltaSize = PyCEGUI.USize(PyCEGUI.UDim(0, pixelDeltaSize.width()), PyCEGUI.UDim(0, pixelDeltaSize.height()))
 
         else:
             baseSize = self.getBaseSize()
@@ -381,7 +393,10 @@ class Manipulator(resizable.ResizableRectItem):
 
         deltaPos = None
         if self.useAbsoluteCoordsForMove():
-            deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
+            if self.useIntegersForAbsoluteMove():
+                deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, math.floor(pixelDeltaPos.x())), PyCEGUI.UDim(0, math.floor(pixelDeltaPos.y())))
+            else:
+                deltaPos = PyCEGUI.UVector2(PyCEGUI.UDim(0, pixelDeltaPos.x()), PyCEGUI.UDim(0, pixelDeltaPos.y()))
 
         else:
             baseSize = self.getBaseSize()
