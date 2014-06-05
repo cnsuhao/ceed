@@ -761,8 +761,10 @@ class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
     """This lists available widgets you can create and allows their creation (by drag N drop)
     """
 
-    def __init__(self, visual):
+    def __init__(self, visual, tabbedEditor):
         super(LookNFeelWidgetSelectorWidget, self).__init__()
+
+        self.tabbedEditor = tabbedEditor
 
         self.visual = visual
 
@@ -778,10 +780,10 @@ class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
 
     def slot_editWidgetButtonPressed(self):
 
-        widgetLookNameBoxIndex = self.widgetLookNameBox.currentIndex
+        widgetLookNameBoxIndex = self.widgetLookNameBox.currentIndex()
         widgetLookName = self.widgetLookNameBox.itemText(widgetLookNameBoxIndex)
 
-        command = undo.TargetWidgetChangeCommand(self.visual, LookNFeelTabbedEditor, widgetLookName)
+        command = undo.TargetWidgetChangeCommand(self.visual, self.tabbedEditor, widgetLookName)
         self.visual.tabbedEditor.undoStack.push(command)
 
     def populateWidgetLookComboBox(self):
@@ -843,96 +845,6 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if hasattr(self, "rootManipulator") and self.rootManipulator is not None:
             self.rootManipulator.updateFromWidget()
 
-    def deleteSelectedWidgets(self):
-        widgetPaths = []
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPaths.append(item.widget.getNamePath())
-
-        if len(widgetPaths) > 0:
-            cmd = undo.DeleteCommand(self.visual, widgetPaths)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def alignSelectionHorizontally(self, alignment):
-        widgetPaths = []
-        oldAlignments = {}
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-                widgetPaths.append(widgetPath)
-                oldAlignments[widgetPath] = item.widget.getHorizontalAlignment()
-
-        if len(widgetPaths) > 0:
-            cmd = undo.HorizontalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def alignSelectionVertically(self, alignment):
-        widgetPaths = []
-        oldAlignments = {}
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-                widgetPaths.append(widgetPath)
-                oldAlignments[widgetPath] = item.widget.getVerticalAlignment()
-
-        if len(widgetPaths) > 0:
-            cmd = undo.VerticalAlignCommand(self.visual, widgetPaths, oldAlignments, alignment)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def normalisePositionOfSelectedWidgets(self):
-        widgetPaths = []
-        oldPositions = {}
-
-        # if there will be no non-zero offsets, we will normalise to absolute
-        undoCommand = undo.NormalisePositionToAbsoluteCommand
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-
-                widgetPaths.append(widgetPath)
-                oldPositions[widgetPath] = item.widget.getPosition()
-
-                # if we find any non-zero offset, normalise to relative
-                if (item.widget.getPosition().d_x.d_offset != 0) or (item.widget.getPosition().d_y.d_offset != 0):
-                    undoCommand = undo.NormalisePositionToRelativeCommand
-
-        if len(widgetPaths) > 0:
-            cmd = undoCommand(self.visual, widgetPaths, oldPositions)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-    def normaliseSizeOfSelectedWidgets(self):
-        widgetPaths = []
-        oldPositions = {}
-        oldSizes = {}
-
-        # if there will be no non-zero offsets, we will normalise to absolute
-        undoCommand = undo.NormaliseSizeToAbsoluteCommand
-
-        selection = self.selectedItems()
-        for item in selection:
-            if isinstance(item, widgethelpers.Manipulator):
-                widgetPath = item.widget.getNamePath()
-
-                widgetPaths.append(widgetPath)
-                oldPositions[widgetPath] = item.widget.getPosition()
-                oldSizes[widgetPath] = item.widget.getSize()
-
-                # if we find any non-zero offset, normalise to relative
-                if (item.widget.getSize().d_width.d_offset != 0) or (item.widget.getSize().d_height.d_offset != 0):
-                    undoCommand = undo.NormaliseSizeToRelativeCommand
-
-        if len(widgetPaths) > 0:
-            cmd = undoCommand(self.visual, widgetPaths, oldPositions, oldSizes)
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
     def slot_selectionChanged(self):
         selection = self.selectedItems()
 
@@ -950,6 +862,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
 
+        '''
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
 
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
@@ -962,7 +875,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
                         self.visual.lookNFeelHierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
 
-            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = False
+            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = False '''
 
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
@@ -1082,22 +995,19 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
                 event.ignore()
 
 
-class VisualEditing(QtGui.QWidget, multi.EditMode):
+class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode
     """
 
     def __init__(self, tabbedEditor):
-        super(VisualEditing, self).__init__()
+        super(LookNFeelVisualEditing, self).__init__()
 
         self.tabbedEditor = tabbedEditor
 
         self.lookNFeelHierarchyDockWidget = LookNFeelHierarchyDockWidget(self)
-        self.lookNFeelWidgetSelectorWidget = LookNFeelWidgetSelectorWidget(self)
-        """ TODO: IDENT
-        self.createWidgetDockWidget = CreateWidgetDockWidget(self)
-        """
+        self.lookNFeelWidgetSelectorWidget = LookNFeelWidgetSelectorWidget(self, tabbedEditor)
 
         looknfeel = QtGui.QVBoxLayout(self)
         looknfeel.setContentsMargins(0, 0, 0, 0)
@@ -1112,88 +1022,29 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
-        # horizontal alignment actions
-        self.alignHLeftAction = action.getAction("looknfeel/align_hleft")
-        self.connectionGroup.add(self.alignHLeftAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_LEFT))
-        self.alignHCentreAction = action.getAction("looknfeel/align_hcentre")
-        self.connectionGroup.add(self.alignHCentreAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_CENTRE))
-        self.alignHRightAction = action.getAction("looknfeel/align_hright")
-        self.connectionGroup.add(self.alignHRightAction, receiver = lambda: self.scene.alignSelectionHorizontally(PyCEGUI.HA_RIGHT))
-
-        # vertical alignment actions
-        self.alignVTopAction = action.getAction("looknfeel/align_vtop")
-        self.connectionGroup.add(self.alignVTopAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_TOP))
-        self.alignVCentreAction = action.getAction("looknfeel/align_vcentre")
-        self.connectionGroup.add(self.alignVCentreAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_CENTRE))
-        self.alignVBottomAction = action.getAction("looknfeel/align_vbottom")
-        self.connectionGroup.add(self.alignVBottomAction, receiver = lambda: self.scene.alignSelectionVertically(PyCEGUI.VA_BOTTOM))
-
-        self.focusPropertyInspectorFilterBoxAction = action.getAction("looknfeel/focus_property_inspector_filter_box")
-        self.connectionGroup.add(self.focusPropertyInspectorFilterBoxAction, receiver = lambda: self.focusPropertyInspectorFilterBox())
-
-        self.connectionGroup.add("looknfeel/normalise_position", receiver = lambda: self.scene.normalisePositionOfSelectedWidgets())
-        self.connectionGroup.add("looknfeel/normalise_size", receiver = lambda: self.scene.normaliseSizeOfSelectedWidgets())
-
-        # general
-        self.renameWidgetAction = action.getAction("looknfeel/rename")
-        self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.editSelectedWidgetName())
-
-        self.lockWidgetAction = action.getAction("looknfeel/lock_widget")
-        self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
-        self.unlockWidgetAction = action.getAction("looknfeel/unlock_widget")
-        self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
-        self.recursivelyLockWidgetAction = action.getAction("looknfeel/recursively_lock_widget")
-        self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
-        self.recursivelyUnlockWidgetAction = action.getAction("looknfeel/recursively_unlock_widget")
-        self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
-
-        self.copyNamePathAction = action.getAction("looknfeel/copy_widget_path")
-        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.lookNFeelHierarchyDockWidget.treeView.copySelectedWidgetPaths())
-
-
     def setupToolBar(self):
         self.toolBar = QtGui.QToolBar("looknfeel")
         self.toolBar.setObjectName("looknfeelToolbar")
         self.toolBar.setIconSize(QtCore.QSize(32, 32))
 
-        self.toolBar.addAction(self.alignHLeftAction)
-        self.toolBar.addAction(self.alignHCentreAction)
-        self.toolBar.addAction(self.alignHRightAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(self.alignVTopAction)
-        self.toolBar.addAction(self.alignVCentreAction)
-        self.toolBar.addAction(self.alignVBottomAction)
-        self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(action.getAction("looknfeel/snap_grid"))
-        self.toolBar.addAction(action.getAction("looknfeel/absolute_mode"))
-        self.toolBar.addAction(action.getAction("looknfeel/normalise_position"))
-        self.toolBar.addAction(action.getAction("looknfeel/normalise_size"))
-
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
         # similar to the toolbar, includes the focus filter box action
-        editorMenu.addAction(self.alignHLeftAction)
-        editorMenu.addAction(self.alignHCentreAction)
-        editorMenu.addAction(self.alignHRightAction)
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(self.alignVTopAction)
-        editorMenu.addAction(self.alignVCentreAction)
-        editorMenu.addAction(self.alignVBottomAction)
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(action.getAction("looknfeel/snap_grid"))
-        editorMenu.addAction(action.getAction("looknfeel/absolute_mode"))
-        editorMenu.addAction(action.getAction("looknfeel/normalise_position"))
-        editorMenu.addAction(action.getAction("looknfeel/normalise_size"))
-        editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
-    def initialise(self, rootWidget):
-        pmap = mainwindow.MainWindow.instance.project.propertyMap
-        """Todo: IDENT
-        self.propertiesDockWidget.inspector.setPropertyManager(CEGUIWidgetPropertyManager(pmap, self))"""
-
+    def initialise(self):
+        rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
         self.setRootWidget(rootWidget)
-        self.createWidgetDockWidget.populate()
+
+    def displayTargetWidgetLook(self):
+        rootWidget = self.getCurrentRootWidget()
+
+        while rootWidget.getChildCount() != 0:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
+
+        widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
+
+        rootWidget.addChild(widgetLookWindow)
+        self.scene.update()
 
     def getCurrentRootWidget(self):
         return self.scene.rootManipulator.widget if self.scene.rootManipulator is not None else None
@@ -1215,12 +1066,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
     def setRootWidget(self, widget):
         """Sets the root widget we want to edit
         """
-
-        if widget is None:
-            self.setRootWidgetManipulator(None)
-
-        else:
-            self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
+        self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
 
     def notifyWidgetManipulatorsAdded(self, manipulators):
         self.lookNFeelHierarchyDockWidget.refresh()
@@ -1254,7 +1100,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # connect all our actions
         self.connectionGroup.connectAll()
 
-        super(VisualEditing, self).showEvent(event)
+        super(LookNFeelVisualEditing, self).showEvent(event)
 
     def hideEvent(self, event):
         # disconnected all our actions
@@ -1269,7 +1115,7 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
         mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
 
-        super(VisualEditing, self).hideEvent(event)
+        super(LookNFeelVisualEditing, self).hideEvent(event)
 
     def focusPropertyInspectorFilterBox(self):
         """Focuses into property set inspector filter
