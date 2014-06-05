@@ -32,6 +32,8 @@ from ceed.editors.looknfeel import preview
 
 import PyCEGUI
 
+import re
+
 
 class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Binds all Look n' Feel editing functionality together
@@ -42,7 +44,7 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         self.requiresProject = True
 
-        self.visual = visual.VisualEditing(self)
+        self.visual = visual.LookNFeelVisualEditing(self)
         self.addTab(self.visual, "Visual")
 
         self.code = code.CodeEditing(self)
@@ -61,7 +63,7 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.tabWidget = self
 
         # The name of the widget we are targeting for editing
-        self.targetWidgetName = ""
+        self.targetWidgetLook = ""
 
         # set the toolbar icon size according to the setting and subscribe to it
         self.tbIconSizeEntry = settings.getEntry("global/ui/toolbar_icon_size")
@@ -75,10 +77,24 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
 
-        ''' TODO: Ident - if loading a specific LNF - load the LNF into the program in a way it doesnt collide with the existing LNF definitions from the project
-        PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(self.nativeData)'''
+        editorID = id(self)
+        editorID = str(editorID)
 
-        '''self.visual.initialise()'''
+        # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
+        # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor simultaneously, we will map the
+        # names that we load from a Look n' Feel file in a way that they are unique. We achieve this by editing the WidgetLook names inside the string we loaded from
+        # the .looknfeel file, so that the LNF Editor instance's python ID will be prepended to the name. ( e.g.: Vanilla/Button will turn into 18273822/Vanilla/Button )
+        # Each Editor is associated with only one LNF file so that this will in effect also guarantee that the WidgetLooks inside the CEGUI system will be uniquely named
+        # for each file
+
+        # Modifying the string using regex
+        regexPattern = "<\s*WidgetLook\sname\s*=\s*\""
+        replaceString = "<WidgetLook name=\"" + editorID + "/"
+        modifiedLookNFeelString = re.sub(regexPattern, replaceString, self.nativeData)
+        # Parsing the resulting Look n' Feel
+        PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
+
+        self.visual.initialise()
 
     def finalise(self):
         super(LookNFeelTabbedEditor, self).finalise()
