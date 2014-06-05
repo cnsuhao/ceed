@@ -42,6 +42,8 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
     def __init__(self, filePath):
         super(LookNFeelTabbedEditor, self).__init__(looknfeel_compatibility.manager, filePath)
 
+        self.editorIDString = str(id(self))
+
         self.requiresProject = True
 
         self.visual = visual.LookNFeelVisualEditing(self)
@@ -77,9 +79,11 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
 
-        editorID = id(self)
-        editorID = str(editorID)
+        self.mapAndLoadLookNFeelFileString()
 
+        self.visual.initialise()
+
+    def mapAndLoadLookNFeelFileString(self):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
         # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor simultaneously, we will map the
         # names that we load from a Look n' Feel file in a way that they are unique. We achieve this by editing the WidgetLook names inside the string we loaded from
@@ -89,12 +93,12 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         # Modifying the string using regex
         regexPattern = "<\s*WidgetLook\sname\s*=\s*\""
-        replaceString = "<WidgetLook name=\"" + editorID + "/"
+        replaceString = "<WidgetLook name=\"" + self.editorIDString + "/"
         modifiedLookNFeelString = re.sub(regexPattern, replaceString, self.nativeData)
         # Parsing the resulting Look n' Feel
         PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
 
-        self.visual.initialise()
+        self.visual.lookNFeelWidgetSelectorWidget.populateWidgetLookComboBox()
 
     def finalise(self):
         super(LookNFeelTabbedEditor, self).finalise()

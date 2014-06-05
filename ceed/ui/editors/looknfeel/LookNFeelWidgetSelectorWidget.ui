@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>336</width>
+    <width>396</width>
     <height>112</height>
    </rect>
   </property>
@@ -41,13 +41,13 @@
    <property name="minimumSize">
     <size>
      <width>336</width>
-     <height>100</height>
+     <height>70</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>524287</width>
-     <height>100</height>
+     <height>70</height>
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -78,18 +78,60 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="nameLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="QLabel" name="label">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
           </property>
           <property name="text">
-           <string>Select a WidgetLook of this Look n' Feel file:</string>
+           <string>Look n' Feel file:</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="fileNameBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>23</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel
+{
+	background-color: rgb(217, 217, 217);
+	border-color: rgb(166, 166, 166);
+	border-style: inset;
+	border-width: 1px;
+}
+
+QToolTip
+{
+	color: #rgb(0, 0, 0);
+	background-color: rgb(174, 254, 186);
+	border: 1px solid black;
+	border-radius: 1px;
+ }
+
+
+</string>
+          </property>
+          <property name="text">
+           <string>File path</string>
           </property>
          </widget>
         </item>
@@ -101,20 +143,20 @@
          <number>0</number>
         </property>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QLabel" name="nameLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Minimum</enum>
+          <property name="text">
+           <string>Select a WidgetLook:</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
-         </spacer>
+         </widget>
         </item>
         <item>
          <widget class="QComboBox" name="widgetLookNameBox">
@@ -127,30 +169,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Minimum</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QPushButton" name="editWidgetButton">
+         <widget class="QPushButton" name="editWidgetLookButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -159,18 +178,18 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>100</width>
+            <width>60</width>
             <height>23</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>100</width>
+            <width>60</width>
             <height>23</height>
            </size>
           </property>
           <property name="text">
-           <string>Open</string>
+           <string>Edit</string>
           </property>
          </widget>
         </item>

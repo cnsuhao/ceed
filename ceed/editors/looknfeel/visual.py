@@ -771,14 +771,15 @@ class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
         self.ui = ceed.ui.editors.looknfeel.looknfeelwidgetselectorwidget.Ui_LookNFeelWidgetSelector()
         self.ui.setupUi(self)
 
+        self.fileNameBox = self.findChild(QtGui.QLabel, "fileNameBox")
+        self.fileNameBox.setText(self.tabbedEditor.filePath)
+        self.fileNameBox.setToolTip(self.tabbedEditor.filePath)
         self.widgetLookNameBox = self.findChild(QtGui.QComboBox, "widgetLookNameBox")
 
-        self.editWidgetButton = self.findChild(QtGui.QPushButton, "editWidgetButton")
-        self.editWidgetButton.pressed.connect(self.slot_editWidgetButtonPressed)
+        self.editWidgetLookButton = self.findChild(QtGui.QPushButton, "editWidgetLookButton")
+        self.editWidgetLookButton.pressed.connect(self.slot_editWidgetLookButtonPressed)
 
-        self.populateWidgetLookComboBox()
-
-    def slot_editWidgetButtonPressed(self):
+    def slot_editWidgetLookButtonPressed(self):
 
         widgetLookNameBoxIndex = self.widgetLookNameBox.currentIndex()
         widgetLookName = self.widgetLookNameBox.itemText(widgetLookNameBoxIndex)
@@ -789,15 +790,24 @@ class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
     def populateWidgetLookComboBox(self):
         self.widgetLookNameBox.clear
 
-        wl = mainwindow.MainWindow.instance.ceguiInstance.getAvailableWidgetsBySkin()
+        #base = it.getCurrentValue().d_baseType
 
-        # Iterate through all widgets present in a skin and add to combobox
-        for skin, widgetNames in wl.iteritems():
-            skinName = skin
-            if skinName != "__no_skin__":
-                for widgetName in widgetNames:
-                    widgetLookName = "%s/%s" % (skinName, widgetName)
-                    self.widgetLookNameBox.addItem(widgetLookName)
+        it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
+        while not it.isAtEnd():
+
+            splitResult = it.getCurrentKey().split('/', 1)
+
+            if(len(splitResult) != 2):
+                continue
+
+            widgetLookEditorID = splitResult[0]
+            widgetLookOriginalName = splitResult[1]
+
+            if widgetLookEditorID == self.tabbedEditor.editorIDString:
+                self.widgetLookNameBox.addItem(widgetLookOriginalName)
+
+            it.next()
+
 
 class EditingScene(cegui_widgethelpers.GraphicsScene):
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
