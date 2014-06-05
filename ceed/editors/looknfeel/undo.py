@@ -886,18 +886,19 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
     """This command changes the Look n' Feel widget targeted for editing to another one
     """
 
-    def __init__(self, visual, oldTargetWidget, newTargetWidget):
+    def __init__(self, visual, tabbedEditor, newTargetWidgetLook):
         super(TargetWidgetChangeCommand, self).__init__()
 
         self.visual = visual
 
-        self.oldTargetWidget = oldTargetWidget
-        self.newTargetWidget = newTargetWidget
+        self.tabbedEditor = tabbedEditor
+        self.oldTargetWidgetLook = tabbedEditor.targetWidgetLook
+        self.newTargetWidgetLook = newTargetWidgetLook
 
         self.refreshText()
 
     def refreshText(self):
-        self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidget + "\" to \"" + self.newTargetWidget + "\"")
+        self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidgetLook + "\" to \"" + self.newTargetWidgetLook + "\"")
 
     def id(self):
         return idbase + 15
@@ -908,5 +909,11 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
     def undo(self):
         super(TargetWidgetChangeCommand, self).undo()
 
+        self.tabbedEditor.targetWidgetLook = self.oldTargetWidgetLook
+        self.tabbedEditor.visual.displayTargetWidgetLook()
+
     def redo(self):
+        self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
+        self.tabbedEditor.visual.displayTargetWidgetLook()
+
         super(TargetWidgetChangeCommand, self).redo()
