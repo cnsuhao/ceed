@@ -178,25 +178,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     def dragLeaveEvent(self, event):
         self.setPen(self.getNormalPen())
 
-    def dropEvent(self, event):
-        """Takes care of creating new widgets when user drops the right mime type here
-        (dragging from the CreateWidgetDockWidget)
-        """
-
-        data = event.mimeData().data("application/x-ceed-widget-type")
-
-        if data:
-            widgetType = data.data()
-
-            from ceed.editors.looknfeel import undo
-            cmd = undo.CreateCommand(self.visual, self.widget.getNamePath(), widgetType, self.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-            event.acceptProposedAction()
-
-        else:
-            event.ignore()
-
     def useAbsoluteCoordsForMove(self):
         return self.absoluteModeAction.isChecked()
 
