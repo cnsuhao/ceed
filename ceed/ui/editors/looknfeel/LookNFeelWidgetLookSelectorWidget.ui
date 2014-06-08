@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LookNFeelWidgetSelector</class>
- <widget class="QDockWidget" name="LookNFeelWidgetSelector">
+ <class>LookNFeelWidgetLookSelector</class>
+ <widget class="QDockWidget" name="LookNFeelWidgetLookSelector">
   <property name="enabled">
    <bool>false</bool>
   </property>
@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
+    <width>336</width>
     <height>112</height>
    </rect>
   </property>
@@ -19,17 +19,8 @@
     <height>112</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>524287</width>
-    <height>112</height>
-   </size>
-  </property>
-  <property name="windowFilePath">
-   <string/>
-  </property>
   <property name="windowTitle">
-   <string>Widget Selector</string>
+   <string>WidgetLook Selector</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">
@@ -79,34 +70,31 @@
         </property>
         <item>
          <widget class="QLabel" name="label">
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>16777215</height>
-           </size>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="text">
            <string>Look n' Feel file:</string>
           </property>
+          <property name="margin">
+           <number>1</number>
+          </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="fileNameBox">
+         <widget class="QLabel" name="fileNameLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
-            <width>0</width>
-            <height>23</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
+            <width>230</width>
             <height>23</height>
            </size>
           </property>
@@ -121,8 +109,8 @@
 
 QToolTip
 {
-	color: #rgb(0, 0, 0);
-	background-color: rgb(174, 254, 186);
+	color: rgb(0, 0, 0);
+	background-color: rgb(194, 255, 237);
 	border: 1px solid black;
 	border-radius: 1px;
  }
@@ -156,6 +144,9 @@ QToolTip
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
+          <property name="margin">
+           <number>1</number>
+          </property>
          </widget>
         </item>
         <item>
@@ -178,13 +169,13 @@ QToolTip
           </property>
           <property name="minimumSize">
            <size>
-            <width>60</width>
+            <width>40</width>
             <height>23</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>60</width>
+            <width>40</width>
             <height>23</height>
            </size>
           </property>
