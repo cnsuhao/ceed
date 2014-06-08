@@ -37,11 +37,377 @@ from ceed.editors.looknfeel import undo
 from ceed.editors.looknfeel import widgethelpers
 
 from ceed.propertysetinspector import PropertyInspectorWidget
-from ceed.propertysetinspector import CEGUIPropertyManager
+from ceed.propertysetinspector import CEGUIWidgetLookPropertiesManager
 
 import ceed.propertytree as pt
 
 from ceed.propertytree.editors import PropertyEditorRegistry
+
+
+class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
+    """This is the default visual editing mode
+
+    see ceed.editors.multi.EditMode
+    """
+
+    def __init__(self, tabbedEditor):
+        """
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :return:
+        """
+        super(LookNFeelVisualEditing, self).__init__()
+
+        self.tabbedEditor = tabbedEditor
+
+        self.lookNFeelHierarchyDockWidget = LookNFeelHierarchyDockWidget(self)
+        self.lookNFeelWidgetLookSelectorWidget = LookNFeelWidgetLookSelectorWidget(self, tabbedEditor)
+        self.lookNFeelPropertyEditorDockWidget = LookNFeelPropertyEditorDockWidget(self, tabbedEditor)
+
+        looknfeel = QtGui.QVBoxLayout(self)
+        looknfeel.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(looknfeel)
+
+        self.scene = EditingScene(self)
+
+        self.setupActions()
+        self.setupToolBar()
+        self.lookNFeelHierarchyDockWidget.treeView.setupContextMenu()
+
+    def setupActions(self):
+        self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
+
+    def setupToolBar(self):
+        self.toolBar = QtGui.QToolBar("looknfeel")
+        self.toolBar.setObjectName("looknfeelToolbar")
+        self.toolBar.setIconSize(QtCore.QSize(32, 32))
+
+    def rebuildEditorMenu(self, editorMenu):
+        """Adds actions to the editor menu"""
+        # similar to the toolbar, includes the focus filter box action
+
+    def initialise(self):
+        propertyMap = mainwindow.MainWindow.instance.project.propertyMap
+        widgetLookPropertyManager = CEGUIWidgetLookPropertyManager(propertyMap, self)
+        self.lookNFeelPropertyEditorDockWidget.inspector.setPropertyManager(widgetLookPropertyManager)
+
+        rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
+        self.setRootWidget(rootWidget)
+
+    def displayTargetWidgetLook(self):
+        rootWidget = self.getCurrentRootWidget()
+
+        # Remove the widget with the previous WidgetLook from the scene
+        while rootWidget.getChildCount() != 0:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
+
+        # Add new widget representing the new WidgetLook to the scene
+        widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
+        rootWidget.addChild(widgetLookWindow)
+        #Refresh the drawing of the preview
+        self.scene.update()
+
+    def getCurrentRootWidget(self):
+        return self.scene.rootManipulator.widget if self.scene.rootManipulator is not None else None
+
+    def setRootWidgetManipulator(self, manipulator):
+        oldRoot = self.getCurrentRootWidget()
+
+        self.scene.setRootWidgetManipulator(manipulator)
+        self.lookNFeelHierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
+
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
+
+        if oldRoot:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(oldRoot)
+
+        # cause full redraw of the default GUI context to ensure nothing gets stuck
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().markAsDirty()
+
+    def setRootWidget(self, widget):
+        """Sets the root widget we want to edit
+        """
+        self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
+
+    def notifyWidgetManipulatorsAdded(self, manipulators):
+        self.lookNFeelHierarchyDockWidget.refresh()
+
+    def notifyWidgetManipulatorsRemoved(self, widgetPaths):
+        """We are passing widget paths because manipulators might be destroyed at this point"""
+
+        self.lookNFeelHierarchyDockWidget.refresh()
+
+    def showEvent(self, event):
+        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
+        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
+                                                                            middleButtonScroll = True,
+                                                                            continuousRendering = settings.getEntry("looknfeel/visual/continuous_rendering").value)
+
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
+
+        self.lookNFeelHierarchyDockWidget.setEnabled(True)
+        self.lookNFeelWidgetLookSelectorWidget.setEnabled(True)
+        self.lookNFeelPropertyEditorDockWidget.setEnabled(True)
+
+        self.toolBar.setEnabled(True)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
+
+        # make sure all the manipulators are in sync to matter what
+        # this is there mainly for the situation when you switch to live preview, then change resolution, then switch
+        # back to visual editing and all manipulators are of different size than they should be
+        if self.scene.rootManipulator is not None:
+            self.scene.rootManipulator.updateFromWidget()
+
+        # connect all our actions
+        self.connectionGroup.connectAll()
+
+        super(LookNFeelVisualEditing, self).showEvent(event)
+
+    def hideEvent(self, event):
+        # disconnected all our actions
+        self.connectionGroup.disconnectAll()
+
+        self.lookNFeelHierarchyDockWidget.setEnabled(False)
+        self.lookNFeelWidgetLookSelectorWidget.setEnabled(False)
+        self.lookNFeelPropertyEditorDockWidget.setEnabled(False)
+
+        self.toolBar.setEnabled(False)
+        if self.tabbedEditor.editorMenu() is not None:
+            self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
+
+        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
+
+        super(LookNFeelVisualEditing, self).hideEvent(event)
+
+    def focusPropertyInspectorFilterBox(self):
+        """Focuses into property set inspector filter
+
+        This potentially allows the user to just press a shortcut to find properties to edit,
+        instead of having to reach for a mouse.
+        """
+
+        filterBox = self.propertiesDockWidget.inspector.filterBox
+        # selects all contents of the filter so that user can replace that with their search phrase
+        filterBox.selectAll()
+        # sets focus so that typing puts text into the filter box without clicking
+        filterBox.setFocus()
+
+    def performCut(self):
+        ret = self.performCopy()
+        self.scene.deleteSelectedWidgets()
+
+        return ret
+
+    def performCopy(self):
+        topMostSelected = []
+
+        for item in self.scene.selectedItems():
+            if not isinstance(item, widgethelpers.Manipulator):
+                continue
+
+            hasAncestorSelected = False
+
+            for item2 in self.scene.selectedItems():
+                if not isinstance(item2, widgethelpers.Manipulator):
+                    continue
+
+                if item is item2:
+                    continue
+
+                if item2.isAncestorOf(item):
+                    hasAncestorSelected = True
+                    break
+
+            if not hasAncestorSelected:
+                topMostSelected.append(item)
+
+        if len(topMostSelected) == 0:
+            return False
+
+        # now we serialise the top most selected widgets (and thus their entire hierarchies)
+        topMostSerialisationData = []
+        for wdt in topMostSelected:
+            serialisationData = widgethelpers.SerialisationData(self, wdt.widget)
+            # we set the visual to None because we can't pickle QWidgets (also it would prevent copying across editors)
+            # we will set it to the correct visual when we will be pasting it back
+            serialisationData.setVisual(None)
+
+            topMostSerialisationData.append(serialisationData)
+
+        data = QtCore.QMimeData()
+        data.setData("application/x-ceed-widget-hierarchy-list", QtCore.QByteArray(cPickle.dumps(topMostSerialisationData)))
+        QtGui.QApplication.clipboard().setMimeData(data)
+
+        return True
+
+    def performPaste(self):
+        data = QtGui.QApplication.clipboard().mimeData()
+
+        if not data.hasFormat("application/x-ceed-widget-hierarchy-list"):
+            return False
+
+        topMostSerialisationData = cPickle.loads(data.data("application/x-ceed-widget-hierarchy-list").data())
+
+        if len(topMostSerialisationData) == 0:
+            return False
+
+        targetManipulator = None
+        for item in self.scene.selectedItems():
+            if not isinstance(item, widgethelpers.Manipulator):
+                continue
+
+            # multiple targets, we can't decide!
+            if targetManipulator is not None:
+                return False
+
+            targetManipulator = item
+
+        if targetManipulator is None:
+            return False
+
+        for serialisationData in topMostSerialisationData:
+            serialisationData.setVisual(self)
+
+        cmd = undo.PasteCommand(self, topMostSerialisationData, targetManipulator.widget.getNamePath())
+        self.tabbedEditor.undoStack.push(cmd)
+
+        # select the topmost pasted widgets for convenience
+        self.scene.clearSelection()
+        for serialisationData in topMostSerialisationData:
+            manipulator = targetManipulator.getManipulatorByPath(serialisationData.name)
+            manipulator.setSelected(True)
+
+        return True
+
+    def performDelete(self):
+        return self.scene.deleteSelectedWidgets()
+
+
+class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
+    """This dock widget allows to select a WidgetLook from a combobox and start editing it
+    """
+
+    def __init__(self, visual, tabbedEditor):
+        """
+        :param visual: LookNFeelVisualEditing
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :return:
+        """
+        super(LookNFeelWidgetLookSelectorWidget, self).__init__()
+
+        self.tabbedEditor = tabbedEditor
+
+        self.visual = visual
+
+        self.ui = ceed.ui.editors.looknfeel.looknfeelwidgetlookselectorwidget.Ui_LookNFeelWidgetLookSelector()
+        self.ui.setupUi(self)
+
+        self.fileNameLabel = self.findChild(QtGui.QLabel, "fileNameLabel")
+        """:type : QtGui.QLabel"""
+        self.setFileNameLabel()
+
+        self.widgetLookNameBox = self.findChild(QtGui.QComboBox, "widgetLookNameBox")
+        """:type : QtGui.QComboBox"""
+
+        self.editWidgetLookButton = self.findChild(QtGui.QPushButton, "editWidgetLookButton")
+        self.editWidgetLookButton.pressed.connect(self.slot_editWidgetLookButtonPressed)
+
+    def slot_editWidgetLookButtonPressed(self):
+        # Handles the actions necessary after a user selects a new WidgetLook to edit
+        selectedItemIndex = self.widgetLookNameBox.currentIndex()
+        selectedWidgetLookName = self.widgetLookNameBox.itemData(selectedItemIndex)
+
+        command = undo.TargetWidgetChangeCommand(self.visual, self.tabbedEditor, selectedWidgetLookName)
+        self.tabbedEditor.undoStack.push(command)
+
+    def populateWidgetLookComboBox(self, widgetLookNameTuples):
+        self.widgetLookNameBox.clear
+        # We populate the combobox with items that use the original name as display text but have the name of the live-editable WidgetLook stored as a QVariant
+
+        for nameTuple in widgetLookNameTuples:
+            self.widgetLookNameBox.addItem(nameTuple[0], nameTuple[1])
+
+    def setFileNameLabel(self):
+        # Shortens the file name so that it fits into the label and ends with "...", the full path is set as a tooltip
+        fileNameStr = self.tabbedEditor.filePath
+        fontMetrics = self.fileNameLabel.fontMetrics()
+        labelWidth = self.fileNameLabel.minimumSize().width()
+        fontMetricsWidth = fontMetrics.width(fileNameStr)
+        if labelWidth < fontMetricsWidth:
+            self.fileNameLabel.setText(fontMetrics.elidedText(fileNameStr, QtCore.Qt.ElideRight, labelWidth))
+        else:
+            self.fileNameLabel.setText(fileNameStr)
+
+        self.fileNameLabel.setToolTip(fileNameStr)
+
+
+class LookNFeelPropertyEditorDockWidget(QtGui.QDockWidget):
+    """This dock widget allows to add, remove or edit the Property, PropertyDefinition and PropertyLinkDefinition elements of a WidgetLook
+    """
+
+    def __init__(self, visual, tabbedEditor):
+        """
+        :param visual: LookNFeelVisualEditing
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :return:
+        """
+        super(LookNFeelPropertyEditorDockWidget, self).__init__()
+        self.setObjectName("WidgetLookPropertiesDockWidget")
+        self.visual = visual
+
+        self.setWindowTitle("WidgetLook Properties")
+        # Make the dock take as much space as it can vertically
+        self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+
+        self.inspector = PropertyInspectorWidget()
+        self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))
+
+        self.setWidget(self.inspector)
+
+
+class CEGUIWidgetLookPropertyManager(CEGUIWidgetLookPropertiesManager):
+    """Customises the CEGUIPropertyManager by binding to a 'visual'
+    so it can manipulate the widgets via undo commands.
+
+    It also customises the sorting of the categories.
+    """
+
+    def __init__(self, propertyMap, visual):
+        super(CEGUIWidgetLookPropertyManager, self).__init__(propertyMap)
+        self.visual = visual
+
+    def createProperty(self, ceguiProperty, ceguiSets):
+        prop = super(CEGUIWidgetLookPropertyManager, self).createProperty(ceguiProperty, ceguiSets, WidgetMultiPropertyWrapper)
+        prop.ceguiProperty = ceguiProperty
+        prop.ceguiSets = ceguiSets
+        prop.visual = self.visual
+
+        return prop
+
+    def buildCategories(self, ceguiPropertySets):
+        categories = super(CEGUIWidgetLookPropertyManager, self).buildCategories(ceguiPropertySets)
+
+        # sort categories by name but keep some special categories on top
+        def getSortKey(t):
+            name, _  = t
+
+            if name == "Element":
+                return "000Element"
+            elif name == "NamedElement":
+                return "001NamedElement"
+            elif name == "Window":
+                return "002Window"
+            elif name.startswith("CEGUI/"):
+                return name[6:]
+            elif name == "Unknown":
+                return "ZZZUnknown"
+            else:
+                return name
+
+        categories = OrderedDict(sorted(categories.items(), key=getSortKey))
+
+        return categories
+
 
 
 class LookNFeelHierarchyItem(QtGui.QStandardItem):
@@ -614,201 +980,6 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
         return False
 
-class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
-    """Customises the CEGUIPropertyManager by binding to a 'visual'
-    so it can manipulate the widgets via undo commands.
-
-    It also customises the sorting of the categories.
-    """
-
-    def __init__(self, propertyMap, visual):
-        super(CEGUIWidgetPropertyManager, self).__init__(propertyMap)
-        self.visual = visual
-
-    def createProperty(self, ceguiProperty, ceguiSets):
-        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, WidgetMultiPropertyWrapper)
-        prop.ceguiProperty = ceguiProperty
-        prop.ceguiSets = ceguiSets
-        prop.visual = self.visual
-
-        return prop
-
-    def buildCategories(self, ceguiPropertySets):
-        categories = super(CEGUIWidgetPropertyManager, self).buildCategories(ceguiPropertySets)
-
-        # sort categories by name but keep some special categories on top
-        def getSortKey(t):
-            name, _  = t
-
-            if name == "Element":
-                return "000Element"
-            elif name == "NamedElement":
-                return "001NamedElement"
-            elif name == "Window":
-                return "002Window"
-            elif name.startswith("CEGUI/"):
-                return name[6:]
-            elif name == "Unknown":
-                return "ZZZUnknown"
-            else:
-                return name
-
-        categories = OrderedDict(sorted(categories.items(), key=getSortKey))
-
-        return categories
-
-class PropertiesDockWidget(QtGui.QDockWidget):
-    """Lists and allows editing of properties of the selected widget(s).
-    """
-
-    def __init__(self, visual):
-        super(PropertiesDockWidget, self).__init__()
-        self.setObjectName("PropertiesDockWidget")
-        self.visual = visual
-
-        self.setWindowTitle("Selection Properties")
-        # Make the dock take as much space as it can vertically
-        self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
-
-        self.inspector = PropertyInspectorWidget()
-        self.inspector.ptree.setupRegistry(PropertyEditorRegistry(True))
-
-        self.setWidget(self.inspector)
-
-class WidgetTypeTreeWidget(QtGui.QTreeWidget):
-    """Represents a single available widget for creation (it has a mapping in the scheme or is
-    a stock special widget - like DefaultWindow).
-
-    Also provides previews for the widgets
-    """
-
-    def __init__(self, parent = None):
-        super(WidgetTypeTreeWidget, self).__init__(parent)
-
-        self.setDragEnabled(True)
-
-    def setVisual(self, visual):
-        self.visual = visual
-
-    def startDrag(self, dropActions):
-        # shamelessly stolen from CELE2 by Paul D Turner (GPLv3)
-
-        item = self.currentItem()
-        widgetType = item.text(0)
-
-        if item.parent():
-            look = item.parent().text(0)
-        else:
-            look = ""
-
-        mimeData = QtCore.QMimeData()
-
-        mimeData.setData("application/x-ceed-widget-type", QtCore.QByteArray(str(look + "/" + widgetType if look else widgetType)))
-
-        pixmap = QtGui.QPixmap(75,40)
-        painter = QtGui.QPainter(pixmap)
-        painter.eraseRect(0, 0, 75, 40)
-        painter.setBrush(QtCore.Qt.DiagCrossPattern)
-        painter.drawRect(0, 0, 74, 39)
-        painter.end()
-
-        drag = QtGui.QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.setPixmap(pixmap)
-        drag.setHotSpot(QtCore.QPoint(0, 0))
-
-        drag.exec_(QtCore.Qt.CopyAction)
-
-    def viewportEvent(self, event):
-        if event.type() == QtCore.QEvent.ToolTip:
-            # TODO: The big question is whether to reuse cached previews or always render them again.
-            #       I always render them again for now to avoid all sorts of caching issues
-            #       (when scheme/looknfeel editing is in place, etc...)
-
-            item = self.itemAt(event.pos())
-
-            if item is not None and item.childCount() == 0:
-                skin = item.parent().text(0) if item.parent() is not None else "__no_skin__"
-                widgetType = item.text(0)
-
-                fullWidgetType = widgetType if skin == "__no_skin__" else "%s/%s" % (skin, widgetType)
-                tooltipText = ""
-                try:
-                    if skin == "__no_skin__":
-                        tooltipText = "Unskinned widgetType"
-
-                    elif widgetType == "TabButton":
-                        tooltipText = "Can't render a preview as this is an auto widgetType, requires parent to be rendered."
-
-                    else:
-                        ba = QtCore.QByteArray()
-                        buffer = QtCore.QBuffer(ba)
-                        buffer.open(QtCore.QIODevice.WriteOnly)
-
-                        mainwindow.MainWindow.instance.ceguiInstance.getWidgetPreviewImage(fullWidgetType).save(buffer, "PNG")
-
-                        tooltipText = "<img src=\"data:image/png;base64,%s\" />" % (ba.toBase64())
-
-                except Exception as e:
-                    tooltipText = "Couldn't render a widgetType preview... (exception: %s)" % (e)
-
-                item.setToolTip(0, "<small>Drag to the Look n' Feel to create!</small><br />%s" % (tooltipText))
-
-        return super(WidgetTypeTreeWidget, self).viewportEvent(event)
-
-
-class LookNFeelWidgetSelectorWidget(QtGui.QDockWidget):
-    """This lists available widgets you can create and allows their creation (by drag N drop)
-    """
-
-    def __init__(self, visual, tabbedEditor):
-        super(LookNFeelWidgetSelectorWidget, self).__init__()
-
-        self.tabbedEditor = tabbedEditor
-
-        self.visual = visual
-
-        self.ui = ceed.ui.editors.looknfeel.looknfeelwidgetselectorwidget.Ui_LookNFeelWidgetSelector()
-        self.ui.setupUi(self)
-
-        self.fileNameBox = self.findChild(QtGui.QLabel, "fileNameBox")
-        self.fileNameBox.setText(self.tabbedEditor.filePath)
-        self.fileNameBox.setToolTip(self.tabbedEditor.filePath)
-        self.widgetLookNameBox = self.findChild(QtGui.QComboBox, "widgetLookNameBox")
-
-        self.editWidgetLookButton = self.findChild(QtGui.QPushButton, "editWidgetLookButton")
-        self.editWidgetLookButton.pressed.connect(self.slot_editWidgetLookButtonPressed)
-
-    def slot_editWidgetLookButtonPressed(self):
-
-        widgetLookNameBoxIndex = self.widgetLookNameBox.currentIndex()
-        widgetLookName = self.widgetLookNameBox.itemText(widgetLookNameBoxIndex)
-
-        command = undo.TargetWidgetChangeCommand(self.visual, self.tabbedEditor, widgetLookName)
-        self.visual.tabbedEditor.undoStack.push(command)
-
-    def populateWidgetLookComboBox(self):
-        self.widgetLookNameBox.clear
-
-        #base = it.getCurrentValue().d_baseType
-
-        it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
-        while not it.isAtEnd():
-
-            splitResult = it.getCurrentKey().split('/', 1)
-
-            if(len(splitResult) != 2):
-                continue
-
-            widgetLookEditorID = splitResult[0]
-            widgetLookOriginalName = splitResult[1]
-
-            if widgetLookEditorID == self.tabbedEditor.editorIDString:
-                self.widgetLookNameBox.addItem(widgetLookOriginalName)
-
-            it.next()
-
-
 class EditingScene(cegui_widgethelpers.GraphicsScene):
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
     visual editing centre screen where CEGUI is rendered.
@@ -872,20 +1043,6 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
 
-        '''
-        self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
-
-        # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
-        if not self.ignoreSelectionChanges:
-            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = True
-
-            self.visual.lookNFeelHierarchyDockWidget.treeView.clearSelection()
-            for item in selection:
-                if isinstance(item, widgethelpers.Manipulator):
-                    if hasattr(item, "treeItem") and item.treeItem is not None:
-                        self.visual.lookNFeelHierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
-
-            self.visual.lookNFeelHierarchyDockWidget.ignoreSelectionChanges = False '''
 
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
@@ -1004,235 +1161,10 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             else:
                 event.ignore()
 
-
-class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
-    """This is the default visual editing mode
-
-    see ceed.editors.multi.EditMode
-    """
-
-    def __init__(self, tabbedEditor):
-        super(LookNFeelVisualEditing, self).__init__()
-
-        self.tabbedEditor = tabbedEditor
-
-        self.lookNFeelHierarchyDockWidget = LookNFeelHierarchyDockWidget(self)
-        self.lookNFeelWidgetSelectorWidget = LookNFeelWidgetSelectorWidget(self, tabbedEditor)
-
-        looknfeel = QtGui.QVBoxLayout(self)
-        looknfeel.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(looknfeel)
-
-        self.scene = EditingScene(self)
-
-        self.setupActions()
-        self.setupToolBar()
-        self.lookNFeelHierarchyDockWidget.treeView.setupContextMenu()
-
-    def setupActions(self):
-        self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
-
-    def setupToolBar(self):
-        self.toolBar = QtGui.QToolBar("looknfeel")
-        self.toolBar.setObjectName("looknfeelToolbar")
-        self.toolBar.setIconSize(QtCore.QSize(32, 32))
-
-    def rebuildEditorMenu(self, editorMenu):
-        """Adds actions to the editor menu"""
-        # similar to the toolbar, includes the focus filter box action
-
-    def initialise(self):
-        rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
-        self.setRootWidget(rootWidget)
-
-    def displayTargetWidgetLook(self):
-        rootWidget = self.getCurrentRootWidget()
-
-        while rootWidget.getChildCount() != 0:
-            PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
-
-        widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
-
-        rootWidget.addChild(widgetLookWindow)
-        self.scene.update()
-
-    def getCurrentRootWidget(self):
-        return self.scene.rootManipulator.widget if self.scene.rootManipulator is not None else None
-
-    def setRootWidgetManipulator(self, manipulator):
-        oldRoot = self.getCurrentRootWidget()
-
-        self.scene.setRootWidgetManipulator(manipulator)
-        self.lookNFeelHierarchyDockWidget.setRootWidgetManipulator(self.scene.rootManipulator)
-
-        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
-
-        if oldRoot:
-            PyCEGUI.WindowManager.getSingleton().destroyWindow(oldRoot)
-
-        # cause full redraw of the default GUI context to ensure nothing gets stuck
-        PyCEGUI.System.getSingleton().getDefaultGUIContext().markAsDirty()
-
-    def setRootWidget(self, widget):
-        """Sets the root widget we want to edit
-        """
-        self.setRootWidgetManipulator(widgethelpers.Manipulator(self, None, widget))
-
-    def notifyWidgetManipulatorsAdded(self, manipulators):
-        self.lookNFeelHierarchyDockWidget.refresh()
-
-    def notifyWidgetManipulatorsRemoved(self, widgetPaths):
-        """We are passing widget paths because manipulators might be destroyed at this point"""
-
-        self.lookNFeelHierarchyDockWidget.refresh()
-
-    def showEvent(self, event):
-        mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
-        mainwindow.MainWindow.instance.ceguiContainerWidget.setViewFeatures(wheelZoom = True,
-                                                                            middleButtonScroll = True,
-                                                                            continuousRendering = settings.getEntry("looknfeel/visual/continuous_rendering").value)
-
-        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.getCurrentRootWidget())
-
-        self.lookNFeelHierarchyDockWidget.setEnabled(True)
-        self.lookNFeelWidgetSelectorWidget.setEnabled(True)
-
-        self.toolBar.setEnabled(True)
-        if self.tabbedEditor.editorMenu() is not None:
-            self.tabbedEditor.editorMenu().menuAction().setEnabled(True)
-
-        # make sure all the manipulators are in sync to matter what
-        # this is there mainly for the situation when you switch to live preview, then change resolution, then switch
-        # back to visual editing and all manipulators are of different size than they should be
-        if self.scene.rootManipulator is not None:
-            self.scene.rootManipulator.updateFromWidget()
-
-        # connect all our actions
-        self.connectionGroup.connectAll()
-
-        super(LookNFeelVisualEditing, self).showEvent(event)
-
-    def hideEvent(self, event):
-        # disconnected all our actions
-        self.connectionGroup.disconnectAll()
-
-        self.lookNFeelHierarchyDockWidget.setEnabled(False)
-        self.lookNFeelWidgetSelectorWidget.setEnabled(False)
-
-        self.toolBar.setEnabled(False)
-        if self.tabbedEditor.editorMenu() is not None:
-            self.tabbedEditor.editorMenu().menuAction().setEnabled(False)
-
-        mainwindow.MainWindow.instance.ceguiContainerWidget.deactivate(self)
-
-        super(LookNFeelVisualEditing, self).hideEvent(event)
-
-    def focusPropertyInspectorFilterBox(self):
-        """Focuses into property set inspector filter
-
-        This potentially allows the user to just press a shortcut to find properties to edit,
-        instead of having to reach for a mouse.
-        """
-
-        filterBox = self.propertiesDockWidget.inspector.filterBox
-        # selects all contents of the filter so that user can replace that with their search phrase
-        filterBox.selectAll()
-        # sets focus so that typing puts text into the filter box without clicking
-        filterBox.setFocus()
-
-    def performCut(self):
-        ret = self.performCopy()
-        self.scene.deleteSelectedWidgets()
-
-        return ret
-
-    def performCopy(self):
-        topMostSelected = []
-
-        for item in self.scene.selectedItems():
-            if not isinstance(item, widgethelpers.Manipulator):
-                continue
-
-            hasAncestorSelected = False
-
-            for item2 in self.scene.selectedItems():
-                if not isinstance(item2, widgethelpers.Manipulator):
-                    continue
-
-                if item is item2:
-                    continue
-
-                if item2.isAncestorOf(item):
-                    hasAncestorSelected = True
-                    break
-
-            if not hasAncestorSelected:
-                topMostSelected.append(item)
-
-        if len(topMostSelected) == 0:
-            return False
-
-        # now we serialise the top most selected widgets (and thus their entire hierarchies)
-        topMostSerialisationData = []
-        for wdt in topMostSelected:
-            serialisationData = widgethelpers.SerialisationData(self, wdt.widget)
-            # we set the visual to None because we can't pickle QWidgets (also it would prevent copying across editors)
-            # we will set it to the correct visual when we will be pasting it back
-            serialisationData.setVisual(None)
-
-            topMostSerialisationData.append(serialisationData)
-
-        data = QtCore.QMimeData()
-        data.setData("application/x-ceed-widget-hierarchy-list", QtCore.QByteArray(cPickle.dumps(topMostSerialisationData)))
-        QtGui.QApplication.clipboard().setMimeData(data)
-
-        return True
-
-    def performPaste(self):
-        data = QtGui.QApplication.clipboard().mimeData()
-
-        if not data.hasFormat("application/x-ceed-widget-hierarchy-list"):
-            return False
-
-        topMostSerialisationData = cPickle.loads(data.data("application/x-ceed-widget-hierarchy-list").data())
-
-        if len(topMostSerialisationData) == 0:
-            return False
-
-        targetManipulator = None
-        for item in self.scene.selectedItems():
-            if not isinstance(item, widgethelpers.Manipulator):
-                continue
-
-            # multiple targets, we can't decide!
-            if targetManipulator is not None:
-                return False
-
-            targetManipulator = item
-
-        if targetManipulator is None:
-            return False
-
-        for serialisationData in topMostSerialisationData:
-            serialisationData.setVisual(self)
-
-        cmd = undo.PasteCommand(self, topMostSerialisationData, targetManipulator.widget.getNamePath())
-        self.tabbedEditor.undoStack.push(cmd)
-
-        # select the topmost pasted widgets for convenience
-        self.scene.clearSelection()
-        for serialisationData in topMostSerialisationData:
-            manipulator = targetManipulator.getManipulatorByPath(serialisationData.name)
-            manipulator.setSelected(True)
-
-        return True
-
-    def performDelete(self):
-        return self.scene.deleteSelectedWidgets()
-
 # needs to be at the end to sort circular deps
 import ceed.ui.editors.looknfeel.looknfeelhierarchydockwidget
-import ceed.ui.editors.looknfeel.looknfeelwidgetselectorwidget
+import ceed.ui.editors.looknfeel.looknfeelwidgetlookselectorwidget
+import ceed.ui.editors.looknfeel.looknfeelpropertyeditordockwidget
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow

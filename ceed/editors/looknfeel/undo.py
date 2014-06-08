@@ -887,6 +887,12 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
     """
 
     def __init__(self, visual, tabbedEditor, newTargetWidgetLook):
+        """
+        :param visual: LookNFeelVisualEditing
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :param newTargetWidgetLook: string
+        :return:
+        """
         super(TargetWidgetChangeCommand, self).__init__()
 
         self.visual = visual
@@ -912,8 +918,12 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.tabbedEditor.targetWidgetLook = self.oldTargetWidgetLook
         self.tabbedEditor.visual.displayTargetWidgetLook()
 
+        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setPropertySets(self.tabbedEditor.targetWidgetLook)
+
     def redo(self):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
         self.tabbedEditor.visual.displayTargetWidgetLook()
+
+        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setPropertySets(self.tabbedEditor.targetWidgetLook)
 
         super(TargetWidgetChangeCommand, self).redo()

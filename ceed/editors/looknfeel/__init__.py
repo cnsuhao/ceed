@@ -98,12 +98,67 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # Parsing the resulting Look n' Feel
         PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
 
-        self.visual.lookNFeelWidgetSelectorWidget.populateWidgetLookComboBox()
+        # We retrieve a list of all WidgetLook names (as tuples of original and new name) that we just mapped for this editor
+        self.widgetLookNameTuples = self.getWidgetLookNameMappingTuples()
+
+        self.addMappedWidgetLookFalagardMappings()
+
+        self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.widgetLookNameTuples)
+
+    def getWidgetLookNameMappingTuples(self):
+        # Returns an array containing tuples of the original WidgetLook name and the mapped one
+        it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
+        widgetLookNameMappingList = []
+
+        while not it.isAtEnd():
+            widgetLookEditModeName = it.getCurrentKey()
+            splitResult = widgetLookEditModeName.split('/', 1)
+
+            if len(splitResult) != 2:
+                continue
+
+            widgetLookEditorID = splitResult[0]
+            widgetLookOriginalName = splitResult[1]
+
+            if widgetLookEditorID == self.editorIDString:
+                widgetLookNameTuple = (widgetLookOriginalName, widgetLookEditModeName)
+                widgetLookNameMappingList.append(widgetLookNameTuple)
+
+            it.next()
+
+        return widgetLookNameMappingList
+
+    def addMappedWidgetLookFalagardMappings(self):
+        # We have to "guess" at least one FalagardWindowMapping - we have to keep in mind that there could theoretically be multiple window mappings for one WidgetLook -  ( which
+        # contains a targetType and a renderer ) for our WidgetLook so we can display it.
+        # If the user has already loaded .scheme files then we can use the WindowFactoryManager for this purpose:
+        for nameTuple in self.widgetLookNameTuples:
+
+            falagardMappingIter = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
+            while not falagardMappingIter.isAtEnd():
+
+                falagardMapping = falagardMappingIter.getCurrentValue()
+                if falagardMapping.d_lookName == nameTuple[0]:
+                    PyCEGUI.WindowFactoryManager.getSingleton().addFalagardWindowMapping(nameTuple[1], falagardMapping.d_baseType, nameTuple[1],
+                                                                                         falagardMapping.d_rendererType)
+                falagardMappingIter.next()
+
+    def removeAddedWidgetLookFalagardMappings(self):
+        # Removes all FalagardMappings we previously added
+        for nameTuple in self.widgetLookNameTuples:
+
+            isAvailable = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(nameTuple[1])
+            PyCEGUI.WindowFactoryManager.getSingleton().removeFalagardWindowMapping(nameTuple[1])
+            isAvailable = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(nameTuple[1])
+            isAvailable
 
     def finalise(self):
         super(LookNFeelTabbedEditor, self).finalise()
 
     def destroy(self):
+
+        self.removeAddedWidgetLookFalagardMappings()
+
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
 
@@ -118,11 +173,14 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
     def activate(self):
         super(LookNFeelTabbedEditor, self).activate()
 
-        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelWidgetSelectorWidget)
-        self.visual.lookNFeelWidgetSelectorWidget.setVisible(True)
+        self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelWidgetLookSelectorWidget)
+        self.visual.lookNFeelWidgetLookSelectorWidget.setVisible(True)
 
         self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelHierarchyDockWidget)
         self.visual.lookNFeelHierarchyDockWidget.setVisible(True)
+
+        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.lookNFeelPropertyEditorDockWidget)
+        self.visual.lookNFeelPropertyEditorDockWidget.setVisible(True)
 
         self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
@@ -134,7 +192,8 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.lookNFeelHierarchyDockWidget)
-        self.mainWindow.removeDockWidget(self.visual.lookNFeelWidgetSelectorWidget)
+        self.mainWindow.removeDockWidget(self.visual.lookNFeelWidgetLookSelectorWidget)
+        self.mainWindow.removeDockWidget(self.visual.lookNFeelPropertyEditorDockWidget)
 
         self.mainWindow.removeToolBar(self.visual.toolBar)
 
