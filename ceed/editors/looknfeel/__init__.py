@@ -52,6 +52,8 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.code = code.CodeEditing(self)
         self.addTab(self.code, "Code")
 
+        self.widgetLookNameTuples = []
+
         # Look n' Feel Previewer is not actually an edit mode, you can't edit the Look n' Feel from it,
         # however for everything to work smoothly we do push edit mode changes to it to the
         # undo stack.
@@ -105,6 +107,10 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.widgetLookNameTuples)
 
+    def eraseMappedWidgetLooks(self):
+        for nameTuple in self.widgetLookNameTuples:
+            PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
+
     def getWidgetLookNameMappingTuples(self):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
         it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
@@ -146,18 +152,19 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
     def removeAddedWidgetLookFalagardMappings(self):
         # Removes all FalagardMappings we previously added
         for nameTuple in self.widgetLookNameTuples:
-
-            isAvailable = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(nameTuple[1])
             PyCEGUI.WindowFactoryManager.getSingleton().removeFalagardWindowMapping(nameTuple[1])
-            isAvailable = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(nameTuple[1])
-            isAvailable
 
     def finalise(self):
         super(LookNFeelTabbedEditor, self).finalise()
 
     def destroy(self):
+        self.visual.destroy()
 
+        # Remove all FalagardMappings we added
         self.removeAddedWidgetLookFalagardMappings()
+
+        # Erase all mapped WidgetLooks we added
+        self.eraseMappedWidgetLooks()
 
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)

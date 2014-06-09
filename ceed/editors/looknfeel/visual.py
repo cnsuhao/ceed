@@ -73,6 +73,18 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         self.setupToolBar()
         self.lookNFeelHierarchyDockWidget.treeView.setupContextMenu()
 
+    def destroy(self):
+        rootWidget = self.getCurrentRootWidget()
+
+        # Remove the widget with the previous WidgetLook from the scene
+        while rootWidget.getChildCount() != 0:
+            PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
+
+        # TODO (Ident) :
+        # Fix this in CEGUI default and remove it later in the CEED default branch
+        # for more info see: http://cegui.org.uk/wiki/The_Lederhosen_project_-_The_Second_Coming
+        PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
+
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
