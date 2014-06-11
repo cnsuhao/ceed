@@ -918,12 +918,14 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.tabbedEditor.targetWidgetLook = self.oldTargetWidgetLook
         self.tabbedEditor.visual.displayTargetWidgetLook()
 
-        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setPropertySets(self.tabbedEditor.targetWidgetLook)
+        widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
+        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
 
     def redo(self):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
         self.tabbedEditor.visual.displayTargetWidgetLook()
 
-        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setPropertySets(self.tabbedEditor.targetWidgetLook)
+        widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
+        self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
 
         super(TargetWidgetChangeCommand, self).redo()

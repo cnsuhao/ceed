@@ -1001,7 +1001,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
 
-        self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
+        self.visual.propertiesDockWidget.inspector.setSource(sets)
 
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:

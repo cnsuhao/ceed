@@ -30,6 +30,8 @@ from ceed.cegui import ceguitypes as ct
 
 from collections import OrderedDict
 
+import PyCEGUI
+
 class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
 
@@ -60,7 +62,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
 
         self.propertyManager = None
 
-        self.currentPropertySets = []
+        self.currentSource = []
 
     def sizeHint(self):
         # we'd rather have this size
@@ -75,16 +77,17 @@ class PropertyInspectorWidget(QtGui.QWidget):
     def setPropertyManager(self, propertyManager):
         self.propertyManager = propertyManager
 
-    def setPropertySets(self, ceguiPropertySets):
-        categories = self.propertyManager.buildCategories(ceguiPropertySets)
+    def setSource(self, source):
+        categories = self.propertyManager.buildCategories(source)
 
         # load them into the tree
         self.ptree.load(categories)
 
-        self.currentPropertySets = ceguiPropertySets
+        self.currentSource = source
 
-    def getPropertySets(self):
-        return self.currentPropertySets
+    def getSources(self):
+        return self.currentSource
+
 
 class CEGUIPropertyManager(object):
     """Builds propertytree properties from CEGUI properties and PropertySets,
@@ -320,8 +323,8 @@ class CEGUIPropertyManager(object):
 
 
 class CEGUIWidgetLookPropertiesManager(object):
-    """Builds propertytree properties from CEGUI WidgetLook's Property, PropertyDefinition and PropertyDefinitionLink options,
-    using a PropertyMap.
+    """Builds propertytree properties from a CEGUI WidgetLook offering options to modify its Properties, PropertyDefinitions and PropertyLinkDefinitions,
+    by using a PropertyMap.
     """
 
     # Maps CEGUI data types (in string form) to Python types
@@ -353,6 +356,95 @@ class CEGUIWidgetLookPropertiesManager(object):
     def __init__(self, propertyMap):
         self.propertyMap = propertyMap
 
+    def buildCategories(self, widgetLookObject):
+        """Create all available Properties, PropertyDefinitions and PropertyLinkDefinition options for this WidgetLook
+        and categorise them.
+
+        Return the categories, ready to be loaded into an Inspector Widget.
+        """
+        propertyList = self.buildProperties(widgetLookObject)
+        categories = properties.PropertyCategory.categorisePropertyList(propertyList)
+
+        # sort properties in categories
+        for cat in categories.values():
+            cat.sortProperties()
+
+        # sort categories by name
+        categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
+
+        return categories
+
+    def buildProperties(self, widgetLookObject):
+        """Create and return all available property options for the Properties, PropertyDefinitions and PropertyLinkDefinition available
+        for the passed WidgetLook."""
+
+        # * A CEGUI property does not have a value, it's similar to a definition
+        #   and we need an object that has that property to be able to get a value.
+        # * Each CEGUI PropertySet (widget, font, others) has it's own list of properties.
+        # * Some properties may be shared across PropertSets but some are not.
+        #
+        # It's pretty simple to map the properties 1:1 when we have only one
+        # set to process. When we have more, however, we need to group the
+        # properties that are shared across sets so we display them as one
+        # property that affects all the sets that have it.
+        # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
+        # are the same.
+
+        cgProps = dict()
+
+
+        # add a custom attribute to the PropertySet.
+        # this will be filled later on with callbacks (see
+        # 'createProperty'), one for each property that
+        # will be called when the properties of the set change.
+        # it's OK to clear any previous value because we only
+        # use this internally and we only need a max of one 'listener'
+        # for each property.
+        # It's not pretty but it does the job well enough.
+        setattr(widgetLookObject, "widgetLookPropertyManagerCallbacks", dict())
+
+        bla =  widgetLookObject.getPropertyDefinitionNames()
+        hurr = dir(bla)
+        urg = widgetLookObject.getPropertyDefinitions()
+
+        iterbeg = bla.begin()
+        iterbeg2 = urg.begin()
+
+        definitions = widgetLookObject.getPropertyDefinitionIterator()
+        propDefIterator = definitions.begin()
+        while not propDefIterator == definitions.end():
+            currentValue = propDefIterator
+            dataType = propDefIterator.getDataType()
+
+            propDefIterator.next()
+
+        """
+        while not propIt.isAtEnd():
+            cgProp = propIt.getCurrentValue()
+            guid = self.getCEGUIPropertyGUID(cgProp)
+
+            # if we already know this property, add the current set
+            # to the list.
+            if guid in cgProps:
+                cgProps[guid][1].append(cgSet)
+            # if it's a new property, check if it can be added
+            else:
+                # we don't support unreadable properties
+                if cgProp.isReadable():
+                    #print("XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType()))
+                    # check mapping and ignore hidden properties
+                    pmEntry = self.propertyMap.getEntry(cgProp.getOrigin(), cgProp.getName())
+                    if (not pmEntry) or (not pmEntry.hidden):
+                        cgProps[guid] = (cgProp, [widgetLookObject])
+
+            propIt.next()
+        """
+
+        # Convert the CEGUI properties with their sets to property tree properties.
+        ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
+
+        return ptProps
+
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
         #if not ceguiStrType in CEGUIWidgetLookPropertiesManager._typeMap:
@@ -369,85 +461,6 @@ class CEGUIWidgetLookPropertiesManager(object):
         return "/".join([ceguiProperty.getOrigin(),
                          ceguiProperty.getName(),
                          ceguiProperty.getDataType()])
-
-    def buildCategories(self, ceguiPropertySets):
-        """Create all available properties for all CEGUI PropertySets
-        and categorise them.
-
-        Return the categories, ready to be loaded into an Inspector Widget.
-        """
-        propertyList = self.buildProperties(ceguiPropertySets)
-        categories = properties.PropertyCategory.categorisePropertyList(propertyList)
-
-        # sort properties in categories
-        for cat in categories.values():
-            cat.sortProperties()
-
-        # sort categories by name
-        categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
-
-        return categories
-
-    def buildProperties(self, ceguiPropertySets):
-        """Create and return all available properties for the specified PropertySets."""
-        # short name
-        cgSets = ceguiPropertySets
-
-        if len(cgSets) == 0:
-            return []
-
-        # * A CEGUI property does not have a value, it's similar to a definition
-        #   and we need an object that has that property to be able to get a value.
-        # * Each CEGUI PropertySet (widget, font, others) has it's own list of properties.
-        # * Some properties may be shared across PropertSets but some are not.
-        #
-        # It's pretty simple to map the properties 1:1 when we have only one
-        # set to process. When we have more, however, we need to group the
-        # properties that are shared across sets so we display them as one
-        # property that affects all the sets that have it.
-        # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
-        # are the same.
-
-        cgProps = dict()
-
-        for cgSet in cgSets:
-
-            # add a custom attribute to the PropertySet.
-            # this will be filled later on with callbacks (see
-            # 'createProperty'), one for each property that
-            # will be called when the properties of the set change.
-            # it's OK to clear any previous value because we only
-            # use this internally and we only need a max of one 'listener'
-            # for each property.
-            # It's not pretty but it does the job well enough.
-            setattr(cgSet, "widgetLookPropertyManagerCallbacks", dict())
-
-            propIt = cgSet.getPropertyIterator()
-
-            while not propIt.isAtEnd():
-                cgProp = propIt.getCurrentValue()
-                guid = self.getCEGUIPropertyGUID(cgProp)
-
-                # if we already know this property, add the current set
-                # to the list.
-                if guid in cgProps:
-                    cgProps[guid][1].append(cgSet)
-                # if it's a new property, check if it can be added
-                else:
-                    # we don't support unreadable properties
-                    if cgProp.isReadable():
-                        #print("XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType()))
-                        # check mapping and ignore hidden properties
-                        pmEntry = self.propertyMap.getEntry(cgProp.getOrigin(), cgProp.getName())
-                        if (not pmEntry) or (not pmEntry.hidden):
-                            cgProps[guid] = (cgProp, [cgSet])
-
-                propIt.next()
-
-        # Convert the CEGUI properties with their sets to property tree properties.
-        ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
-
-        return ptProps
 
     def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=properties.MultiPropertyWrapper):
         """Create one MultiPropertyWrapper based property for the CEGUI Property

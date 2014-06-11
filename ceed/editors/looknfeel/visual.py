@@ -396,8 +396,8 @@ class CEGUIWidgetLookPropertyManager(CEGUIWidgetLookPropertiesManager):
 
         return prop
 
-    def buildCategories(self, ceguiPropertySets):
-        categories = super(CEGUIWidgetLookPropertyManager, self).buildCategories(ceguiPropertySets)
+    def buildCategories(self, source):
+        categories = super(CEGUIWidgetLookPropertyManager, self).buildCategories(source)
 
         # sort categories by name but keep some special categories on top
         def getSortKey(t):
