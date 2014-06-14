@@ -105,16 +105,22 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
         self.setRootWidget(rootWidget)
 
-    def displayTargetWidgetLook(self):
+    def displayNewTargetWidgetLook(self):
         rootWidget = self.getCurrentRootWidget()
 
         # Remove the widget with the previous WidgetLook from the scene
         while rootWidget.getChildCount() != 0:
             PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
 
+        # TODO (Ident) :
+        # Fix this in CEGUI default and remove it later in the CEED default branch
+        # for more info see: http://cegui.org.uk/wiki/The_Lederhosen_project_-_The_Second_Coming
+        PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
+
         # Add new widget representing the new WidgetLook to the scene
         widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
         rootWidget.addChild(widgetLookWindow)
+
         #Refresh the drawing of the preview
         self.scene.update()
 
@@ -732,9 +738,9 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
                 targetWidgetPaths.append(newParent.data(QtCore.Qt.UserRole) + "/" + suggestedName)
 
             if action == QtCore.Qt.MoveAction:
-                cmd = undo.ReparentCommand(self.dockWidget.visual, widgetPaths, targetWidgetPaths)
+                #cmd = undo.ReparentCommand(self.dockWidget.visual, widgetPaths, targetWidgetPaths)
                 # FIXME: unreadable
-                self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
+                #self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
 
                 return True
 
@@ -751,8 +757,8 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
             parentManipulator = self.dockWidget.visual.scene.getManipulatorByPath(parentItemPath) if parentItemPath else None
             uniqueName = parentManipulator.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]) if parentManipulator is not None else widgetType.rsplit("/", 1)[-1]
 
-            cmd = undo.CreateCommand(self.dockWidget.visual, parentItemPath, widgetType, uniqueName)
-            self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
+            #cmd = undo.CreateCommand(self.dockWidget.visual, parentItemPath, widgetType, uniqueName)
+            #self.dockWidget.visual.tabbedEditor.undoStack.push(cmd)
 
             return True
 

@@ -23,35 +23,43 @@ import PyCEGUI
 
 class CodeEditing(multi.CodeEditMode):
     def __init__(self, tabbedEditor):
+        """
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :return:
+        """
         super(CodeEditing, self).__init__()
 
         self.tabbedEditor = tabbedEditor
 
     def getNativeCode(self):
-        currentRootWidget = self.tabbedEditor.visual.getCurrentRootWidget()
+        # we return either the current WidgetLook's XML code as string or nothing, if no WidgetLook is selected
+        currentWidgetLook = self.tabbedEditor.targetWidgetLook
 
-        if currentRootWidget is None:
+        if currentWidgetLook is None:
             return ""
-
         else:
-            return PyCEGUI.WindowManager.getSingleton().getLayoutAsString(currentRootWidget)
+            widgetLookString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookAsString(currentWidgetLook)
+            return widgetLookString
 
     def propagateNativeCode(self, code):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
 
-        if code == "":
-            self.tabbedEditor.visual.setRootWidget(None)
+        currentWidgetLook = self.tabbedEditor.targetWidgetLook
+        codeAccepted = True
+
+        if (code == "") | (currentWidgetLook == ""):
+            self.tabbedEditor.tryUpdateWidgetLookFromString("", "")
 
         else:
             try:
-                newRoot = PyCEGUI.WindowManager.getSingleton().loadLayoutFromString(code)
-                self.tabbedEditor.visual.setRootWidget(newRoot)
-
-                return True
-
+                self.tabbedEditor.tryUpdateWidgetLookFromString(currentWidgetLook, code)
             except:
-                return False
+                codeAccepted = False
+
+            self.tabbedEditor.visual.displayNewTargetWidgetLook()
+
+        return codeAccepted
 
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow

@@ -111,6 +111,21 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         for nameTuple in self.widgetLookNameTuples:
             PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
 
+    def tryUpdateWidgetLookFromString(self, name, string):
+        for nameTuple in self.widgetLookNameTuples:
+            if nameTuple[1] == name:
+                widgetLookString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookAsString(nameTuple[1])
+                PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
+                try:
+                    PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(string)
+                except:
+                    PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(widgetLookString)
+                    raise
+
+                return
+
+        raise RuntimeError('Attempted to update a widget in the Look N\' Feel Editor, which is not mapped. No action taken.')
+
     def getWidgetLookNameMappingTuples(self):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
         it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
