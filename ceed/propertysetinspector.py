@@ -403,20 +403,21 @@ class CEGUIWidgetLookPropertiesManager(object):
         # It's not pretty but it does the job well enough.
         setattr(widgetLookObject, "widgetLookPropertyManagerCallbacks", dict())
 
-        bla =  widgetLookObject.getPropertyDefinitionNames()
-        hurr = dir(bla)
-        urg = widgetLookObject.getPropertyDefinitions()
+        #propertyDefs = widgetLookObject.getPropertyDefinitions()
 
-        iterbeg = bla.begin()
-        iterbeg2 = urg.begin()
+        #for propertyDefinition in propertyDefs:
+            #prop = type(PyCEGUI.Property)(propertyDefinition)
+            #type2 = prop.getDataType()
 
-        definitions = widgetLookObject.getPropertyDefinitionIterator()
-        propDefIterator = definitions.begin()
-        while not propDefIterator == definitions.end():
-            currentValue = propDefIterator
-            dataType = propDefIterator.getDataType()
+            #uga = dir(propertyDefinition)
 
-            propDefIterator.next()
+
+
+        #definitions = widgetLookObject.getPropertyDefinitionIterator()
+        #propDefIterator = definitions.isAtEnd()
+        #while not propDefIterator == definitions.end():
+            #prop = propDefIterator.clone()
+            #propDefIterator.next()
 
         """
         while not propIt.isAtEnd():
