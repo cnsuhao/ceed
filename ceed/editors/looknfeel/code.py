@@ -19,6 +19,7 @@
 ##############################################################################
 
 from ceed.editors import multi
+
 import PyCEGUI
 
 class CodeEditing(multi.CodeEditMode):
@@ -32,34 +33,33 @@ class CodeEditing(multi.CodeEditMode):
         self.tabbedEditor = tabbedEditor
 
     def getNativeCode(self):
-        # we return either the current WidgetLook's XML code as string or nothing, if no WidgetLook is selected
-        currentWidgetLook = self.tabbedEditor.targetWidgetLook
+        # Returns the Look n' Feel XML string based on all WidgetLookFeels that belong to the Look n' Feel file according to the editor
 
-        if currentWidgetLook is None:
-            return ""
-        else:
-            widgetLookString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookAsString(currentWidgetLook)
-            return widgetLookString
+        # We add every WidgetLookFeel name of this Look N' Feel to a StringSet
+        nameSet = self.tabbedEditor.getStringSetOfWidgetLookFeelNames()
+        # We parse all WidgetLookFeels as XML to a string
+        lookAndFeelString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookSetAsString(nameSet)
+
+        lookAndFeelString = self.tabbedEditor.unmapWidgetLookReferences(lookAndFeelString)
+
+        return lookAndFeelString
 
     def propagateNativeCode(self, code):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
 
-        currentWidgetLook = self.tabbedEditor.targetWidgetLook
-        codeAccepted = True
+        self.tabbedEditor.visual.destroyCurrentPreviewWidget()
 
-        if (code == "") | (currentWidgetLook == ""):
-            self.tabbedEditor.tryUpdateWidgetLookFromString("", "")
+        loadingSuccessful = True
+        try:
+            self.tabbedEditor.mapAndLoadLookNFeelFileString(code)
+        except:
+            self.tabbedEditor.mapAndLoadLookNFeelFileString(self.tabbedEditor.nativeData)
+            loadingSuccessful = False
 
-        else:
-            try:
-                self.tabbedEditor.tryUpdateWidgetLookFromString(currentWidgetLook, code)
-            except:
-                codeAccepted = False
+        self.tabbedEditor.visual.displayNewTargetWidgetLook()
 
-            self.tabbedEditor.visual.displayNewTargetWidgetLook()
-
-        return codeAccepted
+        return loadingSuccessful
 
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow
