@@ -52,7 +52,7 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.code = code.CodeEditing(self)
         self.addTab(self.code, "Code")
 
-        self.widgetLookNameTuples = []
+        self.nameMappingsOfOwnedWidgetLooks = []
 
         # Look n' Feel Previewer is not actually an edit mode, you can't edit the Look n' Feel from it,
         # however for everything to work smoothly we do push edit mode changes to it to the
@@ -81,11 +81,11 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # we have to make the context the current context to ensure textures are fine
         self.mainWindow.ceguiContainerWidget.makeGLContextCurrent()
 
-        self.mapAndLoadLookNFeelFileString()
+        self.mapAndLoadLookNFeelFileString(self.nativeData)
 
         self.visual.initialise()
 
-    def mapAndLoadLookNFeelFileString(self):
+    def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
         # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor simultaneously, we will map the
         # names that we load from a Look n' Feel file in a way that they are unique. We achieve this by editing the WidgetLook names inside the string we loaded from
@@ -93,38 +93,76 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # Each Editor is associated with only one LNF file so that this will in effect also guarantee that the WidgetLooks inside the CEGUI system will be uniquely named
         # for each file
 
+        #Mapping all occuring references
+        modifiedLookNFeelString = self.mapWidgetLookReferences(lookNFeelAsXMLString)
+
+        # We remove all WidgetLook mappings
+        self.removeOwnedWidgetLookFalagardMappings()
+
+        # We erase all widgetLooks
+        self.destroyOwnedWidgetLooks()
+
+        try:
+            # Parsing the resulting Look n' Feel
+            PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
+        except:
+            # We retrieve a list of all newly loaded WidgetLook names (as tuples of original and new name) that we just mapped for this editor
+            self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
+            # We erase all widgetLooks
+            self.destroyOwnedWidgetLooks()
+            # We refresh the WidgetLook names
+            self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
+            # Refreshing the combobox
+            self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.nameMappingsOfOwnedWidgetLooks)
+            raise
+
+        # We retrieve a list of all WidgetLook names (as tuples of original and new name) that we just mapped for this editor
+        self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
+
+        # We look for falagard mappings and add them
+        self.addMappedWidgetLookFalagardMappings()
+        # Refreshing the combobox
+        self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.nameMappingsOfOwnedWidgetLooks)
+
+    def mapWidgetLookReferences(self, lookNFeelString):
+        """
+        Maps all occurances of WidgetLookFeel name references in an XML string to a new name based by prepending the editor's ID number
+        :type lookNFeelString: str
+        :return: str
+        """
         # Modifying the string using regex
         regexPattern = "<\s*WidgetLook\sname\s*=\s*\""
         replaceString = "<WidgetLook name=\"" + self.editorIDString + "/"
-        modifiedLookNFeelString = re.sub(regexPattern, replaceString, self.nativeData)
-        # Parsing the resulting Look n' Feel
-        PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
+        modifiedLookNFeelString = re.sub(regexPattern, replaceString, lookNFeelString)
 
-        # We retrieve a list of all WidgetLook names (as tuples of original and new name) that we just mapped for this editor
-        self.widgetLookNameTuples = self.getWidgetLookNameMappingTuples()
+        regexPattern = "look\s*=\s*\""
+        replaceString = "look=\"" + self.editorIDString + "/"
+        modifiedLookNFeelString = re.sub(regexPattern, replaceString, modifiedLookNFeelString)
 
-        self.addMappedWidgetLookFalagardMappings()
+        return modifiedLookNFeelString
 
-        self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.widgetLookNameTuples)
+    def unmapWidgetLookReferences(self, lookNFeelString):
+        """
+        Unmaps all occurances of mapped WidgetLookFeel name references in an XML string by removing the prepended editor ID number
+        :type lookNFeelString: str
+        :return: str
+        """
+        # Modifying the string using regex
+        regexPattern = "name=\"" + self.editorIDString + "/"
+        replaceString = "name=\""
+        modifiedLookNFeelString = re.sub(regexPattern, replaceString, lookNFeelString)
 
-    def eraseMappedWidgetLooks(self):
-        for nameTuple in self.widgetLookNameTuples:
+        regexPattern = "look=\"" + self.editorIDString + "/"
+        replaceString = "look=\""
+        modifiedLookNFeelString = re.sub(regexPattern, replaceString, modifiedLookNFeelString)
+
+        return modifiedLookNFeelString
+
+    def destroyOwnedWidgetLooks(self):
+        for nameTuple in self.nameMappingsOfOwnedWidgetLooks:
             PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
 
-    def tryUpdateWidgetLookFromString(self, name, string):
-        for nameTuple in self.widgetLookNameTuples:
-            if nameTuple[1] == name:
-                widgetLookString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookAsString(nameTuple[1])
-                PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
-                try:
-                    PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(string)
-                except:
-                    PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(widgetLookString)
-                    raise
-
-                return
-
-        raise RuntimeError('Attempted to update a widget in the Look N\' Feel Editor, which is not mapped. No action taken.')
+        del self.nameMappingsOfOwnedWidgetLooks[:]
 
     def getWidgetLookNameMappingTuples(self):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
@@ -153,7 +191,7 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         # We have to "guess" at least one FalagardWindowMapping - we have to keep in mind that there could theoretically be multiple window mappings for one WidgetLook -  ( which
         # contains a targetType and a renderer ) for our WidgetLook so we can display it.
         # If the user has already loaded .scheme files then we can use the WindowFactoryManager for this purpose:
-        for nameTuple in self.widgetLookNameTuples:
+        for nameTuple in self.nameMappingsOfOwnedWidgetLooks:
 
             falagardMappingIter = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
             while not falagardMappingIter.isAtEnd():
@@ -164,9 +202,9 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
                                                                                          falagardMapping.d_rendererType)
                 falagardMappingIter.next()
 
-    def removeAddedWidgetLookFalagardMappings(self):
+    def removeOwnedWidgetLookFalagardMappings(self):
         # Removes all FalagardMappings we previously added
-        for nameTuple in self.widgetLookNameTuples:
+        for nameTuple in self.nameMappingsOfOwnedWidgetLooks:
             PyCEGUI.WindowFactoryManager.getSingleton().removeFalagardWindowMapping(nameTuple[1])
 
     def finalise(self):
@@ -176,10 +214,10 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.visual.destroy()
 
         # Remove all FalagardMappings we added
-        self.removeAddedWidgetLookFalagardMappings()
+        self.removeOwnedWidgetLookFalagardMappings()
 
         # Erase all mapped WidgetLooks we added
-        self.eraseMappedWidgetLooks()
+        self.destroyOwnedWidgetLooks()
 
         # unsubscribe from the toolbar icon size setting
         self.tbIconSizeEntry.unsubscribe(self.tbIconSizeCallback)
@@ -221,6 +259,19 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         super(LookNFeelTabbedEditor, self).deactivate()
 
+    def getStringSetOfWidgetLookFeelNames(self):
+        """
+        Returns a PyCEGUI.StringSet containing all (mapped) names of WidgetLookFeels that the file is associated with according to the editor
+        :return: PyCEGUI.StringSet
+        """
+
+        # We add every WidgetLookFeel name of this Look N' Feel to a StringSet
+        nameSet = PyCEGUI.StringSet()
+        for nameTuple in self.nameMappingsOfOwnedWidgetLooks:
+            nameSet.add(nameTuple[1])
+
+        return nameSet
+
     def saveAs(self, targetPath, updateCurrentPath = True):
         codeMode = self.currentWidget() is self.code
 
@@ -229,6 +280,12 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         if codeMode:
             self.code.propagateToVisual()
+
+        # We add every WidgetLookFeel name of this Look N' Feel to a StringSet
+        nameSet = self.getStringSetOfWidgetLookFeelNames()
+        # We parse all WidgetLookFeels as XML to a string
+        lookAndFeelString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookSetAsString(nameSet)
+        self.nativeData = self.unmapWidgetLookReferences(lookAndFeelString)
 
         return super(LookNFeelTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
