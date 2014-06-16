@@ -81,7 +81,7 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
             PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
 
         # TODO (Ident) :
-        # Fix this in CEGUI default and remove it later in the CEED default branch
+        # Fix the window pool cleanup issues in CEGUI default and remove this later in the CEED default branch
         # for more info see: http://cegui.org.uk/wiki/The_Lederhosen_project_-_The_Second_Coming
         PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
 
@@ -105,7 +105,11 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         rootWidget = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "LookNFeelEditorRoot")
         self.setRootWidget(rootWidget)
 
-    def displayNewTargetWidgetLook(self):
+    def destroyCurrentPreviewWidget(self):
+        """
+        Destroys all child windows of the root, which means that all preview windows of the selected WidgetLookFeel should be destroyed
+        :return:
+        """
         rootWidget = self.getCurrentRootWidget()
 
         # Remove the widget with the previous WidgetLook from the scene
@@ -113,13 +117,23 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
             PyCEGUI.WindowManager.getSingleton().destroyWindow(rootWidget.getChildAtIdx(0))
 
         # TODO (Ident) :
-        # Fix this in CEGUI default and remove it later in the CEED default branch
+        # Fix the window pool cleanup issues in CEGUI default and remove this later in the CEED default branch
         # for more info see: http://cegui.org.uk/wiki/The_Lederhosen_project_-_The_Second_Coming
         PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
 
-        # Add new widget representing the new WidgetLook to the scene
-        widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
-        rootWidget.addChild(widgetLookWindow)
+    def displayNewTargetWidgetLook(self):
+        self.destroyCurrentPreviewWidget()
+
+        if self.tabbedEditor.targetWidgetLook != "":
+
+            # Add new widget representing the new WidgetLook to the scene, if the factory is registered
+            factoryPresent = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(self.tabbedEditor.targetWidgetLook)
+            if factoryPresent:
+                rootWidget = self.getCurrentRootWidget()
+                widgetLookWindow = PyCEGUI.WindowManager.getSingleton().createWindow(self.tabbedEditor.targetWidgetLook, "WidgetLookWindow")
+                rootWidget.addChild(widgetLookWindow)
+            else:
+                self.tabbedEditor.targetWidgetLook = ""
 
         #Refresh the drawing of the preview
         self.scene.update()
@@ -339,7 +353,7 @@ class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
         self.tabbedEditor.undoStack.push(command)
 
     def populateWidgetLookComboBox(self, widgetLookNameTuples):
-        self.widgetLookNameBox.clear
+        self.widgetLookNameBox.clear()
         # We populate the combobox with items that use the original name as display text but have the name of the live-editable WidgetLook stored as a QVariant
 
         for nameTuple in widgetLookNameTuples:
