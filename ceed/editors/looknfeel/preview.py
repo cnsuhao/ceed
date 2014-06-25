@@ -24,12 +24,17 @@ from ceed.editors import multi
 
 import PyCEGUI
 
+
 class LookNFeelPreviewer(QtGui.QWidget, multi.EditMode):
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """
 
     def __init__(self, tabbedEditor):
+        """
+        :param tabbedEditor: LookNFeelTabbedEditor
+        :return:
+        """
         super(LookNFeelPreviewer, self).__init__()
 
         self.tabbedEditor = tabbedEditor
@@ -47,13 +52,13 @@ class LookNFeelPreviewer(QtGui.QWidget, multi.EditMode):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
 
-        currentRootWidget = self.tabbedEditor.visual.getCurrentRootWidget()
-        if currentRootWidget is None:
+        currentRootWindow = self.tabbedEditor.visual.rootWindow
+        if currentRootWindow is None:
             self.rootWidget = None
 
         else:
             # lets clone so we don't affect the Look n' Feel at all
-            self.rootWidget = currentRootWidget.clone()
+            self.rootWidget = currentRootWindow.clone()
 
         PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWidget)
 

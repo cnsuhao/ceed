@@ -660,7 +660,7 @@ class PasteCommand(commands.UndoCommand):
 
             if wasRootWidget:
                 # this was a root widget being deleted, handle this accordingly
-                self.visual.setRootWidgetManipulator(None)
+                self.visual.setWidgetLookManipulator(None)
 
         self.visual.notifyWidgetManipulatorsRemoved(widgetPaths)
 

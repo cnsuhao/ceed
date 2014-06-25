@@ -166,7 +166,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
         if parentWidgetWasNone:
             # if this was root we have to inform the scene accordingly!
-            self.visual.setRootWidgetManipulator(None)
+            self.visual.setWidgetLookManipulator(None)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("application/x-ceed-widget-type"):
@@ -373,7 +373,7 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
 
         if ret.parentItem() is None:
             # this is a root widget being reconstructed, handle this accordingly
-            self.visual.setRootWidgetManipulator(ret)
+            self.visual.setWidgetLookManipulator(ret)
 
         return ret
 
