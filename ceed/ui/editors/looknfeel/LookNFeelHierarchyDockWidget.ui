@@ -105,7 +105,7 @@ QTreeView::indicator:unchecked
   <customwidget>
    <class>LookNFeelHierarchyTreeView</class>
    <extends>QTreeView</extends>
-   <header>ceed.editors.looknfeel.visual</header>
+   <header>ceed.editors.looknfeel.hierarchy_tree_view</header>
   </customwidget>
  </customwidgets>
  <resources/>
