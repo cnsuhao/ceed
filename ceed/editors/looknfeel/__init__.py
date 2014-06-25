@@ -107,18 +107,16 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
             PyCEGUI.WidgetLookManager.getSingleton().parseLookNFeelSpecificationFromString(modifiedLookNFeelString)
         except:
             # We retrieve a list of all newly loaded WidgetLook names (as tuples of original and new name) that we just mapped for this editor
-            self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
+            self.refreshWidgetLookNameMappingTuples()
             # We erase all widgetLooks
             self.destroyOwnedWidgetLooks()
-            # We refresh the WidgetLook names
-            self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
             # Refreshing the combobox
             self.visual.lookNFeelWidgetLookSelectorWidget.populateWidgetLookComboBox(self.nameMappingsOfOwnedWidgetLooks)
+            # We raise the error again so we can process it in the try-block outside the function
             raise
 
         # We retrieve a list of all WidgetLook names (as tuples of original and new name) that we just mapped for this editor
-        self.nameMappingsOfOwnedWidgetLooks = self.getWidgetLookNameMappingTuples()
-
+        self.refreshWidgetLookNameMappingTuples()
         # We look for falagard mappings and add them
         self.addMappedWidgetLookFalagardMappings()
         # Refreshing the combobox
@@ -162,12 +160,16 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         for nameTuple in self.nameMappingsOfOwnedWidgetLooks:
             PyCEGUI.WidgetLookManager.getSingleton().eraseWidgetLook(nameTuple[1])
 
+        # We refresh the WidgetLook names
+        self.refreshWidgetLookNameMappingTuples()
+
+    def refreshWidgetLookNameMappingTuples(self):
+        # Delete all previous entries
         del self.nameMappingsOfOwnedWidgetLooks[:]
 
-    def getWidgetLookNameMappingTuples(self):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
         it = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookIterator()
-        widgetLookNameMappingList = []
+        self.nameMappingsOfOwnedWidgetLooks = []
 
         while not it.isAtEnd():
             widgetLookEditModeName = it.getCurrentKey()
@@ -181,11 +183,9 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
             if widgetLookEditorID == self.editorIDString:
                 widgetLookNameTuple = (widgetLookOriginalName, widgetLookEditModeName)
-                widgetLookNameMappingList.append(widgetLookNameTuple)
+                self.nameMappingsOfOwnedWidgetLooks.append(widgetLookNameTuple)
 
             it.next()
-
-        return widgetLookNameMappingList
 
     def addMappedWidgetLookFalagardMappings(self):
         # We have to "guess" at least one FalagardWindowMapping - we have to keep in mind that there could theoretically be multiple window mappings for one WidgetLook -  ( which
