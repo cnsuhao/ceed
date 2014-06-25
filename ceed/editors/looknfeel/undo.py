@@ -68,6 +68,8 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
             self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
 
+        self.tabbedEditor.visual.lookNFeelHierarchyDockWidget.updateWidgetLookFeelHierarchy()
+
     def redo(self):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
         self.tabbedEditor.visual.displayNewTargetWidgetLook()
@@ -77,5 +79,7 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
             self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
+
+        self.tabbedEditor.visual.lookNFeelHierarchyDockWidget.updateWidgetLookFeelHierarchy()
 
         super(TargetWidgetChangeCommand, self).redo()
