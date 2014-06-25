@@ -162,9 +162,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
         super(Manipulator, self).detach(detachWidget, destroyWidget, recursive)
 
-        if parentWidgetWasNone:
+        #if parentWidgetWasNone:
             # if this was root we have to inform the scene accordingly!
-            self.visual.setRootWidgetManipulator(None)
+            # self.visual.setWidgetLookManipulator(None)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("application/x-ceed-widget-type"):
@@ -324,7 +324,7 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
     The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
     """
 
-    def __init__(self, visual, widget = None, serialiseChildren = True):
+    def __init__(self, visual, widget=None, serialiseChildren=True):
         self.visual = visual
 
         super(SerialisationData, self).__init__(widget, serialiseChildren)
@@ -343,10 +343,6 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
 
     def reconstruct(self, rootManipulator):
         ret = super(SerialisationData, self).reconstruct(rootManipulator)
-
-        if ret.parentItem() is None:
-            # this is a root widget being reconstructed, handle this accordingly
-            self.visual.setRootWidgetManipulator(ret)
 
         return ret
 
