@@ -46,6 +46,9 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
         self.requiresProject = True
 
+        # The name of the widget we are targeting for editing
+        self.targetWidgetLook = ""
+
         self.visual = visual.LookNFeelVisualEditing(self)
         self.addTab(self.visual, "Visual")
 
@@ -65,9 +68,6 @@ class LookNFeelTabbedEditor(editors.multi.MultiModeTabbedEditor):
         self.addTab(self.previewer, "Live Preview")
 
         self.tabWidget = self
-
-        # The name of the widget we are targeting for editing
-        self.targetWidgetLook = ""
 
         # set the toolbar icon size according to the setting and subscribe to it
         self.tbIconSizeEntry = settings.getEntry("global/ui/toolbar_icon_size")
