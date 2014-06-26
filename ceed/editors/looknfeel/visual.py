@@ -1,7 +1,11 @@
 ##############################################################################
+#   created:    25th June 2014
+#   author:     Lukas E Meindl
+##############################################################################
+##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
-#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#   Copyright (C) 2011-2014   Martin Preisler <martin@preisler.me>
 #                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
