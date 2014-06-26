@@ -390,8 +390,10 @@ class CEGUIWidgetLookPropertiesManager(object):
         # We use getCEGUIPropertyGUID() to determine if two CEGUI properties
         # are the same.
 
-        cgProps = dict()
+        if widgetLookObject is None:
+            return []
 
+        cgProps = dict()
 
         # add a custom attribute to the PropertySet.
         # this will be filled later on with callbacks (see

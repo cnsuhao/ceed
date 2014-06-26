@@ -36,6 +36,7 @@ from collections import OrderedDict
 
 from . import utility
 
+
 class PropertyCategory(object):
     """A category for properties.
     Categories have a name and hold a list of properties.
