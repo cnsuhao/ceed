@@ -58,6 +58,16 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         self.createChildren()
 
     @staticmethod
+    def getOriginalName(mappedName):
+        """
+        Returns the original name of a WidgetLookFeel based on the mapped name
+        :param mappedName: str
+        :return: str
+        """
+        mappedNameSplitResult = mappedName.split('/', 1)
+        return mappedNameSplitResult[1]
+
+    @staticmethod
     def getNameAndToolTip(widgetLookElement):
         """
         Creates a name and tooltip for any element that can be part of a WidgetLookFeel and returns it
@@ -69,23 +79,23 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         # The WidgetLookFeel object:
         if isinstance(widgetLookElement, PyCEGUI.WidgetLookFeel):
-            mappedNameSplitResult = widgetLookElement.getName().split('/', 1)
-            name = mappedNameSplitResult[1]
+            name = LookNFeelHierarchyItem.getOriginalName(widgetLookElement.getName())
             toolTip = u"type: WidgetLookFeel"
+
         # Objects that can be owned by a WidgetLookFeel:
         elif isinstance(widgetLookElement, PyCEGUI.NamedArea):
-            name = u"NamedArea: " + widgetLookElement.getName() + u"\""
+            name = u"NamedArea: \"" + widgetLookElement.getName() + u"\""
             toolTip = u"type: NamedArea"
         elif isinstance(widgetLookElement, PyCEGUI.ImagerySection):
             name = u"ImagerySection: \"" + widgetLookElement.getName() + u"\""
             toolTip = u"type: ImagerySection"
         elif isinstance(widgetLookElement, PyCEGUI.StateImagery):
-            wlN = widgetLookElement.getName()
-            name = u"StateImagery: \"" + wlN + u"\""
+            name = u"StateImagery: \"" + widgetLookElement.getName() + u"\""
             toolTip = u"type: StateImagery"
         elif isinstance(widgetLookElement, PyCEGUI.WidgetComponent):
-            name = u"Child : \"" + widgetLookElement.getWidgetName() + u"\""
+            name = u"Child: \"" + widgetLookElement.getName() + u"\" type: " + widgetLookElement.getWidgetLookName() + u""
             toolTip = u"type: WidgetComponent"
+
         # Objects that can be owned by a ImagerySection:
         elif isinstance(widgetLookElement, PyCEGUI.ImageryComponent):
             name = u"ImageryComponent"
@@ -96,22 +106,37 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(widgetLookElement, PyCEGUI.FrameComponent):
             name = u"FrameComponent"
             toolTip = u"type: FrameComponent"
+
         # Objects that can be owned by a StateImagery:
         elif isinstance(widgetLookElement, PyCEGUI.LayerSpecification):
             name = u"Layer"
             toolTip = u"type: LayerSpecification"
+
         # Objects that can be owned by a LayerSpecification:
         elif isinstance(widgetLookElement, PyCEGUI.SectionSpecification):
-            name = u"Section"
+            name = u"Section: \"" + widgetLookElement.getSectionName() + "\""
+            if widgetLookElement.getOwnerWidgetLookFeel() != "":
+                name += u" look:" + LookNFeelHierarchyItem.getOriginalName(widgetLookElement.getOwnerWidgetLookFeel())
+            if widgetLookElement.getRenderControlPropertySource() != "":
+                name += u" controlProperty:" + widgetLookElement.getRenderControlPropertySource()
+            if widgetLookElement.getRenderControlValue() != "":
+                name += u" controlValue:" + widgetLookElement.getRenderControlValue()
             toolTip = u"type: SectionSpecification"
+
         # The ComponentArea element
         elif isinstance(widgetLookElement, PyCEGUI.ComponentArea):
             name = u"Area"
             toolTip = u"type: ComponentArea"
+
         # The ColourRect element
         elif isinstance(widgetLookElement, PyCEGUI.ColourRect):
-            name = u"Colours"
+            name = u"Colours "
             toolTip = u"type: ColourRect"
+
+        # The Image element
+        elif isinstance(widgetLookElement, PyCEGUI.Image):
+            name = u"Image (\"" + widgetLookElement.getImage().getName() + u"\")"
+            toolTip = u"type: Image"
 
         return name, toolTip
 
@@ -121,10 +146,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         :param:
         :return:
         """
-
-        if isinstance(self.widgetLookElement, PyCEGUI.WidgetLookFeel):
-            self.createWidgetLookFeelChildren()
-        elif isinstance(self.widgetLookElement, PyCEGUI.NamedArea):
+        if isinstance(self.widgetLookElement, PyCEGUI.NamedArea):
             self.createNamedAreaChildren()
         elif isinstance(self.widgetLookElement, PyCEGUI.ImagerySection):
             self.createImagerySectionChildren()
@@ -151,36 +173,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         """
         newItem = LookNFeelHierarchyItem(widgetLookElement)
         self.appendRow(newItem)
-
-    def createWidgetLookFeelChildren(self):
-        """
-        Iterates over all contained elements of the WidgetLookFeel. Creates the contained elements as
-        new items and appends them to this item
-        :return:
-        """
-        namedAreaIter = self.widgetLookElement.getNamedAreaIterator()
-        while not namedAreaIter.isAtEnd():
-            currentNamedArea = namedAreaIter.getCurrentValue()
-            self.createAndAddItem(currentNamedArea)
-            namedAreaIter.next()
-
-        imageryIter = self.widgetLookElement.getImageryIterator()
-        while not imageryIter.isAtEnd():
-            currentImagerySection = imageryIter.getCurrentValue()
-            self.createAndAddItem(currentImagerySection)
-            imageryIter.next()
-
-        stateIter = self.widgetLookElement.getStateIterator()
-        while not stateIter.isAtEnd():
-            currentStateImagery = stateIter.getCurrentValue()
-            self.createAndAddItem(currentStateImagery)
-            stateIter.next()
-
-        childWidgetIter = self.widgetLookElement.getWidgetComponentIterator()
-        while not childWidgetIter.isAtEnd():
-            currentChildWidget = childWidgetIter.getCurrentValue()
-            self.createAndAddItem(currentChildWidget)
-            childWidgetIter.next()
 
     def createNamedAreaChildren(self):
         """
@@ -243,7 +235,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         area = self.widgetLookElement.getComponentArea()
         self.createAndAddItem(area)
 
-
     def createTextComponentChildren(self):
         """
         Creates and appends children items based on a TextComponent.
@@ -285,10 +276,23 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         self.createAndAddItem(colourRect)
 
     def createLayerSpecificationChildren(self):
-        return
+        """
+        Creates and appends children items based on a LayerSpecification.
+        :return:
+        """
+        sectionIter = self.widgetLookElement.getSectionIterator()
+        while not sectionIter.isAtEnd():
+            currentSectionSpecification = sectionIter.getCurrentValue()
+            self.createAndAddItem(currentSectionSpecification)
+            sectionIter.next()
 
     def createSectionSpecificationChildren(self):
-        return
+        """
+        Creates and appends children items based on a SectionSpecification.
+        :return:
+        """
+        colourRect = self.widgetLookElement.getOverrideColours()
+        self.createAndAddItem(colourRect)
 
     def clone(self):
         ret = LookNFeelHierarchyItem(self.manipulator)

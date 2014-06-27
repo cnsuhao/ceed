@@ -48,24 +48,75 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.ignoreSelectionChanges = False
 
         self.model = LookNFeelHierarchyTreeModel(self)
+        """ :type: LookNFeelHierarchyTreeModel"""
+
+        self.widgetLookNameLabel = self.findChild(QtGui.QLabel, "widgetLookName")
+        """ :type: QtGui.QLabel"""
+        self.widgetLookNameLabel.setText("")
+
+        self.displayStateCombobox = self.findChild(QtGui.QComboBox, "displayStateCombobox")
+        """ :type: QtGui.QComboBox"""
+        self.displayStateCombobox.currentIndexChanged.connect(self.slot_displayStateComboboxCurrentIndexChanged)
+
         self.treeView = self.findChild(LookNFeelHierarchyTreeView, "treeView")
+        """ :type: LookNFeelHierarchyTreeView"""
         self.treeView.dockWidget = self
         self.treeView.setModel(self.model)
 
-        self.updateWidgetLookFeelHierarchy()
+        self.updateToNewWidgetLook()
 
-    def updateWidgetLookFeelHierarchy(self):
-        """Updates the hierarchy based on the WidgetLookFeel which was selected
+    def updateToNewWidgetLook(self):
+        self.widgetLookNameLabel.setText(self.tabbedEditor.targetWidgetLook)
+        self.updateStateCombobox()
+        self.updateHierarchy()
+
+    def updateStateCombobox(self):
         """
+        We populate the combobox with a show-all option and display options for the different states
+        in the WidgetLookFeel
+        :return:
+        """
+        self.displayStateCombobox.blockSignals(True)
+        self.displayStateCombobox.clear()
+
+        widgetLookObject = None
+        if self.tabbedEditor.targetWidgetLook == "":
+            return
+        else:
+            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
+
+        self.displayStateCombobox.addItem("Show all", None)
+
+        stateIter = widgetLookObject.getStateIterator()
+        while not stateIter.isAtEnd():
+            currentStateImagery = stateIter.getCurrentValue()
+            self.displayStateCombobox.addItem(currentStateImagery.getName(), currentStateImagery.getName())
+            stateIter.next()
+
+        showAllIndex = self.displayStateCombobox.findData(None)
+        self.displayStateCombobox.setCurrentIndex(showAllIndex)
+        self.displayStateCombobox.blockSignals(False)
+
+    def updateHierarchy(self):
+        """
+        Updates the hierarchy based on the WidgetLookFeel which was selected and optionally limiting
+        the display to a specific StateImagery and its referenced elements and their children
+        :return:
+        """
+
+        limitDisplayTo = self.displayStateCombobox.itemData(self.displayStateCombobox.currentIndex())
 
         widgetLook = self.tabbedEditor.targetWidgetLook
         if widgetLook != "":
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(widgetLook)
-            self.model.setWidgetLookObject(widgetLookObject)
+            self.model.updateTree(widgetLookObject, limitDisplayTo)
         else:
-            self.model.setWidgetLookObject(None)
+            self.model.updateTree(None, limitDisplayTo)
 
         self.treeView.expandAll()
+
+    def slot_displayStateComboboxCurrentIndexChanged(self, index):
+        self.updateHierarchy()
 
     def data(self, index, role = QtCore.Qt.DisplayRole):
         return super(LookNFeelHierarchyTreeModel, self).data(index, role)
