@@ -66,7 +66,13 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.updateToNewWidgetLook()
 
     def updateToNewWidgetLook(self):
-        self.widgetLookNameLabel.setText(self.tabbedEditor.targetWidgetLook)
+        if self.tabbedEditor.targetWidgetLook != "":
+            from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+            originalParts = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.tabbedEditor.targetWidgetLook)
+            self.widgetLookNameLabel.setText(originalParts[0])
+        else:
+            self.widgetLookNameLabel.setText("")
+
         self.updateStateCombobox()
         self.updateHierarchy()
 
@@ -79,7 +85,6 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.displayStateCombobox.blockSignals(True)
         self.displayStateCombobox.clear()
 
-        widgetLookObject = None
         if self.tabbedEditor.targetWidgetLook == "":
             return
         else:
@@ -115,7 +120,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
 
         self.treeView.expandAll()
 
-    def slot_displayStateComboboxCurrentIndexChanged(self, index):
+    def slot_displayStateComboboxCurrentIndexChanged(self, ):
         self.updateHierarchy()
 
     def data(self, index, role = QtCore.Qt.DisplayRole):
