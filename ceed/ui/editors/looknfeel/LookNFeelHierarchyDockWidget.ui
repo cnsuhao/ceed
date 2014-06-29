@@ -74,7 +74,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Only show this state:</string>
+         <string>Display (StateImagery):</string>
         </property>
        </widget>
       </item>
@@ -92,31 +92,14 @@
     </item>
     <item>
      <widget class="LookNFeelHierarchyTreeView" name="treeView">
-      <property name="styleSheet">
-       <string notr="true">QTreeView::indicator:checked
-{
-	image: url(&quot;icons/layout_editing/manipulator_locked.png&quot;);
-}
-
-QTreeView::indicator:unchecked
-{
-	image: url(&quot;icons/layout_editing/manipulator_unlocked.png&quot;);
-}</string>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="dragDropMode">
-       <enum>QAbstractItemView::DragDrop</enum>
-      </property>
-      <property name="defaultDropAction">
-       <enum>Qt::MoveAction</enum>
+      <property name="showDropIndicator" stdset="0">
+       <bool>false</bool>
       </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
       <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
+       <enum>QAbstractItemView::SingleSelection</enum>
       </property>
       <property name="sortingEnabled">
        <bool>true</bool>
