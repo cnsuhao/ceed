@@ -86,20 +86,6 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
 
         self.contextMenu = QtGui.QMenu(self)
 
-        self.renameAction = action.getAction("looknfeel/rename")
-        self.contextMenu.addAction(self.renameAction)
-
-        self.contextMenu.addSeparator()
-
-        self.lockAction = action.getAction("looknfeel/lock_widget")
-        self.contextMenu.addAction(self.lockAction)
-        self.unlockAction = action.getAction("looknfeel/unlock_widget")
-        self.contextMenu.addAction(self.unlockAction)
-        self.recursivelyLockAction = action.getAction("looknfeel/recursively_lock_widget")
-        self.contextMenu.addAction(self.recursivelyLockAction)
-        self.recursivelyUnlockAction = action.getAction("looknfeel/recursively_unlock_widget")
-        self.contextMenu.addAction(self.recursivelyUnlockAction)
-
         self.contextMenu.addSeparator()
 
         self.cutAction = action.getAction("all_editors/cut")
@@ -110,11 +96,6 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         self.contextMenu.addAction(self.pasteAction)
         self.deleteAction = action.getAction("all_editors/delete")
         self.contextMenu.addAction(self.deleteAction)
-
-        self.contextMenu.addSeparator()
-
-        self.copyNamePathAction = action.getAction("looknfeel/copy_widget_path")
-        self.contextMenu.addAction(self.copyNamePathAction)
 
     def contextMenuEvent(self, event):
         selectedIndices = self.selectedIndexes()
@@ -128,52 +109,7 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         # for the other editors too.
         haveSel = len(selectedIndices) > 0
         self.copyNamePathAction.setEnabled(haveSel)
-        self.renameAction.setEnabled(haveSel)
-
-        self.lockAction.setEnabled(haveSel)
-        self.unlockAction.setEnabled(haveSel)
-        self.recursivelyLockAction.setEnabled(haveSel)
-        self.recursivelyUnlockAction.setEnabled(haveSel)
 
         self.deleteAction.setEnabled(haveSel)
 
         self.contextMenu.exec_(event.globalPos())
-
-    def editSelectedWidgetName(self):
-        selectedIndices = self.selectedIndexes()
-        if len(selectedIndices) == 0:
-            return
-        self.setCurrentIndex(selectedIndices[0])
-        self.edit(selectedIndices[0])
-
-    def copySelectedWidgetPaths(self):
-        selectedIndices = self.selectedIndexes()
-        if len(selectedIndices) == 0:
-            return
-
-        paths = []
-        for index in selectedIndices:
-            item = self.model().itemFromIndex(index)
-            if item.manipulator is not None:
-                paths.append(item.manipulator.widget.getNamePath())
-
-        if len(paths) > 0:
-            # sort (otherwise the order is the item selection order)
-            paths.sort()
-            QtGui.QApplication.clipboard().setText(os.linesep.join(paths))
-
-    def setSelectedWidgetsLocked(self, locked, recursive = False):
-        selectedIndices = self.selectedIndexes()
-        if len(selectedIndices) == 0:
-            return
-
-        # It is possible that we will make superfluous lock actions if user
-        # selects widgets in a hierarchy (parent & child) and then does
-        # a recursive lock. This doesn't do anything harmful so we don't
-        # have any logic to prevent that.
-
-        paths = []
-        for index in selectedIndices:
-            item = self.model().itemFromIndex(index)
-            if item.manipulator is not None:
-                item.setLocked(locked, recursive)

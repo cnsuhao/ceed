@@ -71,27 +71,3 @@ def declare(actionManager):
                      help_ = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
                      icon = QtGui.QIcon("icons/looknfeel_editing/focus_property_inspector_filter_box.png"),
                      defaultShortcut = QtGui.QKeySequence(QtGui.QKeySequence.Find))
-
-    cat.createAction(name = "copy_widget_path", label = "C&opy Widget Paths",
-                     help_ = "Copies the 'NamePath' properties of the selected widgets to the clipboard.",
-                     icon = QtGui.QIcon("icons/actions/copy.png"))
-
-    cat.createAction(name = "rename", label = "&Rename Widget",
-                     help_ = "Edits the selected widget's name.",
-                     icon = QtGui.QIcon("icons/looknfeel_editing/rename.png"))
-
-    cat.createAction(name = "lock_widget", label = "&Lock Widget",
-                     help_ = "Locks the widget for moving and resizing in the visual editing mode.",
-                     icon = QtGui.QIcon("icons/looknfeel_editing/lock_widget.png"))
-
-    cat.createAction(name = "unlock_widget", label = "&Unlock Widget",
-                     help_ = "Unlocks the widget for moving and resizing in the visual editing mode.",
-                     icon = QtGui.QIcon("icons/looknfeel_editing/unlock_widget.png"))
-
-    cat.createAction(name = "recursively_lock_widget", label = "&Lock Widget (recursively)",
-                     help_ = "Locks the widget and all its child widgets for moving and resizing in the visual editing mode.",
-                     icon = QtGui.QIcon("icons/looknfeel_editing/lock_widget_recursively.png"))
-
-    cat.createAction(name = "recursively_unlock_widget", label = "&Unlock Widget (recursively)",
-                     help_ = "Unlocks the widget and all its child widgets for moving and resizing in the visual editing mode.",
-                     icon = QtGui.QIcon("icons/looknfeel_editing/unlock_widget_recursively.png"))

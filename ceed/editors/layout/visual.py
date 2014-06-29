@@ -1186,23 +1186,6 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # rounding position and size actions
         self.connectionGroup.add("layout/round_position", receiver = lambda: self.scene.roundPositionOfSelectedWidgets())
         self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())      
-                
-        # general
-        self.renameWidgetAction = action.getAction("layout/rename")
-        self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
-
-        self.lockWidgetAction = action.getAction("layout/lock_widget")
-        self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
-        self.unlockWidgetAction = action.getAction("layout/unlock_widget")
-        self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
-        self.recursivelyLockWidgetAction = action.getAction("layout/recursively_lock_widget")
-        self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
-        self.recursivelyUnlockWidgetAction = action.getAction("layout/recursively_unlock_widget")
-        self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
-
-        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
-        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
-
 
     def setupToolBar(self):
         self.toolBar = QtGui.QToolBar("Layout")

@@ -309,15 +309,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
         return rect
 
-    def setLocked(self, locked):
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not locked)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, not locked)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, not locked)
-
-        self.setResizingEnabled(not locked)
-
-        self.update()
-
 class SerialisationData(cegui_widgethelpers.SerialisationData):
     """See cegui.widgethelpers.SerialisationData
 
