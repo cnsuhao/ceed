@@ -27,7 +27,6 @@ from PySide import QtGui
 
 import PyCEGUI
 
-
 class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
     def __init__(self, widgetLookElement):
@@ -47,25 +46,11 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         self.setToolTip(toolTip)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled |
-                      QtCore.Qt.ItemIsSelectable |
-                      QtCore.Qt.ItemIsEditable |
-                      QtCore.Qt.ItemIsDropEnabled |
-                      QtCore.Qt.ItemIsDragEnabled |
-                      QtCore.Qt.ItemIsUserCheckable)
+                      QtCore.Qt.ItemIsSelectable)
 
-        self.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
+        self.setData(None, QtCore.Qt.CheckStateRole)
 
         self.createChildren()
-
-    @staticmethod
-    def getOriginalName(mappedName):
-        """
-        Returns the original name of a WidgetLookFeel based on the mapped name
-        :param mappedName: str
-        :return: str
-        """
-        mappedNameSplitResult = mappedName.split('/', 1)
-        return mappedNameSplitResult[1]
 
     @staticmethod
     def getNameAndToolTip(widgetLookElement):
@@ -79,8 +64,9 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         # The WidgetLookFeel object:
         if isinstance(widgetLookElement, PyCEGUI.WidgetLookFeel):
-            name = LookNFeelHierarchyItem.getOriginalName(widgetLookElement.getName())
-            toolTip = u"type: WidgetLookFeel"
+            from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+            name = "Properties, PropertyDefinitions, PropertyLinkDefinitions"
+            toolTip = u"type: Property, PropertyDefinition, PropertyLinkDefinition"
 
         # Objects that can be owned by a WidgetLookFeel:
         elif isinstance(widgetLookElement, PyCEGUI.NamedArea):
@@ -116,7 +102,9 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(widgetLookElement, PyCEGUI.SectionSpecification):
             name = u"Section: \"" + widgetLookElement.getSectionName() + "\""
             if widgetLookElement.getOwnerWidgetLookFeel() != "":
-                name += u" look:" + LookNFeelHierarchyItem.getOriginalName(widgetLookElement.getOwnerWidgetLookFeel())
+                from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+                originalParts = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(widgetLookElement.getOwnerWidgetLookFeel())
+                name += u" look:" + originalParts[0]
             if widgetLookElement.getRenderControlPropertySource() != "":
                 name += u" controlProperty:" + widgetLookElement.getRenderControlPropertySource()
             if widgetLookElement.getRenderControlValue() != "":
