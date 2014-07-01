@@ -123,7 +123,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         # The Image element
         elif isinstance(widgetLookElement, PyCEGUI.Image):
-            name = u"Image (\"" + widgetLookElement.getImage().getName() + u"\")"
+            name = u"Image name:\"" + widgetLookElement.getName() + u"\""
             toolTip = u"type: Image"
 
         return name, toolTip
