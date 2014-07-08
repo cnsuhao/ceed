@@ -23,7 +23,7 @@ from ceed import commands
 from ceed.editors.looknfeel import widgethelpers
 import PyCEGUI
 
-idbase = 1200
+idbase = 1300
 
 
 class TargetWidgetChangeCommand(commands.UndoCommand):
@@ -40,7 +40,6 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         super(TargetWidgetChangeCommand, self).__init__()
 
         self.visual = visual
-
         self.tabbedEditor = tabbedEditor
         self.oldTargetWidgetLook = tabbedEditor.targetWidgetLook
         self.newTargetWidgetLook = newTargetWidgetLook
@@ -51,7 +50,7 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidgetLook + "\" to \"" + self.newTargetWidgetLook + "\"")
 
     def id(self):
-        return idbase + 15
+        return idbase + 1
 
     def mergeWith(self, cmd):
         return False
@@ -63,23 +62,73 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.tabbedEditor.visual.displayNewTargetWidgetLook()
 
         if self.tabbedEditor.targetWidgetLook == "":
-            self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(None)
+            self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
-            self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
+            self.visual.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
 
-        self.tabbedEditor.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
+        self.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
 
     def redo(self):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
-        self.tabbedEditor.visual.displayNewTargetWidgetLook()
+        self.visual.displayNewTargetWidgetLook()
 
         if self.tabbedEditor.targetWidgetLook == "":
-            self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(None)
+            self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
-            self.tabbedEditor.visual.lookNFeelPropertyEditorDockWidget.inspector.setSource(widgetLookObject)
+            self.visual.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
 
-        self.tabbedEditor.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
+        self.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
 
         super(TargetWidgetChangeCommand, self).redo()
+
+
+class FalagardElementAttributeEdit(commands.UndoCommand):
+    """This command resizes given widgets from old positions and old sizes to new
+    """
+
+    def __init__(self, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
+        super(FalagardElementAttributeEdit, self).__init__()
+
+        self.visual = visual
+
+        self.falagardElement = falagardElement
+        self.attributeName = attributeName
+        self.oldValue = oldValues
+        self.newValue = newValue
+
+        self.refreshText()
+
+        self.ignoreNextCallback = ignoreNextCallback
+
+    def refreshText(self):
+        if len(self.widgetPaths) == 1:
+            self.setText("Change '%s' in '%s'" % (self.propertyName, self.widgetPaths[0]))
+        else:
+            self.setText("Change '%s' in %i widgets" % (self.propertyName, len(self.widgetPaths)))
+
+    def id(self):
+        return idbase + 2
+
+    def mergeWith(self, cmd):
+        return False
+
+    def undo(self):
+        super(FalagardElementAttributeEdit, self).undo()
+
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
+
+        # make sure to redraw the scene so the changes are visible
+        self.visual.scene.update()
+
+    def redo(self):
+
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
+
+        # make sure to redraw the scene so the changes are visible
+        self.visual.scene.update()
+
+        super(FalagardElementAttributeEdit, self).redo()
