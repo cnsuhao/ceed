@@ -24,24 +24,23 @@ import cPickle
 
 from ceed import settings
 
-import PyCEGUI
-
 from ceed.editors.looknfeel import widgethelpers
 
-from ceed.editors.looknfeel.hierarchy_tree_item import LookNFeelHierarchyItem
-
+from hierarchy_tree_item import LookNFeelHierarchyItem
 
 class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
     def __init__(self, dockWidget):
         super(LookNFeelHierarchyTreeModel, self).__init__()
 
         self.dockWidget = dockWidget
+        """ :type : LookNFeelHierarchyDockWidget """
         self.setItemPrototype(LookNFeelHierarchyItem(None))
 
         self.widgetLookObject = None
 
         self.limitDisplayTo = None
-        """ Limits the display to a StateImagery. None means there won't be a limitation. """
+        """ A string defining a name of a StateImagery. This StateImagery, and everything referenced within it, will be the only one
+        to be displayed in the hierarchy. The value None means there won't be any limitation and everything will be displayed. """
 
     def updateTree(self, widgetLookObject, limitDisplayTo):
         """
@@ -144,7 +143,8 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
             while not sectionIter.isAtEnd():
                 currentSectionSpecification = sectionIter.getCurrentValue()
-                if not currentSectionSpecification.getOwnerWidgetLookFeel():
+                ownerWidgetFeel = currentSectionSpecification.getOwnerWidgetLookFeel()
+                if ownerWidgetFeel == self.widgetLookObject.getName():
                     referencedImagerySections.append(currentSectionSpecification.getSectionName())
 
                 sectionIter.next()

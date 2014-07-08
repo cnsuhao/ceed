@@ -25,13 +25,10 @@
 from PySide import QtCore
 from PySide import QtGui
 
-import PyCEGUI
-
-import os
-
 from ceed import action
 
-from ceed.editors.looknfeel.hierarchy_tree_item import LookNFeelHierarchyItem
+from hierarchy_tree_item import LookNFeelHierarchyItem
+
 
 class LookNFeelHierarchyTreeView(QtGui.QTreeView):
     """The WidgetLookFeel hierarchy tree definition
@@ -44,10 +41,19 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         self.dockWidget = None
 
     def selectionChanged(self, selected, deselected):
-        """Synchronizes tree selection with scene selection.
+        """Reacts on selection changes in the hierarchy tree by notifying the Falagrd element editor of the new selection
         """
 
         super(LookNFeelHierarchyTreeView, self).selectionChanged(selected, deselected)
+
+        # Notify the falagard element editor of the change
+        selectedIndices = selected.indexes()
+        if len(selectedIndices) > 0:
+            firstItem = self.model().itemFromIndex(selectedIndices[0])
+            self.dockWidget.tabbedEditor.visual.falagardElementEditorDockWidget.inspector.setSource(firstItem.falagardElement)
+        else:
+            self.dockWidget.tabbedEditor.visual.falagardElementEditorDockWidget.inspector.setSource(None)
+
 
         # we are running synchronization the other way, this prevents infinite loops and recursion
         if self.dockWidget.ignoreSelectionChanges:
@@ -108,7 +114,6 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         # among all editors and disabling them here would disable them
         # for the other editors too.
         haveSel = len(selectedIndices) > 0
-        self.copyNamePathAction.setEnabled(haveSel)
 
         self.deleteAction.setEnabled(haveSel)
 

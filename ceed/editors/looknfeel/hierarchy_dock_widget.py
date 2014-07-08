@@ -29,8 +29,8 @@ import ceed
 
 import PyCEGUI
 
-from ceed.editors.looknfeel.hierarchy_tree_model import LookNFeelHierarchyTreeModel
-from ceed.editors.looknfeel.hierarchy_tree_view import LookNFeelHierarchyTreeView
+from hierarchy_tree_model import LookNFeelHierarchyTreeModel
+from hierarchy_tree_view import LookNFeelHierarchyTreeView
 
 class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
     """Displays and manages the widget hierarchy. Contains the LookNFeelHierarchyTreeWidget.
