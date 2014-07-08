@@ -103,6 +103,44 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
         return mappedNameSplitResult[1], mappedNameSplitResult[0]
 
+    @staticmethod
+    def getFalagardElementTypeAsString(falagardElement):
+        """
+        Returns the CEGUI class name that is corresponding to the Falagard Element as a string
+        :param falagardElement:
+        :return:
+        """
+
+        if isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
+            return u"Property, PropertyDefinition, PropertyLinkDefinition"
+        elif isinstance(falagardElement, PyCEGUI.NamedArea):
+            return u"NamedArea"
+        elif isinstance(falagardElement, PyCEGUI.ImagerySection):
+            return u"ImagerySection"
+        elif isinstance(falagardElement, PyCEGUI.StateImagery):
+            return u"StateImagery"
+        elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
+            return u"WidgetComponent"
+        elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
+            return u"ImageryComponent"
+        elif isinstance(falagardElement, PyCEGUI.TextComponent):
+            return u"TextComponent"
+        elif isinstance(falagardElement, PyCEGUI.FrameComponent):
+            return u"FrameComponent"
+        elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
+            return u"LayerSpecification"
+        elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
+            return u"SectionSpecification"
+        elif isinstance(falagardElement, PyCEGUI.ComponentArea):
+            return u"ComponentArea"
+        elif isinstance(falagardElement, PyCEGUI.ColourRect):
+            return u"ColourRect"
+        elif isinstance(falagardElement, PyCEGUI.Image):
+            return u"Image"
+
+        else:
+            return u"None"
+
     def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
         # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor simultaneously, we will map the
@@ -110,6 +148,9 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         # the .looknfeel file, so that the LNF Editor instance's python ID will be prepended to the name. ( e.g.: Vanilla/Button will turn into 18273822/Vanilla/Button )
         # Each Editor is associated with only one LNF file so that this will in effect also guarantee that the WidgetLooks inside the CEGUI system will be uniquely named
         # for each file
+
+        if lookNFeelAsXMLString is None or lookNFeelAsXMLString is "":
+            return
 
         #Mapping all occuring references
         modifiedLookNFeelString = self.mapWidgetLookReferences(lookNFeelAsXMLString)
@@ -252,8 +293,8 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         self.mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.visual.lookNFeelHierarchyDockWidget)
         self.visual.lookNFeelHierarchyDockWidget.setVisible(True)
 
-        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.lookNFeelPropertyEditorDockWidget)
-        self.visual.lookNFeelPropertyEditorDockWidget.setVisible(True)
+        self.mainWindow.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.visual.falagardElementEditorDockWidget)
+        self.visual.falagardElementEditorDockWidget.setVisible(True)
 
         self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
@@ -266,7 +307,7 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
     def deactivate(self):
         self.mainWindow.removeDockWidget(self.visual.lookNFeelHierarchyDockWidget)
         self.mainWindow.removeDockWidget(self.visual.lookNFeelWidgetLookSelectorWidget)
-        self.mainWindow.removeDockWidget(self.visual.lookNFeelPropertyEditorDockWidget)
+        self.mainWindow.removeDockWidget(self.visual.falagardElementEditorDockWidget)
 
         self.mainWindow.removeToolBar(self.visual.toolBar)
 
