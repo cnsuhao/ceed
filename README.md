@@ -7,6 +7,7 @@ Alternatively visit http://static.cegui.org.uk/docs/ and select the appropriate 
 
 ## Other Resources
 - [Community page for CEED](http://www.cegui.org.uk/wiki/index.php/CEED) - and don't hesitate to improve that page!
+- [Step-by-step guide for building CEED on Windows with Visual Studio](http://cegui.org.uk/wiki/Building_CEED_for_Windows) - Again, don't hesitate to improve wiki pages!
 - Join the `#cegui` channel on `irc.freenode.net`
 - The **developer manual** - comes in tarballs, or you can build it yourself, alternatively visit http://static.cegui.org.uk/docs/
 
