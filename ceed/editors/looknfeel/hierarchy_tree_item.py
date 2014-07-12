@@ -30,7 +30,7 @@ import PyCEGUI
 
 class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
-    def __init__(self, falagardElement):
+    def __init__(self, falagardElement, prefix=""):
         """
         Creates a hierarchy item based on an element of the WidgetLookFeel object. The element can be
         WidgetLookFeel itself or any child node (such as StateImagery or NamedArea, etc.) that is contained
@@ -41,6 +41,8 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         """
 
         self.falagardElement = falagardElement
+        self.prefix = prefix
+
         name, toolTip = self.getNameAndToolTip(falagardElement)
 
         super(LookNFeelHierarchyItem, self).__init__(name)
@@ -53,68 +55,55 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         self.createChildren()
 
-    @staticmethod
-    def getNameAndToolTip(falagardElement):
+    def getNameAndToolTip(self, falagardElement):
         """
         Creates a name and tooltip for any element that can be part of a WidgetLookFeel and returns it
         :param falagardElement:
         :return: str, str
         """
-        name = u"None"
+        name = self.prefix
 
         from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
         toolTip = u"type: " + LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
         # The WidgetLookFeel element:
         if isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
-            name = "Properties, PropertyDefinitions, PropertyLinkDefinitions"
+            name += "Properties, PropertyDefinitions, PropertyLinkDefinitions"
 
         # Elements that can be children of a WidgetLookFeel:
         elif isinstance(falagardElement, PyCEGUI.NamedArea):
-            name = u"NamedArea: \"" + falagardElement.getName() + u"\""
+            name += u"NamedArea: \"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
-            name = u"ImagerySection: \"" + falagardElement.getName() + u"\""
+            name += u"ImagerySection: \"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
-            name = u"StateImagery: \"" + falagardElement.getName() + u"\""
+            name += u"StateImagery: \"" + falagardElement.getName() + u"\""
             toolTip = u"type: StateImagery"
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            name = u"Child: \"" + falagardElement.getName() + u"\" type: " + falagardElement.getWidgetLookName() + u""
+            name += u"Child: \"" + falagardElement.getWidgetName() + u"\" type: " + falagardElement.getWidgetLookName() + u""
 
         # Elements that can be children of a ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
-            name = u"ImageryComponent"
+            name += u"ImageryComponent"
         elif isinstance(falagardElement, PyCEGUI.TextComponent):
-            name = u"TextComponent"
+            name += u"TextComponent"
         elif isinstance(falagardElement, PyCEGUI.FrameComponent):
-            name = u"FrameComponent"
+            name += u"FrameComponent"
 
         # Elements that can be children of a StateImagery:
         elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
-            name = u"Layer"
+            name += u"Layer"
 
         # Elements that can be children of a LayerSpecification:
         elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
-            name = u"Section: \"" + falagardElement.getSectionName() + "\""
-            if falagardElement.getOwnerWidgetLookFeel() != "":
-                from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-                originalParts = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(falagardElement.getOwnerWidgetLookFeel())
-                name += u" look:" + originalParts[0]
-            if falagardElement.getRenderControlPropertySource() != "":
-                name += u" controlProperty:" + falagardElement.getRenderControlPropertySource()
-            if falagardElement.getRenderControlValue() != "":
-                name += u" controlValue:" + falagardElement.getRenderControlValue()
+            name += u"Section: \"" + falagardElement.getSectionName() + "\""
 
         # The ComponentArea element
         elif isinstance(falagardElement, PyCEGUI.ComponentArea):
-            name = u"Area"
-
-        # The ColourRect element
-        elif isinstance(falagardElement, PyCEGUI.ColourRect):
-            name = u"Colours "
+            name += u"Area"
 
         # The Image element
         elif isinstance(falagardElement, PyCEGUI.Image):
-            name = u"Image name:\"" + falagardElement.getName() + u"\""
+            name += u" name:\"" + falagardElement.getName() + u"\""
 
         return name, toolTip
 
@@ -143,13 +132,14 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(self.falagardElement, PyCEGUI.SectionSpecification):
             self.createSectionSpecificationChildren()
 
-    def createAndAddItem(self, falagardElement):
+    def createAndAddItem(self, falagardElement, prefix=u""):
         """
-        Creates an item based on the supplied object and adds it to this object
+        Creates an item based on the supplied object and adds it to this object. A prefix string can be added to the displayed name.
         :param falagardElement:
+        :param prefix: str
         :return:
         """
-        newItem = LookNFeelHierarchyItem(falagardElement)
+        newItem = LookNFeelHierarchyItem(falagardElement, prefix)
         self.appendRow(newItem)
 
     def createNamedAreaChildren(self):
@@ -182,9 +172,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
             imageryComp = imageryCompIter.getCurrentValue()
             self.createAndAddItem(imageryComp)
             imageryCompIter.next()
-
-        coloursRect = self.falagardElement.getMasterColours()
-        self.createAndAddItem(coloursRect)
 
     def createStateImageryChildren(self):
         """
@@ -232,26 +219,32 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         testWindow = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "")
 
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_LEFT_CORNER, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: TopLeftCorner")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_RIGHT_CORNER, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: TopRightCorner")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_LEFT_CORNER, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: BottomLeftCorner")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_RIGHT_CORNER, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: BottomRightCorner")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_LEFT_EDGE, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: LeftEdge")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_RIGHT_EDGE, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: RightEdge")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_EDGE, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: TopEdge")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_EDGE, testWindow)
-        self.createAndAddItem(image)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: BottomEdge")
         image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BACKGROUND, testWindow)
-        self.createAndAddItem(image)
-
-        colourRect = self.falagardElement.getColours()
-        self.createAndAddItem(colourRect)
+        if image is not None:
+            self.createAndAddItem(image, u"Image: Background")
 
     def createLayerSpecificationChildren(self):
         """
@@ -269,8 +262,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         Creates and appends children items based on a SectionSpecification.
         :return:
         """
-        colourRect = self.falagardElement.getOverrideColours()
-        self.createAndAddItem(colourRect)
 
     def clone(self):
         ret = LookNFeelHierarchyItem(self.manipulator)
