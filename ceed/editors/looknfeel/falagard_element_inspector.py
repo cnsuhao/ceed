@@ -42,26 +42,26 @@ class FalagardElementAttributesManager(object):
     # Maps CEGUI data types (in string form) to Python types
 
     _typeMap = {
-        "int": int,
-        "uint": int,
-        "float": float,
-        "bool": bool,
-        "String": unicode,
-        "USize": ct.USize,
-        "UVector2": ct.UVector2,
-        "URect": ct.URect,
-        "AspectMode": ct.AspectMode,
-        "HorizontalAlignment": ct.HorizontalAlignment,
-        "VerticalAlignment": ct.VerticalAlignment,
-        "WindowUpdateMode": ct.WindowUpdateMode,
-        "Quaternion": ct.Quaternion,
-        "HorizontalTextFormatting": ct.HorizontalTextFormatting,
-        "VerticalTextFormatting": ct.VerticalTextFormatting,
-        "SortMode": ct.SortMode,
-        "Colour": ct.Colour,
-        "ColourRect": ct.ColourRect,
-        "Font": ct.FontRef,
-        "Image": ct.ImageRef
+        int: int,
+        float: float,
+        bool: bool,
+        unicode: unicode,
+        PyCEGUI.USize: ct.USize,
+        PyCEGUI.UVector2: ct.UVector2,
+        PyCEGUI.URect: ct.URect,
+        PyCEGUI.AspectMode: ct.AspectMode,
+        PyCEGUI.HorizontalAlignment: ct.HorizontalAlignment,
+        PyCEGUI.VerticalAlignment: ct.VerticalAlignment,
+        PyCEGUI.WindowUpdateMode: ct.WindowUpdateMode,
+        PyCEGUI.Quaternion: ct.Quaternion,
+        PyCEGUI.HorizontalTextFormatting: ct.HorizontalTextFormatting,
+        PyCEGUI.VerticalTextFormatting: ct.VerticalTextFormatting,
+        PyCEGUI.ItemListBase.SortMode: ct.SortMode,
+        PyCEGUI.Colour: ct.Colour,
+        PyCEGUI.ColourRect: ct.ColourRect,
+        PyCEGUI.Font: ct.FontRef,
+        PyCEGUI.Image: ct.ImageRef,
+        PyCEGUI.BasicImage: ct.ImageRef
     }
     # TODO: Font*, Image*, UBox?
 
@@ -199,10 +199,9 @@ class FalagardElementAttributesManager(object):
         return settings
 
     @staticmethod
-    def getTypeFromCEGUITypeString(ceguiStrType):
-        #if not ceguiStrType in CEGUIWidgetLookPropertiesManager._typeMap:
-        #    print("TODO: " + ceguiStrType)
-        return FalagardElementAttributesManager._typeMap.get(ceguiStrType, unicode)
+    def getTypeFromCEGUIType(ceguiType):
+        # Returns a corresponding python type for a given CEGUI type
+        return FalagardElementAttributesManager._typeMap.get(ceguiType, unicode)
 
     def createProperty(self, falagardElement, attributeName, attribute, helpText):
         """Create one MultiPropertyWrapper based property for the CEGUI Property
@@ -220,44 +219,35 @@ class FalagardElementAttributesManager(object):
         if pmEntry and pmEntry.typeName:
             attributeDataType = pmEntry.typeName
         # get a native data type for the CEGUI data type, falling back to string
-        pythonDataType = self.getTypeFromCEGUITypeString(attributeDataType)
+        pythonDataType = self.getTypeFromCEGUIType(attributeDataType)
 
         # get the callable that creates this data type
         # and the Property type to use.
-        valueCreator = None
         if issubclass(pythonDataType, ct.Base):
             # if it is a subclass of our ceguitypes, do some special handling
-            valueCreator = pythonDataType.fromString
+            value = pythonDataType.fromString(pythonDataType.toString(attribute))
             propertyType = pythonDataType.getPropertyType()
         else:
             if pythonDataType is bool:
                 # The built-in bool parses "false" as True
                 # so we replace the default value creator.
-                valueCreator = ptUtility.boolFromString
+                value = ptUtility.boolFromString
             else:
-                valueCreator = pythonDataType
+                value = pythonDataType(attribute)
             propertyType = properties.Property
+
+        defaultValue = value
 
         innerProperty = propertyType(name=attributeName,
                                      category=falagardElementTypeStr,
                                      helpText=helpText,
-                                     value=attribute,
-                                     defaultValue=None,
+                                     value=value,
+                                     defaultValue=defaultValue,
                                      readOnly=False,
                                      createComponents=False  # no need for components, the template will provide these
                                      )
 
         innerProperties = [innerProperty]
-
-        # hook the inner callback (the 'cb' function) to
-        # the value changed notification of the cegui propertyset
-        # so that we update our value(s) when the propertyset's
-        # property changes because of another editor (i.e. visual, undo, redo)
-        def makeCallback(cs, cp, ip):
-            def cb():
-                ip.setValue(valueCreator(cp.get(cs)))
-
-            return cb
 
         # create the template property;
         # this is the property that will create the components
@@ -268,8 +258,8 @@ class FalagardElementAttributesManager(object):
         templateProperty = propertyType(name=attributeName,
                                         category=falagardElementTypeStr,
                                         helpText=helpText,
-                                        value=attribute,
-                                        defaultValue=None,
+                                        value=value,
+                                        defaultValue=defaultValue,
                                         readOnly=False,
                                         editorOptions=editorOptions)
 
