@@ -44,7 +44,8 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
     def updateTree(self, widgetLookObject, limitDisplayTo):
         """
-        Sets the WidgetLookFeel object based on which this widget should create the hierarchy
+        Sets the WidgetLookFeel object based on which this widget should create the hierarchy.
+        Rebuilds the hierarchy tree based on a WidgetFeelLook object.
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :param limitDisplayTo: str
         :return:
@@ -52,13 +53,6 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         self.limitDisplayTo = limitDisplayTo
         self.widgetLookObject = widgetLookObject
-        self.buildTree()
-
-    def buildTree(self):
-        """
-        Builds the hierarchy tree based on a WidgetFeelLook object
-        :return:
-        """
 
         # Clear any existing hierarchy
         self.clear()
@@ -165,6 +159,8 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :param widgetLookElement:
         :return:
         """
+        if widgetLookElement is None:
+            raise Exception("Invalid parameter supplied to LookNFeelHierarchyTreeModel.createAndAddItem")
         rootItem = self.invisibleRootItem()
 
         newItem = LookNFeelHierarchyItem(widgetLookElement)
