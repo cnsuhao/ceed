@@ -24,12 +24,15 @@ import abc
 import re
 import math
 
+import PyCEGUI
+
 from collections import OrderedDict
 
 from ceed.propertytree import properties
 from ceed.propertytree import parsers
 
 from PySide import QtGui
+
 
 class Base(object):
     """Abstract base class for all value types."""
@@ -50,6 +53,15 @@ class Base(object):
         raise NotImplementedError("'tryParse()' not implemented for class '%s'" % cls.__name__)
 
     @classmethod
+    def tryToString(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return: str
+        """
+        raise NotImplementedError("'toString()' not implemented for class '%s'" % cls.__name__)
+
+    @classmethod
     def fromString(cls, strValue):
         """Parse the specified string value and return
         a new instance of this type.
@@ -59,6 +71,19 @@ class Base(object):
         if not valid:
             raise ValueError("Could not convert string to %s: '%s'." % (cls.__name__, strValue))
         return value
+
+    @classmethod
+    def toString(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return: str
+        """
+        try:
+            return cls.tryToString(ceguiObject)
+        except:
+            raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
+        return u""
 
     @classmethod
     def getPropertyType(cls):
@@ -109,6 +134,10 @@ class UDim(Base):
             target.offset = offset
 
         return target, True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.udimToString(object)
 
     def __init__(self, scale=0.0, offset=0.0):
         super(UDim, self).__init__()
@@ -218,6 +247,10 @@ class UVector2(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.uvector2ToString(object)
+
     def __init__(self, x=UDim(), y=UDim()):
         #pylint: disable-msg=C0103
         # invalid name x and y - we need x and y here
@@ -282,6 +315,10 @@ class URect(Base):
             target.bottom.offset = bottomOffset
 
         return target, True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.urectToString(object)
 
     def __init__(self, left=UDim(), top=UDim(), right=UDim(), bottom=UDim()):
         super(URect, self).__init__()
@@ -686,6 +723,10 @@ class Colour(Base):
         return target, True
 
     @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.colourToString(object)
+
+    @classmethod
     def fromQColor(cls, qtColor):
         return cls(qtColor.red(), qtColor.green(), qtColor.blue(), qtColor.alpha())
 
@@ -773,6 +814,10 @@ class ColourRect(Base):
             target.bottomRight = values["br"]
 
         return target, True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.colourRectToString(ceguiObject)
 
     def __init__(self, tl=Colour(), tr=Colour(), bl=Colour(), br=Colour()):
         super(ColourRect, self).__init__()
@@ -1007,6 +1052,7 @@ class ColourProperty(BaseProperty):
     def tryParse(self, strValue):
         return Colour.tryParse(strValue)
 
+
 class ColourRectProperty(BaseProperty):
     """Property for ColourRect values."""
 
@@ -1030,6 +1076,7 @@ class ColourRectProperty(BaseProperty):
     def tryParse(self, strValue):
         return ColourRect.tryParse(strValue)
 
+
 class StringWrapper(Base):
     """Simple string that does no parsing but allows us to map editors to it"""
 
@@ -1052,12 +1099,23 @@ class StringWrapper(Base):
     def getPropertyType(cls):
         return BaseProperty
 
+
 class FontRef(StringWrapper):
     @classmethod
     def tryParse(cls, strValue, target=None):
         return FontRef(strValue), True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return object.getName()
+
+
+
 class ImageRef(StringWrapper):
     @classmethod
     def tryParse(cls, strValue, target=None):
         return ImageRef(strValue), True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return object.getName()
