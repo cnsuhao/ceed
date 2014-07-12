@@ -20,6 +20,9 @@ We are happiest with **clean pull requests** containing conscise commits with **
 
 ### Dependencies
 1. Python 2.7+ (but not Python 3)
+ - If you have *32bit* CEGUI you have to use *32bit* Python
+ - If you have *64bit* CEGUI you have to use *64bit* Python
+ - It is recommended to use the same toolchain to build PyCEGUI that the Python was built with, on Windows with Python 2.7 this will most likely be *MSVC 2008*
 2. CEGUI 0.8.x with PyCEGUI
 3. Qt 4.7+ with PySide
 4. PyOpenGL
