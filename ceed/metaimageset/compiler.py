@@ -31,12 +31,14 @@ import sys
 from PySide import QtCore
 from PySide import QtGui
 
+
 class ImageInstance(object):
     def __init__(self, x, y, image):
         self.x = x
         self.y = y
 
         self.image = image
+
 
 class CompilerInstance(object):
     def __init__(self, metaImageset):
@@ -247,6 +249,8 @@ class CompilerInstance(object):
 
         outputData = imageset_compatibility.manager.transform(imageset_compatibility.manager.EditorNativeType, self.metaImageset.outputTargetType, nativeData)
         open(os.path.join(self.metaImageset.getOutputDirectory(), self.metaImageset.output), "w").write(outputData)
+
+        print("Saved to directory '%s', imageset: '%s', underlying image: '%s'." % (self.metaImageset.getOutputDirectory(), self.metaImageset.output, underlyingImageFileName))
 
         print("All done and saved!")
         print("")
