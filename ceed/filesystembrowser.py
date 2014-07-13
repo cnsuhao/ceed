@@ -25,6 +25,7 @@ import os
 
 import ceed.ui.filesystembrowser
 
+
 class FileSystemBrowser(QtGui.QDockWidget):
     """This class represents the file system browser dock widget, usually located right bottom
     in the main window. It can browse your entire filesystem and if you double click a file
@@ -104,7 +105,7 @@ class FileSystemBrowser(QtGui.QDockWidget):
         childPath = modelIndex.data()
         absolutePath = os.path.normpath(os.path.join(self.directory, childPath))
 
-        if (os.path.isdir(absolutePath)):
+        if os.path.isdir(absolutePath):
             self.setDirectory(absolutePath)
         else:
             self.fileOpenRequested.emit(absolutePath)

@@ -40,10 +40,12 @@ import ceed.ui.projectmanager
 import ceed.ui.newprojectdialog
 import ceed.ui.projectsettingsdialog
 
+
 # TODO: Should probably be moved somewhere else because it's reusable
 def convertToPortablePath(inputPath):
     # very crude and basic for now
     return unicode(os.path.normpath(inputPath)).replace("\\", "/")
+
 
 class Item(QtGui.QStandardItem):
     """One item in the project
@@ -270,7 +272,8 @@ class Item(QtGui.QStandardItem):
                 if thisPathCaseInsensitive != otherPathCaseInsensitive:
                     return False
 
-                if thisPathCaseInsensitive: # the other will also be case insensitive
+                if thisPathCaseInsensitive:
+                    # the other will also be case insensitive
                     thisPath = unicode(thisPath).lower()
                     otherPath = unicode(thisPath).lower()
 
@@ -290,6 +293,7 @@ class Item(QtGui.QStandardItem):
         else:
             # Unknown Item
             return False
+
 
 class Project(QtGui.QStandardItemModel):
     """This class encapsulates a project edited by the editor
@@ -324,7 +328,7 @@ class Project(QtGui.QStandardItemModel):
 
         self.changed = True
 
-        pmappings = set([ "mappings/Base.pmappings" ])
+        pmappings = set(["mappings/Base.pmappings"])
         self.propertyMap = propertymapping.PropertyMap.fromFiles([os.path.abspath(path) for path in pmappings])
 
     def getSupportedDropActions(self):
@@ -459,6 +463,7 @@ class Project(QtGui.QStandardItemModel):
 
         return False
 
+
 class ProjectManager(QtGui.QDockWidget):
     """This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
@@ -536,7 +541,8 @@ class ProjectManager(QtGui.QDockWidget):
             return
 
         item = ProjectManager.getItemFromModelIndex(modelIndex)
-        if item.itemType == Item.File: # only react to files, expanding folders is handled by Qt
+        if item.itemType == Item.File:
+            # only react to files, expanding folders is handled by Qt
             self.fileOpenRequested.emit(item.getAbsolutePath())
 
     def slot_customContextMenu(self, point):
@@ -581,7 +587,7 @@ class ProjectManager(QtGui.QDockWidget):
         self.contextMenu.exec_(self.mapToGlobal(point))
 
     def slot_createFolder(self):
-        ## TODO: Name clashes!
+        # TODO: Name clashes!
 
         text, ok = QtGui.QInputDialog.getText(self,
                                               "Create a folder (only affects project file)",
@@ -608,11 +614,13 @@ class ProjectManager(QtGui.QDockWidget):
                 parent.appendRow(item)
 
     def slot_addNewFile(self):
-        ## TODO: name clashes, duplicates
+        # TODO: name clashes, duplicates
 
-        file_, _ = QtGui.QFileDialog.getSaveFileName(self,
-                                                    "Create a new file and add it to the project",
-                                                    self.project.getAbsolutePathOf(""))
+        file_, _ = QtGui.QFileDialog.getSaveFileName(
+            self,
+            "Create a new file and add it to the project",
+            self.project.getAbsolutePathOf("")
+        )
 
         if file_ == "":
             # user cancelled
@@ -648,7 +656,7 @@ class ProjectManager(QtGui.QDockWidget):
             parent.appendRow(item)
 
     def slot_addExistingFile(self):
-        ## TODO: name clashes, duplicates
+        # TODO: name clashes, duplicates
 
         files, _ = QtGui.QFileDialog.getOpenFileNames(self,
                                                            "Select one or more files to add to the project",
@@ -696,7 +704,7 @@ class ProjectManager(QtGui.QDockWidget):
                 parent.appendRow(item)
 
     def slot_renameAction(self):
-        ## TODO: Name clashes!
+        # TODO: Name clashes!
 
         selectedIndices = self.view.selectedIndexes()
         assert(len(selectedIndices) == 1)
@@ -793,10 +801,11 @@ class ProjectManager(QtGui.QDockWidget):
                     removeCount += 1
 
             if len(selectedIndices) - removeCount > 0:
-                logging.error("%i selected project items are unknown and can't be deleted" % (len(selectedIndices)))
+                logging.error("%i selected project items are unknown and can't be deleted", len(selectedIndices))
 
             if removeCount > 0:
                 self.project.changed = True
+
 
 class NewProjectDialog(QtGui.QDialog):
     """Dialog responsible for creation of entirely new projects.
@@ -850,6 +859,7 @@ directories.  Do you have the proper permissions on the \
 parent directory? (exception info: %s)" % (e))
 
         return ret
+
 
 class ProjectSettingsDialog(QtGui.QDialog):
     """Dialog able to change various project settings
@@ -925,4 +935,3 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.schemesPath.setText(os.path.join(resourceDir, "schemes"))
         self.layoutsPath.setText(os.path.join(resourceDir, "layouts"))
         self.xmlSchemasPath.setText(os.path.join(resourceDir, "xml_schemas"))
-

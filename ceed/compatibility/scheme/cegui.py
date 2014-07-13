@@ -23,11 +23,12 @@ from ceed.compatibility import ceguihelpers
 
 from xml.etree import cElementTree as ElementTree
 
-CEGUIScheme1 = "CEGUI Scheme 1"
-CEGUIScheme2 = "CEGUI Scheme 2"
-CEGUIScheme3 = "CEGUI Scheme 3"
-CEGUIScheme4 = "CEGUI Scheme 4"
-CEGUIScheme5 = "CEGUI Scheme 5"
+CEGUIScheme1 = "CEGUI scheme 1"
+CEGUIScheme2 = "CEGUI scheme 2"
+CEGUIScheme3 = "CEGUI scheme 3"
+CEGUIScheme4 = "CEGUI scheme 4"
+CEGUIScheme5 = "CEGUI scheme 5"
+
 
 class Scheme4TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -44,6 +45,7 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("GUIScheme", None, data)
 
+
 class Scheme5TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUIScheme5
@@ -56,6 +58,7 @@ class Scheme5TypeDetector(compatibility.TypeDetector):
             return False
 
         return ceguihelpers.checkDataVersion("GUIScheme", "5", data)
+
 
 class CEGUI4ToCEGUI5Layer(compatibility.Layer):
     def getSourceType(self):
@@ -133,6 +136,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
                     falagardMapping.set("renderer", "Core/%s" % (rendererValue[9:]))
 
         return ElementTree.tostring(root, "utf-8")
+
 
 class CEGUI5ToCEGUI4Layer(compatibility.Layer):
     def getSourceType(self):

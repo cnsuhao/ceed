@@ -33,6 +33,7 @@ from OpenGL import GL
 from ceed import version
 import ceed.ui.exceptiondialog
 
+
 class ExceptionDialog(QDialog):
     """This is a dialog that gets shown whenever an exception is thrown and
     isn't caught. This is done via duck overriding the sys.excepthook.
@@ -64,11 +65,12 @@ class ExceptionDialog(QDialog):
 
         self.details.setPlainText(self.detailsStr)
 
-    def getTracebackStr(self, excTraceback):
+    @staticmethod
+    def getTracebackStr(excTraceback):
         import traceback
 
         formattedTraceback = traceback.format_tb(excTraceback)
-        return "\n".join(formattedTraceback)
+        return unicode("\n").join(formattedTraceback)
 
     def getVersionsStr(self):
         lines = []
@@ -113,13 +115,13 @@ class ExceptionDialog(QDialog):
             # end of the extension str, this causes the last element be ""
             if extensionList[-1] == "":
                 extensionList.pop()
-            lines.append("GL extensions:\n    - %s" %
-                    (",\n    - ".join(extensionList)))
+            lines.append("GL extensions:\n    - %s" % (",\n    - ".join(extensionList)))
 
         else:
             lines.append("Can't query OpenGL info, CEGUI instance hasn't been started!")
 
         return "\n".join(lines)
+
 
 class ErrorHandler(object):
     """This class is responsible for all error handling. It only handles exceptions for now.

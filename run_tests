@@ -3,9 +3,47 @@
 RUNWRAPPER_NO_FORK=1 source bin/runwrapper.sh
 
 echo "Running unit tests"
-python -m unittest discover -s ceed.tests -p '*.py'
+python -m unittest discover -s ceed.tests -p '*.py' || exit 1
 
 echo "Running integration tests for ceed-mic"
-bin/ceed-mic data/samples/AllStockImagery.meta-imageset
-bin/ceed-mic data/samples/AllStockImageryPOT.meta-imageset
-bin/ceed-mic data/samples/Basic.meta-imageset
+bin/ceed-mic data/samples/AllStockImagery.meta-imageset || exit 1
+bin/ceed-mic data/samples/AllStockImageryPOT.meta-imageset || exit 1
+bin/ceed-mic data/samples/Basic.meta-imageset || exit 1
+
+echo "Running integration tests for ceed-migrate"
+
+TEMPDIR=`mktemp --directory`
+
+# imagesets
+bin/ceed-migrate --targetType "CEGUI imageset 1" imageset data/samples/datafiles0_8/imagesets/Vanilla.imageset $TEMPDIR/Vanilla.imageset || exit 1
+bin/ceed-migrate --sourceType "CEGUI imageset 1" --targetType "CEGUI imageset 2" imageset /tmp/Vanilla.imageset $TEMPDIR/Vanilla-2.imageset || exit 1
+bin/ceed-migrate --targetType "Gorilla file" imageset data/samples/datafiles0_8/imagesets/Vanilla.imageset $TEMPDIR/Vanilla.gorilla || exit 1
+
+# layouts
+bin/ceed-migrate --targetType "CEGUI layout 3" layout data/samples/datafiles0_8/layouts/VanillaWindows.layout $TEMPDIR/VanillaWindows.layout || exit 1
+bin/ceed-migrate --sourceType "CEGUI layout 3" --targetType "CEGUI layout 4" layout /tmp/VanillaWindows.layout $TEMPDIR/VanillaWindows-4.layout || exit 1
+
+# looknfeels
+bin/ceed-migrate --targetType "CEGUI looknfeel 6" looknfeel data/samples/datafiles0_8/looknfeel/Vanilla.looknfeel $TEMPDIR/Vanilla.looknfeel || exit 1
+bin/ceed-migrate --sourceType "CEGUI looknfeel 6" --targetType "CEGUI looknfeel 7" looknfeel $TEMPDIR/Vanilla.looknfeel $TEMPDIR/Vanilla-7.looknfeel || exit 1
+
+# schemes
+bin/ceed-migrate --targetType "CEGUI scheme 4" scheme data/samples/datafiles0_8/schemes/VanillaSkin.scheme $TEMPDIR/VanillaSkin.scheme || exit 1
+bin/ceed-migrate --sourceType "CEGUI scheme 4" --targetType "CEGUI scheme 5" scheme $TEMPDIR/VanillaSkin.scheme $TEMPDIR/VanillaSkin-5.scheme || exit 1
+
+# empty files
+touch $TEMPDIR/empty1 || exit 1
+touch $TEMPDIR/empty2 || exit 1
+# no migration should even be attempted
+bin/ceed-migrate --sourceType "CEGUI looknfeel 7" --targetType "CEGUI looknfeel 7" looknfeel $TEMPDIR/empty1 $TEMPDIR/empty2 || exit 1
+bin/ceed-migrate --sourceType "CEGUI looknfeel 6" --targetType "CEGUI looknfeel 7" looknfeel $TEMPDIR/empty1 $TEMPDIR/empty2 && exit 1
+
+# non-existant source and target
+touch $TEMPDIR/bogus1 || exit 1
+touch $TEMPDIR/bogus2 || exit 1
+bin/ceed-migrate --sourceType "Made up format 1" --targetType "Made up format 2" looknfeel $TEMPDIR/bogus1 $TEMPDIR/bogus2 && exit 1
+
+rm -r $TEMPDIR
+
+echo
+echo "Everything went as planned!"

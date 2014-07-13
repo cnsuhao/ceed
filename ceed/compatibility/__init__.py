@@ -152,7 +152,7 @@ class Manager(object):
 
         return ret[0]
 
-    def transform(self, sourceType, targetType, data):
+    def transform(self, sourceType, targetType, data, visitedLayers = []):
         """Performs transformation of given source code from sourceType to targetType.
 
         TODO: This method doesn't even bother to try to find the shortest path possible or such,
@@ -167,9 +167,12 @@ class Manager(object):
             return data
 
         for layer in self.layers:
+            if layer in visitedLayers:
+                continue
+
             if layer.getSourceType() == sourceType:
                 try:
-                    ret = self.transform(layer.getTargetType(), targetType, layer.transform(data))
+                    ret = self.transform(layer.getTargetType(), targetType, layer.transform(data), visitedLayers + [layer])
                     logging.debug("Compatibility path fragment: '%s' <- '%s'", layer.getTargetType(), sourceType)
                     return ret
 
