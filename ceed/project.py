@@ -250,34 +250,37 @@ class Item(QtGui.QStandardItem):
         if self.itemType == Item.File:
             # samefile isn't implemented on Windows and possibly other platforms
             if hasattr(os.path, "samefile"):
-                return os.path.samefile(self.getAbsolutePath(), filePath)
+                try:
+                    return os.path.samefile(self.getAbsolutePath(), filePath)
 
-            else:
-                # Figuring out whether 2 paths lead to the same file is a tricky
-                # business. We will do our best but this definitely doesn't
-                # work in all cases!
+                except:
+                    pass
 
-                thisPath = os.path.normpath(self.getAbsolutePath())
-                otherPath = os.path.normpath(filePath)
+            # Figuring out whether 2 paths lead to the same file is a tricky
+            # business. We will do our best but this definitely doesn't
+            # work in all cases!
 
-                # This clearly is just our best guess! The file might actually
-                # be on a case sensitive filesystem AND have a sibling that has
-                # the same name except uppercase, the test will fail in that case.
-                thisPathCaseInsensitive = os.path.exists(unicode(thisPath).upper()) and \
-                                          os.path.exists(unicode(thisPath).lower())
+            thisPath = os.path.normpath(self.getAbsolutePath())
+            otherPath = os.path.normpath(filePath)
 
-                otherPathCaseInsensitive = os.path.exists(unicode(otherPath).upper()) and \
-                                           os.path.exists(unicode(otherPath).lower())
+            # This clearly is just our best guess! The file might actually
+            # be on a case sensitive filesystem AND have a sibling that has
+            # the same name except uppercase, the test will fail in that case.
+            thisPathCaseInsensitive = os.path.exists(unicode(thisPath).upper()) and \
+                    os.path.exists(unicode(thisPath).lower())
 
-                if thisPathCaseInsensitive != otherPathCaseInsensitive:
-                    return False
+            otherPathCaseInsensitive = os.path.exists(unicode(otherPath).upper()) and \
+                    os.path.exists(unicode(otherPath).lower())
 
-                if thisPathCaseInsensitive:
-                    # the other will also be case insensitive
-                    thisPath = unicode(thisPath).lower()
-                    otherPath = unicode(thisPath).lower()
+            if thisPathCaseInsensitive != otherPathCaseInsensitive:
+                return False
 
-                return thisPath == otherPath
+            if thisPathCaseInsensitive:
+                # the other will also be case insensitive
+                thisPath = unicode(thisPath).lower()
+                otherPath = unicode(thisPath).lower()
+
+            return thisPath == otherPath
 
         elif self.itemType == Item.Folder:
             i = 0
