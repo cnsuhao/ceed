@@ -20,6 +20,7 @@
 
 from PySide import QtCore
 from PySide import QtGui
+from PySide import QtOpenGL
 
 import os
 
@@ -34,6 +35,8 @@ from ceed import cegui
 from ceed import filesystembrowser
 import ceed.cegui.container as cegui_container
 from ceed import editors
+
+from ceed import messages
 
 #from ceed import help
 from ceed import recentlyused
@@ -89,6 +92,14 @@ class MainWindow(QtGui.QMainWindow):
 
         self.recentlyUsedProjects = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Projects")
         self.recentlyUsedFiles = recentlyused.RecentlyUsedMenuEntry(self.app.qsettings, "Files")
+
+        if not QtOpenGL.QGLFramebufferObject.hasOpenGLFramebufferObjects():
+            messages.warning(self.app, self, "No FBO support!",
+                "CEED uses OpenGL frame buffer objects for various tasks, "
+                "most notably to support panning and zooming in the layout editor.\n\n"
+                "FBO support was not detected on your system!\n\n"
+                "The editor will run but you may experience rendering artifacts.",
+                "no_fbo_support")
 
         import ceed.editors.animation_list as animation_list_editor
         import ceed.editors.bitmap as bitmap_editor
