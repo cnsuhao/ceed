@@ -49,7 +49,9 @@ class MetaImageset(object):
         self.name = element.get("name", "")
         self.nativeHorzRes = int(element.get("nativeHorzRes", "800"))
         self.nativeVertRes = int(element.get("nativeVertRes", "600"))
-        self.autoScaled = element.get("autoScaled", "false")
+        self.autoScaled = element.get("autoScaled", "false") == "true"
+
+        self.onlyPOT = element.get("onlyPOT", "false") == "true"
 
         self.outputTargetType = element.get("outputTargetType", imageset_compatibility.manager.EditorNativeType)
         self.output = element.get("output", "")
@@ -62,6 +64,8 @@ class MetaImageset(object):
         ret.set("nativeHorzRes", str(self.nativeHorzRes))
         ret.set("nativeVertRes", str(self.nativeVertRes))
         ret.set("autoScaled", self.autoScaled)
+
+        ret.set("onlyPOT", self.onlyPOT)
 
         ret.set("outputTargetType", self.outputTargetType)
         ret.set("output", self.output)

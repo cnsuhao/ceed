@@ -1,4 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
 RUNWRAPPER_NO_FORK=1 source bin/runwrapper.sh
 
+echo "Running unit tests"
 python -m unittest discover -s ceed.tests -p '*.py'
+
+echo "Running integration tests for ceed-mic"
+bin/ceed-mic data/samples/AllStockImagery.meta-imageset
+bin/ceed-mic data/samples/AllStockImageryPOT.meta-imageset
+bin/ceed-mic data/samples/Basic.meta-imageset

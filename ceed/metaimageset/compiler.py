@@ -48,16 +48,17 @@ class CompilerInstance(object):
 
         self.metaImageset = metaImageset
 
+    @staticmethod
+    def getNextPOT(number):
+        """Returns the next power of two that is greater than given number"""
+
+        return int(2 ** math.ceil(math.log(number + 1, 2)))
+
     def estimateMinimalSize(self, images):
         """Tries to estimate minimal side of the underlying image of the output imageset.
 
         This is used merely as a starting point in the packing process.
         """
-
-        def getNextPOT(number):
-            """Returns the next power of two that is greater than given number"""
-
-            return int(2 ** math.ceil(math.log(number + 1, 2)))
 
         area = 0
         for image in images:
@@ -72,7 +73,7 @@ class CompilerInstance(object):
             ret = 1
 
         if self.metaImageset.onlyPOT:
-            ret = getNextPOT(ret)
+            ret = CompilerInstance.getNextPOT(ret)
 
         return ret
 
@@ -100,7 +101,7 @@ class CompilerInstance(object):
                 break
 
             except rectanglepacking.OutOfSpaceError:
-                sideSize = getNextPOT(sideSize) if self.metaImageset.onlyPOT else sideSize + self.sizeIncrement
+                sideSize = CompilerInstance.getNextPOT(sideSize) if self.metaImageset.onlyPOT else sideSize + self.sizeIncrement
 
                 i += 1
                 if i % 5 == 0:
