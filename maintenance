@@ -123,6 +123,8 @@ def archive():
         print("ceed.version.DEVELOPER_MODE is True! Quitting!")
         sys.exit(1)
 
+    print("*** Making sure UI files are compiled...")
+    compile_ui_files()
     # make sure we have to proper datafiles fetched
     print("*** Making sure fresh datafiles are in place...")
     fetch_datafiles()
