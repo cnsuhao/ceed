@@ -29,7 +29,6 @@ import os.path
 from xml.etree import cElementTree as ElementTree
 import tempfile
 import subprocess
-import cStringIO as StringIO
 
 INKSCAPE_PATH = "inkscape"
 

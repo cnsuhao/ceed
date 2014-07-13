@@ -233,7 +233,7 @@ class PenButton(QtGui.QPushButton):
             """
 
             self.setText("line style: %s, width: %g" % (lineStyleStr, pen.widthF()))
-            colour = pen.color()
+            #colour = pen.color()
             #self.setStyleSheet("background-color: rgba(%i, %i, %i, %i)" % (colour.red(), colour.green(), colour.blue(), colour.alpha()))
 
             self.penChanged.emit(pen)

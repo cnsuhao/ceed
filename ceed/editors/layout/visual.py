@@ -541,7 +541,6 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
         # a recursive lock. This doesn't do anything harmful so we don't
         # have any logic to prevent that.
 
-        paths = []
         for index in selectedIndices:
             item = self.model().itemFromIndex(index)
             if item.manipulator is not None:
@@ -948,7 +947,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if len(widgetPaths) > 0:
             cmd = undoCommand(self.visual, widgetPaths, oldPositions, oldSizes)
             self.visual.tabbedEditor.undoStack.push(cmd)
-            
+
     def roundPositionOfSelectedWidgets(self):
         widgetPaths = []
         oldPositions = {}
@@ -964,7 +963,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if len(widgetPaths) > 0:
             cmd = undo.RoundPositionCommand(self.visual, widgetPaths, oldPositions)
             self.visual.tabbedEditor.undoStack.push(cmd)
-        
+
     def roundSizeOfSelectedWidgets(self):
         widgetPaths = []
         oldPositions = {}
@@ -982,7 +981,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         if len(widgetPaths) > 0:
             cmd = undo.RoundSizeCommand(self.visual, widgetPaths, oldPositions, oldSizes)
             self.visual.tabbedEditor.undoStack.push(cmd)
-        
+
     def slot_selectionChanged(self):
         selection = self.selectedItems()
 
@@ -1184,8 +1183,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
         # rounding position and size actions
         self.connectionGroup.add("layout/round_position", receiver = lambda: self.scene.roundPositionOfSelectedWidgets())
-        self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())      
-                
+        self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())
+
         # general
         self.renameWidgetAction = action.getAction("layout/rename")
         self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
@@ -1223,8 +1222,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addAction(action.getAction("layout/normalise_size"))
         self.toolBar.addAction(action.getAction("layout/round_position"))
         self.toolBar.addAction(action.getAction("layout/round_size"))
-        
-        
+
+
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
         # similar to the toolbar, includes the focus filter box action

@@ -21,7 +21,6 @@
 """Provides messages that users can dismiss (choose to never show again)
 """
 
-from PySide import QtCore
 from PySide import QtGui
 
 import hashlib
