@@ -70,11 +70,17 @@ def check(supressMessagesIfNotFatal = True):
             from distutils.sysconfig import get_python_lib
             from os.path import join as path_join
             from sys import path as sys_path
+            from sys import platform as sys_platform
             from ceed import compatibility
 
             # example of the final path: /usr/lib64/python2.7/site-packages/cegui-0.8
             site_packages_path = path_join(get_python_lib(True), "cegui-%s" % (compatibility.EditorEmbeddedCEGUIVersion))
             sys_path.append(site_packages_path)
+
+            if not canImportPyCEGUI() and sys_platform != "win32":
+                # maybe CEGUI and PyCEGUI were installed in /usr/local instead of /usr
+                site_packages_path = path_join(get_python_lib(True, False, "/usr/local"), "cegui-%s" % (compatibility.EditorEmbeddedCEGUIVersion))
+                sys_path.append(site_packages_path)
 
         except ImportError:
             pass
