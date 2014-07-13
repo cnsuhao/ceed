@@ -142,7 +142,7 @@ def archive():
     os.mkdir(target_temp_directory_path)
 
     shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"),
-                    ignore = shutil.ignore_patterns("*~", "*.orig", "runwrapper.sh"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig"))
     shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"),
                     ignore = shutil.ignore_patterns("*~", "*.orig", "*.pyc", "*.pyo"))
     shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
