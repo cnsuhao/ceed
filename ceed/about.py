@@ -30,6 +30,7 @@ import ceed.ui.aboutdialog
 
 from ceed import version
 
+
 class LicenseDialog(QtGui.QDialog):
     """Shows GPLv3 and related info in the UI of the application as
     FSF recommends.
@@ -42,6 +43,7 @@ class LicenseDialog(QtGui.QDialog):
 
         self.ui = ceed.ui.licensedialog.Ui_LicenseDialog()
         self.ui.setupUi(self)
+
 
 class AboutDialog(QtGui.QDialog):
     """About/Version dialog shown when user selects Help -> About.
@@ -61,9 +63,8 @@ class AboutDialog(QtGui.QDialog):
         self.ui.aboutImage.setPixmap(QtGui.QPixmap("images/splashscreen.png"))
 
         self.findChild(QtGui.QLabel, "CEEDDescription").setText(
-                "This is a development snapshot!\n\n"
-                "Issues are to be expected, please report them to help this project."
-                )
+            "Please report any issues to help this project."
+        )
 
         self.findChild(QtGui.QLabel, "CEEDVersion").setText("CEED: %s" % (version.CEED))
         self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: %s" % (version.PYSIDE))
