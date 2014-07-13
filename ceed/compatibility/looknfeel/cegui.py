@@ -26,15 +26,16 @@ from xml.etree import cElementTree as ElementTree
 
 import copy
 
-CEGUILookNFeel1 = "CEGUI LookNFeel 1"
+CEGUILookNFeel1 = "CEGUI looknfeel 1"
 # superseded by LookNFeel 2 in 0.5b
-#CEGUILookNFeel2 = "CEGUI LookNFeel 2"
-CEGUILookNFeel3 = "CEGUI LookNFeel 3"
-CEGUILookNFeel4 = "CEGUI LookNFeel 4"
+#CEGUILookNFeel2 = "CEGUI looknfeel 2"
+CEGUILookNFeel3 = "CEGUI looknfeel 3"
+CEGUILookNFeel4 = "CEGUI looknfeel 4"
 # superseded by LookNFeel 6 in 0.7
-#CEGUILookNFeel5 = "CEGUI LookNFeel 5"
-CEGUILookNFeel6 = "CEGUI LookNFeel 6"
-CEGUILookNFeel7 = "CEGUI LookNFeel 7"
+#CEGUILookNFeel5 = "CEGUI looknfeel 5"
+CEGUILookNFeel6 = "CEGUI looknfeel 6"
+CEGUILookNFeel7 = "CEGUI looknfeel 7"
+
 
 class LookNFeel6TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -51,6 +52,7 @@ class LookNFeel6TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("Falagard", None, data)
 
+
 class LookNFeel7TypeDetector(compatibility.TypeDetector):
     def getType(self):
         return CEGUILookNFeel7
@@ -63,6 +65,7 @@ class LookNFeel7TypeDetector(compatibility.TypeDetector):
             return False
 
         return ceguihelpers.checkDataVersion("Falagard", "7", data)
+
 
 class LookNFeel6To7Layer(compatibility.Layer):
     def getSourceType(self):
@@ -198,6 +201,7 @@ class LookNFeel6To7Layer(compatibility.Layer):
                 compatibility_layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
         return ElementTree.tostring(root, "utf-8")
+
 
 class LookNFeel7To6Layer(compatibility.Layer):
     def getSourceType(self):

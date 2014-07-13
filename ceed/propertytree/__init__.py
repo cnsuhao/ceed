@@ -117,4 +117,9 @@ Example::
 
 """
 
+import properties
+import compositeproperties
+import editors
+import ui
+
 __all__ = ["properties", "compositeproperties", "editors", "ui"]

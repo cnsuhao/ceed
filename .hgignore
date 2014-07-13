@@ -18,6 +18,7 @@ xcuserdata/
 .project
 .cproject
 .pydevproject
+.ropeproject
 
 static-analysis-output
 
@@ -26,6 +27,11 @@ doc/*.pdf
 
 data/samples/datafiles0_7/
 data/samples/datafiles0_8/
+
+data/samples/AllStockImagery.imageset
+data/samples/AllStockImagery.png
+data/samples/AllStockImageryPOT.imageset
+data/samples/AllStockImageryPOT.png
 data/samples/Basic.png
 data/samples/Basic.imageset
 

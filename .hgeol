@@ -3,6 +3,7 @@
 **.cpp = native
 
 **.txt = native
+**.md = native
 **.xml = native
 
 **.layout = native

@@ -53,6 +53,32 @@ def check(supressMessagesIfNotFatal = True):
         ret = False
 
     # PyCEGUI
+    def canImportPyCEGUI():
+        try:
+            __import__("PyCEGUI")
+            __import__("PyCEGUIOpenGLRenderer")
+
+        except ImportError:
+            return False
+
+        return True
+
+    # at first we assume the user has PyCEGUI in path and everything is setup
+    if not canImportPyCEGUI():
+        try:
+            # however if that's not the case, we add cegui-0.8 site-packages subdir
+            from distutils.sysconfig import get_python_lib
+            from os.path import join as path_join
+            from sys import path as sys_path
+            from ceed import compatibility
+
+            # example of the final path: /usr/lib64/python2.7/site-packages/cegui-0.8
+            site_packages_path = path_join(get_python_lib(True), "cegui-%s" % (compatibility.EditorEmbeddedCEGUIVersion))
+            sys_path.append(site_packages_path)
+
+        except ImportError:
+            pass
+
     try:
         __import__("PyCEGUI")
         try:

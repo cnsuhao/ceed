@@ -28,6 +28,7 @@ We may use it for even more in the future
 
 from PySide import QtGui
 
+
 class RecentlyUsed(object):
     """This class can be used to store pointers to Items like files and images
     for later reuse within the application.
@@ -71,7 +72,7 @@ class RecentlyUsed(object):
         while len(items) > self.maxRecentItems:
             items.remove(items[self.maxRecentItems])
 
-        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(items))
+        self.qsettings.setValue(self.sectionIdentifier, RecentlyUsed.stringListToString(items))
 
     def removeRecentlyUsed(self, itemname):
         """Removes an item from the list. Safe to call even if the item is
@@ -87,12 +88,12 @@ class RecentlyUsed(object):
         if not isinstance(items, list):
             return False
 
-        if not itemname in items:
+        if itemname not in items:
             return False
 
         items.remove(itemname)
 
-        self.qsettings.setValue(self.sectionIdentifier, self.stringListToString(items))
+        self.qsettings.setValue(self.sectionIdentifier, RecentlyUsed.stringListToString(items))
         return True
 
     def clearRecentlyUsed(self):
@@ -111,21 +112,22 @@ class RecentlyUsed(object):
     def trimItemName(self, itemName):
         """Trim the itemName to the max. length and return it"""
 
-        if (len(itemName) > self.recentlItemsNameTrimLength):
+        if len(itemName) > self.recentlItemsNameTrimLength:
             # + 3 because of the ...
             trimedItemName = "...%s" % (itemName[-self.recentlItemsNameTrimLength + 3:])
             return trimedItemName
         else:
             return itemName
 
-    def stringListToString(self, list_):
+    @staticmethod
+    def stringListToString(list_):
         """Converts a list into a string for storage in QSettings"""
 
         temp = ""
 
         first = True
         for s in list_:
-            t = s.replace( ';', '\\;' )
+            t = s.replace(';', '\\;')
             if first is True:
                 temp = t
                 first = False
@@ -155,27 +157,31 @@ class RecentlyUsed(object):
                     tempList.append(workStr[:pos+1].replace("\\;", ";"))
                     workStr = workStr[pos+1:]
                     pos = workStr.find(';')
-                    if pos < 0: # end reached, finalize
-                        list_.append(self.reconstructString(tempList) + workStr)
+                    if pos < 0:
+                        # end reached, finalize
+                        list_.append(RecentlyUsed.reconstructString(tempList) + workStr)
                         workStr = workStr[pos+1:]
                         tempList = []
                 else:
                     # found a unescaped ; so we reconstruct the string before it,
                     # it should be a complete item
-                    list_.append(self.reconstructString(tempList) + workStr[:pos])
+                    list_.append(RecentlyUsed.reconstructString(tempList) + workStr[:pos])
                     workStr = workStr[pos+1:]
                     pos = workStr.find(';')
                     tempList = []
 
             return list_
 
-    def reconstructString(self, list_):
+    @staticmethod
+    def reconstructString(list_):
         """reconstructs the string from a list and return it"""
 
         reconst = ""
         for s in list_:
             reconst = reconst + s
+
         return reconst
+
 
 class RecentlyUsedMenuEntry(RecentlyUsed):
     """This class can be used to manage a Qt Menu entry to items.
