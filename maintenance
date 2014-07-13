@@ -156,6 +156,15 @@ def archive():
     shutil.copy("LICENSE", target_temp_directory_path)
     shutil.copy("README.md", target_temp_directory_path)
 
+    shutil.copy("cx_Freezer.py", target_temp_directory_path)
+    shutil.copy("setup.py", target_temp_directory_path)
+
+    shutil.copy("generate-api-ref", target_temp_directory_path)
+    shutil.copy("maintenance", target_temp_directory_path)
+    shutil.copy("perform-static-analysis", target_temp_directory_path)
+    shutil.copy("pylint.cfg", target_temp_directory_path)
+    shutil.copy("run_tests", target_temp_directory_path)
+
     import tarfile
     target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
     with tarfile.open(target_archive_path, "w:bz2") as tar:
