@@ -64,6 +64,13 @@ try:
     if os.path.exists(SYSTEM_DOC_DIR):
         DOC_DIR = SYSTEM_DOC_DIR
         SYSTEM_DOC_DIR_EXISTS = True
+
+    else:
+        SYSTEM_DOC_DIR = "/usr/share/doc/ceed"
+        if os.path.exists(SYSTEM_DOC_DIR):
+            DOC_DIR = SYSTEM_DOC_DIR
+            SYSTEM_DOC_DIR_EXISTS = True
+
 except:
     pass
 
