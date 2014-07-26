@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=CEED
+Comment=CEGUI Unified Editor - allows users to edit datafiles for the CrazyEddie's GUI Library
+Exec=ceed-gui
+Icon=ceed-gui
+Terminal=false

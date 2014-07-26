@@ -88,5 +88,9 @@ setup(
         [(paths.SYSTEM_PIXMAPS_DIR, [
             "data/icons/ceed.png",
             "data/icons/ceed.svg"
+        ])] +
+        [(paths.SYSTEM_APPLICATIONS_DIR, [
+            "ceed.desktop"
         ])]
+
 )
