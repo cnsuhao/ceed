@@ -85,7 +85,7 @@ setup(
             "bin/ceed-gui",
             base = GUI_BASE_APP,
             targetName = "ceed-gui" + EXECUTABLE_EXTENSION,
-            icon = "data/icons/application_icon.ico"
+            icon = "data/icons/ceed.ico"
         ),
 
         # this starts the MetaImageset compiler

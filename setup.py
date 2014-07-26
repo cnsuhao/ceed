@@ -84,5 +84,9 @@ setup(
             "doc/quickstart-guide.pdf",
             "doc/user-manual.pdf",
             "doc/developer-manual.pdf"
+        ])] +
+        [(paths.SYSTEM_PIXMAPS_DIR, [
+            "data/icons/ceed.png",
+            "data/icons/ceed.svg"
         ])]
 )
