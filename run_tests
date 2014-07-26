@@ -16,12 +16,12 @@ TEMPDIR=`mktemp --directory`
 
 # imagesets
 bin/ceed-migrate --targetType "CEGUI imageset 1" imageset data/samples/datafiles0_8/imagesets/Vanilla.imageset $TEMPDIR/Vanilla.imageset || exit 1
-bin/ceed-migrate --sourceType "CEGUI imageset 1" --targetType "CEGUI imageset 2" imageset /tmp/Vanilla.imageset $TEMPDIR/Vanilla-2.imageset || exit 1
+bin/ceed-migrate --sourceType "CEGUI imageset 1" --targetType "CEGUI imageset 2" imageset $TEMPDIR/Vanilla.imageset $TEMPDIR/Vanilla-2.imageset || exit 1
 bin/ceed-migrate --targetType "Gorilla file" imageset data/samples/datafiles0_8/imagesets/Vanilla.imageset $TEMPDIR/Vanilla.gorilla || exit 1
 
 # layouts
 bin/ceed-migrate --targetType "CEGUI layout 3" layout data/samples/datafiles0_8/layouts/VanillaWindows.layout $TEMPDIR/VanillaWindows.layout || exit 1
-bin/ceed-migrate --sourceType "CEGUI layout 3" --targetType "CEGUI layout 4" layout /tmp/VanillaWindows.layout $TEMPDIR/VanillaWindows-4.layout || exit 1
+bin/ceed-migrate --sourceType "CEGUI layout 3" --targetType "CEGUI layout 4" layout $TEMPDIR/VanillaWindows.layout $TEMPDIR/VanillaWindows-4.layout || exit 1
 
 # looknfeels
 bin/ceed-migrate --targetType "CEGUI looknfeel 6" looknfeel data/samples/datafiles0_8/looknfeel/Vanilla.looknfeel $TEMPDIR/Vanilla.looknfeel || exit 1
