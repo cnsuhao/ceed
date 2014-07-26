@@ -53,6 +53,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.filterBox.textChanged.connect(self.filterChanged)
 
         self.selectionLabel = QtGui.QLabel();
+        self.selectionLabel.setAlignment(QtCore.Qt.AlignRight)
         self.selectionLabel.setFrameStyle(QtGui.QFrame.StyledPanel)
         self.selectionLabel.setFrameShadow(QtGui.QFrame.Sunken)
 
