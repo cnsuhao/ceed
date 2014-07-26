@@ -62,9 +62,11 @@ if OS_TYPE == "Windows":
     #sys.getwindowsversion()
 elif OS_TYPE == "Linux":
     LINUX = platform.linux_distribution()
-elif OS_TYPE == "Java": # Jython
+elif OS_TYPE == "Java":
+    # Jython
     JAVA = platform.java_ver()
-elif OS_TYPE == "Darwin": # OSX
+elif OS_TYPE == "Darwin":
+    # OSX
     MAC = platform.mac_ver()
 
 # Python

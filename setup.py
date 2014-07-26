@@ -28,13 +28,26 @@ from distutils.core import setup
 from ceed import version
 from ceed import paths
 
-from ceed import compileuifiles
 
 if platform.system() == "Windows":
     raise NotImplementedError("Installing CEED like this is not supported on Windows")
 
-# always compile UI files to ensure they are up to date before installing
-compileuifiles.main()
+
+if version.DEVELOPER_MODE:
+    # Compile UI files to ensure they are up to date before installing
+    # We only do this in developer mode because release tarballs should already
+    # contain compiled UI files.
+
+    from ceed import compileuifiles
+    compileuifiles.main()
+
+else:
+    if not os.path.exists(os.path.join("ceed", "ui", "mainwindow.py")):
+        raise RuntimeError(
+            "version.DEVELOPER_MODE is False but UI files don't seem to be compiled. "
+            "Please run ./maintenance compile-ui-files or use the release tarball."
+        )
+
 
 def get_packages():
     """Returns the whole list of ceed packages"""
@@ -50,6 +63,7 @@ def get_packages():
             ret.append(dirpath.replace(os.path.sep, "."))
 
     return ret
+
 
 def get_directoryfilepairs(directory, base = "data", install_base = paths.SYSTEM_DATA_DIR):
     ret = []
@@ -68,6 +82,7 @@ def get_directoryfilepairs(directory, base = "data", install_base = paths.SYSTEM
     ret.append((os.path.join(install_base, directory), files))
 
     return ret
+
 
 setup(
     name = "CEED",
@@ -95,5 +110,4 @@ setup(
         [(paths.SYSTEM_APPDATA_DIR, [
             "ceed.appdata.xml"
         ])]
-
 )
