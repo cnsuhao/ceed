@@ -91,6 +91,9 @@ setup(
         ])] +
         [(paths.SYSTEM_APPLICATIONS_DIR, [
             "ceed.desktop"
+        ])] +
+        [(paths.SYSTEM_APPDATA_DIR, [
+            "ceed.appdata.xml"
         ])]
 
 )
