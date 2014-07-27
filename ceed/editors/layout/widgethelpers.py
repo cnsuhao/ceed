@@ -287,6 +287,14 @@ class Manipulator(cegui_widgethelpers.Manipulator):
                 self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
                 self.setResizingEnabled(False)
 
+        if isinstance(self.widget, PyCEGUI.LayoutContainer):
+            # LayoutContainers change their size to fit the widgets, it makes
+            # no sense to show this size
+            self.showOutline = False
+            # And it makes no sense to resize them, they will just snap back
+            # when they relayout
+            self.setResizingEnabled(False)
+
         parent = self.widget.getParent()
         if parent and isinstance(parent, PyCEGUI.LayoutContainer):
             # if the widget is now parented inside a layout container we don't want
