@@ -313,6 +313,13 @@ class Manipulator(resizable.ResizableRectItem):
             if isinstance(item, Manipulator):
                 item.setVisible(False)
 
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
+            # hide siblings in the same layout container
+            for item in self.parentItem().childItems():
+                if item is not self and isinstance(item, Manipulator):
+                    item.setVisible(False)
+
     def notifyResizeProgress(self, newPos, newRect):
         super(Manipulator, self).notifyResizeProgress(newPos, newRect)
 
@@ -376,6 +383,15 @@ class Manipulator(resizable.ResizableRectItem):
             if isinstance(item, Manipulator):
                 item.updateFromWidget()
                 item.setVisible(True)
+
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
+            # show siblings in the same layout container
+            for item in self.parentItem().childItems():
+                if item is not self and isinstance(item, Manipulator):
+                    item.setVisible(True)
+
+            self.parentItem().updateFromWidget(True)
 
         self.lastResizeNewPos = None
         self.lastResizeNewRect = None
