@@ -287,12 +287,15 @@ class CreateCommand(commands.UndoCommand):
         # if the size is 0x0, the widget will be hard to deal with, lets fix that in that case
         if result.widget.getSize() == PyCEGUI.USize(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)):
             result.widget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, 50), PyCEGUI.UDim(0, 50)))
+
         # the parent may want to reposition or resize its new child and may be
         # doing lazy updates - i.e. a layout container
-        if result.widget.getParent():
-            result.widget.getParent().update(0.0)
+        if result.parentItem() and isinstance(result.parentItem(), widgethelpers.Manipulator):
+            result.parentItem().updateFromWidget(True)
 
-        result.updateFromWidget()
+        else:
+            result.updateFromWidget(True)
+
         # ensure this isn't obscured by it's parent
         result.moveToFront()
 
@@ -572,15 +575,12 @@ class ReparentCommand(commands.UndoCommand):
             ceguiOldParentWidget = oldParentManipulator.widget
             ceguiOldParentWidget.addChild(widgetManipulator.widget)
 
-            # the parent may want to reposition or resize its new child and may be
-            # doing lazy updates - i.e. a layout container
-            ceguiOldParentWidget.update(0.0)
-
             # and sort out the manipulators
             widgetManipulator.setParentItem(oldParentManipulator)
 
-            # update sizes since relative sizes can alter these when the parent's size changes
-            widgetManipulator.updateFromWidget()
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            oldParentManipulator.updateFromWidget(True)
 
             i += 1
 
@@ -613,15 +613,13 @@ class ReparentCommand(commands.UndoCommand):
             # add it to the new CEGUI parent widget
             ceguiNewParentWidget = newParentManipulator.widget
             ceguiNewParentWidget.addChild(widgetManipulator.widget)
-            # the parent may want to reposition or resize its new child and may be
-            # doing lazy updates - i.e. a layout container
-            ceguiNewParentWidget.update(0.0)
 
             # and sort out the manipulators
             widgetManipulator.setParentItem(newParentManipulator)
 
-            # update sizes since relative sizes can alter these when the parent's size changes
-            widgetManipulator.updateFromWidget()
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            newParentManipulator.updateFromWidget(True)
 
             i += 1
 
