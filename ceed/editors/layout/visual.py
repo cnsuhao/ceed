@@ -1014,11 +1014,16 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
 
             self.visual.hierarchyDockWidget.treeView.clearSelection()
+            lastTreeItem = None
             for item in selection:
                 if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
                         self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
                         ensureParentIsExpanded(self.visual.hierarchyDockWidget.treeView, item.treeItem)
+                        lastTreeItem = item.treeItem
+
+            if lastTreeItem is not None:
+                self.visual.hierarchyDockWidget.treeView.scrollTo(lastTreeItem.index())
 
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
 
