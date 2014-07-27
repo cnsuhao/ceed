@@ -274,7 +274,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemHasNoContents)
         self.setResizingEnabled(True)
 
-        parent = self.widget.getParent()
         if self.widget.isAutoWindow():
             if not settings.getEntry("layout/visual/auto_widgets_show_outline").value:
                 # don't show outlines unless instructed to do so
@@ -288,7 +287,8 @@ class Manipulator(cegui_widgethelpers.Manipulator):
                 self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
                 self.setResizingEnabled(False)
 
-        if isinstance(parent, PyCEGUI.LayoutContainer):
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
             # if the widget is now parented inside a layout container we don't want
             # any drag moving to be possible
             self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)

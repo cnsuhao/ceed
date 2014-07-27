@@ -832,6 +832,8 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         self.clear()
 
         self.rootManipulator = manipulator
+        # root manipulator changed, perform a full update
+        self.rootManipulator.updateFromWidget(True)
 
         if self.rootManipulator is not None:
             self.addItem(self.rootManipulator)
