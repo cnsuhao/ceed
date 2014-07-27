@@ -269,10 +269,10 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             painter.fillRect(qChildRect, Manipulator.getSnapGridBrush())
             painter.restore()
 
-    def updateFromWidget(self):
+    def updateFromWidget(self, callUpdate = False):
         # we are updating the position and size from widget, we don't want any snapping
         self.ignoreSnapGrid = True
-        super(Manipulator, self).updateFromWidget()
+        super(Manipulator, self).updateFromWidget(callUpdate)
         self.ignoreSnapGrid = False
 
     def snapXCoordToGrid(self, x):

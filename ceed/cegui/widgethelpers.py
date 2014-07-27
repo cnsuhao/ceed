@@ -214,8 +214,11 @@ class Manipulator(resizable.ResizableRectItem):
 
         return ret
 
-    def updateFromWidget(self):
+    def updateFromWidget(self, callUpdate = False):
         assert(self.widget is not None)
+
+        if callUpdate:
+            self.widget.update(0.0)
 
         unclippedOuterRect = self.widget.getUnclippedOuterRect().getFresh(True)
         pos = unclippedOuterRect.getPosition()
@@ -235,7 +238,7 @@ class Manipulator(resizable.ResizableRectItem):
             if not isinstance(item, Manipulator):
                 continue
 
-            item.updateFromWidget()
+            item.updateFromWidget(callUpdate)
 
     def moveToFront(self):
         self.widget.moveToFront()

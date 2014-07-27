@@ -685,6 +685,10 @@ class PasteCommand(commands.UndoCommand):
 
             serialisationData.reconstruct(self.visual.scene.rootManipulator)
 
+        # Update the topmost parent widget recursively to get possible resize or
+        # repositions of the pasted widgets into the manipulator data.
+        targetManipulator.updateFromWidget(True)
+
         self.visual.hierarchyDockWidget.refresh()
 
         super(PasteCommand, self).redo()
