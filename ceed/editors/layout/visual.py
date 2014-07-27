@@ -1157,6 +1157,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.setupToolBar()
         self.hierarchyDockWidget.treeView.setupContextMenu()
 
+        self.oldViewState = None
+
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
@@ -1313,9 +1315,15 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # connect all our actions
         self.connectionGroup.connectAll()
 
+        if self.oldViewState is not None:
+            mainwindow.MainWindow.instance.ceguiContainerWidget.setViewState(self.oldViewState)
+
         super(VisualEditing, self).showEvent(event)
 
     def hideEvent(self, event):
+        # remember our view transform
+        self.oldViewState = mainwindow.MainWindow.instance.ceguiContainerWidget.getViewState()
+
         # disconnected all our actions
         self.connectionGroup.disconnectAll()
 
