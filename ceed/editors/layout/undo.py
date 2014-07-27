@@ -287,6 +287,10 @@ class CreateCommand(commands.UndoCommand):
         # if the size is 0x0, the widget will be hard to deal with, lets fix that in that case
         if result.widget.getSize() == PyCEGUI.USize(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)):
             result.widget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, 50), PyCEGUI.UDim(0, 50)))
+        # the parent may want to reposition or resize its new child and may be
+        # doing lazy updates - i.e. a layout container
+        if result.widget.getParent():
+            result.widget.getParent().update(0.0)
 
         result.updateFromWidget()
         # ensure this isn't obscured by it's parent
