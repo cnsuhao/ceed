@@ -79,8 +79,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = False):
         self.visual = visual
-
         self.showOutline = True
+
+        super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)
 
         self.setAcceptDrops(True)
 
@@ -94,8 +95,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
 
         self.absoluteIntegersOnlyModeAction = action.getAction("layout/abs_integers_mode")
-
-        super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)
 
     def __del__(self):
         self.absoluteModeAction.toggled.disconnect(self.slot_absoluteModeToggled)
@@ -148,7 +147,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         return candidate
 
     def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
-        return Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
+        ret = Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         parentWidgetWasNone = self.widget.getParent() is None
@@ -377,7 +378,9 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
         return SerialisationData(self.visual, widget, serialiseChildren)
 
     def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
-        return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+        ret = Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def setVisual(self, visual):
         self.visual = visual

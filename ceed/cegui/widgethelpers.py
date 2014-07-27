@@ -57,7 +57,6 @@ class Manipulator(resizable.ResizableRectItem):
                       QtGui.QGraphicsItem.ItemSendsGeometryChanges)
 
         self.widget = widget
-        self.updateFromWidget()
 
         if recursive:
             self.createChildManipulators(True, skipAutoWidgets)
@@ -83,7 +82,9 @@ class Manipulator(resizable.ResizableRectItem):
         likely to be also subclassed
         """
 
-        return Manipulator(self, childWidget, recursive, skipAutoWidgets)
+        ret = Manipulator(self, childWidget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def createChildManipulators(self, recursive = True, skipAutoWidgets = False):
         """Creates manipulators for child widgets of widget manipulated by this manipulator
@@ -701,7 +702,9 @@ class SerialisationData(object):
         """Creates a manipulator suitable for the widget resulting from reconstruction
         """
 
-        return Manipulator(parentManipulator, widget, recursive, skipAutoWidgets)
+        ret = Manipulator(parentManipulator, widget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def serialiseProperties(self, widget):
         """Takes a snapshot of all properties of given widget and stores them
