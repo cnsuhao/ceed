@@ -1003,6 +1003,12 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
 
         self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
 
+        def ensureParentIsExpanded(view, treeItem):
+            view.expand(treeItem.index())
+
+            if treeItem.parent():
+                ensureParentIsExpanded(view, treeItem.parent())
+
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
@@ -1012,6 +1018,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
                 if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
                         self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
+                        ensureParentIsExpanded(self.visual.hierarchyDockWidget.treeView, item.treeItem)
 
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
 
