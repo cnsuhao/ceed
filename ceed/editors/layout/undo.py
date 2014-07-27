@@ -572,6 +572,10 @@ class ReparentCommand(commands.UndoCommand):
             ceguiOldParentWidget = oldParentManipulator.widget
             ceguiOldParentWidget.addChild(widgetManipulator.widget)
 
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            ceguiOldParentWidget.update(0.0)
+
             # and sort out the manipulators
             widgetManipulator.setParentItem(oldParentManipulator)
 
@@ -609,6 +613,9 @@ class ReparentCommand(commands.UndoCommand):
             # add it to the new CEGUI parent widget
             ceguiNewParentWidget = newParentManipulator.widget
             ceguiNewParentWidget.addChild(widgetManipulator.widget)
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            ceguiNewParentWidget.update(0.0)
 
             # and sort out the manipulators
             widgetManipulator.setParentItem(newParentManipulator)
