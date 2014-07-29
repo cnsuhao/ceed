@@ -1,9 +1,9 @@
-# #############################################################################
+##############################################################################
 # created:    2nd July 2014
 # author:     Lukas E Meindl
-# #############################################################################
 ##############################################################################
-#   CEED - Unified CEGUI asset editor
+##############################################################################
+# CEED - Unified CEGUI asset editor
 #
 #   Copyright (C) 2011-2014   Martin Preisler <martin@preisler.me>
 #                             and contributing authors (see AUTHORS file)
@@ -63,7 +63,6 @@ class FalagardElementAttributesManager(object):
         PyCEGUI.Image: ct.ImageRef,
         PyCEGUI.BasicImage: ct.ImageRef
     }
-    # TODO: Font*, Image*, UBox?
 
     def __init__(self, propertyMap, visual):
         self.visual = visual
@@ -126,59 +125,113 @@ class FalagardElementAttributesManager(object):
             return []
 
         elif isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
-            return self.createSettingsForWidgetLookFeel(falagardElement)
+            return self.createPropertySettings(falagardElement)
         # All other Falagard Elements:
         else:
             return self.createSettingsForNonWidgetLookElement(falagardElement)
 
-    @staticmethod
-    def createSettingsForWidgetLookFeel(widgetLookObject):
+    def createPropertySettings(self, widgetLookObject):
         """
+        Creates a list of settings for a specificed WidgetLookFeel object, based on all its child elements of type Property, PropertyDefinition and PropertyLinkDefinition
 
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return: list
         """
 
-        """ TODO: FIX
+        widgetLookPropertySettings = []
+
+        propertyLinkDefs = widgetLookObject.getPropertyLinkDefinitions()
+        for propertyLinkDef in propertyLinkDefs:
+            propertyName = propertyLinkDef.getPropertyName()
+            dataType = propertyLinkDef.getDataType()
+            initialValue = propertyLinkDef.getInitialValue()
+            category = "PropertyLinkDefinition"
+            helpString = propertyLinkDef.getHelpString()
+
+            if initialValue is u"":
+                initialValue = None
+
+            widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
+                                                                                       helpString, False, self.propertyMap))
+
         propertyDefs = widgetLookObject.getPropertyDefinitions()
+        for propertyDef in propertyDefs:
+            propertyName = propertyDef.getPropertyName()
+            dataType = propertyDef.getDataType()
+            initialValue = propertyDef.getInitialValue()
+            category = "PropertyDefinition"
+            helpString = propertyDef.getHelpString()
 
-        for propertyDefinition in propertyDefs:
-            prop = type(PyCEGUI.Property)(propertyDefinition)
-            type2 = prop.getDataType()
+            if initialValue is u"":
+                initialValue = None
 
-            uga = dir(propertyDefinition)
+            widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
+                                                                                       helpString, False, self.propertyMap))
 
+        return widgetLookPropertySettings
 
-
-        definitions = widgetLookObject.getPropertyDefinitionIterator()
-        propDefIterator = definitions.isAtEnd()
-        while not propDefIterator == definitions.end():
-            prop = propDefIterator.clone()
-            propDefIterator.next()
-
-
-        while not propIt.isAtEnd():
-            cgProp = propIt.getCurrentValue()
-            guid = self.getCEGUIPropertyGUID(cgProp)
-
-            # if we already know this property, add the current set
-            # to the list.
-            if guid in cgProps:
-                cgProps[guid][1].append(cgSet)
-            # if it's a new property, check if it can be added
-            else:
-                # we don't support unreadable properties
-                if cgProp.isReadable():
-                    #print("XXX: {}/{}/{}".format(cgProp.getOrigin(), cgProp.getName(), cgProp.getDataType()))
-                    # check mapping and ignore hidden properties
-                    pmEntry = self.propertyMap.getEntry(cgProp.getOrigin(), cgProp.getName())
-                    if (not pmEntry) or (not pmEntry.hidden):
-                        cgProps[guid] = (cgProp, [widgetLookObject])
-
-            propIt.next()
-
+    def createWidgetLookFeelPropertySetting(self, widgetLookObject, propertyName, dataType, currentValue, category, helpString, readOnly, propertyMap):
+        """Create one MultiPropertyWrapper based property for the CEGUI Property
+        for all of the PropertySets specified.
         """
-        return []
+
+        # if the current property map specifies a different type, use that one instead
+        pmEntry = propertyMap.getEntry(category, propertyName)
+        if pmEntry and pmEntry.typeName:
+            propertyDataType = pmEntry.typeName
+        # get a native data type for the CEGUI data type, falling back to string
+        from ceed.propertysetinspector import CEGUIPropertyManager
+
+        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(dataType)
+
+        # get the callable that creates this data type
+        # and the Property type to use.
+        if issubclass(pythonDataType, ct.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            value = pythonDataType.fromString(pythonDataType.toString(currentValue))
+            propertyType = pythonDataType.getPropertyType()
+        else:
+            if pythonDataType is bool:
+                # The built-in bool parses "false" as True
+                # so we replace the default value creator.
+                value = ptUtility.boolFromString(currentValue)
+            else:
+                value = pythonDataType(currentValue)
+            propertyType = properties.Property
+
+        defaultValue = value
+
+        # create the inner properties;
+        # one property for each CEGUI PropertySet
+        innerProperties = []
+        innerProperty = propertyType(name=propertyName,
+                                     category=category,
+                                     helpText=helpString,
+                                     value=value,
+                                     defaultValue=defaultValue,
+                                     readOnly=readOnly,
+                                     createComponents=False
+                                     )
+        innerProperties.append(innerProperty)
+
+        # create the template property;
+        # this is the property that will create the components
+        # and it will be edited.
+        editorOptions = None
+        if pmEntry and pmEntry.editorSettings:
+            editorOptions = pmEntry.editorSettings
+        templateProperty = propertyType(name=propertyName,
+                                        category=category,
+                                        helpText=helpString,
+                                        value=value,
+                                        defaultValue=defaultValue,
+                                        readOnly=readOnly,
+                                        editorOptions=editorOptions
+                                        )
+
+        # create FalagardElement MultiPropertyWrapper
+        return FalagardElementMultiPropertyWrapper(templateProperty, innerProperties, True,
+                                                   self.visual, widgetLookObject, propertyName)
 
     def createSettingsForNonWidgetLookElement(self, falagardElement):
         """
@@ -189,11 +242,12 @@ class FalagardElementAttributesManager(object):
         settings = []
 
         from falagard_element_interface import FalagardElementInterface
+
         attributeList = FalagardElementInterface.getListOfAttributes(falagardElement)
 
         for attributeName in attributeList:
             attribute = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
-            newSetting = self.createProperty(falagardElement, attributeName, attribute, "")
+            newSetting = self.createPropertyForFalagardElement(falagardElement, attributeName, attribute, "")
             settings.append(newSetting)
 
         return settings
@@ -203,7 +257,7 @@ class FalagardElementAttributesManager(object):
         # Returns a corresponding python type for a given CEGUI type
         return FalagardElementAttributesManager._typeMap.get(ceguiType, unicode)
 
-    def createProperty(self, falagardElement, attributeName, attribute, helpText):
+    def createPropertyForFalagardElement(self, falagardElement, attributeName, attribute, helpText):
         """Create one MultiPropertyWrapper based property for the CEGUI Property
         for all of the PropertySets specified.
         """
@@ -212,6 +266,7 @@ class FalagardElementAttributesManager(object):
         attributeDataType = type(attribute)
 
         from tabbed_editor import LookNFeelTabbedEditor
+
         falagardElementTypeStr = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
         # if the current property map specifies a different type, use that one instead
@@ -245,7 +300,7 @@ class FalagardElementAttributesManager(object):
                                      defaultValue=defaultValue,
                                      readOnly=False,
                                      createComponents=False  # no need for components, the template will provide these
-                                     )
+        )
 
         innerProperties = [innerProperty]
 
