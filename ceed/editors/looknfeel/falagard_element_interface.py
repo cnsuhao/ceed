@@ -49,7 +49,7 @@ class FalagardElementInterface(object):
         WIDGET_COMPONENT_ATTRIBUTES = ["nameSuffix", "type", "renderer", "look", "autoWindow", "VertAlignment", "HorzAlignment"]
         IMAGERY_COMPONENT_ATTRIBUTES = ["Image", "ImageProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"]
         TEXT_COMPONENT_ATTRIBUTES = ["Text", "TextProperty", "Font", "FontProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"]
-        FRAME_COMPONENT_ATTRIBUTES = ["Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"]
+        FRAME_COMPONENT_ATTRIBUTES = ["Colour", "ColourProperty"]
         LAYER_SPECIFICATION_ATTRIBUTES = ["priority"]
         SECTION_SPECIFICATION_ATTRIBUTES = ["section", "look", "controlProperty", "controlValue", "controlWidget", "Colour", "ColourProperty"]
         COMPONENT_AREA_ATTRIBUTES = ["AreaProperty", "NamedAreaSource <look>", "NamedAreaSource <name>"]
@@ -172,12 +172,11 @@ class FalagardElementInterface(object):
                 return falagardElement.getHorizontalFormattingPropertySource()
 
         elif isinstance(falagardElement, PyCEGUI.FrameComponent):
-            # "Colour", "ColourProperty",
+            # "Colour", "ColourProperty"
             if attributeName == attributeList[0]:
                 return falagardElement.getColours()
             elif attributeName == attributeList[1]:
                 return falagardElement.getColoursPropertySource()
-
 
         # Elements that can be children of a StateImagery:
         elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
