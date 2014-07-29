@@ -79,6 +79,10 @@ class Base(object):
         :param ceguiObject:
         :return: str
         """
+
+        if type(ceguiObject) == unicode:
+            return ceguiObject
+
         try:
             return cls.tryToString(ceguiObject)
         except:
@@ -107,6 +111,7 @@ class Base(object):
     def __ne__(self, other):
         """Default implementation of __ne__, negates __eq__!"""
         return not (self.__eq__(other))
+
 
 class UDim(Base):
     """UDim"""
@@ -162,6 +167,7 @@ class UDim(Base):
     def getPropertyType(cls):
         return UDimProperty
 
+
 class USize(Base):
     """USize (uses UDim)"""
 
@@ -212,6 +218,7 @@ class USize(Base):
     @classmethod
     def getPropertyType(cls):
         return USizeProperty
+
 
 class UVector2(Base):
     """UVector2 (uses UDim)
@@ -272,6 +279,7 @@ class UVector2(Base):
     @classmethod
     def getPropertyType(cls):
         return UVector2Property
+
 
 class URect(Base):
     """URect (uses UDim)"""
@@ -342,6 +350,7 @@ class URect(Base):
     def getPropertyType(cls):
         return URectProperty
 
+
 class EnumBase(Base, properties.EnumValue):
     """Base class for types that have a predetermined list of possible values."""
 
@@ -385,6 +394,7 @@ class EnumBase(Base, properties.EnumValue):
     def getEnumValues(self):
         return self.enumValues
 
+
 class AspectMode(EnumBase):
     """AspectMode"""
 
@@ -392,6 +402,7 @@ class AspectMode(EnumBase):
 
     def __init__(self, value="Ignore"):
         super(AspectMode, self).__init__(value)
+
 
 class HorizontalAlignment(EnumBase):
     """HorizontalAlignment"""
@@ -401,6 +412,11 @@ class HorizontalAlignment(EnumBase):
     def __init__(self, value="Left"):
         super(HorizontalAlignment, self).__init__(value)
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalFormattingToString(object)
+
+
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
 
@@ -408,6 +424,11 @@ class VerticalAlignment(EnumBase):
 
     def __init__(self, value="Top"):
         super(VerticalAlignment, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalFormattingToString(object)
+
 
 class HorizontalTextFormatting(EnumBase):
     """HorizontalTextFormatting"""
@@ -424,13 +445,25 @@ class HorizontalTextFormatting(EnumBase):
     def __init__(self, value="Left"):
         super(HorizontalTextFormatting, self).__init__(value)
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalTextFormattingToString(ceguiObject)
+
+
 class VerticalTextFormatting(EnumBase):
     """VerticalTextFormatting"""
 
-    enumValues = OrderedDict([("TopAligned", "Top"), ("CentreAligned", "Centre"), ("BottomAligned", "Bottom") ])
+    enumValues = OrderedDict([("TopAligned", "Top"),
+                              ("CentreAligned", "Centre"),
+                              ("BottomAligned", "Bottom") ])
 
     def __init__(self, value="Top"):
         super(VerticalTextFormatting, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalTextFormattingToString(ceguiObject)
+
 
 class WindowUpdateMode(EnumBase):
     """WindowUpdateMode"""
@@ -440,6 +473,7 @@ class WindowUpdateMode(EnumBase):
     def __init__(self, value="Always"):
         super(WindowUpdateMode, self).__init__(value)
 
+
 class SortMode(EnumBase):
     """ItemListBase::SortMode"""
 
@@ -447,6 +481,7 @@ class SortMode(EnumBase):
 
     def __init__(self, value="Ascending"):
         super(SortMode, self).__init__(value)
+
 
 class Quaternion(Base):
     """Quaternion"""
@@ -602,6 +637,7 @@ class Quaternion(Base):
     def getPropertyType(cls):
         return QuaternionProperty
 
+
 class XYZRotation(Base):
     #pylint: disable-msg=C0103
     # invalid name x,y,z etc.
@@ -660,6 +696,7 @@ class XYZRotation(Base):
     @classmethod
     def getPropertyType(cls):
         return XYZRotationProperty
+
 
 class Colour(Base):
     """Colour
@@ -759,6 +796,7 @@ class Colour(Base):
     def getPropertyType(cls):
         return ColourProperty
 
+
 class ColourRect(Base):
     """ColourRect
 
@@ -842,7 +880,6 @@ class ColourRect(Base):
         return ColourRectProperty
 
 
-
 class BaseProperty(properties.Property):
     """Base class for all Property types.
 
@@ -877,6 +914,7 @@ class BaseProperty(properties.Property):
         # trigger our value changed event directly because
         # we didn't call 'setValue()' to do it for us.
         self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
+
 
 class UDimProperty(BaseProperty):
     """Property for UDim values."""
@@ -914,6 +952,7 @@ class USizeProperty(BaseProperty):
     def tryParse(self, strValue):
         return USize.tryParse(strValue)
 
+
 class UVector2Property(BaseProperty):
     """Property for UVector2 values."""
 
@@ -931,6 +970,7 @@ class UVector2Property(BaseProperty):
 
     def tryParse(self, strValue):
         return UVector2.tryParse(strValue)
+
 
 class URectProperty(BaseProperty):
     """Property for URect values."""
@@ -953,6 +993,7 @@ class URectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return URect.tryParse(strValue)
+
 
 class QuaternionProperty(BaseProperty):
     """Property for Quaternion values."""
@@ -1003,6 +1044,7 @@ class QuaternionProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return Quaternion.tryParse(strValue)
+
 
 class XYZRotationProperty(BaseProperty):
     """Property for XYZRotation values."""
@@ -1107,8 +1149,7 @@ class FontRef(StringWrapper):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return object.getName()
-
+        return PyCEGUI.PropertyHelper.fontToString(ceguiObject)
 
 
 class ImageRef(StringWrapper):
@@ -1118,4 +1159,4 @@ class ImageRef(StringWrapper):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return object.getName()
+        return PyCEGUI.PropertyHelper.imageToString(ceguiObject)
