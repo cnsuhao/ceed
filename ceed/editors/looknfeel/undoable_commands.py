@@ -95,7 +95,8 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         self.falagardElement = falagardElement
         self.attributeName = attributeName
-        self.oldValue = oldValues
+        from falagard_element_interface import FalagardElementInterface
+        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
         self.newValue = newValue
 
         self.refreshText()
@@ -124,7 +125,6 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         self.visual.scene.update()
 
     def redo(self):
-
         from falagard_element_interface import FalagardElementInterface
         FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
 
