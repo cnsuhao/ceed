@@ -632,6 +632,7 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
         return False
 
+
 class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
     """Customises the CEGUIPropertyManager by binding to a 'visual'
     so it can manipulate the widgets via undo commands.
@@ -644,7 +645,7 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
         self.visual = visual
 
     def createProperty(self, ceguiProperty, ceguiSets):
-        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, WidgetMultiPropertyWrapper)
+        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, self.propertyMap, WidgetMultiPropertyWrapper)
         prop.ceguiProperty = ceguiProperty
         prop.ceguiSets = ceguiSets
         prop.visual = self.visual
