@@ -106,21 +106,11 @@ class FalagardElementAttributesManager(object):
 
     def createSettingsForFalagardElement(self, falagardElement):
         """
+        Create and return all available settings for the Falagard Element
+
         :param falagardElement:
         :return:
         """
-
-        """Create and return all available settings for the Falagard Element"""
-
-        # add a custom attribute to the PropertySet.
-        # this will be filled later on with callbacks (see
-        # 'createProperty'), one for each property that
-        # will be called when the properties of the set change.
-        # it's OK to clear any previous value because we only
-        # use this internally and we only need a max of one 'listener'
-        # for each property.
-        # It's not pretty but it does the job well enough.
-
         if falagardElement is None:
             return []
 
