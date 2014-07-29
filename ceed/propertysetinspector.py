@@ -216,7 +216,7 @@ class CEGUIPropertyManager(object):
                 propIt.next()
 
         # Convert the CEGUI properties with their sets to property tree properties.
-        ptProps = [self.createProperty(ceguiProperty, propertySet, self.propertyMap) for ceguiProperty, propertySet in cgProps.values()]
+        ptProps = [self.createProperty(ceguiProperty, propertySet) for ceguiProperty, propertySet in cgProps.values()]
 
         return ptProps
 
