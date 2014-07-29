@@ -70,14 +70,17 @@ class FalagardElementMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
     def tryUpdateInner(self, newValue, reason=pt.properties.Property.ChangeValueReason.Unknown):
         if super(FalagardElementMultiPropertyWrapper, self).tryUpdateInner(newValue, reason):
-            ceguiValue = unicode(newValue)
+            if type(newValue) is str:
+                ceguiValue = unicode(newValue)
+            else:
+                ceguiValue = newValue
 
             # Create the undoable command for editing the attribute,
             # but tell it not to trigger the change-callback
             # on the first run because our editor value has already changed,
             # we just want to sync the Falagard element's attribute value now.
             cmd = undoable_commands.FalagardElementAttributeEdit(self.visual, self.falagardElement, self.attributeName,
-                                                                 newValue, ignoreNextCallback=True)
+                                                                 ceguiValue, ignoreNextCallback=True)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
             # make sure to redraw the scene to preview the property
