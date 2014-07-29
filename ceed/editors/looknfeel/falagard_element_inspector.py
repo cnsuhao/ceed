@@ -160,18 +160,31 @@ class FalagardElementAttributesManager(object):
 
         return widgetLookPropertySettings
 
-    def createWidgetLookFeelPropertySetting(self, widgetLookObject, propertyName, dataType, currentValue, category, helpString, readOnly, propertyMap):
-        """Create one MultiPropertyWrapper based property for the CEGUI Property
-        for all of the PropertySets specified.
+    @staticmethod
+    def retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue):
         """
+        Returns an adjusted value and propertyType and editorOptions, using a propertyMap. Converts the value to the right internal python class for the given cegui type.
+        :param propertyMap:
+        :param category:
+        :param propertyName:
+        :param dataType:
+        :param currentValue:
+        :return: value and propertyType
+        """
+
+        editorOptions = None
 
         # if the current property map specifies a different type, use that one instead
         pmEntry = propertyMap.getEntry(category, propertyName)
         if pmEntry and pmEntry.typeName:
-            propertyDataType = pmEntry.typeName
+            dataType = pmEntry.typeName
+
+        # Retrieve the EditorSettings if available
+        if pmEntry and pmEntry.editorSettings:
+            editorOptions = pmEntry.editorSettings
+
         # get a native data type for the CEGUI data type, falling back to string
         from ceed.propertysetinspector import CEGUIPropertyManager
-
         pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(dataType)
 
         # get the callable that creates this data type
@@ -189,6 +202,14 @@ class FalagardElementAttributesManager(object):
                 value = pythonDataType(currentValue)
             propertyType = properties.Property
 
+        return value, propertyType, editorOptions
+
+    def createWidgetLookFeelPropertySetting(self, widgetLookObject, propertyName, dataType, currentValue, category, helpString, readOnly, propertyMap):
+        """Create one MultiPropertyWrapper based property for the CEGUI Property
+        for all of the PropertySets specified.
+        """
+
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue)
         defaultValue = value
 
         # create the inner properties;
@@ -207,9 +228,6 @@ class FalagardElementAttributesManager(object):
         # create the template property;
         # this is the property that will create the components
         # and it will be edited.
-        editorOptions = None
-        if pmEntry and pmEntry.editorSettings:
-            editorOptions = pmEntry.editorSettings
         templateProperty = propertyType(name=propertyName,
                                         category=category,
                                         helpText=helpString,
@@ -259,28 +277,7 @@ class FalagardElementAttributesManager(object):
 
         falagardElementTypeStr = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
-        # if the current property map specifies a different type, use that one instead
-        pmEntry = self.propertyMap.getEntry(falagardElementTypeStr, attributeName)
-        if pmEntry and pmEntry.typeName:
-            attributeDataType = pmEntry.typeName
-        # get a native data type for the CEGUI data type, falling back to string
-        pythonDataType = self.getTypeFromCEGUIType(attributeDataType)
-
-        # get the callable that creates this data type
-        # and the Property type to use.
-        if issubclass(pythonDataType, ct.Base):
-            # if it is a subclass of our ceguitypes, do some special handling
-            value = pythonDataType.fromString(pythonDataType.toString(attribute))
-            propertyType = pythonDataType.getPropertyType()
-        else:
-            if pythonDataType is bool:
-                # The built-in bool parses "false" as True
-                # so we replace the default value creator.
-                value = ptUtility.boolFromString
-            else:
-                value = pythonDataType(attribute)
-            propertyType = properties.Property
-
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, falagardElementTypeStr, attributeName, attributeDataType, attribute)
         defaultValue = value
 
         innerProperty = propertyType(name=attributeName,
@@ -297,9 +294,6 @@ class FalagardElementAttributesManager(object):
         # create the template property;
         # this is the property that will create the components
         # and it will be edited.
-        editorOptions = None
-        if pmEntry and pmEntry.editorSettings:
-            editorOptions = pmEntry.editorSettings
         templateProperty = propertyType(name=attributeName,
                                         category=falagardElementTypeStr,
                                         helpText=helpText,
