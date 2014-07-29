@@ -92,11 +92,9 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
             self.createAndAddItem(currentStateImagery)
             stateIter.next()
 
-        childWidgetIter = widgetLookObject.getWidgetComponentIterator()
-        while not childWidgetIter.isAtEnd():
-            currentChildWidget = childWidgetIter.getCurrentValue()
-            self.createAndAddItem(currentChildWidget)
-            childWidgetIter.next()
+        childWidgetMap = widgetLookObject.getWidgetComponentMap(False)
+        for childWidget in childWidgetMap:
+            self.createAndAddItem(childWidget)
 
     def appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self, widgetLookObject):
         """
