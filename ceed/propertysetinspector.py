@@ -32,6 +32,7 @@ from collections import OrderedDict
 
 import PyCEGUI
 
+
 class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
 
@@ -97,27 +98,27 @@ class CEGUIPropertyManager(object):
     # Maps CEGUI data types (in string form) to Python types
 
     _typeMap = {
-                "int": int,
-                "uint": int,
-                "float": float,
-                "bool": bool,
-                "String": unicode,
-                "USize": ct.USize,
-                "UVector2": ct.UVector2,
-                "URect": ct.URect,
-                "AspectMode": ct.AspectMode,
-                "HorizontalAlignment": ct.HorizontalAlignment,
-                "VerticalAlignment": ct.VerticalAlignment,
-                "WindowUpdateMode": ct.WindowUpdateMode,
-                "Quaternion": ct.Quaternion,
-                "HorizontalTextFormatting": ct.HorizontalTextFormatting,
-                "VerticalTextFormatting": ct.VerticalTextFormatting,
-                "SortMode": ct.SortMode,
-                "Colour": ct.Colour,
-                "ColourRect": ct.ColourRect,
-                "Font": ct.FontRef,
-                "Image": ct.ImageRef
-                }
+        "int": int,
+        "uint": int,
+        "float": float,
+        "bool": bool,
+        "String": unicode,
+        "USize": ct.USize,
+        "UVector2": ct.UVector2,
+        "URect": ct.URect,
+        "AspectMode": ct.AspectMode,
+        "HorizontalAlignment": ct.HorizontalAlignment,
+        "VerticalAlignment": ct.VerticalAlignment,
+        "WindowUpdateMode": ct.WindowUpdateMode,
+        "Quaternion": ct.Quaternion,
+        "HorizontalTextFormatting": ct.HorizontalTextFormatting,
+        "VerticalTextFormatting": ct.VerticalTextFormatting,
+        "SortMode": ct.SortMode,
+        "Colour": ct.Colour,
+        "ColourRect": ct.ColourRect,
+        "Font": ct.FontRef,
+        "Image": ct.ImageRef
+    }
     # TODO: Font*, Image*, UBox?
 
     def __init__(self, propertyMap):
@@ -215,11 +216,12 @@ class CEGUIPropertyManager(object):
                 propIt.next()
 
         # Convert the CEGUI properties with their sets to property tree properties.
-        ptProps = [self.createProperty(ceguiProperty, propertySet) for ceguiProperty, propertySet in cgProps.values()]
+        ptProps = [self.createProperty(ceguiProperty, propertySet, self.propertyMap) for ceguiProperty, propertySet in cgProps.values()]
 
         return ptProps
 
-    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=properties.MultiPropertyWrapper):
+    @staticmethod
+    def createProperty(ceguiProperty, ceguiSets, propertyMap, multiWrapperType=properties.MultiPropertyWrapper):
         """Create one MultiPropertyWrapper based property for the CEGUI Property
         for all of the PropertySets specified.
         """
@@ -232,11 +234,11 @@ class CEGUIPropertyManager(object):
         # get the CEGUI data type of the property
         propertyDataType = ceguiProperty.getDataType()
         # if the current property map specifies a different type, use that one instead
-        pmEntry = self.propertyMap.getEntry(category, name)
+        pmEntry = propertyMap.getEntry(category, name)
         if pmEntry and pmEntry.typeName:
             propertyDataType = pmEntry.typeName
         # get a native data type for the CEGUI data type, falling back to string
-        pythonDataType = self.getTypeFromCEGUITypeString(propertyDataType)
+        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(propertyDataType)
 
         # get the callable that creates this data type
         # and the Property type to use.
@@ -272,8 +274,8 @@ class CEGUIPropertyManager(object):
                                          value=value,
                                          defaultValue=defaultValue,
                                          readOnly=readOnly,
-                                         createComponents=False   # no need for components, the template will provide these
-                                         )
+                                         createComponents=False  # no need for components, the template will provide these
+            )
             innerProperties.append(innerProperty)
 
             # hook the inner callback (the 'cb' function) to
@@ -283,7 +285,9 @@ class CEGUIPropertyManager(object):
             def makeCallback(cs, cp, ip):
                 def cb():
                     ip.setValue(valueCreator(cp.get(cs)))
+
                 return cb
+
             ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
 
         # create the template property;
@@ -299,14 +303,15 @@ class CEGUIPropertyManager(object):
                                         defaultValue=defaultValue,
                                         readOnly=readOnly,
                                         editorOptions=editorOptions
-                                        )
+        )
 
         # create the multi wrapper
         multiProperty = multiWrapperType(templateProperty, innerProperties, True)
 
         return multiProperty
 
-    def updateAllValues(self, ceguiPropertySets):
+    @staticmethod
+    def updateAllValues(ceguiPropertySets):
         """Abuses all property manager callbacks defined for given property sets
         to update all values from them to the respective inspector widgets
         """
