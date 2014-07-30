@@ -96,26 +96,34 @@ class PropertyInspectorWidget(QtGui.QWidget):
             return "Unknown PropertySet"
 
     def setSource(self, source):
-        if len(source) == 0:
-            self.selectionLabel.setText("Nothing is selected.")
-            self.selectionLabel.setToolTip("")
 
-        elif len(source) == 1:
-            label = PropertyInspectorWidget.generateLabelForSet(source[0])
-            self.selectionLabel.setText(label)
-            self.selectionLabel.setToolTip(label)
+        #We check what kind of source we are dealing with
+        if type(source) is list:
+            if len(source) == 0:
+                self.selectionLabel.setText("Nothing is selected.")
+                self.selectionLabel.setToolTip("")
 
+            elif len(source) == 1:
+                label = PropertyInspectorWidget.generateLabelForSet(source[0])
+                self.selectionLabel.setText(label)
+                self.selectionLabel.setToolTip(label)
+
+            else:
+                self.selectionLabel.setText("Multiple selections...")
+
+                tooltip = ""
+                for ceguiPropertySet in source:
+                    tooltip += PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet) + "\n"
+
+                self.selectionLabel.setToolTip(tooltip.rstrip('\n'))
         else:
-            self.selectionLabel.setText("Multiple selections...")
+            #Otherwise it must be a FalagardElement
+            from ceed.editors.looknfeel.hierarchy_tree_item import LookNFeelHierarchyItem
+            falagardEleName, falagardEleTooltip = LookNFeelHierarchyItem.getNameAndToolTip(source, "")
+            self.selectionLabel.setText(falagardEleName)
+            self.selectionLabel.setToolTip(falagardEleTooltip)
 
-            tooltip = ""
-            for ceguiPropertySet in source:
-                tooltip += PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet) + "\n"
-
-            self.selectionLabel.setToolTip(tooltip.rstrip('\n'))
-	
-	categories = self.propertyManager.buildCategories(source)
-
+        categories = self.propertyManager.buildCategories(source)
 
         # load them into the tree
         self.ptree.load(categories)

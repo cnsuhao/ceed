@@ -43,7 +43,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         self.falagardElement = falagardElement
         self.prefix = prefix
 
-        name, toolTip = self.getNameAndToolTip(falagardElement)
+        name, toolTip = self.getNameAndToolTip(falagardElement, self.prefix)
 
         super(LookNFeelHierarchyItem, self).__init__(name)
         self.setToolTip(toolTip)
@@ -55,13 +55,14 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         self.createChildren()
 
-    def getNameAndToolTip(self, falagardElement):
+    @staticmethod
+    def getNameAndToolTip(falagardElement, prefix):
         """
         Creates a name and tooltip for any element that can be part of a WidgetLookFeel and returns it
         :param falagardElement:
         :return: str, str
         """
-        name = self.prefix
+        name = prefix
 
         from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
         toolTip = u"type: " + LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
