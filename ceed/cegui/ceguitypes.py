@@ -1,4 +1,4 @@
-##############################################################################
+# #############################################################################
 #   CEED - Unified CEGUI asset editor
 #
 #   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
@@ -161,6 +161,7 @@ class UDim(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
     @classmethod
@@ -398,7 +399,7 @@ class EnumBase(Base, properties.EnumValue):
 class AspectMode(EnumBase):
     """AspectMode"""
 
-    enumValues = OrderedDict([ ("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand") ])
+    enumValues = OrderedDict([("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand")])
 
     def __init__(self, value="Ignore"):
         super(AspectMode, self).__init__(value)
@@ -407,27 +408,59 @@ class AspectMode(EnumBase):
 class HorizontalAlignment(EnumBase):
     """HorizontalAlignment"""
 
-    enumValues = OrderedDict([ ("Left", "Left"), ("Centre", "Centre"), ("Right", "Right") ])
+    enumValues = OrderedDict([("Left", "Left"), ("Centre", "Centre"), ("Right", "Right")])
 
     def __init__(self, value="Left"):
         super(HorizontalAlignment, self).__init__(value)
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.horizontalFormattingToString(object)
+        return PyCEGUI.PropertyHelper.horzAlignmentToString(object)
 
 
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
 
-    enumValues = OrderedDict([ ("Top", "Top"), ("Centre", "Centre"), ("Bottom", "Bottom") ])
+    enumValues = OrderedDict([("Top", "Top"), ("Centre", "Centre"), ("Bottom", "Bottom")])
 
     def __init__(self, value="Top"):
         super(VerticalAlignment, self).__init__(value)
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.verticalFormattingToString(object)
+        return PyCEGUI.PropertyHelper.vertAlignmentToString(object)
+
+
+class HorizontalFormatting(EnumBase):
+    """HorizontalFormatting"""
+
+    enumValues = OrderedDict([("LeftAligned", "Left"),
+                              ("CentreAligned", "Centre"),
+                              ("RightAligned", "Right"),
+                              ("Stretched", "Stretched"),
+                              ("Tiled", "Tiled")])
+
+    def __init__(self, value="Left"):
+        super(HorizontalFormatting, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalFormattingToString(ceguiObject)
+
+
+class VerticalFormatting(EnumBase):
+    """VerticalFormatting"""
+
+    enumValues = OrderedDict([("TopAligned", "Top"),
+                              ("CentreAligned", "Centre"),
+                              ("BottomAligned", "Bottom")])
+
+    def __init__(self, value="Top"):
+        super(VerticalFormatting, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalFormattingToString(ceguiObject)
 
 
 class HorizontalTextFormatting(EnumBase):
@@ -440,7 +473,7 @@ class HorizontalTextFormatting(EnumBase):
                               ("WordWrapLeftAligned", "Word-Wrap Left"),
                               ("WordWrapCentreAligned", "Word-Wrap Centre"),
                               ("WordWrapRightAligned", "Word-Wrap Right"),
-                              ("WordWrapJustified", "Word-Wrap Justified") ])
+                              ("WordWrapJustified", "Word-Wrap Justified")])
 
     def __init__(self, value="Left"):
         super(HorizontalTextFormatting, self).__init__(value)
@@ -455,7 +488,7 @@ class VerticalTextFormatting(EnumBase):
 
     enumValues = OrderedDict([("TopAligned", "Top"),
                               ("CentreAligned", "Centre"),
-                              ("BottomAligned", "Bottom") ])
+                              ("BottomAligned", "Bottom")])
 
     def __init__(self, value="Top"):
         super(VerticalTextFormatting, self).__init__(value)
@@ -468,7 +501,7 @@ class VerticalTextFormatting(EnumBase):
 class WindowUpdateMode(EnumBase):
     """WindowUpdateMode"""
 
-    enumValues = OrderedDict([ ("Always", "Always"), ("Visible", "Visible"), ("Never", "Never") ])
+    enumValues = OrderedDict([("Always", "Always"), ("Visible", "Visible"), ("Never", "Never")])
 
     def __init__(self, value="Always"):
         super(WindowUpdateMode, self).__init__(value)
@@ -477,7 +510,7 @@ class WindowUpdateMode(EnumBase):
 class SortMode(EnumBase):
     """ItemListBase::SortMode"""
 
-    enumValues = OrderedDict([ ("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort") ])
+    enumValues = OrderedDict([("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort")])
 
     def __init__(self, value="Ascending"):
         super(SortMode, self).__init__(value)
@@ -555,7 +588,7 @@ class Quaternion(Base):
     def machineEpsilon(func=float):
         """http://en.wikipedia.org/wiki/Machine_epsilon#Approximation_using_Python"""
         machine_epsilon = func(1)
-        while func(1)+func(machine_epsilon) != func(1):
+        while func(1) + func(machine_epsilon) != func(1):
             machine_epsilon_last = machine_epsilon
             machine_epsilon = func(machine_epsilon) / func(2)
         return machine_epsilon_last
@@ -573,7 +606,7 @@ class Quaternion(Base):
         x2 = x * x
         y2 = y * y
         z2 = z * z
-        unitLength = w2 + x2 + y2 + z2      # Normalised == 1, otherwise correction divisor.
+        unitLength = w2 + x2 + y2 + z2  # Normalised == 1, otherwise correction divisor.
         abcd = w * x + y * z
         eps = Quaternion.machineEpsilon()
         pi = math.pi
@@ -628,6 +661,7 @@ class Quaternion(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "w:{} x:{} y:{} z:{}".format(fmt(self.w), fmt(self.x), fmt(self.y), fmt(self.z))
 
     def toDegrees(self):
@@ -691,6 +725,7 @@ class XYZRotation(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "x:{} y:{} z:{}".format(fmt(self.x), fmt(self.y), fmt(self.z))
 
     @classmethod
@@ -822,8 +857,8 @@ class ColourRect(Base):
 
         # try to parse as full ColourRect
         values = parsers.parseNamedValues(strValue,
-                                             { "tl", "tr", "bl", "br" },
-                                             { "tl", "tr", "bl", "br" })
+                                          {"tl", "tr", "bl", "br"},
+                                          {"tl", "tr", "bl", "br"})
         if values is not None:
             for name, value in values.items():
                 colour, valid = Colour.tryParse(value)
@@ -841,7 +876,7 @@ class ColourRect(Base):
             values = {"tl": Colour.fromColour(colour),
                       "tr": Colour.fromColour(colour),
                       "bl": Colour.fromColour(colour),
-                      "br": Colour.fromColour(colour) }
+                      "br": Colour.fromColour(colour)}
 
         if target is None:
             target = cls(values["tl"], values["tr"], values["bl"], values["br"])
@@ -922,9 +957,9 @@ class UDimProperty(BaseProperty):
     def createComponents(self):
         self.components = OrderedDict()
         self.components["Scale"] = properties.Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                       readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Offset"] = properties.Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                        readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         super(UDimProperty, self).createComponents()
 
@@ -934,6 +969,7 @@ class UDimProperty(BaseProperty):
     def tryParse(self, strValue):
         return UDim.tryParse(strValue)
 
+
 class USizeProperty(BaseProperty):
     """Property for USize values."""
 
@@ -942,7 +978,7 @@ class USizeProperty(BaseProperty):
         self.components["Width"] = UDimProperty(name="Width", value=self.value.width, defaultValue=self.defaultValue.width,
                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Height"] = UDimProperty(name="Height", value=self.value.height, defaultValue=self.defaultValue.height,
-                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         super(USizeProperty, self).createComponents()
 
@@ -1003,13 +1039,13 @@ class QuaternionProperty(BaseProperty):
 
         # TODO: Set min/max/step for W, X, Y, Z. See how it's done on XYZRotationProperty.
         self.components["W"] = properties.Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         self.components["Degrees"] = XYZRotationProperty(name="Degrees",
                                                          value=XYZRotation.fromQuaternion(self.value),
@@ -1050,16 +1086,16 @@ class XYZRotationProperty(BaseProperty):
     """Property for XYZRotation values."""
 
     def createComponents(self):
-        editorOptions = { "numeric": { "min": -360, "max": 360, "wrapping": True } }
+        editorOptions = {"numeric": {"min": -360, "max": 360, "wrapping": True}}
 
         self.components = OrderedDict()
 
         self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
 
         super(XYZRotationProperty, self).createComponents()
 
@@ -1069,11 +1105,12 @@ class XYZRotationProperty(BaseProperty):
     def tryParse(self, strValue):
         return XYZRotation.tryParse(strValue)
 
+
 class ColourProperty(BaseProperty):
     """Property for Colour values."""
 
     def createComponents(self):
-        editorOptions = { "numeric": { "min": 0, "max": 255 } }
+        editorOptions = {"numeric": {"min": 0, "max": 255}}
 
         self.components = OrderedDict()
 
