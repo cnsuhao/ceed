@@ -130,6 +130,7 @@ class FalagardElementAttributesManager(object):
 
         widgetLookPropertySettings = []
 
+
         propertyLinkDefs = widgetLookObject.getPropertyLinkDefinitions()
         for propertyLinkDef in propertyLinkDefs:
             propertyName = propertyLinkDef.getPropertyName()
@@ -158,10 +159,59 @@ class FalagardElementAttributesManager(object):
             widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
                                                                                        helpString, False, self.propertyMap))
 
+        """
+        propertyDefMap = widgetLookObject.getPropertyDefinitionMap()
+        for propertyDefEntry in propertyDefMap:
+            propertyDef = propertyDefEntry.value
+            propertyName = propertyDef.getPropertyName()
+            dataType = propertyDef.getDataType()
+            initialValue = propertyDef.getInitialValue()
+            category = "PropertyDefinition"
+            helpString = propertyDef.getHelpString()
+
+            if initialValue is u"":
+                initialValue = None
+
+            widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
+                                                                                       helpString, False, self.propertyMap))
+
+        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap()
+        for propertyLinkDefEntry in propertyLinkDefMap:
+            propertyLinkDef = propertyLinkDefEntry.value
+            dataType = propertyLinkDef.getDataType()
+            initialValue = propertyLinkDef.getInitialValue()
+            category = "PropertyLinkDefinition"
+            helpString = propertyLinkDef.getHelpString()
+
+            if initialValue is u"":
+                initialValue = None
+
+            widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
+                                                                                       helpString, False, self.propertyMap))
+
+        """
+
+        """
+        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap()
+        for propertyInitEntry in propertyInitialiserMap:
+            propertyInitialiser = propertyInitEntry.value
+            propertyName = propertyInitialiser.getPropertyName()
+            dataType = propertyInitialiser.getDataType()
+            initialValue = propertyInitialiser.getInitialValue()
+            category = "PropertyDefinition"
+            helpString = propertyInitialiser.getHelpString()
+
+            if initialValue is u"":
+                initialValue = None
+
+            widgetLookPropertySettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
+                                                                                       helpString, False, self.propertyMap))
+        """
+
         return widgetLookPropertySettings
 
     @staticmethod
-    def retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue):
+    def retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue, isProperty):
         """
         Returns an adjusted value and propertyType and editorOptions, using a propertyMap. Converts the value to the right internal python class for the given cegui type.
         :param propertyMap:
@@ -183,9 +233,13 @@ class FalagardElementAttributesManager(object):
         if pmEntry and pmEntry.editorSettings:
             editorOptions = pmEntry.editorSettings
 
-        # get a native data type for the CEGUI data type, falling back to string
-        from ceed.propertysetinspector import CEGUIPropertyManager
-        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(dataType)
+        if isProperty:
+            # get a native data type for the CEGUI data type string, falling back to string
+            from ceed.propertysetinspector import CEGUIPropertyManager
+            pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(dataType)
+        else:
+            # get a native data type for the CEGUI data type, falling back to string
+            pythonDataType = FalagardElementAttributesManager.getTypeFromCEGUIType(dataType)
 
         # get the callable that creates this data type
         # and the Property type to use.
@@ -209,7 +263,7 @@ class FalagardElementAttributesManager(object):
         for all of the PropertySets specified.
         """
 
-        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue)
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue, True)
         defaultValue = value
 
         # create the inner properties;
@@ -274,10 +328,9 @@ class FalagardElementAttributesManager(object):
         attributeDataType = type(attribute)
 
         from tabbed_editor import LookNFeelTabbedEditor
-
         falagardElementTypeStr = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
-        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, falagardElementTypeStr, attributeName, attributeDataType, attribute)
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, falagardElementTypeStr, attributeName, attributeDataType, attribute, False)
         defaultValue = value
 
         innerProperty = propertyType(name=attributeName,
