@@ -421,7 +421,9 @@ class HorizontalAlignment(EnumBase):
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
 
-    enumValues = OrderedDict([("Top", "Top"), ("Centre", "Centre"), ("Bottom", "Bottom")])
+    enumValues = OrderedDict([("Top", "Top"),
+                              ("Centre", "Centre"),
+                              ("Bottom", "Bottom")])
 
     def __init__(self, value="Top"):
         super(VerticalAlignment, self).__init__(value)
@@ -453,7 +455,9 @@ class VerticalFormatting(EnumBase):
 
     enumValues = OrderedDict([("TopAligned", "Top"),
                               ("CentreAligned", "Centre"),
-                              ("BottomAligned", "Bottom")])
+                              ("BottomAligned", "Bottom"),
+                              ("Stretched", "Stretched"),
+                              ("Tiled", "Tiled")])
 
     def __init__(self, value="Top"):
         super(VerticalFormatting, self).__init__(value)
