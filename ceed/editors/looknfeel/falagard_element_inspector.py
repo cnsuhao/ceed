@@ -54,6 +54,8 @@ class FalagardElementAttributesManager(object):
         PyCEGUI.VerticalAlignment: ct.VerticalAlignment,
         PyCEGUI.WindowUpdateMode: ct.WindowUpdateMode,
         PyCEGUI.Quaternion: ct.Quaternion,
+        PyCEGUI.HorizontalFormatting: ct.HorizontalFormatting,
+        PyCEGUI.VerticalFormatting: ct.VerticalFormatting,
         PyCEGUI.HorizontalTextFormatting: ct.HorizontalTextFormatting,
         PyCEGUI.VerticalTextFormatting: ct.VerticalTextFormatting,
         PyCEGUI.ItemListBase.SortMode: ct.SortMode,
