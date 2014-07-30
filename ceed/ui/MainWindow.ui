@@ -30,7 +30,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>icons/application_icon.png</normaloff>icons/application_icon.png</iconset>
+    <normaloff>icons/ceed.png</normaloff>icons/ceed.png</iconset>
   </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>

@@ -288,7 +288,14 @@ class CreateCommand(commands.UndoCommand):
         if result.widget.getSize() == PyCEGUI.USize(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)):
             result.widget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, 50), PyCEGUI.UDim(0, 50)))
 
-        result.updateFromWidget()
+        # the parent may want to reposition or resize its new child and may be
+        # doing lazy updates - i.e. a layout container
+        if result.parentItem() and isinstance(result.parentItem(), widgethelpers.Manipulator):
+            result.parentItem().updateFromWidget(True)
+
+        else:
+            result.updateFromWidget(True)
+
         # ensure this isn't obscured by it's parent
         result.moveToFront()
 
@@ -571,8 +578,9 @@ class ReparentCommand(commands.UndoCommand):
             # and sort out the manipulators
             widgetManipulator.setParentItem(oldParentManipulator)
 
-            # update sizes since relative sizes can alter these when the parent's size changes
-            widgetManipulator.updateFromWidget()
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            oldParentManipulator.updateFromWidget(True)
 
             i += 1
 
@@ -609,8 +617,9 @@ class ReparentCommand(commands.UndoCommand):
             # and sort out the manipulators
             widgetManipulator.setParentItem(newParentManipulator)
 
-            # update sizes since relative sizes can alter these when the parent's size changes
-            widgetManipulator.updateFromWidget()
+            # the parent may want to reposition or resize its new child and may be
+            # doing lazy updates - i.e. a layout container
+            newParentManipulator.updateFromWidget(True)
 
             i += 1
 
@@ -673,6 +682,10 @@ class PasteCommand(commands.UndoCommand):
             serialisationData.setParentPath(self.targetWidgetPath)
 
             serialisationData.reconstruct(self.visual.scene.rootManipulator)
+
+        # Update the topmost parent widget recursively to get possible resize or
+        # repositions of the pasted widgets into the manipulator data.
+        targetManipulator.updateFromWidget(True)
 
         self.visual.hierarchyDockWidget.refresh()
 

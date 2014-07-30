@@ -23,6 +23,8 @@ from PySide import QtGui
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
+import PyCEGUI
+
 class Manipulator(cegui_widgethelpers.Manipulator):
     """Layout editing specific widget manipulator"""
     snapGridBrush = None
@@ -77,21 +79,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = False):
         self.visual = visual
-
         self.showOutline = True
-        if widget.isAutoWindow() and not settings.getEntry("layout/visual/auto_widgets_show_outline").value:
-            # don't show outlines unless instructed to do so
-            self.showOutline = False
 
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)
-
-        if widget.isAutoWindow() and not settings.getEntry("layout/visual/auto_widgets_selectable").value:
-            # make this widget not focusable, selectable, movable and resizable
-            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
-            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
-            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
-            self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
-            self.setResizingEnabled(False)
 
         self.setAcceptDrops(True)
 
@@ -157,7 +147,9 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         return candidate
 
     def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
-        return Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
+        ret = Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         parentWidgetWasNone = self.widget.getParent() is None
@@ -269,11 +261,45 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             painter.fillRect(qChildRect, Manipulator.getSnapGridBrush())
             painter.restore()
 
-    def updateFromWidget(self):
+    def updateFromWidget(self, callUpdate = False):
         # we are updating the position and size from widget, we don't want any snapping
         self.ignoreSnapGrid = True
-        super(Manipulator, self).updateFromWidget()
+        super(Manipulator, self).updateFromWidget(callUpdate)
         self.ignoreSnapGrid = False
+
+        self.showOutline = True
+        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsFocusable)
+        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsSelectable)
+        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemHasNoContents)
+        self.setResizingEnabled(True)
+
+        if self.widget.isAutoWindow():
+            if not settings.getEntry("layout/visual/auto_widgets_show_outline").value:
+                # don't show outlines unless instructed to do so
+                self.showOutline = False
+
+            if not settings.getEntry("layout/visual/auto_widgets_selectable").value:
+                # make this widget not focusable, selectable, movable and resizable
+                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
+                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
+                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
+                self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
+                self.setResizingEnabled(False)
+
+        if isinstance(self.widget, PyCEGUI.LayoutContainer):
+            # LayoutContainers change their size to fit the widgets, it makes
+            # no sense to show this size
+            self.showOutline = False
+            # And it makes no sense to resize them, they will just snap back
+            # when they relayout
+            self.setResizingEnabled(False)
+
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
+            # if the widget is now parented inside a layout container we don't want
+            # any drag moving to be possible
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
 
     def snapXCoordToGrid(self, x):
         # we have to take the child rect into account
@@ -360,7 +386,9 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
         return SerialisationData(self.visual, widget, serialiseChildren)
 
     def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
-        return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+        ret = Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def setVisual(self, visual):
         self.visual = visual

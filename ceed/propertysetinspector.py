@@ -53,9 +53,15 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.filterBox.setPlaceholderText("Filter (prefix with '{}' to show modified)".format(self.modifiedFilterPrefix))
         self.filterBox.textChanged.connect(self.filterChanged)
 
+        self.selectionLabel = QtGui.QLabel();
+        self.selectionLabel.setAlignment(QtCore.Qt.AlignRight)
+        self.selectionLabel.setFrameStyle(QtGui.QFrame.StyledPanel)
+        self.selectionLabel.setFrameShadow(QtGui.QFrame.Sunken)
+
         self.ptree = ptUi.PropertyTreeWidget()
 
         layout.addWidget(self.filterBox)
+        layout.addWidget(self.selectionLabel)
         layout.addWidget(self.ptree)
 
         # set the minimum size to a reasonable value for this widget
@@ -78,8 +84,38 @@ class PropertyInspectorWidget(QtGui.QWidget):
     def setPropertyManager(self, propertyManager):
         self.propertyManager = propertyManager
 
+    @staticmethod
+    def generateLabelForSet(ceguiPropertySet):
+        # We do not know what the property set is but we can take a few informed
+        # guesses. Most likely it will be a CEGUI::Window.
+
+        if isinstance(ceguiPropertySet, PyCEGUI.Window):
+            return "%s : %s" % (ceguiPropertySet.getNamePath(), ceguiPropertySet.getType())
+
+        else:
+            return "Unknown PropertySet"
+
     def setSource(self, source):
-        categories = self.propertyManager.buildCategories(source)
+        if len(source) == 0:
+            self.selectionLabel.setText("Nothing is selected.")
+            self.selectionLabel.setToolTip("")
+
+        elif len(source) == 1:
+            label = PropertyInspectorWidget.generateLabelForSet(source[0])
+            self.selectionLabel.setText(label)
+            self.selectionLabel.setToolTip(label)
+
+        else:
+            self.selectionLabel.setText("Multiple selections...")
+
+            tooltip = ""
+            for ceguiPropertySet in source:
+                tooltip += PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet) + "\n"
+
+            self.selectionLabel.setToolTip(tooltip.rstrip('\n'))
+	
+	categories = self.propertyManager.buildCategories(source)
+
 
         # load them into the tree
         self.ptree.load(categories)

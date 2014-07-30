@@ -834,6 +834,8 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         self.clear()
 
         self.rootManipulator = manipulator
+        # root manipulator changed, perform a full update
+        self.rootManipulator.updateFromWidget(True)
 
         if self.rootManipulator is not None:
             self.addItem(self.rootManipulator)
@@ -1003,15 +1005,27 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
 
         self.visual.propertiesDockWidget.inspector.setSource(sets)
 
+        def ensureParentIsExpanded(view, treeItem):
+            view.expand(treeItem.index())
+
+            if treeItem.parent():
+                ensureParentIsExpanded(view, treeItem.parent())
+
         # we always sync the properties dock widget, we only ignore the hierarchy synchro if told so
         if not self.ignoreSelectionChanges:
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = True
 
             self.visual.hierarchyDockWidget.treeView.clearSelection()
+            lastTreeItem = None
             for item in selection:
                 if isinstance(item, widgethelpers.Manipulator):
                     if hasattr(item, "treeItem") and item.treeItem is not None:
                         self.visual.hierarchyDockWidget.treeView.selectionModel().select(item.treeItem.index(), QtGui.QItemSelectionModel.Select)
+                        ensureParentIsExpanded(self.visual.hierarchyDockWidget.treeView, item.treeItem)
+                        lastTreeItem = item.treeItem
+
+            if lastTreeItem is not None:
+                self.visual.hierarchyDockWidget.treeView.scrollTo(lastTreeItem.index())
 
             self.visual.hierarchyDockWidget.ignoreSelectionChanges = False
 
@@ -1157,6 +1171,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.setupToolBar()
         self.hierarchyDockWidget.treeView.setupContextMenu()
 
+        self.oldViewState = None
+
     def setupActions(self):
         self.connectionGroup = action.ConnectionGroup(action.ActionManager.instance)
 
@@ -1296,9 +1312,15 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # connect all our actions
         self.connectionGroup.connectAll()
 
+        if self.oldViewState is not None:
+            mainwindow.MainWindow.instance.ceguiContainerWidget.setViewState(self.oldViewState)
+
         super(VisualEditing, self).showEvent(event)
 
     def hideEvent(self, event):
+        # remember our view transform
+        self.oldViewState = mainwindow.MainWindow.instance.ceguiContainerWidget.getViewState()
+
         # disconnected all our actions
         self.connectionGroup.disconnectAll()
 

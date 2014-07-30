@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+    <id type="desktop">ceed.desktop</id>
+    <project_license>GPL-3.0+</project_license>
+    <name>CEED</name>
+    <summary>CEGUI Unified Editor - allows users to edit datafiles for the CrazyEddie's GUI Library</summary>
+    <description>
+        <p>
+            A comprehensive suite of editors built into a single application. Uses CEGUI internally to be truly WYSIWYG.
+        </p>
+        <p>Feature highlights:</p>
+        <ul>
+            <li>Compatibility layers - supports multiple versions of the same CEGUI format</li>
+            <li>Project management</li>
+            <li>Imageset editing</li>
+            <li>GUI Layout editing, including live preview</li>
+            <li>Limited CEGUI animation editing</li>
+        </ul>
+        <p>
+            Replaces and obsoletes the older CEImagesetEditor and CELayoutEditor applications.
+        </p>
+    </description>
+    <screenshots>
+        <screenshot type="default" width="1280" height="720">http://cegui.org.uk/sites/default/files/ceed-0.8-default.png</screenshot>
+        <screenshot width="1280" height="720">http://cegui.org.uk/sites/default/files/ceed-0.8-layout.png</screenshot>
+        <screenshot width="1280" height="720">http://cegui.org.uk/sites/default/files/ceed-0.8-imageset.png</screenshot>
+        <screenshot width="1280" height="720">http://cegui.org.uk/sites/default/files/ceed-0.8-animation.png</screenshot>
+    </screenshots>
+    <url type="homepage">http://cegui.org.uk</url>
+    <updatecontact>team@cegui.org.uk</updatecontact>
+</application>

@@ -33,6 +33,7 @@ import argparse
 import subprocess
 import shutil
 
+
 def get_temporary_directory_path():
     temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                        "maintenance-temp"))
@@ -42,9 +43,11 @@ def get_temporary_directory_path():
 
     return temp_directory_path
 
+
 def compile_ui_files():
     from ceed import compileuifiles
     compileuifiles.main()
+
 
 def build_docs():
     print("Building a PDF version of quickstart guide...")
@@ -57,6 +60,7 @@ def build_docs():
     subprocess.call(["lyx", "-e", "pdf", "doc/developer-manual-src/developer-manual.lyx"])
     shutil.move("doc/developer-manual-src/developer-manual.pdf", "doc/developer-manual.pdf")
     print("All done!")
+
 
 def fetch_datafiles():
     v0_7_branch = "v0-7"
@@ -111,7 +115,16 @@ def fetch_datafiles():
     finally:
         os.chdir(old_cwd)
 
+
 def archive():
+    from ceed import version
+
+    if version.DEVELOPER_MODE:
+        print("ceed.version.DEVELOPER_MODE is True! Quitting!")
+        sys.exit(1)
+
+    print("*** Making sure UI files are compiled...")
+    compile_ui_files()
     # make sure we have to proper datafiles fetched
     print("*** Making sure fresh datafiles are in place...")
     fetch_datafiles()
@@ -119,10 +132,8 @@ def archive():
     build_docs()
 
     temp_directory_path = get_temporary_directory_path()
-    from ceed import version
-    target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
 
-    import glob
+    target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
 
     if os.path.exists(target_temp_directory_path):
         print("Target temporary directory '%s' already existed, removing it..." % (target_temp_directory_path))
@@ -131,7 +142,7 @@ def archive():
     os.mkdir(target_temp_directory_path)
 
     shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"),
-                    ignore = shutil.ignore_patterns("*~", "*.orig", "runwrapper.sh"))
+                    ignore = shutil.ignore_patterns("*~", "*.orig"))
     shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"),
                     ignore = shutil.ignore_patterns("*~", "*.orig", "*.pyc", "*.pyo"))
     shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
@@ -143,7 +154,16 @@ def archive():
 
     shutil.copy("AUTHORS", target_temp_directory_path)
     shutil.copy("LICENSE", target_temp_directory_path)
-    shutil.copy("README", target_temp_directory_path)
+    shutil.copy("README.md", target_temp_directory_path)
+
+    shutil.copy("cx_Freezer.py", target_temp_directory_path)
+    shutil.copy("setup.py", target_temp_directory_path)
+
+    shutil.copy("generate-api-ref", target_temp_directory_path)
+    shutil.copy("maintenance", target_temp_directory_path)
+    shutil.copy("perform-static-analysis", target_temp_directory_path)
+    shutil.copy("pylint.cfg", target_temp_directory_path)
+    shutil.copy("run_tests", target_temp_directory_path)
 
     import tarfile
     target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
@@ -152,11 +172,13 @@ def archive():
 
     print("*** The resulting archive is ready at '%s'" % (target_archive_path))
 
+
 def clean():
     temp_directory_path = get_temporary_directory_path()
     shutil.rmtree(temp_directory_path)
 
     print("*** No maintenance temporary directory present now!")
+
 
 def main():
     parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
@@ -185,6 +207,6 @@ def main():
         print("INVALID TASK. Use --help.")
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
-

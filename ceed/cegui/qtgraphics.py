@@ -94,6 +94,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.lastDelta = time.time() - self.timeOfLastRender
         self.ceguiInstance.lastRenderTimeDelta = self.lastDelta
         system.injectTimePulse(self.lastDelta)
+        system.getDefaultGUIContext().injectTimePulse(self.lastDelta)
         self.timeOfLastRender = time.time()
 
         painter.setPen(QtGui.QPen(QtCore.Qt.transparent))

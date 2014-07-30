@@ -57,7 +57,6 @@ class Manipulator(resizable.ResizableRectItem):
                       QtGui.QGraphicsItem.ItemSendsGeometryChanges)
 
         self.widget = widget
-        self.updateFromWidget()
 
         if recursive:
             self.createChildManipulators(True, skipAutoWidgets)
@@ -83,7 +82,9 @@ class Manipulator(resizable.ResizableRectItem):
         likely to be also subclassed
         """
 
-        return Manipulator(self, childWidget, recursive, skipAutoWidgets)
+        ret = Manipulator(self, childWidget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def createChildManipulators(self, recursive = True, skipAutoWidgets = False):
         """Creates manipulators for child widgets of widget manipulated by this manipulator
@@ -214,8 +215,11 @@ class Manipulator(resizable.ResizableRectItem):
 
         return ret
 
-    def updateFromWidget(self):
+    def updateFromWidget(self, callUpdate = False):
         assert(self.widget is not None)
+
+        if callUpdate:
+            self.widget.update(0.0)
 
         unclippedOuterRect = self.widget.getUnclippedOuterRect().getFresh(True)
         pos = unclippedOuterRect.getPosition()
@@ -235,7 +239,7 @@ class Manipulator(resizable.ResizableRectItem):
             if not isinstance(item, Manipulator):
                 continue
 
-            item.updateFromWidget()
+            item.updateFromWidget(callUpdate)
 
     def moveToFront(self):
         self.widget.moveToFront()
@@ -309,6 +313,13 @@ class Manipulator(resizable.ResizableRectItem):
             if isinstance(item, Manipulator):
                 item.setVisible(False)
 
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
+            # hide siblings in the same layout container
+            for item in self.parentItem().childItems():
+                if item is not self and isinstance(item, Manipulator):
+                    item.setVisible(False)
+
     def notifyResizeProgress(self, newPos, newRect):
         super(Manipulator, self).notifyResizeProgress(newPos, newRect)
 
@@ -372,6 +383,15 @@ class Manipulator(resizable.ResizableRectItem):
             if isinstance(item, Manipulator):
                 item.updateFromWidget()
                 item.setVisible(True)
+
+        parent = self.widget.getParent()
+        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
+            # show siblings in the same layout container
+            for item in self.parentItem().childItems():
+                if item is not self and isinstance(item, Manipulator):
+                    item.setVisible(True)
+
+            self.parentItem().updateFromWidget(True)
 
         self.lastResizeNewPos = None
         self.lastResizeNewRect = None
@@ -698,7 +718,9 @@ class SerialisationData(object):
         """Creates a manipulator suitable for the widget resulting from reconstruction
         """
 
-        return Manipulator(parentManipulator, widget, recursive, skipAutoWidgets)
+        ret = Manipulator(parentManipulator, widget, recursive, skipAutoWidgets)
+        ret.updateFromWidget()
+        return ret
 
     def serialiseProperties(self, widget):
         """Takes a snapshot of all properties of given widget and stores them

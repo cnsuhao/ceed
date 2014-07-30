@@ -64,6 +64,13 @@ try:
     if os.path.exists(SYSTEM_DOC_DIR):
         DOC_DIR = SYSTEM_DOC_DIR
         SYSTEM_DOC_DIR_EXISTS = True
+
+    else:
+        SYSTEM_DOC_DIR = "/usr/share/doc/ceed"
+        if os.path.exists(SYSTEM_DOC_DIR):
+            DOC_DIR = SYSTEM_DOC_DIR
+            SYSTEM_DOC_DIR_EXISTS = True
+
 except:
     pass
 
@@ -72,6 +79,14 @@ if not SYSTEM_DOC_DIR_EXISTS:
 
 # What's the absolute path to the ui directory
 UI_DIR = os.path.join(PACKAGE_DIR, "ui")
+
+# We don't need this locally, we don't even need it to exist
+# This is where we install our icons
+SYSTEM_PIXMAPS_DIR = "/usr/share/pixmaps"
+# This is where we install .desktop files
+SYSTEM_APPLICATIONS_DIR = "/usr/share/applications"
+# This is where we install .desktop files
+SYSTEM_APPDATA_DIR = "/usr/share/appdata"
 
 # if one of these assertions fail your installation is not valid!
 if not FROZEN:

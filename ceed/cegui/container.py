@@ -161,6 +161,12 @@ font-size: 10px;
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
 
+class ViewState(object):
+    def __init__(self):
+        self.transform = None
+        self.horizontalScroll = 0
+        self.verticalScroll = 0
+
 class ContainerWidget(QtGui.QWidget):
     """
     This widget is what you should use (alongside your GraphicsScene derived class) to
@@ -311,6 +317,19 @@ class ContainerWidget(QtGui.QWidget):
             except ValueError:
                 # ignore invalid literals
                 pass
+
+    def setViewState(self, viewState):
+        self.view.setTransform(viewState.transform)
+        self.view.horizontalScrollBar().setValue(viewState.horizontalScroll)
+        self.view.verticalScrollBar().setValue(viewState.verticalScroll)
+
+    def getViewState(self):
+        ret = ViewState()
+        ret.transform = self.view.transform()
+        ret.horizontalScroll = self.view.horizontalScrollBar().value()
+        ret.verticalScroll = self.view.verticalScrollBar().value()
+
+        return ret
 
     def slot_resolutionBoxChanged(self, _):
         self.updateResolution()
