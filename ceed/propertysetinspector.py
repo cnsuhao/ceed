@@ -155,6 +155,8 @@ class CEGUIPropertyManager(object):
         "VerticalAlignment": ct.VerticalAlignment,
         "WindowUpdateMode": ct.WindowUpdateMode,
         "Quaternion": ct.Quaternion,
+        "HorizontalFormatting": ct.HorizontalFormatting,
+        "VerticalFormatting": ct.VerticalFormatting,
         "HorizontalTextFormatting": ct.HorizontalTextFormatting,
         "VerticalTextFormatting": ct.VerticalTextFormatting,
         "SortMode": ct.SortMode,
