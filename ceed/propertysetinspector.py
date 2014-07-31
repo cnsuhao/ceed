@@ -113,8 +113,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
         else:
             tooltip = ""
             for ceguiPropertySet in ceguiPropertySets:
-                path, description = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
-                tooltip += description + "\n"
+                path, typeName = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
+                tooltip += typeName + "\n"
 
             self.selectionObjectPath = ""
             self.selectionObjectDescription = "Multiple selections..."
@@ -138,7 +138,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
         """
 
         adjustedSelectionObjectPath = ""
-        if self.selectionObjectPath is not "":
+        if self.selectionObjectPath:
             adjustedSelectionObjectPath = self.selectionObjectPath + " : "
 
         fontMetrics = self.selectionLabel.fontMetrics()
