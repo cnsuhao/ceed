@@ -96,8 +96,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
         # guesses. Most likely it will be a CEGUI::Window.
 
         if isinstance(ceguiPropertySet, PyCEGUI.Window):
-            return ceguiPropertySet.getNamePath() + " : ", ceguiPropertySet.getType()
-
+            return ceguiPropertySet.getNamePath(), ceguiPropertySet.getType()
         else:
             return "", "Unknown PropertySet"
 
@@ -114,11 +113,12 @@ class PropertyInspectorWidget(QtGui.QWidget):
         else:
             tooltip = ""
             for ceguiPropertySet in ceguiPropertySets:
-                tooltip += PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet) + "\n"
+                path, description = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
+                tooltip += description + "\n"
 
             self.selectionObjectPath = ""
             self.selectionObjectDescription = "Multiple selections..."
-            self.selectionLabelTooltip = tooltip
+            self.selectionLabelTooltip = tooltip.rstrip('\n')
 
         self.updateSelectionLabelElidedText()
 
@@ -136,19 +136,24 @@ class PropertyInspectorWidget(QtGui.QWidget):
         """
         Shortens the window/widget path so that the whole text will fit into the label. The beginning of the, if necessary, cut-off path text will be "...".
         """
+
+        adjustedSelectionObjectPath = ""
+        if self.selectionObjectPath is not "":
+            adjustedSelectionObjectPath = self.selectionObjectPath + " : "
+
         fontMetrics = self.selectionLabel.fontMetrics()
         labelWidth = self.selectionLabel.size().width()
         objectDescriptionWidth = fontMetrics.width(self.selectionObjectDescription)
-        objectPathWidth = fontMetrics.width(self.selectionObjectPath)
+        objectPathWidth = fontMetrics.width(adjustedSelectionObjectPath)
         margin = 6
         minWidthTakenByPath = 20
 
         if labelWidth > objectDescriptionWidth + objectPathWidth:
-            finalText = self.selectionObjectPath + self.selectionObjectDescription
+            finalText = adjustedSelectionObjectPath + self.selectionObjectDescription
         elif labelWidth < minWidthTakenByPath + objectDescriptionWidth:
             finalText = fontMetrics.elidedText(self.selectionObjectDescription, QtCore.Qt.ElideRight, labelWidth - margin)
         else:
-            alteredPathText = fontMetrics.elidedText(self.selectionObjectPath, QtCore.Qt.ElideLeft, labelWidth - margin - objectDescriptionWidth)
+            alteredPathText = fontMetrics.elidedText(adjustedSelectionObjectPath, QtCore.Qt.ElideLeft, labelWidth - margin - objectDescriptionWidth)
             finalText = alteredPathText + self.selectionObjectDescription
 
         self.selectionLabel.setText(finalText)
