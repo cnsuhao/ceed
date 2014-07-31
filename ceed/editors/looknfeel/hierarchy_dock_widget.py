@@ -66,7 +66,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.updateToNewWidgetLook()
 
     def updateToNewWidgetLook(self):
-        if self.tabbedEditor.targetWidgetLook != "":
+        if self.tabbedEditor.targetWidgetLook:
             from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
             originalParts = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.tabbedEditor.targetWidgetLook)
             self.widgetLookNameLabel.setText(originalParts[0])
@@ -85,7 +85,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.displayStateCombobox.blockSignals(True)
         self.displayStateCombobox.clear()
 
-        if self.tabbedEditor.targetWidgetLook == "":
+        if not self.tabbedEditor.targetWidgetLook:
             return
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
@@ -112,7 +112,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         limitDisplayTo = self.displayStateCombobox.itemData(self.displayStateCombobox.currentIndex())
 
         widgetLook = self.tabbedEditor.targetWidgetLook
-        if widgetLook != "":
+        if widgetLook:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(widgetLook)
             self.model.updateTree(widgetLookObject, limitDisplayTo)
         else:

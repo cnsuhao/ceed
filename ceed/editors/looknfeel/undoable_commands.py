@@ -61,7 +61,7 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.tabbedEditor.targetWidgetLook = self.oldTargetWidgetLook
         self.tabbedEditor.visual.displayNewTargetWidgetLook()
 
-        if self.tabbedEditor.targetWidgetLook == "":
+        if not self.tabbedEditor.targetWidgetLook:
             self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
@@ -73,7 +73,7 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
         self.visual.displayNewTargetWidgetLook()
 
-        if self.tabbedEditor.targetWidgetLook == "":
+        if not self.tabbedEditor.targetWidgetLook:
             self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
         else:
             widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)

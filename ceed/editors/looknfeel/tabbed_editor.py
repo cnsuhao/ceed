@@ -149,7 +149,7 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         # Each Editor is associated with only one LNF file so that this will in effect also guarantee that the WidgetLooks inside the CEGUI system will be uniquely named
         # for each file
 
-        if lookNFeelAsXMLString is None or lookNFeelAsXMLString is "":
+        if not lookNFeelAsXMLString:
             return
 
         #Mapping all occuring references

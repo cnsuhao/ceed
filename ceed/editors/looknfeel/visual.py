@@ -118,7 +118,7 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
     def displayNewTargetWidgetLook(self):
         self.destroyCurrentPreviewWidget()
 
-        if self.tabbedEditor.targetWidgetLook != "":
+        if self.tabbedEditor.targetWidgetLook:
 
             # Add new widget representing the new WidgetLook to the scene, if the factory is registered
             factoryPresent = PyCEGUI.WindowFactoryManager.getSingleton().isFactoryPresent(self.tabbedEditor.targetWidgetLook)
