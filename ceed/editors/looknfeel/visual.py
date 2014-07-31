@@ -186,90 +186,6 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
 
         return ret
 
-    def performCopy(self):
-        topMostSelected = []
-
-        for item in self.scene.selectedItems():
-            if not isinstance(item, widgethelpers.Manipulator):
-                continue
-
-            hasAncestorSelected = False
-
-            for item2 in self.scene.selectedItems():
-                if not isinstance(item2, widgethelpers.Manipulator):
-                    continue
-
-                if item is item2:
-                    continue
-
-                if item2.isAncestorOf(item):
-                    hasAncestorSelected = True
-                    break
-
-            if not hasAncestorSelected:
-                topMostSelected.append(item)
-
-        if len(topMostSelected) == 0:
-            return False
-
-        # now we serialise the top most selected widgets (and thus their entire hierarchies)
-        topMostSerialisationData = []
-        for wdt in topMostSelected:
-            serialisationData = widgethelpers.SerialisationData(self, wdt.widget)
-            # we set the visual to None because we can't pickle QWidgets (also it would prevent copying across editors)
-            # we will set it to the correct visual when we will be pasting it back
-            serialisationData.setVisual(None)
-
-            topMostSerialisationData.append(serialisationData)
-
-        data = QtCore.QMimeData()
-        data.setData("application/x-ceed-widget-hierarchy-list", QtCore.QByteArray(cPickle.dumps(topMostSerialisationData)))
-        QtGui.QApplication.clipboard().setMimeData(data)
-
-        return True
-
-    def performPaste(self):
-        data = QtGui.QApplication.clipboard().mimeData()
-
-        if not data.hasFormat("application/x-ceed-widget-hierarchy-list"):
-            return False
-
-        topMostSerialisationData = cPickle.loads(data.data("application/x-ceed-widget-hierarchy-list").data())
-
-        if len(topMostSerialisationData) == 0:
-            return False
-
-        targetManipulator = None
-        for item in self.scene.selectedItems():
-            if not isinstance(item, widgethelpers.Manipulator):
-                continue
-
-            # multiple targets, we can't decide!
-            if targetManipulator is not None:
-                return False
-
-            targetManipulator = item
-
-        if targetManipulator is None:
-            return False
-
-        for serialisationData in topMostSerialisationData:
-            serialisationData.setVisual(self)
-
-        cmd = undoable_commands.PasteCommand(self, topMostSerialisationData, targetManipulator.widget.getNamePath())
-        self.tabbedEditor.undoStack.push(cmd)
-
-        # select the topmost pasted widgets for convenience
-        self.scene.clearSelection()
-        for serialisationData in topMostSerialisationData:
-            manipulator = targetManipulator.getManipulatorByPath(serialisationData.name)
-            manipulator.setSelected(True)
-
-        return True
-
-    def performDelete(self):
-        return self.scene.deleteSelectedWidgets()
-
 
 class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
     """This dock widget allows to select a WidgetLook from a combobox and start editing it
@@ -369,7 +285,6 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
 
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
-
 
     def mouseReleaseEvent(self, event):
         super(EditingScene, self).mouseReleaseEvent(event)
