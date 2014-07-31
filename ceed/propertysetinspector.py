@@ -119,7 +119,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
             else:
                 tooltip = ""
                 for ceguiPropertySet in source:
-                    path, typeName = PropertyInspectorWidget.generateLabelForSet(source)
+                    path, typeName = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
                 
                     selectionInfoTuple = (path, typeName)
                     joinedPathAndName = " : ".join(selectionInfoTuple)
