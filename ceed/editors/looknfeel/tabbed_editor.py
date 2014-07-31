@@ -143,9 +143,9 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
     def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
-        # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor simultaneously, we will map the
-        # names that we load from a Look n' Feel file in a way that they are unique. We achieve this by editing the WidgetLook names inside the string we loaded from
-        # the .looknfeel file, so that the LNF Editor instance's python ID will be prepended to the name. ( e.g.: Vanilla/Button will turn into 18273822/Vanilla/Button )
+        # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor or other look n' feel editor simultaneously,
+        # we will map the names that we load from a Look n' Feel file in a way that they are unique. We achieve this by editing the WidgetLook names inside the string we loaded
+        # from the .looknfeel file, so that the LNF Editor instance's python ID will be prepended to the name. ( e.g.: Vanilla/Button will turn into 18273822/Vanilla/Button )
         # Each Editor is associated with only one LNF file so that this will in effect also guarantee that the WidgetLooks inside the CEGUI system will be uniquely named
         # for each file
 
