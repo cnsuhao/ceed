@@ -52,5 +52,17 @@
             <Item path="layouts/VanillaConsole.layout" type="file" />
             <Item path="layouts/VanillaWindows.layout" type="file" />
         </Item>
+            <Item name="looknfeel" type="folder">
+            <Item path="looknfeel/Vanilla.looknfeel" type="file" />
+            <Item path="looknfeel/TaharezLook.looknfeel" type="file" />
+            <Item path="looknfeel/AlfiskoSkin.looknfeel" type="file" />
+            <Item path="looknfeel/WindowsLook.looknfeel" type="file" />
+            <Item path="looknfeel/Generic.looknfeel" type="file" />
+            <Item path="looknfeel/GameMenu.looknfeel" type="file" />
+            <Item path="looknfeel/HUDDemo.looknfeel" type="file" />
+            <Item path="looknfeel/InventoryComponents.looknfeel" type="file" />
+            <Item path="looknfeel/OgreTray.looknfeel" type="file" />
+            <Item path="looknfeel/SampleBrowser.looknfeel" type="file" />
+        </Item>
     </Items>
 </Project>
