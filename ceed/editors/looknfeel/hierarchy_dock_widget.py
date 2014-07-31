@@ -63,13 +63,13 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         self.treeView.dockWidget = self
         self.treeView.setModel(self.model)
 
-        self.updateToNewWidgetLook()
+        self.updateToNewWidgetLook(self.tabbedEditor.targetWidgetLook)
 
-    def updateToNewWidgetLook(self):
-        if self.tabbedEditor.targetWidgetLook:
+    def updateToNewWidgetLook(self, targetWidgetLook):
+        if targetWidgetLook:
             from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-            originalParts = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.tabbedEditor.targetWidgetLook)
-            self.widgetLookNameLabel.setText(originalParts[0])
+            name, editorID = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.tabbedEditor.targetWidgetLook)
+            self.widgetLookNameLabel.setText(name)
         else:
             self.widgetLookNameLabel.setText("")
 

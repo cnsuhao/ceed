@@ -57,7 +57,7 @@ class CodeEditing(multi.CodeEditMode):
             self.tabbedEditor.mapAndLoadLookNFeelFileString(self.tabbedEditor.nativeData)
             loadingSuccessful = False
 
-        self.tabbedEditor.visual.displayNewTargetWidgetLook()
+        self.tabbedEditor.visual.updateToNewTargetWidgetLook()
 
         return loadingSuccessful
 

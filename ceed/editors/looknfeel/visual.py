@@ -115,7 +115,7 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         # for more info see: http://cegui.org.uk/wiki/The_Lederhosen_project_-_The_Second_Coming
         PyCEGUI.WindowManager.getSingleton().cleanDeadPool()
 
-    def displayNewTargetWidgetLook(self):
+    def updateToNewTargetWidgetLook(self):
         self.destroyCurrentPreviewWidget()
 
         if self.tabbedEditor.targetWidgetLook:
@@ -130,6 +130,14 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
 
         #Refresh the drawing of the preview
         self.scene.update()
+
+        if not self.tabbedEditor.targetWidgetLook:
+            self.falagardElementEditorDockWidget.inspector.setSource(None)
+        else:
+            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
+            self.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
+
+        self.lookNFeelHierarchyDockWidget.updateToNewWidgetLook(self.tabbedEditor.targetWidgetLook)
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)

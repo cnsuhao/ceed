@@ -59,27 +59,11 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         super(TargetWidgetChangeCommand, self).undo()
 
         self.tabbedEditor.targetWidgetLook = self.oldTargetWidgetLook
-        self.tabbedEditor.visual.displayNewTargetWidgetLook()
-
-        if not self.tabbedEditor.targetWidgetLook:
-            self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
-        else:
-            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
-            self.visual.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
-
-        self.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
+        self.visual.updateToNewTargetWidgetLook()
 
     def redo(self):
         self.tabbedEditor.targetWidgetLook = self.newTargetWidgetLook
-        self.visual.displayNewTargetWidgetLook()
-
-        if not self.tabbedEditor.targetWidgetLook:
-            self.visual.falagardElementEditorDockWidget.inspector.setSource(None)
-        else:
-            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
-            self.visual.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
-
-        self.visual.lookNFeelHierarchyDockWidget.updateToNewWidgetLook()
+        self.visual.updateToNewTargetWidgetLook()
 
         super(TargetWidgetChangeCommand, self).redo()
 
