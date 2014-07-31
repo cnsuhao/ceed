@@ -112,13 +112,18 @@ class PropertyInspectorWidget(QtGui.QWidget):
 
             elif len(source) == 1:
                 self.selectionObjectPath, self.selectionObjectDescription = PropertyInspectorWidget.generateLabelForSet(source[0])
-                self.selectionLabelTooltip = self.selectionObjectDescription
+
+                selectionInfoTuple = (self.selectionObjectPath, self.selectionObjectDescription)
+                self.selectionLabelTooltip = " : ".join(selectionInfoTuple)
 
             else:
                 tooltip = ""
                 for ceguiPropertySet in source:
                     path, typeName = PropertyInspectorWidget.generateLabelForSet(source)
-                    tooltip += typeName + "\n"
+                
+                    selectionInfoTuple = (path, typeName)
+                    joinedPathAndName = " : ".join(selectionInfoTuple)
+                    tooltip += joinedPathAndName + "\n"
 
                 self.selectionObjectPath = ""
                 self.selectionObjectDescription = "Multiple selections..."
