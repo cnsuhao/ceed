@@ -106,26 +106,24 @@ class PropertyInspectorWidget(QtGui.QWidget):
         #We check what kind of source we are dealing with
         if type(source) is list:
             if len(source) == 0:
-            self.selectionObjectPath = ""
-            self.selectionObjectDescription = "Nothing is selected."
-            self.selectionLabelTooltip = ""
-
+                self.selectionObjectPath = ""
+                self.selectionObjectDescription = "Nothing is selected."
+                self.selectionLabelTooltip = ""
 
             elif len(source) == 1:
-            self.selectionObjectPath, self.selectionObjectDescription = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySets[0])
-            self.selectionLabelTooltip = self.selectionObjectDescription
+                self.selectionObjectPath, self.selectionObjectDescription = PropertyInspectorWidget.generateLabelForSet(source[0])
+                self.selectionLabelTooltip = self.selectionObjectDescription
 
             else:
                 tooltip = ""
-                for ceguiPropertySet in ceguiPropertySets:
-                    path, typeName = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
+                for ceguiPropertySet in source:
+                    path, typeName = PropertyInspectorWidget.generateLabelForSet(source)
                     tooltip += typeName + "\n"
 
                 self.selectionObjectPath = ""
                 self.selectionObjectDescription = "Multiple selections..."
                 self.selectionLabelTooltip = tooltip.rstrip('\n')
 
-                
         else:
             #Otherwise it must be a FalagardElement
             from ceed.editors.looknfeel.hierarchy_tree_item import LookNFeelHierarchyItem
@@ -135,10 +133,6 @@ class PropertyInspectorWidget(QtGui.QWidget):
             self.selectionLabelTooltip = falagardEleTooltip
 
         self.updateSelectionLabelElidedText()
-
-
-
-    
 
         categories = self.propertyManager.buildCategories(source)
 
