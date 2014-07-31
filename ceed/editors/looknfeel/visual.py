@@ -292,13 +292,17 @@ class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
 
         self.fileNameLabel = self.findChild(QtGui.QLabel, "fileNameLabel")
         """:type : QtGui.QLabel"""
-        self.setFileNameLabel()
 
         self.widgetLookNameBox = self.findChild(QtGui.QComboBox, "widgetLookNameBox")
         """:type : QtGui.QComboBox"""
 
         self.editWidgetLookButton = self.findChild(QtGui.QPushButton, "editWidgetLookButton")
         self.editWidgetLookButton.pressed.connect(self.slot_editWidgetLookButtonPressed)
+
+    def resizeEvent(self, QResizeEvent):
+        self.setFileNameLabel()
+
+        super(QtGui.QDockWidget, self).resizeEvent(QResizeEvent)
 
     def slot_editWidgetLookButtonPressed(self):
         # Handles the actions necessary after a user selects a new WidgetLook to edit
@@ -319,10 +323,11 @@ class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
         # Shortens the file name so that it fits into the label and ends with "...", the full path is set as a tooltip
         fileNameStr = self.tabbedEditor.filePath
         fontMetrics = self.fileNameLabel.fontMetrics()
-        labelWidth = self.fileNameLabel.minimumSize().width()
+        labelWidth = self.fileNameLabel.size().width()
         fontMetricsWidth = fontMetrics.width(fileNameStr)
+        rightMargin = 6
         if labelWidth < fontMetricsWidth:
-            self.fileNameLabel.setText(fontMetrics.elidedText(fileNameStr, QtCore.Qt.ElideRight, labelWidth))
+            self.fileNameLabel.setText(fontMetrics.elidedText(fileNameStr, QtCore.Qt.ElideRight, labelWidth - rightMargin))
         else:
             self.fileNameLabel.setText(fileNameStr)
 

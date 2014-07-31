@@ -299,6 +299,8 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         self.mainWindow.addToolBar(QtCore.Qt.ToolBarArea.TopToolBarArea, self.visual.toolBar)
         self.visual.toolBar.show()
 
+        self.visual.lookNFeelWidgetLookSelectorWidget.setFileNameLabel()
+
     def updateToolbarSize(self, size):
         if size < 16:
             size = 16
