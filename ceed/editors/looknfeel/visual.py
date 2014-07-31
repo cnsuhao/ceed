@@ -130,7 +130,6 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
 
         #Refresh the drawing of the preview
         self.scene.update()
-        #TODO IDENT self.visual.hierarchy
 
     def showEvent(self, event):
         mainwindow.MainWindow.instance.ceguiContainerWidget.activate(self, self.scene)
@@ -141,6 +140,8 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         self.lookNFeelHierarchyDockWidget.setEnabled(True)
         self.lookNFeelWidgetLookSelectorWidget.setEnabled(True)
         self.falagardElementEditorDockWidget.setEnabled(True)
+
+        PyCEGUI.System.getSingleton().getDefaultGUIContext().setRootWindow(self.rootWindow)
 
         self.toolBar.setEnabled(True)
         if self.tabbedEditor.editorMenu() is not None:
