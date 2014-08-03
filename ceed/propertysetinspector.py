@@ -91,6 +91,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
     def resizeEvent(self, QResizeEvent):
         self.updateSelectionLabelElidedText()
 
+        super(PropertyInspectorWidget, self).resizeEvent(QResizeEvent)
+
     @staticmethod
     def generateLabelForSet(ceguiPropertySet):
         # We do not know what the property set is but we can take a few informed

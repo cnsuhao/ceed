@@ -227,7 +227,7 @@ class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
     def resizeEvent(self, QResizeEvent):
         self.setFileNameLabel()
 
-        super(QtGui.QDockWidget, self).resizeEvent(QResizeEvent)
+        super(LookNFeelWidgetLookSelectorWidget, self).resizeEvent(QResizeEvent)
 
     def slot_editWidgetLookButtonPressed(self):
         # Handles the actions necessary after a user selects a new WidgetLook to edit
