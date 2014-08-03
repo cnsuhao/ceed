@@ -36,7 +36,8 @@ from .properties import EnumValue
 
 from ceed.cegui import ceguitypes as ct
 
-from PySide import QtGui
+from PySide import QtGui, QtCore
+
 
 class PropertyEditorRegistry(object):
     """The registry contains a (sorted) list of property editor
@@ -91,7 +92,7 @@ class PropertyEditorRegistry(object):
                 # those of higher priority be first.
                 else:
                     self.editorsForValueType[valueType].append(tup)
-                    self.editorsForValueType[valueType].sort(reverse = True)
+                    self.editorsForValueType[valueType].sort(reverse=True)
 
     def registerStardardEditors(self):
         """Register the predefined editors to this instance."""
@@ -111,6 +112,7 @@ class PropertyEditorRegistry(object):
             return self.editorsForValueType[valueType][0][1](editProperty)
 
         return None
+
 
 class PropertyEditor(object):
     """Abstract base class for a property editor.
@@ -204,6 +206,7 @@ class PropertyEditor(object):
         self.setPropertyValueFromWidget()
         return True
 
+
 class StringPropertyEditor(PropertyEditor):
     """Editor for strings.
 
@@ -226,7 +229,7 @@ class StringPropertyEditor(PropertyEditor):
 
     @classmethod
     def getSupportedValueTypes(cls):
-        return { str:0, unicode:0 }
+        return {str: 0, unicode: 0}
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         super(StringPropertyEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
@@ -274,17 +277,18 @@ class StringPropertyEditor(PropertyEditor):
 
         super(StringPropertyEditor, self).setWidgetValueFromProperty()
 
+
 PropertyEditorRegistry.addStandardEditor(StringPropertyEditor)
 
-class NumericPropertyEditor(PropertyEditor):
 
+class NumericPropertyEditor(PropertyEditor):
     DefaultDecimals = 16
     DefaultMin = -999999
     DefaultMax = 999999
 
     @classmethod
     def getSupportedValueTypes(cls):
-        return { int:0, float:0 }
+        return {int: 0, float: 0}
 
     def createEditWidget(self, parent):
         self.editWidget = QtGui.QDoubleSpinBox(parent)
@@ -317,13 +321,14 @@ class NumericPropertyEditor(PropertyEditor):
 
         super(NumericPropertyEditor, self).setWidgetValueFromProperty()
 
+
 PropertyEditorRegistry.addStandardEditor(NumericPropertyEditor)
 
-class BoolPropertyEditor(PropertyEditor):
 
+class BoolPropertyEditor(PropertyEditor):
     @classmethod
     def getSupportedValueTypes(cls):
-        return { bool:0 }
+        return {bool: 0}
 
     def createEditWidget(self, parent):
         self.editWidget = QtGui.QCheckBox(parent)
@@ -342,7 +347,9 @@ class BoolPropertyEditor(PropertyEditor):
 
         super(BoolPropertyEditor, self).setWidgetValueFromProperty()
 
+
 PropertyEditorRegistry.addStandardEditor(BoolPropertyEditor)
+
 
 class StringWrapperValidator(QtGui.QValidator):
     """Validate the edit widget value when editing
@@ -353,6 +360,7 @@ class StringWrapperValidator(QtGui.QValidator):
     user the correct their mistake without losing any
     editing they have done.
     """
+
     def __init__(self, swProperty, parent=None):
         super(StringWrapperValidator, self).__init__(parent)
         self.property = swProperty
@@ -361,6 +369,7 @@ class StringWrapperValidator(QtGui.QValidator):
         _, valid = self.property.tryParse(inputStr)
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
 
+
 class EnumValuePropertyEditor(PropertyEditor):
     """Editor for EnumValue-based values (Combo box)."""
 
@@ -368,10 +377,12 @@ class EnumValuePropertyEditor(PropertyEditor):
     def getSupportedValueTypes(cls):
         # Support all types that are subclasses of EnumValue.
         vts = set()
+
         def addSubclasses(baseType):
             for vt in baseType.__subclasses__():
                 vts.add(vt)
                 addSubclasses(vt)
+
         addSubclasses(EnumValue)
 
         return dict((vt, -10) for vt in vts)
@@ -397,7 +408,9 @@ class EnumValuePropertyEditor(PropertyEditor):
 
         super(EnumValuePropertyEditor, self).setWidgetValueFromProperty()
 
+
 PropertyEditorRegistry.addStandardEditor(EnumValuePropertyEditor)
+
 
 class DynamicChoicesEditor(PropertyEditor):
     """Editor for strings where user chooses from several options like in a combobox.
@@ -434,10 +447,11 @@ class DynamicChoicesEditor(PropertyEditor):
 
         super(DynamicChoicesEditor, self).setWidgetValueFromProperty()
 
+
 class FontEditor(DynamicChoicesEditor):
     @classmethod
     def getSupportedValueTypes(cls):
-        return { ct.FontRef:0 }
+        return {ct.FontRef: 0}
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         super(FontEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
@@ -445,19 +459,21 @@ class FontEditor(DynamicChoicesEditor):
     def getChoices(self):
         ceguiInstance = mainwindow.MainWindow.instance.ceguiInstance
 
-        ret = [("", ct.FontRef(""))] # GUI Context default font
+        ret = [("", ct.FontRef(""))]  # GUI Context default font
 
         if ceguiInstance is not None:
             ret.extend([(font, ct.FontRef(font)) for font in ceguiInstance.getAvailableFonts()])
 
         return ret
 
+
 PropertyEditorRegistry.addStandardEditor(FontEditor)
+
 
 class ImageEditor(DynamicChoicesEditor):
     @classmethod
     def getSupportedValueTypes(cls):
-        return { ct.ImageRef:0 }
+        return {ct.ImageRef: 0}
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         super(ImageEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
@@ -465,13 +481,172 @@ class ImageEditor(DynamicChoicesEditor):
     def getChoices(self):
         ceguiInstance = mainwindow.MainWindow.instance.ceguiInstance
 
-        ret = [("", ct.ImageRef(""))] # GUI Context default font
+        ret = [("", ct.ImageRef(""))]  # GUI Context default font
 
         if ceguiInstance is not None:
             ret.extend([(image, ct.ImageRef(image)) for image in ceguiInstance.getAvailableImages()])
 
         return ret
 
+
 PropertyEditorRegistry.addStandardEditor(ImageEditor)
+
+
+class ColourValuePropertyEditor(PropertyEditor):
+    """Editor for CEGUI::Colour-based values (QColorDialog)."""
+
+    def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
+        super(ColourValuePropertyEditor, self).__init__(boundProperty, instantApply, ownsProperty)
+
+        self.colourDialogParent = None
+        self.colourEditbox = None
+        self.colourButton = None
+
+        self.selectedColor = None
+
+        # This is used to not update the editbox after filling in a value, which would be annoying while writing
+        self.lastEditSource = ""
+
+    @classmethod
+    def getSupportedValueTypes(cls):
+        return {ct.Colour: 0}
+
+    def createEditWidget(self, parent):
+        """
+        Creates a new Widget that contains both a LineEdit and a button. The button displays the selected colour via the button's background colour (using a stylesheet),
+        the LineEdit shows the hexadecimal value as string. Both are editable. When clicking the button a ColorDialog pops up. Upon accepting a colour, the colour will be set. The
+        LineEdit works analogoues: Changing its text will parse the new text and if the text can be successfully used as a CEGUI Colour then this new Colour will be set.
+        :param parent: QWidget
+        :return:
+        """
+        self.editWidget = QtGui.QWidget(parent)
+        self.editWidget.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        self.editWidget.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+
+        hBoxLayout = QtGui.QHBoxLayout(self.editWidget)
+        hBoxLayout.setContentsMargins(QtCore.QMargins(0, 0, 0, 0))
+        hBoxLayout.setSpacing(0)
+
+        self.colourEditbox = QtGui.QLineEdit()
+        self.colourEditbox.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        options = self.property.getEditorOption("string/", {})
+        # setup options
+        self.colourEditbox.setMaxLength(int(options.get("maxLength", self.colourEditbox.maxLength())))
+        self.colourEditbox.setPlaceholderText(options.get("placeholderText", self.colourEditbox.placeholderText()))
+        self.colourEditbox.setInputMask(options.get("inputMask", self.colourEditbox.inputMask()))
+        self.colourEditbox.setValidator(options.get("validator", self.colourEditbox.validator()))
+        hBoxLayout.addWidget(self.colourEditbox, 0)
+
+        self.colourButton = QtGui.QPushButton()
+        self.colourButton.setMinimumSize(QtCore.QSize(23, 23))
+        self.colourButton.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+        hBoxLayout.addWidget(self.colourButton, 1)
+        self.colourDialogParent = parent
+
+        self.colourButton.released.connect(self.colourButtonReleased)
+        self.colourEditbox.textEdited.connect(self.lineEditTextEdited)
+        self.colourEditbox.editingFinished.connect(self.lineEditEditingFinished)
+
+        return self.editWidget
+
+    def lineEditEditingFinished(self):
+        """
+        Sets the focus on the editbox and marks all the text, whenever the editing is finished. This is at least necessary to have focus on the beginning of editing.
+        :return:
+        """
+        self.colourEditbox.setFocus()
+        self.colourEditbox.selectAll()
+
+    def lineEditTextEdited(self):
+        try:
+            from ceed.cegui.ceguitypes import Colour
+            newQColor = Colour.fromString(self.colourEditbox.text()).toQColor()
+            if newQColor.isValid():
+                self.setColour(newQColor, "editbox")
+        except:
+            return
+
+    def colourButtonReleased(self):
+        """
+        Opens a color picker dialog to select the color and calls the color-setter function
+        :return:
+        """
+        colour = QtGui.QColorDialog.getColor(self.selectedColor, self.colourDialogParent, "",
+                                             QtGui.QColorDialog.ColorDialogOption.ShowAlphaChannel | QtGui.QColorDialog.ColorDialogOption.DontUseNativeDialog)
+
+        if colour.isValid():
+            self.setColour(colour)
+
+    def getWidgetValue(self):
+        if self.selectedColor:
+            if self.selectedColor.isValid():
+                return ct.Colour.fromQColor(self.selectedColor), True
+
+        return None, False
+
+    def setWidgetValueFromProperty(self):
+        """
+        Retrieves the property colour as QColor and calls the setter function to update the child widgets
+        :return:
+        """
+        initialColour = self.property.value.toQColor()
+        if initialColour.isValid():
+            if initialColour != self.selectedColor:
+                self.setColour(initialColour)
+
+        super(ColourValuePropertyEditor, self).setWidgetValueFromProperty()
+
+    def setColour(self, newQColor, source=""):
+        """
+        Displays the colour on the button using a stylesheet, and on the editbox using the regular setter for the string.
+
+        :param newQColor: QtGui.QColor
+        :return:
+        """
+
+        buttonStyleSheet = """
+                        QPushButton
+                        {{
+                        margin: 1px;
+                        border-color: {borderColour};
+                        border-style: outset;
+                        border-radius: 3px;
+                        border-width: 1px;
+                        background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 {normalFirstColour}, stop: 0.7 {normalFirstColour}, stop: 1 {normalSecondColour});
+                        }}
+
+                        QPushButton:pressed
+                        {{
+                        background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 {pushedFirstColour}, stop: 0.7 {pushedFirstColour}, stop: 1 {pushedSecondColour});
+                        }}
+                        """
+
+        firstColourStr = newQColor.toRgb().name()
+        borderColour = QtGui.QColor()
+        if newQColor.lightness() >= 123:
+            borderLightness = 0
+        else:
+            borderLightness = 255
+        borderColour.setHsl(-1, 0, borderLightness)
+        borderColourStr = borderColour.toRgb().name()
+        secondColourStr = newQColor.darker(150).toRgb().name()
+        thirdColourStr = newQColor.darker(200).toRgb().name()
+        buttonStyleSheet = buttonStyleSheet.format(borderColour=borderColourStr,
+                                                   normalFirstColour=firstColourStr, normalSecondColour=secondColourStr,
+                                                   pushedFirstColour=secondColourStr, pushedSecondColour=thirdColourStr)
+        self.colourButton.setStyleSheet(buttonStyleSheet)
+
+        if source != "editbox":
+            from ceed.cegui.ceguitypes import Colour
+            colourAsAlphaRGBString = str(Colour.fromQColor(newQColor))
+            self.colourEditbox.setText(colourAsAlphaRGBString)
+
+            self.colourEditbox.setFocus()
+            self.colourEditbox.selectAll()
+
+        self.selectedColor = newQColor
+        super(ColourValuePropertyEditor, self).valueChanging()
+
+PropertyEditorRegistry.addStandardEditor(ColourValuePropertyEditor)
 
 from ceed import mainwindow
