@@ -692,6 +692,9 @@ class Colour(Base):
     @classmethod
     def fromColour(cls, other):
         return cls(other.red, other.green, other.blue, other.alpha)
+  
+    def toQColor(self):
+        return QtGui.QColor(self.red, self.green, self.blue, self.alpha)
 
     def __init__(self, red=0, green=0, blue=0, alpha=255):
         super(Colour, self).__init__()
