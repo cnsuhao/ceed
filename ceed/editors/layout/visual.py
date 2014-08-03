@@ -546,6 +546,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
             if item.manipulator is not None:
                 item.setLocked(locked, recursive)
 
+
 class HierarchyDockWidget(QtGui.QDockWidget):
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
     """
@@ -631,6 +632,7 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
 
         return False
 
+
 class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
     """Customises the CEGUIPropertyManager by binding to a 'visual'
     so it can manipulate the widgets via undo commands.
@@ -643,7 +645,7 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
         self.visual = visual
 
     def createProperty(self, ceguiProperty, ceguiSets):
-        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, WidgetMultiPropertyWrapper)
+        prop = super(CEGUIWidgetPropertyManager, self).createProperty(ceguiProperty, ceguiSets, self.propertyMap, WidgetMultiPropertyWrapper)
         prop.ceguiProperty = ceguiProperty
         prop.ceguiSets = ceguiSets
         prop.visual = self.visual
@@ -1001,7 +1003,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             if wdt is not None and wdt not in sets:
                 sets.append(wdt)
 
-        self.visual.propertiesDockWidget.inspector.setPropertySets(sets)
+        self.visual.propertiesDockWidget.inspector.setSource(sets)
 
         def ensureParentIsExpanded(view, treeItem):
             view.expand(treeItem.index())
@@ -1200,23 +1202,6 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         # rounding position and size actions
         self.connectionGroup.add("layout/round_position", receiver = lambda: self.scene.roundPositionOfSelectedWidgets())
         self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())
-
-        # general
-        self.renameWidgetAction = action.getAction("layout/rename")
-        self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
-
-        self.lockWidgetAction = action.getAction("layout/lock_widget")
-        self.connectionGroup.add(self.lockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True))
-        self.unlockWidgetAction = action.getAction("layout/unlock_widget")
-        self.connectionGroup.add(self.unlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False))
-        self.recursivelyLockWidgetAction = action.getAction("layout/recursively_lock_widget")
-        self.connectionGroup.add(self.recursivelyLockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(True, True))
-        self.recursivelyUnlockWidgetAction = action.getAction("layout/recursively_unlock_widget")
-        self.connectionGroup.add(self.recursivelyUnlockWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.setSelectedWidgetsLocked(False, True))
-
-        self.copyNamePathAction = action.getAction("layout/copy_widget_path")
-        self.connectionGroup.add(self.copyNamePathAction, receiver = lambda: self.hierarchyDockWidget.treeView.copySelectedWidgetPaths())
-
 
     def setupToolBar(self):
         self.toolBar = QtGui.QToolBar("Layout")
