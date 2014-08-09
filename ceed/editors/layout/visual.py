@@ -1005,7 +1005,11 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             widgetPath = item.widget.getNamePath()
             widgetPaths.append(widgetPath)
 
-        if len(widgetPaths) > 0:
+        # TODO: We currently only support moving one widget at a time.
+        #       Fixing this involves sorting the widgets by their position in
+        #       the parent widget and then either working from the "right" side
+        #       if delta > 0 or from the left side if delta < 0.
+        if len(widgetPaths) == 1:
             cmd = undo.MoveInParentWidgetListCommand(self.visual, widgetPaths, delta)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
