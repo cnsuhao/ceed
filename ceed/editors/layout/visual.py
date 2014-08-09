@@ -984,6 +984,31 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             cmd = undo.RoundSizeCommand(self.visual, widgetPaths, oldPositions, oldSizes)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
+    def moveSelectedWidgetsInParentWidgetLists(self, delta):
+        widgetPaths = []
+
+        selection = self.selectedItems()
+        for item in selection:
+            if not isinstance(item, widgethelpers.Manipulator):
+                continue
+
+            if not isinstance(item.parentItem(), widgethelpers.Manipulator):
+                continue
+
+            if not isinstance(item.parentItem().widget, PyCEGUI.SequentialLayoutContainer):
+                continue
+
+            potentialPosition = item.parentItem().widget.getPositionOfChild(item.widget) + delta
+            if potentialPosition < 0 or potentialPosition > item.parentItem().widget.getChildCount() - 1:
+                continue
+
+            widgetPath = item.widget.getNamePath()
+            widgetPaths.append(widgetPath)
+
+        if len(widgetPaths) > 0:
+            cmd = undo.MoveInParentWidgetListCommand(self.visual, widgetPaths, delta)
+            self.visual.tabbedEditor.undoStack.push(cmd)
+
     def slot_selectionChanged(self):
         selection = self.selectedItems()
 
@@ -1201,6 +1226,10 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.connectionGroup.add("layout/round_position", receiver = lambda: self.scene.roundPositionOfSelectedWidgets())
         self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())
 
+        # moving in parent widget list
+        self.connectionGroup.add("layout/move_forward_in_parent_list", receiver = lambda: self.scene.moveSelectedWidgetsInParentWidgetLists(1))
+        self.connectionGroup.add("layout/move_backward_in_parent_list", receiver = lambda: self.scene.moveSelectedWidgetsInParentWidgetLists(-1))
+
         # general
         self.renameWidgetAction = action.getAction("layout/rename")
         self.connectionGroup.add(self.renameWidgetAction, receiver = lambda: self.hierarchyDockWidget.treeView.editSelectedWidgetName())
@@ -1238,6 +1267,9 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addAction(action.getAction("layout/normalise_size"))
         self.toolBar.addAction(action.getAction("layout/round_position"))
         self.toolBar.addAction(action.getAction("layout/round_size"))
+        self.toolBar.addSeparator() # ---------------------------
+        self.toolBar.addAction(action.getAction("layout/move_forward_in_parent_list"))
+        self.toolBar.addAction(action.getAction("layout/move_backward_in_parent_list"))
 
 
     def rebuildEditorMenu(self, editorMenu):
@@ -1258,6 +1290,9 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         editorMenu.addAction(action.getAction("layout/normalise_size"))
         editorMenu.addAction(action.getAction("layout/round_position"))
         editorMenu.addAction(action.getAction("layout/round_size"))
+        editorMenu.addSeparator() # ---------------------------
+        editorMenu.addAction(action.getAction("layout/move_forward_in_parent_list"))
+        editorMenu.addAction(action.getAction("layout/move_backward_in_parent_list"))
         editorMenu.addSeparator() # ---------------------------
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
