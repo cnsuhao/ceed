@@ -1227,8 +1227,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.connectionGroup.add("layout/round_size", receiver = lambda: self.scene.roundSizeOfSelectedWidgets())
 
         # moving in parent widget list
-        self.connectionGroup.add("layout/move_forward_in_parent_list", receiver = lambda: self.scene.moveSelectedWidgetsInParentWidgetLists(1))
         self.connectionGroup.add("layout/move_backward_in_parent_list", receiver = lambda: self.scene.moveSelectedWidgetsInParentWidgetLists(-1))
+        self.connectionGroup.add("layout/move_forward_in_parent_list", receiver = lambda: self.scene.moveSelectedWidgetsInParentWidgetLists(1))
 
         # general
         self.renameWidgetAction = action.getAction("layout/rename")
@@ -1268,8 +1268,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         self.toolBar.addAction(action.getAction("layout/round_position"))
         self.toolBar.addAction(action.getAction("layout/round_size"))
         self.toolBar.addSeparator() # ---------------------------
-        self.toolBar.addAction(action.getAction("layout/move_forward_in_parent_list"))
         self.toolBar.addAction(action.getAction("layout/move_backward_in_parent_list"))
+        self.toolBar.addAction(action.getAction("layout/move_forward_in_parent_list"))
 
 
     def rebuildEditorMenu(self, editorMenu):
@@ -1291,8 +1291,8 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
         editorMenu.addAction(action.getAction("layout/round_position"))
         editorMenu.addAction(action.getAction("layout/round_size"))
         editorMenu.addSeparator() # ---------------------------
-        editorMenu.addAction(action.getAction("layout/move_forward_in_parent_list"))
         editorMenu.addAction(action.getAction("layout/move_backward_in_parent_list"))
+        editorMenu.addAction(action.getAction("layout/move_forward_in_parent_list"))
         editorMenu.addSeparator() # ---------------------------
         editorMenu.addAction(self.focusPropertyInspectorFilterBoxAction)
 
