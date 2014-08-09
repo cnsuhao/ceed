@@ -934,7 +934,11 @@ class RoundPositionCommand(MoveCommand):
         return idbase + 15
 
     def mergeWith(self, cmd):
-        return False
+        # merge if the new round position command will apply to the same widget
+        if self.widgetPaths == cmd.widgetPaths:
+            return True
+        else:
+            return False
 
 
 class RoundSizeCommand(ResizeCommand):
@@ -965,7 +969,11 @@ class RoundSizeCommand(ResizeCommand):
         return idbase + 16
 
     def mergeWith(self, cmd):
-        return False
+        # merge if the new round size command will apply to the same widget
+        if self.widgetPaths == cmd.widgetPaths:
+            return True
+        else:
+            return False
 
 class MoveInParentWidgetListCommand(commands.UndoCommand):
     def __init__(self, visual, widgetPaths, delta):
