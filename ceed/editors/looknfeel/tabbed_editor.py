@@ -241,6 +241,8 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
             it.next()
 
+        self.nameMappingsOfOwnedWidgetLooks.sort()
+
     def addMappedWidgetLookFalagardMappings(self):
         # We have to "guess" at least one FalagardWindowMapping - we have to keep in mind that there could theoretically be multiple window mappings for one WidgetLook -  ( which
         # contains a targetType and a renderer ) for our WidgetLook so we can display it.
