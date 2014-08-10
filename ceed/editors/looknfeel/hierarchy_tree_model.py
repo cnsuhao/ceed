@@ -18,6 +18,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+import PyCEGUI
+
 from PySide import QtCore
 from PySide import QtGui
 import cPickle
@@ -92,10 +94,11 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
             self.createAndAddItem(currentStateImagery)
             stateIter.next()
 
-        childWidgetMap = widgetLookObject.getWidgetComponentMap(False)
-        for childWidgetEntry in childWidgetMap:
-            childWidget = childWidgetEntry.value
-            self.createAndAddItem(childWidget)
+        widgetComponentNames = widgetLookObject.getWidgetComponentNames(True)
+        widgetComponentMap = widgetLookObject.getWidgetComponentMap(True)
+        for widgetComponentName in widgetComponentNames:
+            widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
+            self.createAndAddItem(widgetComponent)
 
     def appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self, widgetLookObject):
         """
@@ -173,78 +176,6 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
     def flags(self, index):
         return super(LookNFeelHierarchyTreeModel, self).flags(index)
-
-    def shouldManipulatorBeSkipped(self, manipulator):
-        return \
-           manipulator.widget.isAutoWindow() and \
-           settings.getEntry("looknfeel/visual/hide_deadend_autowidgets").value and \
-           not manipulator.hasNonAutoWidgetDescendants()
-
-    def constructSubtree(self, manipulator):
-        ret = LookNFeelHierarchyItem(manipulator)
-
-        manipulatorChildren = []
-
-        for item in manipulator.childItems():
-            if isinstance(item, widgethelpers.Manipulator):
-                manipulatorChildren.append(item)
-
-        manipulatorChildren = sorted(manipulatorChildren, key = lambda item: item.getWidgetPath())
-
-        for item in manipulatorChildren:
-            if self.shouldManipulatorBeSkipped(item):
-                # skip this branch as per settings
-                continue
-
-            childSubtree = self.constructSubtree(item)
-            ret.appendRow(childSubtree)
-
-        return ret
-
-    def synchroniseSubtree(self, hierarchyItem, manipulator, recursive = True):
-        """Attempts to synchronise subtree with given widget manipulator.
-        If such a thing isn't possible it returns False.
-
-        recursive - If True the synchronisation will recurse, trying to
-                    unify child widget hierarchy items with child manipulators.
-                    (This is generally what you want to do)
-        """
-
-        if hierarchyItem is None or manipulator is None:
-            # no manipulator = no hierarchy item, we definitely can't synchronise
-            return False
-
-        if hierarchyItem.manipulator is not manipulator:
-            # this widget hierarchy item itself will need to be recreated
-            return False
-
-        hierarchyItem.refreshPathData(False)
-
-        if recursive:
-            manipulatorsToRecreate = manipulator.getChildManipulators()
-
-            i = 0
-            # we knowingly do NOT use range in here, the rowCount might change
-            # while we are processing!
-            while i < hierarchyItem.rowCount():
-                childHierarchyItem = hierarchyItem.child(i)
-
-                if childHierarchyItem.manipulator in manipulatorsToRecreate and \
-                   self.synchroniseSubtree(childHierarchyItem, childHierarchyItem.manipulator, True):
-                    manipulatorsToRecreate.remove(childHierarchyItem.manipulator)
-                    i += 1
-
-                else:
-                    hierarchyItem.removeRow(i)
-
-            for childManipulator in manipulatorsToRecreate:
-                if self.shouldManipulatorBeSkipped(childManipulator):
-                    # skip this branch as per settings
-                    continue
-
-                hierarchyItem.appendRow(self.constructSubtree(childManipulator))
-
-        return True
 
     def mimeData(self, indexes):
         # if the selection contains children of something that is also selected, we don't include that
