@@ -415,7 +415,7 @@ class HorizontalAlignment(EnumBase):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.horzAlignmentToString(object)
+        return PyCEGUI.PropertyHelper.horzAlignmentToString(ceguiObject)
 
 
 class VerticalAlignment(EnumBase):
@@ -430,7 +430,7 @@ class VerticalAlignment(EnumBase):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.vertAlignmentToString(object)
+        return PyCEGUI.PropertyHelper.vertAlignmentToString(ceguiObject)
 
 
 class HorizontalFormatting(EnumBase):
