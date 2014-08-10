@@ -657,7 +657,7 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
 
         # sort categories by name but keep some special categories on top
         def getSortKey(t):
-            name, _  = t
+            name, _ = t
 
             if name == "Element":
                 return "000Element"
