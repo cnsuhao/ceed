@@ -345,6 +345,11 @@ class FalagardElementAttributesManager(object):
         value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, falagardElementTypeStr, attributeName, attributeDataType, attribute, False)
         defaultValue = value
 
+        if attributeName == "look" and falagardElementTypeStr == "SectionSpecification" and value:
+            from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+            value, widgetLookEditorID = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(value)
+            defaultValue = value
+
         innerProperty = propertyType(name=attributeName,
                                      category=falagardElementTypeStr,
                                      helpText=helpText,
