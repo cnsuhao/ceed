@@ -87,6 +87,7 @@ class Base(object):
             return cls.tryToString(ceguiObject)
         except:
             raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
+
         return u""
 
     @classmethod
@@ -415,7 +416,7 @@ class HorizontalAlignment(EnumBase):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.horzAlignmentToString(ceguiObject)
+        return PyCEGUI.PropertyHelper.horizontalAlignmentToString(ceguiObject)
 
 
 class VerticalAlignment(EnumBase):
@@ -430,7 +431,7 @@ class VerticalAlignment(EnumBase):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.vertAlignmentToString(ceguiObject)
+        return PyCEGUI.PropertyHelper.verticalAlignmentToString(ceguiObject)
 
 
 class HorizontalFormatting(EnumBase):
