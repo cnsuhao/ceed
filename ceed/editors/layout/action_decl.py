@@ -86,6 +86,13 @@ def declare(actionManager):
                      icon = QtGui.QIcon("icons/layout_editing/round_size.png"),
                      defaultShortcut = QtGui.QKeySequence(QtCore.Qt.Key_N))
 
+    cat.createAction(name = "move_backward_in_parent_list", label = "Moves widget -1 step in the parent's widget list",
+                     help_ = "Moves selected widget(s) one step backward in their parent's widget list (Only applicable to SequentialLayoutContainer widgets, VerticalLayoutContainer and HorizontalLayoutContainer in particular.)",
+                     icon = QtGui.QIcon("icons/layout_editing/move_backward_in_parent_list.png"))
+    cat.createAction(name = "move_forward_in_parent_list", label = "Moves widget +1 step in the parent's widget list",
+                     help_ = "Moves selected widget(s) one step forward in their parent's widget list (Only applicable to SequentialLayoutContainer widgets, VerticalLayoutContainer and HorizontalLayoutContainer in particular.)",
+                     icon = QtGui.QIcon("icons/layout_editing/move_forward_in_parent_list.png"))
+
     cat.createAction(name = "focus_property_inspector_filter_box", label = "&Focus Property Inspector Filter Box",
                      help_ = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
                      icon = QtGui.QIcon("icons/layout_editing/focus_property_inspector_filter_box.png"),

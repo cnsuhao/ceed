@@ -934,7 +934,11 @@ class RoundPositionCommand(MoveCommand):
         return idbase + 15
 
     def mergeWith(self, cmd):
-        return False
+        # merge if the new round position command will apply to the same widget
+        if self.widgetPaths == cmd.widgetPaths:
+            return True
+        else:
+            return False
 
 
 class RoundSizeCommand(ResizeCommand):
@@ -965,4 +969,69 @@ class RoundSizeCommand(ResizeCommand):
         return idbase + 16
 
     def mergeWith(self, cmd):
+        # merge if the new round size command will apply to the same widget
+        if self.widgetPaths == cmd.widgetPaths:
+            return True
+        else:
+            return False
+
+class MoveInParentWidgetListCommand(commands.UndoCommand):
+    def __init__(self, visual, widgetPaths, delta):
+        super(MoveInParentWidgetListCommand, self).__init__()
+
+        self.visual = visual
+        self.widgetPaths = widgetPaths
+        self.delta = delta
+
+        self.refreshText()
+
+    def refreshText(self):
+        if len(self.widgetPaths) == 1:
+            self.setText("Move '%s' by %i in parent widget list" % (self.widgetPaths[0], self.delta))
+        else:
+            self.setText("Move %i widgets by %i in parent widget list" % (len(self.widgetPaths), self.delta))
+
+    def id(self):
+        return idbase + 17
+
+    def mergeWith(self, cmd):
+        if self.widgetPaths == cmd.widgetPaths:
+            self.delta += cmd.delta
+            self.refreshText()
+            return True
+
         return False
+
+    def undo(self):
+        super(MoveInParentWidgetListCommand, self).undo()
+
+        if self.delta != 0:
+            for widgetPath in reversed(self.widgetPaths):
+                widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
+                parentManipulator = widgetManipulator.parentItem()
+                assert(isinstance(parentManipulator, widgethelpers.Manipulator))
+                assert(isinstance(parentManipulator.widget, PyCEGUI.SequentialLayoutContainer))
+
+                oldPosition = parentManipulator.widget.getPositionOfChild(widgetManipulator.widget)
+                newPosition = oldPosition - self.delta
+                parentManipulator.widget.swapChildPositions(oldPosition, newPosition)
+                assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
+
+                parentManipulator.updateFromWidget(True)
+
+    def redo(self):
+        if self.delta != 0:
+            for widgetPath in self.widgetPaths:
+                widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
+                parentManipulator = widgetManipulator.parentItem()
+                assert(isinstance(parentManipulator, widgethelpers.Manipulator))
+                assert(isinstance(parentManipulator.widget, PyCEGUI.SequentialLayoutContainer))
+
+                oldPosition = parentManipulator.widget.getPositionOfChild(widgetManipulator.widget)
+                newPosition = oldPosition + self.delta
+                parentManipulator.widget.swapChildPositions(oldPosition, newPosition)
+                assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
+
+                parentManipulator.updateFromWidget(True)
+
+        super(MoveInParentWidgetListCommand, self).redo()
