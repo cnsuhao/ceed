@@ -88,16 +88,34 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         if not self.tabbedEditor.targetWidgetLook:
             return
         else:
-            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
+            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+            widgetLookObject = PyCEGUI.Workarounds.WidgetLookFeelMapGet(widgetLookMap, self.tabbedEditor.targetWidgetLook)
 
-        self.displayStateCombobox.addItem("Show all", None)
+        # Add the default entry: The show-all option
+        listOfComboboxEntries = [["Show all", None]]
 
         stateIter = widgetLookObject.getStateIterator()
         while not stateIter.isAtEnd():
             currentStateImagery = stateIter.getCurrentValue()
-            self.displayStateCombobox.addItem(currentStateImagery.getName(), currentStateImagery.getName())
+            listOfComboboxEntries.append([currentStateImagery.getName(), currentStateImagery.getName()])
             stateIter.next()
 
+        # Sort the entries but keep "Show all" on top
+        def getSortKey(listEntry):
+            name, _ = listEntry
+
+            if name == "Show all":
+                return "000Show all"
+            else:
+                return name
+
+        listOfComboboxEntries = sorted(listOfComboboxEntries, key=getSortKey)
+
+        # Go through the list and add each item
+        for entry in listOfComboboxEntries:
+            self.displayStateCombobox.addItem(entry[0], entry[1])
+
+        # Make the "Show all" option be the currently selected one.
         showAllIndex = self.displayStateCombobox.findData(None)
         self.displayStateCombobox.setCurrentIndex(showAllIndex)
         self.displayStateCombobox.blockSignals(False)
@@ -111,9 +129,10 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
 
         limitDisplayTo = self.displayStateCombobox.itemData(self.displayStateCombobox.currentIndex())
 
-        widgetLook = self.tabbedEditor.targetWidgetLook
-        if widgetLook:
-            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(widgetLook)
+        widgetLookName = self.tabbedEditor.targetWidgetLook
+        if widgetLookName:
+            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+            widgetLookObject = PyCEGUI.Workarounds.WidgetLookFeelMapGet(widgetLookMap, widgetLookName)
             self.model.updateTree(widgetLookObject, limitDisplayTo)
         else:
             self.model.updateTree(None, limitDisplayTo)
