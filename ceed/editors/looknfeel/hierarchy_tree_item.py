@@ -156,23 +156,17 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         Creates and appends children items based on an ImagerySection.
         :return:
         """
-        frameCompIter = self.falagardElement.getFrameComponentIterator()
-        while not frameCompIter.isAtEnd():
-            currentFrameComp = frameCompIter.getCurrentValue()
-            self.createAndAddItem(currentFrameComp)
-            frameCompIter.next()
+        frameComponentList = self.falagardElement.getFrameComponents()
+        for frameComponent in frameComponentList:
+            self.createAndAddItem(frameComponent)
 
-        textCompIter = self.falagardElement.getTextComponentIterator()
-        while not textCompIter.isAtEnd():
-            currentTextComp = textCompIter.getCurrentValue()
-            self.createAndAddItem(currentTextComp)
-            textCompIter.next()
+        textComponentList = self.falagardElement.getTextComponents()
+        for textComponent in textComponentList:
+            self.createAndAddItem(textComponent)
 
-        imageryCompIter = self.falagardElement.getImageryComponentIterator()
-        while not imageryCompIter.isAtEnd():
-            imageryComp = imageryCompIter.getCurrentValue()
-            self.createAndAddItem(imageryComp)
-            imageryCompIter.next()
+        imageryComponentList = self.falagardElement.getImageryComponents()
+        for imageryComponent in imageryComponentList:
+            self.createAndAddItem(imageryComponent)
 
     def createStateImageryChildren(self):
         """
