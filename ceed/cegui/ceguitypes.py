@@ -62,6 +62,15 @@ class Base(object):
         raise NotImplementedError("'toString()' not implemented for class '%s'" % cls.__name__)
 
     @classmethod
+    def tryToCeguiType(cls, stringValue):
+        """
+        Translates the given object into its original CEGUI type
+        :param stringValue: unicode
+        :return:
+        """
+        raise NotImplementedError("'toCeguiType()' not implemented for class '%s'" % cls.__name__)
+
+    @classmethod
     def fromString(cls, strValue):
         """Parse the specified string value and return
         a new instance of this type.
@@ -88,7 +97,18 @@ class Base(object):
         except:
             raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
 
-        return u""
+    @classmethod
+    def toCeguiType(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return:
+        """
+
+        try:
+            return cls.tryToCeguiType(ceguiObject)
+        except:
+            raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
 
     @classmethod
     def getPropertyType(cls):
@@ -144,6 +164,10 @@ class UDim(Base):
     @classmethod
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.udimToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUDim(stringValue)
 
     def __init__(self, scale=0.0, offset=0.0):
         super(UDim, self).__init__()
@@ -260,6 +284,10 @@ class UVector2(Base):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.uvector2ToString(object)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUVector2(stringValue)
+
     def __init__(self, x=UDim(), y=UDim()):
         #pylint: disable-msg=C0103
         # invalid name x and y - we need x and y here
@@ -329,6 +357,10 @@ class URect(Base):
     @classmethod
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.urectToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToURect(stringValue)
 
     def __init__(self, left=UDim(), top=UDim(), right=UDim(), bottom=UDim()):
         super(URect, self).__init__()
@@ -418,6 +450,9 @@ class HorizontalAlignment(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.horizontalAlignmentToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalAlignment(stringValue)
 
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
@@ -433,6 +468,9 @@ class VerticalAlignment(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.verticalAlignmentToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalAlignment(stringValue)
 
 class HorizontalFormatting(EnumBase):
     """HorizontalFormatting"""
@@ -450,6 +488,9 @@ class HorizontalFormatting(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.horizontalFormattingToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalFormatting(stringValue)
 
 class VerticalFormatting(EnumBase):
     """VerticalFormatting"""
@@ -467,6 +508,9 @@ class VerticalFormatting(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.verticalFormattingToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalFormatting(stringValue)
 
 class HorizontalTextFormatting(EnumBase):
     """HorizontalTextFormatting"""
@@ -487,6 +531,9 @@ class HorizontalTextFormatting(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.horizontalTextFormattingToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalTextFormatting(stringValue)
 
 class VerticalTextFormatting(EnumBase):
     """VerticalTextFormatting"""
@@ -502,6 +549,9 @@ class VerticalTextFormatting(EnumBase):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.verticalTextFormattingToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalTextFormatting(stringValue)
 
 class WindowUpdateMode(EnumBase):
     """WindowUpdateMode"""
@@ -804,6 +854,10 @@ class Colour(Base):
         return PyCEGUI.PropertyHelper.colourToString(object)
 
     @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToColour(stringValue)
+
+    @classmethod
     def fromQColor(cls, qtColor):
         return cls(qtColor.red(), qtColor.green(), qtColor.blue(), qtColor.alpha())
 
@@ -900,6 +954,10 @@ class ColourRect(Base):
     def tryToString(cls, ceguiObject):
         return PyCEGUI.PropertyHelper.colourRectToString(ceguiObject)
 
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToColourRect(stringValue)
+
     def __init__(self, tl=Colour(), tr=Colour(), bl=Colour(), br=Colour()):
         super(ColourRect, self).__init__()
         self.topLeft = tl
@@ -921,6 +979,57 @@ class ColourRect(Base):
     @classmethod
     def getPropertyType(cls):
         return ColourRectProperty
+
+
+class StringWrapper(Base):
+    """Simple string that does no parsing but allows us to map editors to it"""
+
+    def __init__(self, value):
+        super(StringWrapper, self).__init__()
+        self.value = value
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        return False
+
+    def __repr__(self):
+        return self.value
+
+    @classmethod
+    def getPropertyType(cls):
+        return BaseProperty
+
+
+class FontRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return FontRef(strValue), True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.fontToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToFont(stringValue)
+
+
+class ImageRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return ImageRef(strValue), True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.imageToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToImage(stringValue)
 
 
 class BaseProperty(properties.Property):
@@ -1139,7 +1248,6 @@ class ColourProperty(BaseProperty):
     def tryParse(self, strValue):
         return Colour.tryParse(strValue)
 
-
 class ColourRectProperty(BaseProperty):
     """Property for ColourRect values."""
 
@@ -1162,46 +1270,3 @@ class ColourRectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return ColourRect.tryParse(strValue)
-
-
-class StringWrapper(Base):
-    """Simple string that does no parsing but allows us to map editors to it"""
-
-    def __init__(self, value):
-        super(StringWrapper, self).__init__()
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value == other.value
-        return False
-
-    def __repr__(self):
-        return self.value
-
-    @classmethod
-    def getPropertyType(cls):
-        return BaseProperty
-
-
-class FontRef(StringWrapper):
-    @classmethod
-    def tryParse(cls, strValue, target=None):
-        return FontRef(strValue), True
-
-    @classmethod
-    def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.fontToString(ceguiObject)
-
-
-class ImageRef(StringWrapper):
-    @classmethod
-    def tryParse(cls, strValue, target=None):
-        return ImageRef(strValue), True
-
-    @classmethod
-    def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.imageToString(ceguiObject)
