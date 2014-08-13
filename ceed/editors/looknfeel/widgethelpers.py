@@ -191,11 +191,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         if isinstance(parent, Manipulator):
             parent.drawSnapGrid = True
 
-    def notifyResizeProgress(self, newPos, newRect):
-        super(Manipulator, self).notifyResizeProgress(newPos, newRect)
-
-        self.triggerPropertyManagerCallback({"Size", "Position", "Area"})
-
     def notifyResizeFinished(self, newPos, newRect):
         super(Manipulator, self).notifyResizeFinished(newPos, newRect)
 
@@ -212,8 +207,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
     def notifyMoveProgress(self, newPos):
         super(Manipulator, self).notifyMoveProgress(newPos)
-
-        self.triggerPropertyManagerCallback({"Position", "Area"})
 
     def notifyMoveFinished(self, newPos):
         super(Manipulator, self).notifyMoveFinished(newPos)
