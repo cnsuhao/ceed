@@ -32,8 +32,6 @@ class FalagardElementInterface(object):
     for each type of Falagard element.
     """
 
-
-
     @staticmethod
     def getListOfAttributes(falagardElement):
         """
@@ -228,8 +226,6 @@ class FalagardElementInterface(object):
             return []
 
         raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.getAttributeValue")
-        return None
-
 
     @staticmethod
     def setAttributeValue(falagardElement, attributeName, attributeValue):
@@ -249,113 +245,113 @@ class FalagardElementInterface(object):
         if isinstance(falagardElement, PyCEGUI.NamedArea):
             # "name"
             if attributeName == attributeList[0]:
-                return falagardElement.setName(attributeValue)
+                falagardElement.setName(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
             # "name", "Colour", "ColourProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.setName(attributeValue)
+                falagardElement.setName(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setMasterColours(attributeValue)
+                falagardElement.setMasterColours(attributeValue)
             elif attributeName == attributeList[2]:
-                return falagardElement.setMasterColoursPropertySource(attributeValue)
+                falagardElement.setMasterColoursPropertySource(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
             # "name", "clipped"
             if attributeName == attributeList[0]:
-                return falagardElement.setName(attributeValue)
+                falagardElement.setName(attributeValue)
             if attributeName == attributeList[1]:
-                return falagardElement.isClippedToDisplay(attributeValue)
+                falagardElement.isClippedToDisplay(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
             # "nameSuffix", "type", "renderer", "look", "autoWindow", "VertAlignment", "HorzAlignment"
             if attributeName == attributeList[0]:
-                return falagardElement.setWidgetName(attributeValue)
+                falagardElement.setWidgetName(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setBaseWidgetType(attributeValue)
+                falagardElement.setBaseWidgetType(attributeValue)
             elif attributeName == attributeList[2]:
-                return falagardElement.setWindowRendererType(attributeValue)
+                falagardElement.setWindowRendererType(attributeValue)
             elif attributeName == attributeList[3]:
-                return falagardElement.setWidgetLookName(attributeValue)
+                falagardElement.setWidgetLookName(attributeValue)
             elif attributeName == attributeList[4]:
-                return falagardElement.isAutoWindow(attributeValue)
+                falagardElement.isAutoWindow(attributeValue)
             elif attributeName == attributeList[5]:
-                return falagardElement.setVerticalWidgetAlignment(attributeValue)
+                falagardElement.setVerticalWidgetAlignment(attributeValue)
             elif attributeName == attributeList[6]:
-                return falagardElement.setHorizontalWidgetAlignment(attributeValue)
+                falagardElement.setHorizontalWidgetAlignment(attributeValue)
 
         # Elements that can be children of an ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
             # "Image", "ImageProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.setImage(attributeValue)
+                falagardElement.setImage(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setImagePropertySource(attributeValue)
+                falagardElement.setImagePropertySource(attributeValue)
             elif attributeName == attributeList[2]:
-                return falagardElement.setColours(attributeValue)
+                falagardElement.setColours(attributeValue)
             elif attributeName == attributeList[3]:
-                return falagardElement.setColoursPropertySource(attributeValue)
+                falagardElement.setColoursPropertySource(attributeValue)
             elif attributeName == attributeList[4]:
-                return falagardElement.setVerticalFormattingFromComponent(attributeValue)
+                falagardElement.setVerticalFormattingFromComponent(attributeValue)
             elif attributeName == attributeList[5]:
-                return falagardElement.setVerticalFormattingPropertySource(attributeValue)
+                falagardElement.setVerticalFormattingPropertySource(attributeValue)
             elif attributeName == attributeList[6]:
-                return falagardElement.setHorizontalFormattingFromComponent(attributeValue)
+                falagardElement.setHorizontalFormattingFromComponent(attributeValue)
             elif attributeName == attributeList[7]:
-                return falagardElement.setHorizontalFormattingPropertySource(attributeValue)
+                falagardElement.setHorizontalFormattingPropertySource(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.TextComponent):
             # "Text", "Font", "TextProperty", "FontProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.setText(attributeValue)
+                falagardElement.setText(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setFont(attributeValue)
+                falagardElement.setFont(attributeValue)
             elif attributeName == attributeList[2]:
-                return falagardElement.setTextPropertySource(attributeValue)
+                falagardElement.setTextPropertySource(attributeValue)
             elif attributeName == attributeList[3]:
-                return falagardElement.setFontPropertySource(attributeValue)
+                falagardElement.setFontPropertySource(attributeValue)
             elif attributeName == attributeList[4]:
-                return falagardElement.setColours(attributeValue)
+                falagardElement.setColours(attributeValue)
             elif attributeName == attributeList[5]:
-                return falagardElement.setColoursPropertySource(attributeValue)
+                falagardElement.setColoursPropertySource(attributeValue)
             elif attributeName == attributeList[6]:
-                return falagardElement.setVerticalFormattingFromComponent(attributeValue)
+                falagardElement.setVerticalFormattingFromComponent(attributeValue)
             elif attributeName == attributeList[7]:
-                return falagardElement.setVerticalFormattingPropertySource(attributeValue)
+                falagardElement.setVerticalFormattingPropertySource(attributeValue)
             elif attributeName == attributeList[8]:
-                return falagardElement.setHorizontalFormattingFromComponent(attributeValue)
+                falagardElement.setHorizontalFormattingFromComponent(attributeValue)
             elif attributeName == attributeList[9]:
-                return falagardElement.setHorizontalFormattingPropertySource(attributeValue)
+                falagardElement.setHorizontalFormattingPropertySource(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.FrameComponent):
             # "Colour", "ColourProperty",
             if attributeName == attributeList[0]:
-                return falagardElement.setColours(attributeValue)
+                falagardElement.setColours(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setColoursPropertySource(attributeValue)
+                falagardElement.setColoursPropertySource(attributeValue)
 
         # Elements that can be children of a StateImagery:
         elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
             if attributeName == attributeList[0]:
-                return falagardElement.setLayerPriority(attributeValue)
+                falagardElement.setLayerPriority(attributeValue)
 
         # Elements that can be children of a LayerSpecification:
         elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
             # "section", "look", "controlProperty", "controlValue", "controlWidget", "Colour", "ColourProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.setSectionName(attributeValue)
+                falagardElement.setSectionName(attributeValue)
             elif attributeName == attributeList[1]:
-                return falagardElement.setOwnerWidgetLookFeel(attributeValue)
+                falagardElement.setOwnerWidgetLookFeel(attributeValue)
             elif attributeName == attributeList[2]:
-                return falagardElement.setRenderControlPropertySource(attributeValue)
+                falagardElement.setRenderControlPropertySource(attributeValue)
             elif attributeName == attributeList[3]:
-                return falagardElement.setRenderControlValue(attributeValue)
+                falagardElement.setRenderControlValue(attributeValue)
             elif attributeName == attributeList[4]:
-                return falagardElement.setRenderControlWidget(attributeValue)
+                falagardElement.setRenderControlWidget(attributeValue)
             elif attributeName == attributeList[5]:
-                return falagardElement.setOverrideColours(attributeValue)
+                falagardElement.setOverrideColours(attributeValue)
             elif attributeName == attributeList[6]:
-                return falagardElement.setOverrideColoursPropertySource(attributeValue)
+                falagardElement.setOverrideColoursPropertySource(attributeValue)
 
         # The ComponentArea element
         elif isinstance(falagardElement, PyCEGUI.ComponentArea):
