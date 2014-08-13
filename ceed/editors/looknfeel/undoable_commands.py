@@ -79,19 +79,29 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         self.falagardElement = falagardElement
         self.attributeName = attributeName
+
+        # We retrieve the original value and store it
         from falagard_element_interface import FalagardElementInterface
         self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
-        self.newValue = newValue
+
+        # If the value is a subtype of
+        from ceed.cegui import ceguitypes
+        newValueType = type(newValue)
+        if issubclass(newValueType, ceguitypes.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            self.newValueAsString = unicode(newValue)
+            self.newValue = newValueType.toCeguiType(self.newValueAsString)
+
+        # Get some strings so we can display better info
+        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+        self.falagardElementName = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
         self.refreshText()
 
         self.ignoreNextCallback = ignoreNextCallback
 
     def refreshText(self):
-        if len(self.widgetPaths) == 1:
-            self.setText("Change '%s' in '%s'" % (self.propertyName, self.widgetPaths[0]))
-        else:
-            self.setText("Change '%s' in %i widgets" % (self.propertyName, len(self.widgetPaths)))
+        self.setText("Changing '%s' in '%s' to value '%s'" % (self.attributeName, self.falagardElementName, self.newValueAsString))
 
     def id(self):
         return idbase + 2
@@ -105,14 +115,12 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         from falagard_element_interface import FalagardElementInterface
         FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
 
-        # make sure to redraw the scene so the changes are visible
-        self.visual.scene.update()
+        self.visual.updateWidgetLookPreview()
 
     def redo(self):
         from falagard_element_interface import FalagardElementInterface
         FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
 
-        # make sure to redraw the scene so the changes are visible
-        self.visual.scene.update()
+        self.visual.updateWidgetLookPreview()
 
         super(FalagardElementAttributeEdit, self).redo()
