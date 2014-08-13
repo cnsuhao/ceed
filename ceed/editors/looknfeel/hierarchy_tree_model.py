@@ -76,23 +76,23 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :return:
         """
 
-        namedAreaIter = widgetLookObject.getNamedAreaIterator()
-        while not namedAreaIter.isAtEnd():
-            currentNamedArea = namedAreaIter.getCurrentValue()
+        namedAreaNames = widgetLookObject.getNamedAreaNames(True)
+        namedAreaMap = widgetLookObject.getNamedAreaMap(True)
+        for namedAreaName in namedAreaNames:
+            currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
             self.createAndAddItem(currentNamedArea)
-            namedAreaIter.next()
 
-        imageryIter = widgetLookObject.getImageryIterator()
-        while not imageryIter.isAtEnd():
-            currentImagerySection = imageryIter.getCurrentValue()
+        imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
+        imagerySectionMap = widgetLookObject.getImagerySectionMap(True)
+        for imagerySectionName in imagerySectionNames:
+            currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
             self.createAndAddItem(currentImagerySection)
-            imageryIter.next()
 
-        stateIter = widgetLookObject.getStateIterator()
-        while not stateIter.isAtEnd():
-            currentStateImagery = stateIter.getCurrentValue()
+        stateImageryNames = widgetLookObject.getStateImageryNames(True)
+        stateImageryMap = widgetLookObject.getStateImageryMap(True)
+        for stateImageryName in stateImageryNames:
+            currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
             self.createAndAddItem(currentStateImagery)
-            stateIter.next()
 
         widgetComponentNames = widgetLookObject.getWidgetComponentNames(True)
         widgetComponentMap = widgetLookObject.getWidgetComponentMap(True)
