@@ -579,7 +579,8 @@ class HierarchyDockWidget(QtGui.QDockWidget):
     def refresh(self):
         """Refreshes the entire hierarchy completely from scratch"""
 
-        self.setRootWidgetManipulator(self.rootWidgetManipulator)
+        # this will resynchronise the entire model
+        self.model.setRootManipulator(self.rootWidgetManipulator)
 
     def keyReleaseEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
