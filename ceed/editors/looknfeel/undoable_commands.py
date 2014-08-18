@@ -53,6 +53,9 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         return idbase + 1
 
     def mergeWith(self, cmd):
+        if self.newTargetWidgetLook == cmd.newTargetWidgetLook:
+            return True
+
         return False
 
     def undo(self):
