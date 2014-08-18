@@ -45,6 +45,7 @@ class LookNFeelFalagardElementEditorDockWidget(QtGui.QDockWidget):
         super(LookNFeelFalagardElementEditorDockWidget, self).__init__()
         self.setObjectName("FalagardElementEditorDockWidget")
         self.visual = visual
+        self.tabbedEditor = tabbedEditor
 
         self.setWindowTitle("Falagard Element Editor")
         # Make the dock take as much space as it can vertically
@@ -61,12 +62,14 @@ class FalagardElementMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
     and then create undo commands to update the CEGUI widgets.
     """
 
-    def __init__(self, templateProperty, innerProperties, takeOwnership, visual, falagardElement, attributeName):
+    def __init__(self, templateProperty, innerProperties, takeOwnership, visual, falagardElement, attributeName, getterCallback, setterCallback):
         super(FalagardElementMultiPropertyWrapper, self).__init__(templateProperty, innerProperties, takeOwnership)
 
         self.visual = visual
         self.falagardElement = falagardElement
         self.attributeName = attributeName
+        self.getterCallback = getterCallback
+        self.setterCallback = setterCallback
 
     def tryUpdateInner(self, newValue, reason=pt.properties.Property.ChangeValueReason.Unknown):
         if super(FalagardElementMultiPropertyWrapper, self).tryUpdateInner(newValue, reason):
@@ -79,8 +82,8 @@ class FalagardElementMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
             # but tell it not to trigger the change-callback
             # on the first run because our editor value has already changed,
             # we just want to sync the Falagard element's attribute value now.
-            cmd = undoable_commands.FalagardElementAttributeEdit(self.visual, self.falagardElement, self.attributeName,
-                                                                 ceguiValue, ignoreNextCallback=True)
+            cmd = undoable_commands.FalagardElementAttributeEdit(self.visual, self.falagardElement, self.attributeName, ceguiValue,
+                                                                 self.getterCallback, self.setterCallback, ignoreNextCallback=True)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
             # make sure to redraw the scene to preview the property
