@@ -72,7 +72,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
 
-    def __init__(self, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
+    def __init__(self, visual, falagardElement, attributeName, newValue, getterCallback, setterCallback, ignoreNextCallback=False):
         super(FalagardElementAttributeEdit, self).__init__()
 
         self.visual = visual
@@ -80,9 +80,11 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         self.falagardElement = falagardElement
         self.attributeName = attributeName
 
-        # We retrieve the original value and store it
-        from falagard_element_interface import FalagardElementInterface
-        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
+        self.getterCallback = getterCallback
+        self.setterCallback = setterCallback
+
+        # We retrieve the momentary value using the getter callback and store it as old value
+        self.oldValue = self.getterCallback(falagardElement, attributeName)
 
         # If the value is a subtype of
         from ceed.cegui import ceguitypes
@@ -91,8 +93,13 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             # if it is a subclass of our ceguitypes, do some special handling
             self.newValueAsString = unicode(newValue)
             self.newValue = newValueType.toCeguiType(self.newValueAsString)
+        elif issubclass(newValueType, unicode):
+            self.newValueAsString = newValue
+            self.newValue = newValue
+        else:
+            raise Exception("Unexpected type encountered")
 
-        # Get some strings so we can display better info
+        # Get the Falagard element's type as string so we can display better info
         from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
         self.falagardElementName = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
@@ -112,14 +119,14 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
     def undo(self):
         super(FalagardElementAttributeEdit, self).undo()
 
-        from falagard_element_interface import FalagardElementInterface
-        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
+        # We set the value using the setter callback
+        self.setterCallback(self.falagardElement, self.attributeName, self.oldValue)
 
         self.visual.updateWidgetLookPreview()
 
     def redo(self):
-        from falagard_element_interface import FalagardElementInterface
-        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
+        # We set the value using the setter callback
+        self.setterCallback(self.falagardElement, self.attributeName, self.newValue)
 
         self.visual.updateWidgetLookPreview()
 
