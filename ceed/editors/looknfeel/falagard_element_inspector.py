@@ -26,6 +26,7 @@ from ceed.propertytree import properties
 from ceed.propertytree import utility as ptUtility
 
 from ceed.cegui import ceguitypes as ct
+from ceed.propertytree.properties import PropertyCategory
 
 from collections import OrderedDict
 
@@ -78,7 +79,7 @@ class FalagardElementAttributesManager(object):
         """
         settingsList = self.createSettingsForFalagardElement(falagardElement)
 
-        categories = properties.PropertyCategory.categorisePropertyList(settingsList)
+        categories = FalagardElementSettingCategory.categorisePropertyList(settingsList)
 
         # sort properties in categories
         for cat in categories.values():
@@ -102,122 +103,64 @@ class FalagardElementAttributesManager(object):
 
         return OrderedDict(sorted(categories.items(), key=getSortKey))
 
-    def createSettingsForFalagardElement(self, falagardElement):
+    def addSettingForPropertyDefinitionBaseType(self, propertyDefBaseObject, widgetLookObject, category, listOfWidgetLookSettings):
         """
-        Create and return all available settings for the Falagard Element
-
-        :param falagardElement:
+        Creates a setting for a PropertyDefinition or PropertyLinkDefinition of a WidgetLook and adds it to a list of settings
+        :param propertyDefBaseObject: PyCEGUI.PropertyDefinitionBase
+        :param widgetLookObject: PyCEGUI.WidgetLookFeel
+        :param listOfWidgetLookSettings: list
         :return:
         """
-        if falagardElement is None:
-            return []
 
-        # If the Falagard Element is the WidgetLookFeel itself:
-        elif isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
-            return self.createSettingsForWidgetLookFeel(falagardElement)
-        # For all other Falagard Elements (child elements of the WidgetLook):
-        else:
-            return self.createSettingsForNonWidgetLookElement(falagardElement)
+        propertyName = propertyDefBaseObject.getPropertyName()
+        dataType = propertyDefBaseObject.getDataType()
+        initialValue = propertyDefBaseObject.getInitialValue()
+        helpString = propertyDefBaseObject.getHelpString()
 
-    def createSettingsForWidgetLookFeel(self, widgetLookObject):
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, category, propertyName, dataType, initialValue, True)
+        defaultValue = value
+
+        from falagard_element_interface import FalagardElementInterface
+        getterCallback = FalagardElementInterface.getAttributeValue
+        setterCallback = FalagardElementInterface.setAttributeValue
+        newSetting = self.createWidgetLookFeelPropertySetting(value, defaultValue, propertyType, editorOptions, propertyDefBaseObject, propertyName, category,
+                                                              helpString, getterCallback, setterCallback)
+
+        listOfWidgetLookSettings.append(newSetting)
+
+    def addSettingForPropertyInitialiserType(self, propertyInitialiser, widgetLookObject, listOfWidgetLookSettings, dummyWindow):
         """
-        Creates a list of settings for a specificed WidgetLookFeel object, based on all its child elements of type Property, PropertyDefinition and PropertyLinkDefinition
-
-        :param widgetLookObject: PyCEGUI.WidgetLookFeel
-        :return: list
-        """
-
-        listOfWidgetLookSettings = []
-
-        dummyWindow = PyCEGUI.WindowManager.getSingleton().createWindow(widgetLookObject.getName(), "")
-
-        self.createSettingsForPropertyDefinitions(widgetLookObject, listOfWidgetLookSettings, dummyWindow)
-        self.createSettingsForPropertyLinkDefinitions(widgetLookObject, listOfWidgetLookSettings, dummyWindow)
-        self.createSettingsForPropertyInitialisers(widgetLookObject, listOfWidgetLookSettings, dummyWindow)
-
-        PyCEGUI.WindowManager.getSingleton().destroyWindow(dummyWindow)
-
-        return listOfWidgetLookSettings
-
-    def createSettingsForPropertyDefinitions(self, widgetLookObject, listOfWidgetLookSettings, dummyWindow):
-        """
-        Creates settings for the PropertyDefinitions of a WidgetLook and adds them to a list of settings
+        Creates a setting for a PropertyInitialiser of a WidgetLook and adds it to a list of settings
+        :param propertyInitialiser: PyCEGUI.PropertyInitialiser
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :param listOfWidgetLookSettings: list
         :param dummyWindow: PyCEGUI.Window
         :return:
         """
 
-        propDefNames = widgetLookObject.getPropertyDefinitionNames(True)
-        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(True)
+        category = "PropertyInitialiser"
 
-        for propDefName in propDefNames:
-            propertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefName)
-            propertyName = propertyDef.getPropertyName()
-            dataType = propertyDef.getDataType()
-            initialValue = propertyDef.getInitialValue()
-            category = "PropertyDefinition"
-            helpString = propertyDef.getHelpString()
+        propertyName = propertyInitialiser.getTargetPropertyName()
+        initialValue = propertyInitialiser.getInitialiserValue()
 
-            if initialValue is u"":
-                initialValue = None
+        propertyInstance = dummyWindow.getPropertyInstance(propertyName)
 
-            listOfWidgetLookSettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
-                                                                                     helpString, False, self.propertyMap))
+        dataType = propertyInstance.getDataType()
+        helpString = propertyInstance.getHelp()
 
-    def createSettingsForPropertyLinkDefinitions(self, widgetLookObject, listOfWidgetLookSettings, dummyWindow):
-        """
-        Creates settings for the PropertyLinkDefinitions of a WidgetLook and adds them to a list of settings
-        :param widgetLookObject: PyCEGUI.WidgetLookFeel
-        :param listOfWidgetLookSettings: list
-        :param dummyWindow: PyCEGUI.Window
-        :return:
-        """
+        if initialValue is u"":
+            initialValue = None
 
-        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(True)
-        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(True)
-        for propLinkDefName in propLinkDefNames:
-            propertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefName)
+        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, category, propertyName, dataType, initialValue, True)
+        defaultValue = value
 
-            dataType = propertyLinkDef.getDataType()
-            initialValue = propertyLinkDef.getInitialValue()
-            category = "PropertyLinkDefinition"
-            helpString = propertyLinkDef.getHelpString()
+        from falagard_element_interface import FalagardElementInterface
+        getterCallback = FalagardElementInterface.getAttributeValue
+        setterCallback = FalagardElementInterface.setAttributeValue
+        newSetting = self.createWidgetLookFeelPropertySetting(value, defaultValue, propertyType, editorOptions, widgetLookObject, propertyName, category,
+                                                              helpString, getterCallback, setterCallback)
 
-            if initialValue is u"":
-                initialValue = None
-
-            listOfWidgetLookSettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propLinkDefName, dataType, initialValue, category,
-                                                                                     helpString, False, self.propertyMap))
-
-    def createSettingsForPropertyInitialisers(self, widgetLookObject, listOfWidgetLookSettings, dummyWindow):
-        """
-        Creates settings for the PropertyInitialisers of a WidgetLook and adds them to a list of settings
-        :param widgetLookObject: PyCEGUI.WidgetLookFeel
-        :param listOfWidgetLookSettings: list
-        :param dummyWindow: PyCEGUI.Window
-        :return:
-        """
-
-        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(True)
-        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(True)
-        for propertyInitialiserName in propertyInitialiserNames:
-            propertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserName)
-
-            propertyName = propertyInitialiser.getTargetPropertyName()
-            initialValue = propertyInitialiser.getInitialiserValue()
-            category = "PropertyInitialiser"
-
-            propertyInstance = dummyWindow.getPropertyInstance(propertyName)
-
-            dataType = propertyInstance.getDataType()
-            helpString = propertyInstance.getHelp()
-
-            if initialValue is u"":
-                initialValue = None
-
-            listOfWidgetLookSettings.append(self.createWidgetLookFeelPropertySetting(widgetLookObject, propertyName, dataType, initialValue, category,
-                                                                                     helpString, False, self.propertyMap))
+        listOfWidgetLookSettings.append(newSetting)
 
     @staticmethod
     def retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue, isProperty):
@@ -270,13 +213,10 @@ class FalagardElementAttributesManager(object):
 
         return value, propertyType, editorOptions
 
-    def createWidgetLookFeelPropertySetting(self, widgetLookObject, propertyName, dataType, currentValue, category, helpString, readOnly, propertyMap):
-        """Create one MultiPropertyWrapper based property for the CEGUI Property
-        for all of the PropertySets specified.
+    def createWidgetLookFeelPropertySetting(self, value, defaultValue, propertyType, editorOptions, widgetLookObject, propertyName, category, helpString,
+                                            getterCallback, setterCallback):
+        """Create one MultiPropertyWrapper based property for a specified WidgetLookFeel's PropertyInitialiser, PropertyDefinition or PropertyLinkDefinition
         """
-
-        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue, True)
-        defaultValue = value
 
         # create the inner properties;
         # one property for each CEGUI PropertySet
@@ -286,7 +226,7 @@ class FalagardElementAttributesManager(object):
                                      helpText=helpString,
                                      value=value,
                                      defaultValue=defaultValue,
-                                     readOnly=readOnly,
+                                     readOnly=False,
                                      createComponents=False
                                      )
         innerProperties.append(innerProperty)
@@ -299,21 +239,25 @@ class FalagardElementAttributesManager(object):
                                         helpText=helpString,
                                         value=value,
                                         defaultValue=defaultValue,
-                                        readOnly=readOnly,
+                                        readOnly=False,
                                         editorOptions=editorOptions
                                         )
 
         # create FalagardElement MultiPropertyWrapper
-        return FalagardElementMultiPropertyWrapper(templateProperty, innerProperties, True,
-                                                   self.visual, widgetLookObject, propertyName)
+        return FalagardElementMultiPropertyWrapper(templateProperty, innerProperties, True, self.visual,
+                                                   widgetLookObject, propertyName, getterCallback, setterCallback)
 
-    def createSettingsForNonWidgetLookElement(self, falagardElement):
+    def createSettingsForFalagardElement(self, falagardElement):
         """
         Creates a list of settings for any type of Falagard Element (except the WidgetLookFeel itself)
         :param falagardElement:
         :return:
         """
+
         settings = []
+
+        if falagardElement is None:
+            return settings
 
         from falagard_element_interface import FalagardElementInterface
 
@@ -332,8 +276,7 @@ class FalagardElementAttributesManager(object):
         return FalagardElementAttributesManager._typeMap.get(ceguiType, unicode)
 
     def createPropertyForFalagardElement(self, falagardElement, attributeName, attribute, helpText):
-        """Create one MultiPropertyWrapper based property for the CEGUI Property
-        for all of the PropertySets specified.
+        """Create one MultiPropertyWrapper based property for a specified FalagardElement's attribute (which can be an XML attribute or a child element)
         """
 
         # Get the CEGUI type for the attribute
@@ -372,6 +315,45 @@ class FalagardElementAttributesManager(object):
                                         readOnly=False,
                                         editorOptions=editorOptions)
 
+        from falagard_element_interface import FalagardElementInterface
+        getterCallback = FalagardElementInterface.getAttributeValue
+        setterCallback = FalagardElementInterface.setAttributeValue
+
         # create and return the multi wrapper
         return FalagardElementMultiPropertyWrapper(templateProperty, innerProperties, True,
-                                                   self.visual, falagardElement, attributeName)
+                                                   self.visual, falagardElement, attributeName, getterCallback, setterCallback)
+
+
+class FalagardElementSettingCategory(object):
+    """ A category for Falagard element settings.
+    Categories have a name and hold a list of settings.
+    """
+    def __init__(self, name):
+        """Initialise the instance with the specified name."""
+        self.name = name
+        self.properties = OrderedDict()
+
+    @staticmethod
+    def categorisePropertyList(propertyList, unknownCategoryName="Unknown"):
+        """Given a list of settings, creates categories and adds the
+        settings to them based on their 'category' field.
+
+        The unknownCategoryName is used for a category that holds all
+        properties that have no 'category' specified.
+        """
+        categories = {}
+        for prop in propertyList:
+            catName = prop.category if prop.category else unknownCategoryName
+            if not catName in categories:
+                categories[catName] = FalagardElementSettingCategory(catName)
+            category = categories[catName]
+            category.properties[prop.name] = prop
+
+        return categories
+
+    def sortProperties(self, reverse=False):
+        """ We want to maintain the order used by the FalagardElement interface
+        :param reverse:
+        :return:
+        """
+        self.properties = OrderedDict(self.properties.items())
