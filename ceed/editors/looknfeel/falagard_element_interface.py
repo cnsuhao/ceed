@@ -283,7 +283,7 @@ class FalagardElementInterface(object):
 
         # Elements that can be children of a WidgetLookFeel:
 
-        if isinstance(falagardElement, PyCEGUI.PropertyDefinition) or isinstance(falagardElement, PyCEGUI.PropertyLinkDefinition):
+        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
              # "name", "type", "initialValue", "layoutOnWrite", "redrawOnWrite", "fireEvent", "help"
             if attributeName == attributeList[0]:
                 raise Exception("TODO RENAME")
