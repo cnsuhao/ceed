@@ -62,7 +62,6 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         if self.widgetLookObject is None:
             return
 
-        self.createAndAddItem(self.widgetLookObject)
         if self.limitDisplayTo is None:
             self.appendAllWidgetLookFeelChildren(self.widgetLookObject)
         else:
@@ -75,30 +74,61 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return:
         """
+        propDefNames = widgetLookObject.getPropertyDefinitionNames(True)
+        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(True)
+        if propDefNames:
+            self.createAndAddCategory("PropertyDefinitions", "type: PropertyDefinitionBase")
+            for propDefName in propDefNames:
+                currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefName)
+                self.createAndAddItem(currentPropertyDef)
+
+        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(True)
+        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(True)
+        if propLinkDefNames:
+            self.createAndAddCategory("PropertyLinkDefinitions", "type: PropertyDefinitionBase")
+            for propLinkDefName in propLinkDefNames:
+                currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefName)
+                self.createAndAddItem(currentPropertyLinkDef)
+
+        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(True)
+        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(True)
+        if propertyInitialiserNames:
+            self.createAndAddCategory("Properties", "type: PropertyInitialiser")
+            for propertyInitialiserName in propertyInitialiserNames:
+                currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserName)
+                self.createAndAddItem(currentPropertyInitialiser)
 
         namedAreaNames = widgetLookObject.getNamedAreaNames(True)
         namedAreaMap = widgetLookObject.getNamedAreaMap(True)
-        for namedAreaName in namedAreaNames:
-            currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
-            self.createAndAddItem(currentNamedArea)
+        if namedAreaNames:
+            self.createAndAddCategory("NamedAreas", "type: NamedArea")
+            for namedAreaName in namedAreaNames:
+                currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
+                self.createAndAddItem(currentNamedArea)
 
         imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
         imagerySectionMap = widgetLookObject.getImagerySectionMap(True)
-        for imagerySectionName in imagerySectionNames:
-            currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
-            self.createAndAddItem(currentImagerySection)
+        if imagerySectionNames:
+            self.createAndAddCategory("ImagerySections", "type: ImagerySection")
+            for imagerySectionName in imagerySectionNames:
+                currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
+                self.createAndAddItem(currentImagerySection)
 
         stateImageryNames = widgetLookObject.getStateImageryNames(True)
         stateImageryMap = widgetLookObject.getStateImageryMap(True)
-        for stateImageryName in stateImageryNames:
-            currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
-            self.createAndAddItem(currentStateImagery)
+        if stateImageryNames:
+            self.createAndAddCategory("StateImageries", "type: StateImagery")
+            for stateImageryName in stateImageryNames:
+                currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
+                self.createAndAddItem(currentStateImagery)
 
         widgetComponentNames = widgetLookObject.getWidgetComponentNames(True)
         widgetComponentMap = widgetLookObject.getWidgetComponentMap(True)
-        for widgetComponentName in widgetComponentNames:
-            widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
-            self.createAndAddItem(widgetComponent)
+        if widgetComponentNames:
+            self.createAndAddCategory("WidgetComponents", "type: WidgetComponent")
+            for widgetComponentName in widgetComponentNames:
+                widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
+                self.createAndAddItem(widgetComponent)
 
     def appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self, widgetLookObject):
         """
@@ -155,17 +185,28 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         # At last we end the StateImagery itself to the root
         self.createAndAddItem(displayedStateImagery)
 
-    def createAndAddItem(self, widgetLookElement):
+    def createAndAddCategory(self, name, toolTip):
+        rootItem = self.invisibleRootItem()
+
+        categoryItem = QtGui.QStandardItem(name)
+        categoryItem.setToolTip(toolTip)
+
+        from ceed.propertytree.ui import PropertyCategoryRow
+        PropertyCategoryRow.setupCategoryOptions(categoryItem)
+
+        rootItem.appendRow(categoryItem)
+
+    def createAndAddItem(self, falagardElement):
         """
         Creates an item based on the supplied object and appends it to the rootItem of this tree model
-        :param widgetLookElement:
+        :param falagardElement:
         :return:
         """
-        if widgetLookElement is None:
+        if falagardElement is None:
             raise Exception("Invalid parameter supplied to LookNFeelHierarchyTreeModel.createAndAddItem")
         rootItem = self.invisibleRootItem()
 
-        newItem = LookNFeelHierarchyItem(widgetLookElement)
+        newItem = LookNFeelHierarchyItem(falagardElement)
         rootItem.appendRow(newItem)
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
