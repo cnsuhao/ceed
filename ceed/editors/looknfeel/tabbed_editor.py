@@ -111,8 +111,10 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         :return:
         """
 
-        if isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
-            return u"Property, PropertyDefinition, PropertyLinkDefinition"
+        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
+            return u"PropertyDefinitionBase"
+        if isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
+            return u"PropertyInitialiser"
         elif isinstance(falagardElement, PyCEGUI.NamedArea):
             return u"NamedArea"
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
