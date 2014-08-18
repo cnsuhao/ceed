@@ -67,20 +67,22 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
         toolTip = u"type: " + LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
-        # The WidgetLookFeel element:
-        if isinstance(falagardElement, PyCEGUI.WidgetLookFeel):
-            name += "Properties, PropertyDefinitions, PropertyLinkDefinitions"
-
         # Elements that can be children of a WidgetLookFeel:
+
+        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
+            name += falagardElement.getPropertyName()
+
+        elif isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
+            name += falagardElement.getTargetPropertyName()
+
         elif isinstance(falagardElement, PyCEGUI.NamedArea):
-            name += u"NamedArea: \"" + falagardElement.getName() + u"\""
+            name += falagardElement.getName()
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
-            name += u"ImagerySection: \"" + falagardElement.getName() + u"\""
+            name += falagardElement.getName()
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
-            name += u"StateImagery: \"" + falagardElement.getName() + u"\""
-            toolTip = u"type: StateImagery"
+            name += falagardElement.getName()
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            name += u"Child: \"" + falagardElement.getWidgetName() + u"\" type: " + falagardElement.getWidgetLookName() + u""
+            name += falagardElement.getWidgetName() + u" (" + falagardElement.getWidgetLookName() + u")"
 
         # Elements that can be children of a ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
@@ -156,15 +158,15 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         Creates and appends children items based on an ImagerySection.
         :return:
         """
-        frameComponentList = self.falagardElement.getFrameComponents()
+        frameComponentList = self.falagardElement.getFrameComponentPointers()
         for frameComponent in frameComponentList:
             self.createAndAddItem(frameComponent)
 
-        textComponentList = self.falagardElement.getTextComponents()
+        textComponentList = self.falagardElement.getTextComponentPointers()
         for textComponent in textComponentList:
             self.createAndAddItem(textComponent)
 
-        imageryComponentList = self.falagardElement.getImageryComponents()
+        imageryComponentList = self.falagardElement.getImageryComponentPointers()
         for imageryComponent in imageryComponentList:
             self.createAndAddItem(imageryComponent)
 
