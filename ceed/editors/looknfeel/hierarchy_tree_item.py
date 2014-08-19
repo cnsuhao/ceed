@@ -70,19 +70,19 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         # Elements that can be children of a WidgetLookFeel:
 
         if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
-            name += falagardElement.getPropertyName()
+            name += u"\"" + falagardElement.getPropertyName() + u"\""
 
         elif isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
-            name += falagardElement.getTargetPropertyName()
+            name += u"\"" + falagardElement.getTargetPropertyName() + u"\""
 
         elif isinstance(falagardElement, PyCEGUI.NamedArea):
-            name += falagardElement.getName()
+            name += u"\"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
-            name += falagardElement.getName()
+            name += u"\"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
-            name += falagardElement.getName()
+            name += u"\"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            name += falagardElement.getWidgetName() + u" (" + falagardElement.getWidgetLookName() + u")"
+            name += u"\"" + falagardElement.getWidgetName() + u"\"" + u" (" + falagardElement.getWidgetLookName() + u")"
 
         # Elements that can be children of a ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
