@@ -40,39 +40,13 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
 
         self.dockWidget = None
 
-        self.originalBackgroundColour = QtGui.QColor(248, 248, 208)
+        self.originalBackgroundColour = QtGui.QColor(232, 216, 211)
 
     def drawRow(self, painter, option, index):
         """Draws alternating background colours for the items, changing the colour depending on the category. """
 
-        # Check if we draw and odd or even element, starting with the element after the category
-        aboveIndicesCount = 0
-        aboveIndex = self.indexAbove(index)
-        while aboveIndex.isValid() and aboveIndex.parent().isValid():
-            aboveIndicesCount += 1
-            aboveIndex = self.indexAbove(aboveIndex)
-
-        # We check how many categories there are before this element
-        categoryCount = -1
-        aboveIndex = self.indexAbove(index)
-        while aboveIndex.isValid():
-            if not aboveIndex.parent().isValid():
-                categoryCount += 1
-            aboveIndex = self.indexAbove(aboveIndex)
-
-        # We use a background colour with a hue depending on the category of this item
-        backgroundColour = self.originalBackgroundColour.toHsv()
-        newHue = backgroundColour.hue() + categoryCount * 45
-        backgroundColour.setHsv(newHue, backgroundColour.saturation(), backgroundColour.value())
-
-        # if this is an odd element after the category, we choose an alternative colour
-        if aboveIndicesCount % 2 == 1:
-            backgroundColour = backgroundColour.lighter(112)
-
-        # Draw the background for the elements
-        painter.fillRect(option.rect, backgroundColour)
-        option.palette.setBrush(QtGui.QPalette.Base, backgroundColour)
-        option.palette.setBrush(QtGui.QPalette.AlternateBase, backgroundColour)
+        from ceed.propertytree.ui import PropertyTreeView
+        PropertyTreeView.paintAlternatingRowBackground(self, self.originalBackgroundColour, painter, option, index)
 
         # Calling the regular draw function
         super(LookNFeelHierarchyTreeView, self).drawRow(painter, option, index)
