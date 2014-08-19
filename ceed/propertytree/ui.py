@@ -520,8 +520,8 @@ class PropertyTreeView(QtGui.QTreeView):
 
         # Draw the background for the elements
         painter.fillRect(option.rect, backgroundColour)
-        option.palette.setBrush(QtGui.QPalette.Base, backgroundColour)
-        option.palette.setBrush(QtGui.QPalette.AlternateBase, backgroundColour)
+        option.palette.setBrush(QtGui.QPalette.Base, QtGui.QColor(0, 0, 0, 0))
+        option.palette.setBrush(QtGui.QPalette.AlternateBase, QtGui.QColor(0, 0, 0, 0))
 
     def drawRow(self, painter, option, index):
         """Draws grid lines and draws alternating background colours, depending on the category.
@@ -531,10 +531,8 @@ class PropertyTreeView(QtGui.QTreeView):
         # Calling the regular draw function
         super(PropertyTreeView, self).drawRow(painter, option, index)
 
-        # get color for grid lines from the style
-        returnData = QtGui.QStyleHintReturn()
-        gridHint = self.style().styleHint(QtGui.QStyle.SH_Table_GridLineColor, option, self, returnData)
-        gridColor = QtGui.QColor(gridHint & 0xFFFFFF)
+        # Using a grey colour for the grid
+        gridColor = QtGui.QColor(216, 216, 216, 255)
         # setup a pen
         gridPen = QtGui.QPen(gridColor)
         # x coordinate to draw the vertical line (between the first and the second column)
