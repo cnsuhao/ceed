@@ -40,7 +40,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         self.widgetLookObject = None
 
-        self.limitDisplayTo = None
+        self.limitDisplayToStateImagery = None
         """ A string defining a name of a StateImagery. This StateImagery, and everything referenced within it, will be the only one
         to be displayed in the hierarchy. The value None means there won't be any limitation and everything will be displayed. """
 
@@ -53,7 +53,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :return:
         """
 
-        self.limitDisplayTo = limitDisplayTo
+        self.limitDisplayToStateImagery = limitDisplayTo
         self.widgetLookObject = widgetLookObject
 
         # Clear any existing hierarchy
@@ -62,10 +62,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         if self.widgetLookObject is None:
             return
 
-        if self.limitDisplayTo is None:
-            self.appendAllWidgetLookFeelChildren(self.widgetLookObject)
-        else:
-            self.appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self.widgetLookObject)
+        self.appendAllWidgetLookFeelChildren(self.widgetLookObject)
 
     def appendAllWidgetLookFeelChildren(self, widgetLookObject):
         """
@@ -74,6 +71,9 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return:
         """
+
+        # Add all properties
+
         propDefNames = widgetLookObject.getPropertyDefinitionNames(True)
         propertyDefMap = widgetLookObject.getPropertyDefinitionMap(True)
         if propDefNames:
@@ -98,15 +98,19 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
                 currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserName)
                 self.createAndAddItem(currentPropertyInitialiser, categoryItem)
 
-        namedAreaNames = widgetLookObject.getNamedAreaNames(True)
+        # Create and add all view-dependent hierarchy items owned by the WidgetLookFeel
+
         namedAreaMap = widgetLookObject.getNamedAreaMap(True)
+        namedAreaNames = widgetLookObject.getNamedAreaNames(True)
         if namedAreaNames:
             categoryItem = self.createAndAddCategoryToRoot("NamedAreas", "type: NamedArea")
             for namedAreaName in namedAreaNames:
                 currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
                 self.createAndAddItem(currentNamedArea, categoryItem)
 
-        imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
+        # Gather all elements associated with the currently selected view
+        stateImageryNames, imagerySectionNames = self.getViewDependentElementNames(widgetLookObject)
+
         imagerySectionMap = widgetLookObject.getImagerySectionMap(True)
         if imagerySectionNames:
             categoryItem = self.createAndAddCategoryToRoot("ImagerySections", "type: ImagerySection")
@@ -114,7 +118,6 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
                 currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
                 self.createAndAddItem(currentImagerySection, categoryItem)
 
-        stateImageryNames = widgetLookObject.getStateImageryNames(True)
         stateImageryMap = widgetLookObject.getStateImageryMap(True)
         if stateImageryNames:
             categoryItem = self.createAndAddCategoryToRoot("StateImageries", "type: StateImagery")
@@ -130,39 +133,31 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
                 widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
                 self.createAndAddItem(widgetComponent, categoryItem)
 
-    def appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self, widgetLookObject):
+    def getViewDependentElementNames(self, widgetLookObject):
         """
-        Iterates over all contained elements of the WidgetLookFeel. It will add only those elements
-        which are referenced by the StateImagery that was selected to be viewed. Additionally, it will add
-        the elements referenced from within the StateImagery, which are part of the WidgetLookFeel
-
+        Returns the StateImagery, ImagerySection, WidgetComponent and NamedArea names associated with the current view
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return:
         """
-        displayedStateImageryName = self.limitDisplayTo
-        displayedStateImagery = None
 
-        # Iterate through all StateImageries to see if we find the StateImagery
-        # we want to exclusively display in the hierarchy
-        stateIter = widgetLookObject.getStateIterator()
-        while not stateIter.isAtEnd():
-            currentStateImagery = stateIter.getCurrentValue()
+        # We get all names of all elements
+        stateImageryNames = widgetLookObject.getStateImageryNames(True)
+        imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
 
-            if displayedStateImageryName == currentStateImagery.getName():
-                displayedStateImagery = currentStateImagery
-                break
-            stateIter.next()
+        # If the current mode is unlimited, return all names unaltered
+        if self.limitDisplayToStateImagery is None:
+            return stateImageryNames, imagerySectionNames
 
-        # If no StateImagery was found we don't add a hierarchy
-        if displayedStateImagery is None:
-            return
+        # We retrieve the StateImagery object that we want to display exclusively
+        stateImageryMap = widgetLookObject.getStateImageryMap(True)
+        viewedStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, self.limitDisplayToStateImagery)
 
-        referencedImagerySections = []
         # We iterate over all layers and all SectionSpecification in the layers, looking for all
         # ImagerySections that are referenced from there and are "owned" by this WidgetLookFeel
         # (They could also be inside another WLF definition, in which case we won't display them)
         # All such ImagerySections will be added to a list
-        layerIter = displayedStateImagery.getLayerIterator()
+        referencedImagerySections = []
+        layerIter = viewedStateImagery.getLayerIterator()
         while not layerIter.isAtEnd():
             layer = layerIter.getCurrentValue()
             sectionIter = layer.getSectionIterator()
@@ -178,12 +173,9 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         #We make each ImagerySection unique using a set
         imagerySectionNamesSet = set(referencedImagerySections)
-        for imagerySectionName in imagerySectionNamesSet:
-            imagerySection = widgetLookObject.getImagerySection(imagerySectionName)
-            self.createAndAddItem(imagerySection)
+        imagerySectionNames = list(imagerySectionNamesSet)
 
-        # At last we end the StateImagery itself to the root
-        self.createAndAddItem(displayedStateImagery)
+        return [self.limitDisplayToStateImagery], imagerySectionNames
 
     def createAndAddCategoryToRoot(self, name, toolTip):
         """
