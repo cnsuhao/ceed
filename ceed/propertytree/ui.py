@@ -511,7 +511,7 @@ class PropertyTreeView(QtGui.QTreeView):
 
         # We use a background colour with a hue depending on the category of this item
         backgroundColour = originalBackgroundColour.toHsv()
-        newHue = backgroundColour.hue() + categoryCount * 45
+        newHue = (backgroundColour.hue() + categoryCount * 45) % 360
         backgroundColour.setHsv(newHue, backgroundColour.saturation(), backgroundColour.value())
 
         # if this is an odd element after the category, we choose an alternative colour
