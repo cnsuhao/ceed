@@ -63,6 +63,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.selectionLabelTooltip = ""
 
         self.ptree = ptUi.PropertyTreeWidget()
+        """ :type : PropertyTreeWidget"""
+        self.ptree.view.originalBackgroundColour = QtGui.QColor(213, 243, 233)
 
         layout.addWidget(self.selectionLabel)
         layout.addWidget(self.filterBox)
