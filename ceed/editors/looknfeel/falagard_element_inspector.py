@@ -36,8 +36,7 @@ import PyCEGUI
 
 
 class FalagardElementAttributesManager(object):
-    """Builds propertytree properties from a CEGUI WidgetLook offering options to modify its Properties, PropertyDefinitions and PropertyLinkDefinitions,
-    by using a PropertyMap.
+    """Builds propertytree settings from a CEGUI Falagard element, allowing to edit its attributes in the editor.
     """
 
     # Maps CEGUI data types (in string form) to Python types
