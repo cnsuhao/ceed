@@ -31,6 +31,7 @@ from ceed.editors.looknfeel import code
 from ceed.editors.looknfeel import preview
 
 from ceed import settings
+from ceed import messages
 
 import ceed.compatibility.looknfeel as looknfeel_compatibility
 
@@ -45,6 +46,12 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
     def __init__(self, filePath):
         super(LookNFeelTabbedEditor, self).__init__(looknfeel_compatibility.manager, filePath)
+
+        messages.warning(None, self, "LookNFeel Editor is experimental!",
+                         "This part of CEED is not considered to be ready for "
+                         "production. You have been warned. If everything "
+                         "breaks you get to keep the pieces!",
+                         "looknfeel_editor_experimental")
 
         self.editorIDString = str(id(self))
 

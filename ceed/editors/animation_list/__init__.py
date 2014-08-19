@@ -26,9 +26,12 @@ import ceed.compatibility.animation_list as animation_list_compatibility
 from ceed.editors.animation_list import visual
 from ceed.editors.animation_list import code
 
+from ceed import messages
+
 import os.path
 import sys
 from xml.etree import cElementTree as ElementTree
+
 
 class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
     """Animation list file editor (XML file containing list of animations)
@@ -36,6 +39,12 @@ class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
 
     def __init__(self, filePath):
         super(AnimationListTabbedEditor, self).__init__(animation_list_compatibility.manager, filePath)
+
+        messages.warning(None, self, "Animation List Editor is experimental!",
+                         "This part of CEED is not considered to be ready for "
+                         "production. You have been warned. If everything "
+                         "breaks you get to keep the pieces!",
+                         "animation_list_editor_experimental")
 
         self.requiresProject = True
 
@@ -144,6 +153,7 @@ class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
             return self.visual.zoomReset()
 
         return False
+
 
 class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
