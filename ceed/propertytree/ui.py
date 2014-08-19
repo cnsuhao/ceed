@@ -409,7 +409,7 @@ class PropertyTreeView(QtGui.QTreeView):
         self.setRequiredOptions()
         self.setOptimalDefaults()
 
-        self.originalBackgroundColour = QtGui.QColor(248, 248, 208)
+        self.originalBackgroundColour = QtGui.QColor(213, 243, 233)
 
     def setRequiredOptions(self):
         # We work with rows, not columns
@@ -481,27 +481,36 @@ class PropertyTreeView(QtGui.QTreeView):
 
         super(PropertyTreeView, self).currentChanged(currentIndex, previousIndex)
 
-    def drawRow(self, painter, option, index):
-        """Draws grid lines and draws alternating background colours, depending on the category.
+    @staticmethod
+    def paintAlternatingRowBackground(treeView, originalBackgroundColour, painter, option, index):
+        """ Chooses and draws an alternating background colours for an item in a QTreeView. The colour
+        is chosen depending on the numbers of top-level elements (interpreted as categories) before the current item.
+
+        :param treeView: QtGui.QTreeView
+        :param originalBackgroundColour: QtGui.QColor
+        :param painter:
+        :param option:
+        :param index:
+        :return:
         """
 
         # Check if we draw and odd or even element, starting with the element after the category
         aboveIndicesCount = 0
-        aboveIndex = self.indexAbove(index)
-        while aboveIndex.isValid() and not self.isFirstColumnSpanned(aboveIndex.row(), aboveIndex.parent()):
+        aboveIndex = treeView.indexAbove(index)
+        while aboveIndex.isValid() and aboveIndex.parent().isValid():
             aboveIndicesCount += 1
-            aboveIndex = self.indexAbove(aboveIndex)
+            aboveIndex = treeView.indexAbove(aboveIndex)
 
         # We check how many categories there are before this element
         categoryCount = -1
-        aboveIndex = self.indexAbove(index)
+        aboveIndex = treeView.indexAbove(index)
         while aboveIndex.isValid():
-            if self.isFirstColumnSpanned(aboveIndex.row(), aboveIndex.parent()):
+            if not aboveIndex.parent().isValid():
                 categoryCount += 1
-            aboveIndex = self.indexAbove(aboveIndex)
+            aboveIndex = treeView.indexAbove(aboveIndex)
 
         # We use a background colour with a hue depending on the category of this item
-        backgroundColour = self.originalBackgroundColour.toHsv()
+        backgroundColour = originalBackgroundColour.toHsv()
         newHue = backgroundColour.hue() + categoryCount * 45
         backgroundColour.setHsv(newHue, backgroundColour.saturation(), backgroundColour.value())
 
@@ -513,6 +522,11 @@ class PropertyTreeView(QtGui.QTreeView):
         painter.fillRect(option.rect, backgroundColour)
         option.palette.setBrush(QtGui.QPalette.Base, backgroundColour)
         option.palette.setBrush(QtGui.QPalette.AlternateBase, backgroundColour)
+
+    def drawRow(self, painter, option, index):
+        """Draws grid lines and draws alternating background colours, depending on the category.
+        """
+        self.paintAlternatingRowBackground(self, self.originalBackgroundColour, painter, option, index)
 
         # Calling the regular draw function
         super(PropertyTreeView, self).drawRow(painter, option, index)
