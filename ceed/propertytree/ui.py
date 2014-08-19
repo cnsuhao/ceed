@@ -409,6 +409,8 @@ class PropertyTreeView(QtGui.QTreeView):
         self.setRequiredOptions()
         self.setOptimalDefaults()
 
+        self.originalBackgroundColour = QtGui.QColor(248, 248, 208)
+
     def setRequiredOptions(self):
         # We work with rows, not columns
         self.setAllColumnsShowFocus(True)
@@ -480,10 +482,39 @@ class PropertyTreeView(QtGui.QTreeView):
         super(PropertyTreeView, self).currentChanged(currentIndex, previousIndex)
 
     def drawRow(self, painter, option, index):
-        """Draws grid lines.
-
-        Yep, that's all it does.
+        """Draws grid lines and draws alternating background colours, depending on the category.
         """
+
+        # Check if we draw and odd or even element, starting with the element after the category
+        aboveIndicesCount = 0
+        aboveIndex = self.indexAbove(index)
+        while aboveIndex.isValid() and not self.isFirstColumnSpanned(aboveIndex.row(), aboveIndex.parent()):
+            aboveIndicesCount += 1
+            aboveIndex = self.indexAbove(aboveIndex)
+
+        # We check how many categories there are before this element
+        categoryCount = -1
+        aboveIndex = self.indexAbove(index)
+        while aboveIndex.isValid():
+            if self.isFirstColumnSpanned(aboveIndex.row(), aboveIndex.parent()):
+                categoryCount += 1
+            aboveIndex = self.indexAbove(aboveIndex)
+
+        # We use a background colour with a hue depending on the category of this item
+        backgroundColour = self.originalBackgroundColour.toHsv()
+        newHue = backgroundColour.hue() + categoryCount * 45
+        backgroundColour.setHsv(newHue, backgroundColour.saturation(), backgroundColour.value())
+
+        # if this is an odd element after the category, we choose an alternative colour
+        if aboveIndicesCount % 2 == 1:
+            backgroundColour = backgroundColour.lighter(112)
+
+        # Draw the background for the elements
+        painter.fillRect(option.rect, backgroundColour)
+        option.palette.setBrush(QtGui.QPalette.Base, backgroundColour)
+        option.palette.setBrush(QtGui.QPalette.AlternateBase, backgroundColour)
+
+        # Calling the regular draw function
         super(PropertyTreeView, self).drawRow(painter, option, index)
 
         # get color for grid lines from the style
@@ -494,14 +525,15 @@ class PropertyTreeView(QtGui.QTreeView):
         gridPen = QtGui.QPen(gridColor)
         # x coordinate to draw the vertical line (between the first and the second column)
         colX = self.columnViewportPosition(1) - 1
-        # do not draw verticals on spanned rows (i.e. categories)
-        drawVertical = not self.isFirstColumnSpanned(index.row(), index.parent())
 
         # save painter state so we can leave it as it was
         painter.save()
         painter.setPen(gridPen)
+        # Check if this is a category ( spanning the whole row )
+        isCategory = self.isFirstColumnSpanned(index.row(), index.parent())
+        # do not draw verticals on spanned rows (i.e. categories)
         painter.drawLine(option.rect.x(), option.rect.bottom(), option.rect.right(), option.rect.bottom())
-        if drawVertical:
+        if not isCategory:
             painter.drawLine(colX, option.rect.y(), colX, option.rect.bottom())
         # aaaand restore
         painter.restore()
