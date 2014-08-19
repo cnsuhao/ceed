@@ -40,10 +40,11 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
 
         self.dockWidget = None
 
-        self.originalBackgroundColour = QtGui.QColor(232, 216, 211)
+        self.originalBackgroundColour = QtGui.QColor(237, 215, 215)
 
     def drawRow(self, painter, option, index):
-        """Draws alternating background colours for the items, changing the colour depending on the category. """
+        """Draws alternating background colours for the items, changing the colour depending on the category.
+        """
 
         from ceed.propertytree.ui import PropertyTreeView
         PropertyTreeView.paintAlternatingRowBackground(self, self.originalBackgroundColour, painter, option, index)
@@ -52,7 +53,7 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         super(LookNFeelHierarchyTreeView, self).drawRow(painter, option, index)
 
     def selectionChanged(self, selected, deselected):
-        """Reacts on selection changes in the hierarchy tree by notifying the Falagrd element editor of the new selection
+        """Reacts on selection changes in the hierarchy tree by notifying the Falagrd element editor of the new selection.
         """
 
         super(LookNFeelHierarchyTreeView, self).selectionChanged(selected, deselected)
