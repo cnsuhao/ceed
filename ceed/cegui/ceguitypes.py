@@ -1,4 +1,4 @@
-##############################################################################
+# #############################################################################
 #   CEED - Unified CEGUI asset editor
 #
 #   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
@@ -24,12 +24,15 @@ import abc
 import re
 import math
 
+import PyCEGUI
+
 from collections import OrderedDict
 
 from ceed.propertytree import properties
 from ceed.propertytree import parsers
 
 from PySide import QtGui
+
 
 class Base(object):
     """Abstract base class for all value types."""
@@ -50,6 +53,24 @@ class Base(object):
         raise NotImplementedError("'tryParse()' not implemented for class '%s'" % cls.__name__)
 
     @classmethod
+    def tryToString(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return: str
+        """
+        raise NotImplementedError("'toString()' not implemented for class '%s'" % cls.__name__)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        """
+        Translates the given object into its original CEGUI type
+        :param stringValue: unicode
+        :return:
+        """
+        raise NotImplementedError("'toCeguiType()' not implemented for class '%s'" % cls.__name__)
+
+    @classmethod
     def fromString(cls, strValue):
         """Parse the specified string value and return
         a new instance of this type.
@@ -59,6 +80,35 @@ class Base(object):
         if not valid:
             raise ValueError("Could not convert string to %s: '%s'." % (cls.__name__, strValue))
         return value
+
+    @classmethod
+    def toString(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return: str
+        """
+
+        if type(ceguiObject) == unicode:
+            return ceguiObject
+
+        try:
+            return cls.tryToString(ceguiObject)
+        except:
+            raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
+
+    @classmethod
+    def toCeguiType(cls, ceguiObject):
+        """
+        Translates a given object into its string representation
+        :param ceguiObject:
+        :return:
+        """
+
+        try:
+            return cls.tryToCeguiType(ceguiObject)
+        except:
+            raise ValueError("Could not convert CEGUI object to string: '%s'." % (cls.__name__, ceguiObject))
 
     @classmethod
     def getPropertyType(cls):
@@ -82,6 +132,7 @@ class Base(object):
     def __ne__(self, other):
         """Default implementation of __ne__, negates __eq__!"""
         return not (self.__eq__(other))
+
 
 class UDim(Base):
     """UDim"""
@@ -110,6 +161,14 @@ class UDim(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.udimToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUDim(stringValue)
+
     def __init__(self, scale=0.0, offset=0.0):
         super(UDim, self).__init__()
         self.scale = float(scale)
@@ -127,11 +186,13 @@ class UDim(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
     @classmethod
     def getPropertyType(cls):
         return UDimProperty
+
 
 class USize(Base):
     """USize (uses UDim)"""
@@ -184,6 +245,7 @@ class USize(Base):
     def getPropertyType(cls):
         return USizeProperty
 
+
 class UVector2(Base):
     """UVector2 (uses UDim)
 
@@ -218,6 +280,14 @@ class UVector2(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.uvector2ToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUVector2(stringValue)
+
     def __init__(self, x=UDim(), y=UDim()):
         #pylint: disable-msg=C0103
         # invalid name x and y - we need x and y here
@@ -239,6 +309,7 @@ class UVector2(Base):
     @classmethod
     def getPropertyType(cls):
         return UVector2Property
+
 
 class URect(Base):
     """URect (uses UDim)"""
@@ -283,6 +354,14 @@ class URect(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.urectToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToURect(stringValue)
+
     def __init__(self, left=UDim(), top=UDim(), right=UDim(), bottom=UDim()):
         super(URect, self).__init__()
         self.left = left
@@ -304,6 +383,7 @@ class URect(Base):
     @classmethod
     def getPropertyType(cls):
         return URectProperty
+
 
 class EnumBase(Base, properties.EnumValue):
     """Base class for types that have a predetermined list of possible values."""
@@ -348,29 +428,89 @@ class EnumBase(Base, properties.EnumValue):
     def getEnumValues(self):
         return self.enumValues
 
+
 class AspectMode(EnumBase):
     """AspectMode"""
 
-    enumValues = OrderedDict([ ("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand") ])
+    enumValues = OrderedDict([("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand")])
 
     def __init__(self, value="Ignore"):
         super(AspectMode, self).__init__(value)
 
+
 class HorizontalAlignment(EnumBase):
     """HorizontalAlignment"""
 
-    enumValues = OrderedDict([ ("Left", "Left"), ("Centre", "Centre"), ("Right", "Right") ])
+    enumValues = OrderedDict([("Left", "Left"), ("Centre", "Centre"), ("Right", "Right")])
 
     def __init__(self, value="Left"):
         super(HorizontalAlignment, self).__init__(value)
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalAlignmentToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalAlignment(stringValue)
+
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
 
-    enumValues = OrderedDict([ ("Top", "Top"), ("Centre", "Centre"), ("Bottom", "Bottom") ])
+    enumValues = OrderedDict([("Top", "Top"),
+                              ("Centre", "Centre"),
+                              ("Bottom", "Bottom")])
 
     def __init__(self, value="Top"):
         super(VerticalAlignment, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalAlignmentToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalAlignment(stringValue)
+
+class HorizontalFormatting(EnumBase):
+    """HorizontalFormatting"""
+
+    enumValues = OrderedDict([("LeftAligned", "Left"),
+                              ("CentreAligned", "Centre"),
+                              ("RightAligned", "Right"),
+                              ("Stretched", "Stretched"),
+                              ("Tiled", "Tiled")])
+
+    def __init__(self, value="Left"):
+        super(HorizontalFormatting, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalFormattingToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalFormatting(stringValue)
+
+class VerticalFormatting(EnumBase):
+    """VerticalFormatting"""
+
+    enumValues = OrderedDict([("TopAligned", "Top"),
+                              ("CentreAligned", "Centre"),
+                              ("BottomAligned", "Bottom"),
+                              ("Stretched", "Stretched"),
+                              ("Tiled", "Tiled")])
+
+    def __init__(self, value="Top"):
+        super(VerticalFormatting, self).__init__(value)
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalFormattingToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalFormatting(stringValue)
 
 class HorizontalTextFormatting(EnumBase):
     """HorizontalTextFormatting"""
@@ -382,34 +522,54 @@ class HorizontalTextFormatting(EnumBase):
                               ("WordWrapLeftAligned", "Word-Wrap Left"),
                               ("WordWrapCentreAligned", "Word-Wrap Centre"),
                               ("WordWrapRightAligned", "Word-Wrap Right"),
-                              ("WordWrapJustified", "Word-Wrap Justified") ])
+                              ("WordWrapJustified", "Word-Wrap Justified")])
 
     def __init__(self, value="Left"):
         super(HorizontalTextFormatting, self).__init__(value)
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.horizontalTextFormattingToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToHorizontalTextFormatting(stringValue)
+
 class VerticalTextFormatting(EnumBase):
     """VerticalTextFormatting"""
 
-    enumValues = OrderedDict([("TopAligned", "Top"), ("CentreAligned", "Centre"), ("BottomAligned", "Bottom") ])
+    enumValues = OrderedDict([("TopAligned", "Top"),
+                              ("CentreAligned", "Centre"),
+                              ("BottomAligned", "Bottom")])
 
     def __init__(self, value="Top"):
         super(VerticalTextFormatting, self).__init__(value)
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.verticalTextFormattingToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToVerticalTextFormatting(stringValue)
+
 class WindowUpdateMode(EnumBase):
     """WindowUpdateMode"""
 
-    enumValues = OrderedDict([ ("Always", "Always"), ("Visible", "Visible"), ("Never", "Never") ])
+    enumValues = OrderedDict([("Always", "Always"), ("Visible", "Visible"), ("Never", "Never")])
 
     def __init__(self, value="Always"):
         super(WindowUpdateMode, self).__init__(value)
 
+
 class SortMode(EnumBase):
     """ItemListBase::SortMode"""
 
-    enumValues = OrderedDict([ ("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort") ])
+    enumValues = OrderedDict([("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort")])
 
     def __init__(self, value="Ascending"):
         super(SortMode, self).__init__(value)
+
 
 class Quaternion(Base):
     """Quaternion"""
@@ -483,7 +643,7 @@ class Quaternion(Base):
     def machineEpsilon(func=float):
         """http://en.wikipedia.org/wiki/Machine_epsilon#Approximation_using_Python"""
         machine_epsilon = func(1)
-        while func(1)+func(machine_epsilon) != func(1):
+        while func(1) + func(machine_epsilon) != func(1):
             machine_epsilon_last = machine_epsilon
             machine_epsilon = func(machine_epsilon) / func(2)
         return machine_epsilon_last
@@ -501,7 +661,7 @@ class Quaternion(Base):
         x2 = x * x
         y2 = y * y
         z2 = z * z
-        unitLength = w2 + x2 + y2 + z2      # Normalised == 1, otherwise correction divisor.
+        unitLength = w2 + x2 + y2 + z2  # Normalised == 1, otherwise correction divisor.
         abcd = w * x + y * z
         eps = Quaternion.machineEpsilon()
         pi = math.pi
@@ -556,6 +716,7 @@ class Quaternion(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "w:{} x:{} y:{} z:{}".format(fmt(self.w), fmt(self.x), fmt(self.y), fmt(self.z))
 
     def toDegrees(self):
@@ -564,6 +725,7 @@ class Quaternion(Base):
     @classmethod
     def getPropertyType(cls):
         return QuaternionProperty
+
 
 class XYZRotation(Base):
     #pylint: disable-msg=C0103
@@ -618,11 +780,13 @@ class XYZRotation(Base):
         def fmt(value):
             # no scientific notation, 16 digits precision, remove trailing zeroes
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
+
         return "x:{} y:{} z:{}".format(fmt(self.x), fmt(self.y), fmt(self.z))
 
     @classmethod
     def getPropertyType(cls):
         return XYZRotationProperty
+
 
 class Colour(Base):
     """Colour
@@ -686,6 +850,14 @@ class Colour(Base):
         return target, True
 
     @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.colourToString(object)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToColour(stringValue)
+
+    @classmethod
     def fromQColor(cls, qtColor):
         return cls(qtColor.red(), qtColor.green(), qtColor.blue(), qtColor.alpha())
 
@@ -721,6 +893,7 @@ class Colour(Base):
     def getPropertyType(cls):
         return ColourProperty
 
+
 class ColourRect(Base):
     """ColourRect
 
@@ -746,8 +919,8 @@ class ColourRect(Base):
 
         # try to parse as full ColourRect
         values = parsers.parseNamedValues(strValue,
-                                             { "tl", "tr", "bl", "br" },
-                                             { "tl", "tr", "bl", "br" })
+                                          {"tl", "tr", "bl", "br"},
+                                          {"tl", "tr", "bl", "br"})
         if values is not None:
             for name, value in values.items():
                 colour, valid = Colour.tryParse(value)
@@ -765,7 +938,7 @@ class ColourRect(Base):
             values = {"tl": Colour.fromColour(colour),
                       "tr": Colour.fromColour(colour),
                       "bl": Colour.fromColour(colour),
-                      "br": Colour.fromColour(colour) }
+                      "br": Colour.fromColour(colour)}
 
         if target is None:
             target = cls(values["tl"], values["tr"], values["bl"], values["br"])
@@ -776,6 +949,14 @@ class ColourRect(Base):
             target.bottomRight = values["br"]
 
         return target, True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.colourRectToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToColourRect(stringValue)
 
     def __init__(self, tl=Colour(), tr=Colour(), bl=Colour(), br=Colour()):
         super(ColourRect, self).__init__()
@@ -799,6 +980,56 @@ class ColourRect(Base):
     def getPropertyType(cls):
         return ColourRectProperty
 
+
+class StringWrapper(Base):
+    """Simple string that does no parsing but allows us to map editors to it"""
+
+    def __init__(self, value):
+        super(StringWrapper, self).__init__()
+        self.value = value
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        return False
+
+    def __repr__(self):
+        return self.value
+
+    @classmethod
+    def getPropertyType(cls):
+        return BaseProperty
+
+
+class FontRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return FontRef(strValue), True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.fontToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToFont(stringValue)
+
+
+class ImageRef(StringWrapper):
+    @classmethod
+    def tryParse(cls, strValue, target=None):
+        return ImageRef(strValue), True
+
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.imageToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToImage(stringValue)
 
 
 class BaseProperty(properties.Property):
@@ -836,15 +1067,16 @@ class BaseProperty(properties.Property):
         # we didn't call 'setValue()' to do it for us.
         self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
 
+
 class UDimProperty(BaseProperty):
     """Property for UDim values."""
 
     def createComponents(self):
         self.components = OrderedDict()
         self.components["Scale"] = properties.Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                       readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Offset"] = properties.Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                        readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         super(UDimProperty, self).createComponents()
 
@@ -854,6 +1086,7 @@ class UDimProperty(BaseProperty):
     def tryParse(self, strValue):
         return UDim.tryParse(strValue)
 
+
 class USizeProperty(BaseProperty):
     """Property for USize values."""
 
@@ -862,7 +1095,7 @@ class USizeProperty(BaseProperty):
         self.components["Width"] = UDimProperty(name="Width", value=self.value.width, defaultValue=self.defaultValue.width,
                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Height"] = UDimProperty(name="Height", value=self.value.height, defaultValue=self.defaultValue.height,
-                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         super(USizeProperty, self).createComponents()
 
@@ -871,6 +1104,7 @@ class USizeProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return USize.tryParse(strValue)
+
 
 class UVector2Property(BaseProperty):
     """Property for UVector2 values."""
@@ -889,6 +1123,7 @@ class UVector2Property(BaseProperty):
 
     def tryParse(self, strValue):
         return UVector2.tryParse(strValue)
+
 
 class URectProperty(BaseProperty):
     """Property for URect values."""
@@ -912,6 +1147,7 @@ class URectProperty(BaseProperty):
     def tryParse(self, strValue):
         return URect.tryParse(strValue)
 
+
 class QuaternionProperty(BaseProperty):
     """Property for Quaternion values."""
 
@@ -920,13 +1156,13 @@ class QuaternionProperty(BaseProperty):
 
         # TODO: Set min/max/step for W, X, Y, Z. See how it's done on XYZRotationProperty.
         self.components["W"] = properties.Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
         self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
 
         self.components["Degrees"] = XYZRotationProperty(name="Degrees",
                                                          value=XYZRotation.fromQuaternion(self.value),
@@ -962,20 +1198,21 @@ class QuaternionProperty(BaseProperty):
     def tryParse(self, strValue):
         return Quaternion.tryParse(strValue)
 
+
 class XYZRotationProperty(BaseProperty):
     """Property for XYZRotation values."""
 
     def createComponents(self):
-        editorOptions = { "numeric": { "min": -360, "max": 360, "wrapping": True } }
+        editorOptions = {"numeric": {"min": -360, "max": 360, "wrapping": True}}
 
         self.components = OrderedDict()
 
         self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
         self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                            readOnly=self.readOnly, editorOptions=editorOptions)
+                                                   readOnly=self.readOnly, editorOptions=editorOptions)
 
         super(XYZRotationProperty, self).createComponents()
 
@@ -985,11 +1222,12 @@ class XYZRotationProperty(BaseProperty):
     def tryParse(self, strValue):
         return XYZRotation.tryParse(strValue)
 
+
 class ColourProperty(BaseProperty):
     """Property for Colour values."""
 
     def createComponents(self):
-        editorOptions = { "numeric": { "min": 0, "max": 255 } }
+        editorOptions = {"numeric": {"min": 0, "max": 255}}
 
         self.components = OrderedDict()
 
@@ -1032,35 +1270,3 @@ class ColourRectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return ColourRect.tryParse(strValue)
-
-class StringWrapper(Base):
-    """Simple string that does no parsing but allows us to map editors to it"""
-
-    def __init__(self, value):
-        super(StringWrapper, self).__init__()
-        self.value = value
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value == other.value
-        return False
-
-    def __repr__(self):
-        return self.value
-
-    @classmethod
-    def getPropertyType(cls):
-        return BaseProperty
-
-class FontRef(StringWrapper):
-    @classmethod
-    def tryParse(cls, strValue, target=None):
-        return FontRef(strValue), True
-
-class ImageRef(StringWrapper):
-    @classmethod
-    def tryParse(cls, strValue, target=None):
-        return ImageRef(strValue), True

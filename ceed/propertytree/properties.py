@@ -36,6 +36,7 @@ from collections import OrderedDict
 
 from . import utility
 
+
 class PropertyCategory(object):
     """A category for properties.
     Categories have a name and hold a list of properties.
@@ -64,7 +65,18 @@ class PropertyCategory(object):
         return categories
 
     def sortProperties(self, reverse=False):
-        self.properties = OrderedDict(sorted(self.properties.items(), key=lambda t: t[0], reverse=reverse))
+        # sort properties by name adding non-capitalised ones before capitalised ones
+        def getSortKey(originalKey):
+            name, _ = originalKey
+
+            if name[:1].islower():
+                return u"0" + name
+            elif name[:1].isupper():
+                return u"1" + name
+            else:
+                return u"2" + name
+
+        self.properties = OrderedDict(sorted(self.properties.items(), key=getSortKey, reverse=reverse))
 
 class PropertyEventSubscription(object):
     """A subscription to a PropertyEvent."""

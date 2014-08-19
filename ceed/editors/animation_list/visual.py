@@ -365,20 +365,20 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
     def synchInstanceAndWidget(self):
         if self.currentAnimationInstance is None:
-            self.propertiesDockWidget.inspector.setPropertySets([])
+            self.propertiesDockWidget.inspector.setSource([])
             return
 
         self.currentAnimationInstance.setTargetWindow(None)
 
         if self.currentPreviewWidget is None:
-            self.propertiesDockWidget.inspector.setPropertySets([])
+            self.propertiesDockWidget.inspector.setSource([])
             return
 
         self.currentAnimationInstance.setTargetWindow(self.currentPreviewWidget)
         self.currentAnimationInstance.apply()
 
-        if self.propertiesDockWidget.inspector.getPropertySets() != [self.currentPreviewWidget]:
-            self.propertiesDockWidget.inspector.setPropertySets([self.currentPreviewWidget])
+        if self.propertiesDockWidget.inspector.getSources() != [self.currentPreviewWidget]:
+            self.propertiesDockWidget.inspector.setSource([self.currentPreviewWidget])
         else:
             self.propertiesDockWidget.inspector.propertyManager.updateAllValues([self.currentPreviewWidget])
 

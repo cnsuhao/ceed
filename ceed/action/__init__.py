@@ -290,6 +290,10 @@ class ActionManager(declaration.ActionManager):
         import ceed.editors.layout.action_decl as layout_actions
         layout_actions.declare(self)
 
+        # Look n' Feel editor
+        import ceed.editors.looknfeel.action_decl as looknfeel_actions
+        looknfeel_actions.declare(self)
+
         assert(ActionManager.instance is None)
         ActionManager.instance = self
 

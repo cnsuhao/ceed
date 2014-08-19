@@ -23,10 +23,8 @@ from PySide import QtGui
 
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
-import PyCEGUI
-
 class Manipulator(cegui_widgethelpers.Manipulator):
-    """Layout editing specific widget manipulator"""
+    """Look n' Feel editing specific widget manipulator"""
     snapGridBrush = None
 
     @classmethod
@@ -34,10 +32,10 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         """Retrieves a (cached) snap grid brush
         """
 
-        snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
-        snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
-        snapGridPointColour = settings.getEntry("layout/visual/snap_grid_point_colour").value
-        snapGridPointShadowColour = settings.getEntry("layout/visual/snap_grid_point_shadow_colour").value
+        snapGridX = settings.getEntry("looknfeel/visual/snap_grid_x").value
+        snapGridY = settings.getEntry("looknfeel/visual/snap_grid_y").value
+        snapGridPointColour = settings.getEntry("looknfeel/visual/snap_grid_point_colour").value
+        snapGridPointShadowColour = settings.getEntry("looknfeel/visual/snap_grid_point_shadow_colour").value
 
         # if snap grid wasn't created yet or if it's parameters changed, create it anew!
         if (cls.snapGridBrush is None) or (cls.snapGridX != snapGridX) or (cls.snapGridY != snapGridY) or (cls.snapGridPointColour != snapGridPointColour) or (cls.snapGridPointShadowColour != snapGridPointShadowColour):
@@ -79,9 +77,21 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
     def __init__(self, visual, parent, widget, recursive = True, skipAutoWidgets = False):
         self.visual = visual
+
         self.showOutline = True
+        if widget.isAutoWindow() and not settings.getEntry("looknfeel/visual/auto_widgets_show_outline").value:
+            # don't show outlines unless instructed to do so
+            self.showOutline = False
 
         super(Manipulator, self).__init__(parent, widget, recursive, skipAutoWidgets)
+
+        if widget.isAutoWindow() and not settings.getEntry("looknfeel/visual/auto_widgets_selectable").value:
+            # make this widget not focusable, selectable, movable and resizable
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
+            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
+            self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
+            self.setResizingEnabled(False)
 
         self.setAcceptDrops(True)
 
@@ -89,12 +99,10 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         self.snapGridNonClientArea = False
         self.ignoreSnapGrid = False
 
-        self.snapGridAction = action.getAction("layout/snap_grid")
+        self.snapGridAction = action.getAction("looknfeel/snap_grid")
 
-        self.absoluteModeAction = action.getAction("layout/absolute_mode")
+        self.absoluteModeAction = action.getAction("looknfeel/absolute_mode")
         self.absoluteModeAction.toggled.connect(self.slot_absoluteModeToggled)
-
-        self.absoluteIntegersOnlyModeAction = action.getAction("layout/abs_integers_mode")
 
     def __del__(self):
         self.absoluteModeAction.toggled.disconnect(self.slot_absoluteModeToggled)
@@ -110,16 +118,16 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             self.update()
 
     def getNormalPen(self):
-        return settings.getEntry("layout/visual/normal_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
+        return settings.getEntry("looknfeel/visual/normal_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
 
     def getHoverPen(self):
-        return settings.getEntry("layout/visual/hover_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
+        return settings.getEntry("looknfeel/visual/hover_outline").value if self.showOutline else QtGui.QColor(0, 0, 0, 0)
 
     def getPenWhileResizing(self):
-        return settings.getEntry("layout/visual/resizing_outline").value
+        return settings.getEntry("looknfeel/visual/resizing_outline").value
 
     def getPenWhileMoving(self):
-        return settings.getEntry("layout/visual/moving_outline").value
+        return settings.getEntry("looknfeel/visual/moving_outline").value
 
     def getDragAcceptableHintPen(self):
         ret = QtGui.QPen()
@@ -147,18 +155,16 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         return candidate
 
     def createChildManipulator(self, childWidget, recursive = True, skipAutoWidgets = False):
-        ret = Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
-        ret.updateFromWidget()
-        return ret
+        return Manipulator(self.visual, self, childWidget, recursive, skipAutoWidgets)
 
     def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         parentWidgetWasNone = self.widget.getParent() is None
 
         super(Manipulator, self).detach(detachWidget, destroyWidget, recursive)
 
-        if parentWidgetWasNone:
+        #if parentWidgetWasNone:
             # if this was root we have to inform the scene accordingly!
-            self.visual.setWidgetLookManipulator(None)
+            # self.visual.setWidgetLookManipulator(None)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("application/x-ceed-widget-type"):
@@ -172,36 +178,11 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     def dragLeaveEvent(self, event):
         self.setPen(self.getNormalPen())
 
-    def dropEvent(self, event):
-        """Takes care of creating new widgets when user drops the right mime type here
-        (dragging from the CreateWidgetDockWidget)
-        """
-
-        data = event.mimeData().data("application/x-ceed-widget-type")
-
-        if data:
-            widgetType = data.data()
-
-            from ceed.editors.layout import undo
-            cmd = undo.CreateCommand(self.visual, self.widget.getNamePath(), widgetType, self.getUniqueChildWidgetName(widgetType.rsplit("/", 1)[-1]))
-            self.visual.tabbedEditor.undoStack.push(cmd)
-
-            event.acceptProposedAction()
-
-        else:
-            event.ignore()
-
     def useAbsoluteCoordsForMove(self):
         return self.absoluteModeAction.isChecked()
 
     def useAbsoluteCoordsForResize(self):
         return self.absoluteModeAction.isChecked()
-
-    def useIntegersForAbsoluteMove(self):
-        return self.absoluteIntegersOnlyModeAction.isChecked()
-
-    def useIntegersForAbsoluteResize(self):
-        return self.absoluteIntegersOnlyModeAction.isChecked()
 
     def notifyResizeStarted(self):
         super(Manipulator, self).notifyResizeStarted()
@@ -209,11 +190,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         parent = self.parentItem()
         if isinstance(parent, Manipulator):
             parent.drawSnapGrid = True
-
-    def notifyResizeProgress(self, newPos, newRect):
-        super(Manipulator, self).notifyResizeProgress(newPos, newRect)
-
-        self.triggerPropertyManagerCallback({"Size", "Position", "Area"})
 
     def notifyResizeFinished(self, newPos, newRect):
         super(Manipulator, self).notifyResizeFinished(newPos, newRect)
@@ -232,8 +208,6 @@ class Manipulator(cegui_widgethelpers.Manipulator):
     def notifyMoveProgress(self, newPos):
         super(Manipulator, self).notifyMoveProgress(newPos)
 
-        self.triggerPropertyManagerCallback({"Position", "Area"})
-
     def notifyMoveFinished(self, newPos):
         super(Manipulator, self).notifyMoveFinished(newPos)
 
@@ -246,7 +220,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         Override to change the behavior
         """
 
-        return settings.getEntry("layout/visual/prevent_manipulator_overlap").value
+        return settings.getEntry("looknfeel/visual/prevent_manipulator_overlap").value
 
     def impl_paint(self, painter, option, widget):
         super(Manipulator, self).impl_paint(painter, option, widget)
@@ -261,45 +235,11 @@ class Manipulator(cegui_widgethelpers.Manipulator):
             painter.fillRect(qChildRect, Manipulator.getSnapGridBrush())
             painter.restore()
 
-    def updateFromWidget(self, callUpdate = False):
+    def updateFromWidget(self):
         # we are updating the position and size from widget, we don't want any snapping
         self.ignoreSnapGrid = True
-        super(Manipulator, self).updateFromWidget(callUpdate)
+        super(Manipulator, self).updateFromWidget()
         self.ignoreSnapGrid = False
-
-        self.showOutline = True
-        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsFocusable)
-        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setFlags(self.flags() | QtGui.QGraphicsItem.ItemIsMovable)
-        self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemHasNoContents)
-        self.setResizingEnabled(True)
-
-        if self.widget.isAutoWindow():
-            if not settings.getEntry("layout/visual/auto_widgets_show_outline").value:
-                # don't show outlines unless instructed to do so
-                self.showOutline = False
-
-            if not settings.getEntry("layout/visual/auto_widgets_selectable").value:
-                # make this widget not focusable, selectable, movable and resizable
-                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsFocusable)
-                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsSelectable)
-                self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
-                self.setFlags(self.flags() |  QtGui.QGraphicsItem.ItemHasNoContents)
-                self.setResizingEnabled(False)
-
-        if isinstance(self.widget, PyCEGUI.LayoutContainer):
-            # LayoutContainers change their size to fit the widgets, it makes
-            # no sense to show this size
-            self.showOutline = False
-            # And it makes no sense to resize them, they will just snap back
-            # when they relayout
-            self.setResizingEnabled(False)
-
-        parent = self.widget.getParent()
-        if parent and isinstance(parent, PyCEGUI.LayoutContainer):
-            # if the widget is now parented inside a layout container we don't want
-            # any drag moving to be possible
-            self.setFlags(self.flags() & ~QtGui.QGraphicsItem.ItemIsMovable)
 
     def snapXCoordToGrid(self, x):
         # we have to take the child rect into account
@@ -307,7 +247,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         xOffset = childRect.d_min.d_x - self.scenePos().x()
 
         # point is in local space
-        snapGridX = settings.getEntry("layout/visual/snap_grid_x").value
+        snapGridX = settings.getEntry("looknfeel/visual/snap_grid_x").value
         return xOffset + round((x - xOffset) / snapGridX) * snapGridX
 
     def snapYCoordToGrid(self, y):
@@ -316,7 +256,7 @@ class Manipulator(cegui_widgethelpers.Manipulator):
         yOffset = childRect.d_min.d_y - self.scenePos().y()
 
         # point is in local space
-        snapGridY = settings.getEntry("layout/visual/snap_grid_y").value
+        snapGridY = settings.getEntry("looknfeel/visual/snap_grid_y").value
         return yOffset + round((y - yOffset) / snapGridY) * snapGridY
 
     def constrainMovePoint(self, point):
@@ -362,22 +302,13 @@ class Manipulator(cegui_widgethelpers.Manipulator):
 
         return rect
 
-    def setLocked(self, locked):
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not locked)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, not locked)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, not locked)
-
-        self.setResizingEnabled(not locked)
-
-        self.update()
-
 class SerialisationData(cegui_widgethelpers.SerialisationData):
     """See cegui.widgethelpers.SerialisationData
 
     The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
     """
 
-    def __init__(self, visual, widget = None, serialiseChildren = True):
+    def __init__(self, visual, widget=None, serialiseChildren=True):
         self.visual = visual
 
         super(SerialisationData, self).__init__(widget, serialiseChildren)
@@ -386,9 +317,7 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
         return SerialisationData(self.visual, widget, serialiseChildren)
 
     def createManipulator(self, parentManipulator, widget, recursive = True, skipAutoWidgets = True):
-        ret = Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
-        ret.updateFromWidget()
-        return ret
+        return Manipulator(self.visual, parentManipulator, widget, recursive, skipAutoWidgets)
 
     def setVisual(self, visual):
         self.visual = visual
@@ -398,10 +327,6 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
 
     def reconstruct(self, rootManipulator):
         ret = super(SerialisationData, self).reconstruct(rootManipulator)
-
-        if ret.parentItem() is None:
-            # this is a root widget being reconstructed, handle this accordingly
-            self.visual.setWidgetLookManipulator(ret)
 
         return ret
 

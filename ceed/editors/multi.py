@@ -198,7 +198,10 @@ class CodeEditMode(QTextEdit, EditMode):
         self.ignoreUndoCommands = False
 
     def propagateToVisual(self):
-        """Propagates source code from this Code editing mode to your editor implementation."""
+        """Propagates source code from this Code editing mode to your editor implementation.
+
+        Returns True if changes were accepted (the code was valid, etc...)
+        Returns False if changes weren't accepted (invalid code most likely)"""
 
         source = self.document().toPlainText()
 

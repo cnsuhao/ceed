@@ -83,7 +83,7 @@ class TextTabbedEditorFactory(editors.TabbedEditorFactory):
     def getFileExtensions(self):
         extensions = {"py", "lua", "txt", "xml"}
         # this is just temporary, will go away when scheme, looknfeel and font editors are in place
-        temporaryExtensions = {"scheme", "looknfeel", "font"}
+        temporaryExtensions = {"scheme", "font"}
         extensions.update(temporaryExtensions)
         return extensions
 

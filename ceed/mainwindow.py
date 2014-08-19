@@ -105,6 +105,7 @@ class MainWindow(QtGui.QMainWindow):
         import ceed.editors.bitmap as bitmap_editor
         import ceed.editors.imageset as imageset_editor
         import ceed.editors.layout as layout_editor
+        import ceed.editors.looknfeel as looknfeel_editor
         #import ceed.editors.property_mappings as property_mappings_editor
         import ceed.editors.text as text_editor
 
@@ -113,6 +114,7 @@ class MainWindow(QtGui.QMainWindow):
             bitmap_editor.BitmapTabbedEditorFactory(),
             imageset_editor.ImagesetTabbedEditorFactory(),
             layout_editor.LayoutTabbedEditorFactory(),
+            looknfeel_editor.LookNFeelTabbedEditorFactory(),
             #property_mappings_editor.PropertyMappingsTabbedEditorFactory(),
             text_editor.TextTabbedEditorFactory()
         ]

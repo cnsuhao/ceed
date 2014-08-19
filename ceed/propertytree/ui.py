@@ -230,16 +230,36 @@ class PropertyCategoryRow(PropertyTreeRow):
 
         super(PropertyCategoryRow, self).__init__()
 
-        self.nameItem.setEditable(False)
-        self.nameItem.setText(self.category.name)
-        self.nameItem.setBold(True)
-
         self.valueItem.setEditable(False)
+
+        self.nameItem.setText(self.category.name)
+        self.setupCategoryOptions(self.nameItem)
+
+    @staticmethod
+    def setupCategoryOptions(categoryItem):
+        """
+        Sets up the standard look and options for a category item
+        :param categoryItem: QtGui.QStandardItem
+        :return:
+        """
+        categoryItem.setEditable(False)
+        categoryItem.setSelectable(False)
+        PropertyCategoryRow.setCategoryItemFontBold(categoryItem, True)
 
         # Change default colours
         palette = QtGui.QApplication.palette()
-        self.nameItem.setForeground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.BrightText))
-        self.nameItem.setBackground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.Dark))
+        categoryItem.setForeground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.BrightText))
+        categoryItem.setBackground(palette.brush(QtGui.QPalette.Normal, QtGui.QPalette.Dark))
+
+    @staticmethod
+    def setCategoryItemFontBold(categoryItem, value):
+        font = categoryItem.font()
+
+        if font.bold() == value:
+            return
+
+        font.setBold(value)
+        categoryItem.setFont(font)
 
     def createChildRows(self):
         for prop in self.category.properties.values():

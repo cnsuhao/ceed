@@ -92,6 +92,7 @@ class DebugInfo(QtGui.QDialog):
         self.logViewAreaLayout = QtGui.QVBoxLayout()
 
         self.logView = QtWebKit.QWebView()
+        self.logView.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Ignored)
         self.logViewAreaLayout.addWidget(self.logView)
 
         self.logViewArea.setLayout(self.logViewAreaLayout)

@@ -32,6 +32,7 @@ from collections import OrderedDict
 
 import PyCEGUI
 
+
 class PropertyInspectorWidget(QtGui.QWidget):
     """Full blown inspector widget for CEGUI PropertySet(s).
 
@@ -62,6 +63,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.selectionLabelTooltip = ""
 
         self.ptree = ptUi.PropertyTreeWidget()
+        """ :type : PropertyTreeWidget"""
+        self.ptree.view.originalBackgroundColour = QtGui.QColor(213, 243, 233)
 
         layout.addWidget(self.selectionLabel)
         layout.addWidget(self.filterBox)
@@ -72,7 +75,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
 
         self.propertyManager = None
 
-        self.currentPropertySets = []
+        self.currentSource = []
 
     def sizeHint(self):
         # we'd rather have this size
@@ -90,6 +93,8 @@ class PropertyInspectorWidget(QtGui.QWidget):
     def resizeEvent(self, QResizeEvent):
         self.updateSelectionLabelElidedText()
 
+        super(PropertyInspectorWidget, self).resizeEvent(QResizeEvent)
+
     @staticmethod
     def generateLabelForSet(ceguiPropertySet):
         # We do not know what the property set is but we can take a few informed
@@ -100,42 +105,54 @@ class PropertyInspectorWidget(QtGui.QWidget):
         else:
             return "", "Unknown PropertySet"
 
-    def setPropertySets(self, ceguiPropertySets):
-        if len(ceguiPropertySets) == 0:
-            self.selectionObjectPath = ""
-            self.selectionObjectDescription = "Nothing is selected."
-            self.selectionLabelTooltip = ""
+    def setSource(self, source):
 
-        elif len(ceguiPropertySets) == 1:
-            self.selectionObjectPath, self.selectionObjectDescription = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySets[0])
+        #We check what kind of source we are dealing with
+        if type(source) is list:
+            if len(source) == 0:
+                self.selectionObjectPath = ""
+                self.selectionObjectDescription = "Nothing is selected."
+                self.selectionLabelTooltip = ""
 
-            selectionInfoTuple = (self.selectionObjectPath, self.selectionObjectDescription)
-            self.selectionLabelTooltip = " : ".join(selectionInfoTuple)
+            elif len(source) == 1:
+                self.selectionObjectPath, self.selectionObjectDescription = PropertyInspectorWidget.generateLabelForSet(source[0])
+
+                selectionInfoTuple = (self.selectionObjectPath, self.selectionObjectDescription)
+                self.selectionLabelTooltip = " : ".join(selectionInfoTuple)
+
+            else:
+                tooltip = ""
+                for ceguiPropertySet in source:
+                    path, typeName = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
+                
+                    selectionInfoTuple = (path, typeName)
+                    joinedPathAndName = " : ".join(selectionInfoTuple)
+                    tooltip += joinedPathAndName + "\n"
+
+                self.selectionObjectPath = ""
+                self.selectionObjectDescription = "Multiple selections..."
+                self.selectionLabelTooltip = tooltip.rstrip('\n')
 
         else:
-            tooltip = ""
-            for ceguiPropertySet in ceguiPropertySets:
-                path, typeName = PropertyInspectorWidget.generateLabelForSet(ceguiPropertySet)
-                
-                selectionInfoTuple = (path, typeName)
-                joinedPathAndName = " : ".join(selectionInfoTuple)
-                tooltip += joinedPathAndName + "\n"
-
+            #Otherwise it must be a FalagardElement
+            from ceed.editors.looknfeel.hierarchy_tree_item import LookNFeelHierarchyItem
+            falagardEleName, falagardEleTooltip = LookNFeelHierarchyItem.getNameAndToolTip(source, "")
             self.selectionObjectPath = ""
-            self.selectionObjectDescription = "Multiple selections..."
-            self.selectionLabelTooltip = tooltip.rstrip('\n')
+            self.selectionObjectDescription = falagardEleName
+            self.selectionLabelTooltip = falagardEleTooltip
 
         self.updateSelectionLabelElidedText()
 
-        categories = self.propertyManager.buildCategories(ceguiPropertySets)
+        categories = self.propertyManager.buildCategories(source)
 
         # load them into the tree
         self.ptree.load(categories)
 
-        self.currentPropertySets = ceguiPropertySets
+        self.currentSource = source
 
-    def getPropertySets(self):
-        return self.currentPropertySets
+    def getSources(self):
+        return self.currentSource
+
 
     def updateSelectionLabelElidedText(self):
         """
@@ -172,28 +189,33 @@ class CEGUIPropertyManager(object):
     # Maps CEGUI data types (in string form) to Python types
 
     _typeMap = {
-                "int": int,
-                "uint": int,
-                "float": float,
-                "bool": bool,
-                "String": unicode,
-                "USize": ct.USize,
-                "UVector2": ct.UVector2,
-                "URect": ct.URect,
-                "AspectMode": ct.AspectMode,
-                "HorizontalAlignment": ct.HorizontalAlignment,
-                "VerticalAlignment": ct.VerticalAlignment,
-                "WindowUpdateMode": ct.WindowUpdateMode,
-                "Quaternion": ct.Quaternion,
-                "HorizontalTextFormatting": ct.HorizontalTextFormatting,
-                "VerticalTextFormatting": ct.VerticalTextFormatting,
-                "SortMode": ct.SortMode,
-                "Colour": ct.Colour,
-                "ColourRect": ct.ColourRect,
-                "Font": ct.FontRef,
-                "Image": ct.ImageRef
-                }
+        "int": int,
+        "uint": int,
+        "float": float,
+        "bool": bool,
+        "String": unicode,
+        "USize": ct.USize,
+        "UVector2": ct.UVector2,
+        "URect": ct.URect,
+        "AspectMode": ct.AspectMode,
+        "HorizontalAlignment": ct.HorizontalAlignment,
+        "VerticalAlignment": ct.VerticalAlignment,
+        "WindowUpdateMode": ct.WindowUpdateMode,
+        "Quaternion": ct.Quaternion,
+        "HorizontalFormatting": ct.HorizontalFormatting,
+        "VerticalFormatting": ct.VerticalFormatting,
+        "HorizontalTextFormatting": ct.HorizontalTextFormatting,
+        "VerticalTextFormatting": ct.VerticalTextFormatting,
+        "SortMode": ct.SortMode,
+        "Colour": ct.Colour,
+        "ColourRect": ct.ColourRect,
+        "Font": ct.FontRef,
+        "Image": ct.ImageRef
+    }
     # TODO: Font*, Image*, UBox?
+
+    def __init__(self, propertyMap):
+        self.propertyMap = propertyMap
 
     @staticmethod
     def getTypeFromCEGUITypeString(ceguiStrType):
@@ -211,9 +233,6 @@ class CEGUIPropertyManager(object):
         return "/".join([ceguiProperty.getOrigin(),
                          ceguiProperty.getName(),
                          ceguiProperty.getDataType()])
-
-    def __init__(self, propertyMap):
-        self.propertyMap = propertyMap
 
     def buildCategories(self, ceguiPropertySets):
         """Create all available properties for all CEGUI PropertySets
@@ -290,11 +309,12 @@ class CEGUIPropertyManager(object):
                 propIt.next()
 
         # Convert the CEGUI properties with their sets to property tree properties.
-        ptProps = [self.createProperty(cgProp, sets) for cgProp, sets in cgProps.values()]
+        ptProps = [self.createProperty(ceguiProperty, propertySet) for ceguiProperty, propertySet in cgProps.values()]
 
         return ptProps
 
-    def createProperty(self, ceguiProperty, ceguiSets, multiWrapperType=properties.MultiPropertyWrapper):
+    @staticmethod
+    def createProperty(ceguiProperty, ceguiSets, propertyMap, multiWrapperType=properties.MultiPropertyWrapper):
         """Create one MultiPropertyWrapper based property for the CEGUI Property
         for all of the PropertySets specified.
         """
@@ -307,16 +327,16 @@ class CEGUIPropertyManager(object):
         # get the CEGUI data type of the property
         propertyDataType = ceguiProperty.getDataType()
         # if the current property map specifies a different type, use that one instead
-        pmEntry = self.propertyMap.getEntry(category, name)
+        pmEntry = propertyMap.getEntry(category, name)
         if pmEntry and pmEntry.typeName:
             propertyDataType = pmEntry.typeName
         # get a native data type for the CEGUI data type, falling back to string
-        pythonDataType = self.getTypeFromCEGUITypeString(propertyDataType)
+        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(propertyDataType)
 
         # get the callable that creates this data type
         # and the Property type to use.
         valueCreator = None
-        propertyType = None
+
         if issubclass(pythonDataType, ct.Base):
             # if it is a subclass of our ceguitypes, do some special handling
             valueCreator = pythonDataType.fromString
@@ -341,14 +361,14 @@ class CEGUIPropertyManager(object):
             value = valueCreator(ceguiProperty.get(ceguiSet))
             defaultValue = valueCreator(ceguiProperty.getDefault(ceguiSet))
 
-            innerProperty = propertyType(name = name,
-                                         category = category,
-                                         helpText = helpText,
-                                         value = value,
-                                         defaultValue = defaultValue,
-                                         readOnly = readOnly,
-                                         createComponents = False   # no need for components, the template will provide these
-                                         )
+            innerProperty = propertyType(name=name,
+                                         category=category,
+                                         helpText=helpText,
+                                         value=value,
+                                         defaultValue=defaultValue,
+                                         readOnly=readOnly,
+                                         createComponents=False  # no need for components, the template will provide these
+            )
             innerProperties.append(innerProperty)
 
             # hook the inner callback (the 'cb' function) to
@@ -358,7 +378,9 @@ class CEGUIPropertyManager(object):
             def makeCallback(cs, cp, ip):
                 def cb():
                     ip.setValue(valueCreator(cp.get(cs)))
+
                 return cb
+
             ceguiSet.propertyManagerCallbacks[name] = makeCallback(ceguiSet, ceguiProperty, innerProperty)
 
         # create the template property;
@@ -367,26 +389,24 @@ class CEGUIPropertyManager(object):
         editorOptions = None
         if pmEntry and pmEntry.editorSettings:
             editorOptions = pmEntry.editorSettings
-        templateProperty = propertyType(name = name,
-                                        category = category,
-                                        helpText = helpText,
-                                        value = value,
-                                        defaultValue = defaultValue,
-                                        readOnly = readOnly,
-                                        editorOptions = editorOptions
-                                        )
+        templateProperty = propertyType(name=name,
+                                        category=category,
+                                        helpText=helpText,
+                                        value=value,
+                                        defaultValue=defaultValue,
+                                        readOnly=readOnly,
+                                        editorOptions=editorOptions
+        )
 
         # create the multi wrapper
         multiProperty = multiWrapperType(templateProperty, innerProperties, True)
 
         return multiProperty
 
-    def updateAllValues(self, ceguiPropertySets):
+    @staticmethod
+    def updateAllValues(ceguiPropertySets):
         """Abuses all property manager callbacks defined for given property sets
         to update all values from them to the respective inspector widgets
-
-        Note: Holy mother of hacks this is horrible...
-        Author: The one and only PEDOBEAR!
         """
 
         for ceguiPropertySet in ceguiPropertySets:
