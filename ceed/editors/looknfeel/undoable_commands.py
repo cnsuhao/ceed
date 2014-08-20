@@ -44,7 +44,20 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.refreshText()
 
     def refreshText(self):
-        self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidgetLook + "\" to \"" + self.newTargetWidgetLook + "\"")
+        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+        if self.oldTargetWidgetLook:
+            originalOldTargetName, _ = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.oldTargetWidgetLook)
+            originalOldTargetName = u"\"" + originalOldTargetName + u"\""
+        else:
+            originalOldTargetName = u"no selection"
+
+        if self.newTargetWidgetLook:
+            originalNewTargetName, _ = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.newTargetWidgetLook)
+            originalNewTargetName =  u"\"" + originalNewTargetName + u"\""
+        else:
+            originalNewTargetName, _ = u"no selection"
+
+        self.setText(u"Changed editing target from " + originalOldTargetName + " to " + originalNewTargetName)
 
     def id(self):
         return idbase + 1
@@ -112,6 +125,14 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         return idbase + 2
 
     def mergeWith(self, cmd):
+        if self.falagardElement == cmd.falagardElement and self.attributeName == cmd.attributeName:
+            self.newValue = cmd.newValue
+            self.newValueAsString = cmd.newValueAsString
+
+            self.refreshText()
+
+            return True
+
         return False
 
     def undo(self):
