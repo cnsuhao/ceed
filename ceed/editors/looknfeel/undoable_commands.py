@@ -20,9 +20,6 @@
 
 from ceed import commands
 
-from ceed.editors.looknfeel import widgethelpers
-import PyCEGUI
-
 idbase = 1300
 
 
@@ -75,7 +72,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
 
-    def __init__(self, visual, falagardElement, attributeName, newValue, getterCallback, setterCallback, ignoreNextCallback=False):
+    def __init__(self, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
         super(FalagardElementAttributeEdit, self).__init__()
 
         self.visual = visual
@@ -83,11 +80,9 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         self.falagardElement = falagardElement
         self.attributeName = attributeName
 
-        self.getterCallback = getterCallback
-        self.setterCallback = setterCallback
-
         # We retrieve the momentary value using the getter callback and store it as old value
-        self.oldValue = self.getterCallback(falagardElement, attributeName)
+        from falagard_element_interface import FalagardElementInterface
+        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
 
         # If the value is a subtype of
         from ceed.cegui import ceguitypes
@@ -123,13 +118,15 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         super(FalagardElementAttributeEdit, self).undo()
 
         # We set the value using the setter callback
-        self.setterCallback(self.falagardElement, self.attributeName, self.oldValue)
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
 
         self.visual.updateWidgetLookPreview()
 
     def redo(self):
         # We set the value using the setter callback
-        self.setterCallback(self.falagardElement, self.attributeName, self.newValue)
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
 
         self.visual.updateWidgetLookPreview()
 

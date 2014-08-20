@@ -1,4 +1,4 @@
-##############################################################################
+# #############################################################################
 #   created:    2nd July 2014
 #   author:     Lukas E Meindl
 ##############################################################################
@@ -57,22 +57,27 @@ class LookNFeelFalagardElementEditorDockWidget(QtGui.QDockWidget):
         self.setWidget(self.inspector)
 
 
-class FalagardElementMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
+class FalagardElementEditorProperty(pt.properties.Property):
     """Overrides the default MultiPropertyWrapper to update the 'inner properties'
     and then create undo commands to update the CEGUI widgets.
     """
 
-    def __init__(self, templateProperty, innerProperties, takeOwnership, visual, falagardElement, attributeName, getterCallback, setterCallback):
-        super(FalagardElementMultiPropertyWrapper, self).__init__(templateProperty, innerProperties, takeOwnership)
+    def __init__(self, name, category, helpText, value, defaultValue, readOnly, editorOptions,
+                 visual, falagardElement, attributeName):
+        super(FalagardElementEditorProperty, self).__init__(name=name,
+                                                            category=category,
+                                                            helpText=helpText,
+                                                            value=value,
+                                                            defaultValue=defaultValue,
+                                                            readOnly=readOnly,
+                                                            editorOptions=editorOptions)
 
         self.visual = visual
         self.falagardElement = falagardElement
         self.attributeName = attributeName
-        self.getterCallback = getterCallback
-        self.setterCallback = setterCallback
 
     def tryUpdateInner(self, newValue, reason=pt.properties.Property.ChangeValueReason.Unknown):
-        if super(FalagardElementMultiPropertyWrapper, self).tryUpdateInner(newValue, reason):
+        if super(FalagardElementEditorProperty, self).tryUpdateInner(newValue, reason):
             if type(newValue) is str:
                 ceguiValue = unicode(newValue)
             else:
@@ -83,7 +88,7 @@ class FalagardElementMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
             # on the first run because our editor value has already changed,
             # we just want to sync the Falagard element's attribute value now.
             cmd = undoable_commands.FalagardElementAttributeEdit(self.visual, self.falagardElement, self.attributeName, ceguiValue,
-                                                                 self.getterCallback, self.setterCallback, ignoreNextCallback=True)
+                                                                 ignoreNextCallback=True)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
             # make sure to redraw the scene to preview the property
