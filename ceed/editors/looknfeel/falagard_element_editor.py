@@ -58,8 +58,8 @@ class LookNFeelFalagardElementEditorDockWidget(QtGui.QDockWidget):
 
 
 class FalagardElementEditorProperty(pt.properties.Property):
-    """Overrides the default MultiPropertyWrapper to update the 'inner properties'
-    and then create undo commands to update the CEGUI widgets.
+    """Overrides the default Property to update the 'inner properties'
+    and to create undoable commands that update the WidgetLookFeel element.
     """
 
     def __init__(self, name, category, helpText, value, defaultValue, readOnly, editorOptions,
@@ -87,7 +87,7 @@ class FalagardElementEditorProperty(pt.properties.Property):
             # but tell it not to trigger the change-callback
             # on the first run because our editor value has already changed,
             # we just want to sync the Falagard element's attribute value now.
-            cmd = undoable_commands.FalagardElementAttributeEdit(self.visual, self.falagardElement, self.attributeName, ceguiValue,
+            cmd = undoable_commands.FalagardElementAttributeEdit(self, self.visual, self.falagardElement, self.attributeName, ceguiValue,
                                                                  ignoreNextCallback=True)
             self.visual.tabbedEditor.undoStack.push(cmd)
 
