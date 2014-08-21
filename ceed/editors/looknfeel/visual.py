@@ -36,7 +36,6 @@ from ceed.editors import multi
 from ceed.cegui import widgethelpers as cegui_widgethelpers
 
 from ceed.editors.looknfeel import undoable_commands
-from ceed.editors.looknfeel import widgethelpers
 
 from ceed.editors.looknfeel.hierarchy_dock_widget import LookNFeelHierarchyDockWidget
 from ceed.editors.looknfeel.falagard_element_editor import LookNFeelFalagardElementEditorDockWidget
@@ -95,7 +94,6 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
 
     def rebuildEditorMenu(self, editorMenu):
         """Adds actions to the editor menu"""
-        # similar to the toolbar, includes the focus filter box action
 
     def destroyCurrentPreviewWidget(self):
         """
