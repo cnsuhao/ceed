@@ -24,10 +24,6 @@ from PySide import QtCore
 from PySide import QtGui
 import cPickle
 
-from ceed import settings
-
-from ceed.editors.looknfeel import widgethelpers
-
 from hierarchy_tree_item import LookNFeelHierarchyItem
 
 class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
