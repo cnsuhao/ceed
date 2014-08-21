@@ -26,7 +26,6 @@ from ceed.propertytree import properties
 from ceed.propertytree import utility as ptUtility
 
 from ceed.cegui import ceguitypes as ct
-from ceed.propertytree.properties import PropertyCategory
 
 from collections import OrderedDict
 
@@ -87,20 +86,7 @@ class FalagardElementAttributesManager(object):
         # sort categories by name
         categories = OrderedDict(sorted(categories.items(), key=lambda t: t[0]))
 
-        # sort categories by name but keep some special categories on top
-        def getSortKey(t):
-            name, _ = t
-
-            if name == "PropertyDefinition":
-                return "000PropertyDefinition"
-            elif name == "PropertyLinkDefinition":
-                return "001PropertyLinkDefinition"
-            elif name == "PropertyInitialiser":
-                return "002PropertyInitialiser"
-            else:
-                return name
-
-        return OrderedDict(sorted(categories.items(), key=getSortKey))
+        return OrderedDict(sorted(categories.items()))
 
     def addSettingForPropertyDefinitionBaseType(self, propertyDefBaseObject, widgetLookObject, category, listOfWidgetLookSettings):
         """
@@ -121,41 +107,6 @@ class FalagardElementAttributesManager(object):
 
         newSetting = self.createWidgetLookFeelPropertySetting(value, defaultValue, propertyType, editorOptions, propertyDefBaseObject, propertyName, category,
                                                               helpString)
-
-        listOfWidgetLookSettings.append(newSetting)
-
-    def addSettingForPropertyInitialiserType(self, propertyInitialiser, widgetLookObject, listOfWidgetLookSettings, dummyWindow):
-        """
-        Creates a setting for a PropertyInitialiser of a WidgetLook and adds it to a list of settings
-        :param propertyInitialiser: PyCEGUI.PropertyInitialiser
-        :param widgetLookObject: PyCEGUI.WidgetLookFeel
-        :param listOfWidgetLookSettings: list
-        :param dummyWindow: PyCEGUI.Window
-        :return:
-        """
-
-        category = "PropertyInitialiser"
-
-        propertyName = propertyInitialiser.getTargetPropertyName()
-        initialValue = propertyInitialiser.getInitialiserValue()
-
-        propertyInstance = dummyWindow.getPropertyInstance(propertyName)
-
-        dataType = propertyInstance.getDataType()
-        helpString = propertyInstance.getHelp()
-
-        if initialValue is u"":
-            initialValue = None
-
-        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, category, propertyName, dataType, initialValue, True)
-        defaultValue = value
-
-        from falagard_element_interface import FalagardElementInterface
-
-        getterCallback = FalagardElementInterface.getAttributeValue
-        setterCallback = FalagardElementInterface.setAttributeValue
-        newSetting = self.createWidgetLookFeelPropertySetting(value, defaultValue, propertyType, editorOptions, widgetLookObject, propertyName, category,
-                                                              helpString, getterCallback, setterCallback)
 
         listOfWidgetLookSettings.append(newSetting)
 
@@ -244,8 +195,8 @@ class FalagardElementAttributesManager(object):
         attributeList = FalagardElementInterface.getListOfAttributes(falagardElement)
 
         for attributeName in attributeList:
-            attribute = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
-            newSetting = self.createEditorPropertyForFalagardElement(falagardElement, attributeName, attribute, "")
+            attribute = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, self.visual.tabbedEditor)
+            newSetting = self.createPropertyForFalagardElement(falagardElement, attributeName, attribute, "")
             settings.append(newSetting)
 
         return settings
@@ -255,7 +206,7 @@ class FalagardElementAttributesManager(object):
         # Returns a corresponding python type for a given CEGUI type
         return FalagardElementAttributesManager._typeMap.get(ceguiType, unicode)
 
-    def createEditorPropertyForFalagardElement(self, falagardElement, attributeName, attribute, helpText):
+    def createPropertyForFalagardElement(self, falagardElement, attributeName, attribute, helpText):
         """Create one MultiPropertyWrapper based property for a specified FalagardElement's attribute (which can be an XML attribute or a child element)
         """
 
