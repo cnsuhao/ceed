@@ -85,7 +85,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
 
-    def __init__(self, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
+    def __init__(self, falagardProperty, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
         super(FalagardElementAttributeEdit, self).__init__()
 
         self.visual = visual
@@ -93,9 +93,13 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         self.falagardElement = falagardElement
         self.attributeName = attributeName
 
+        self.falagardProperty = falagardProperty
+        """ :type : FalagardElementEditorProperty"""
+
         # We retrieve the momentary value using the getter callback and store it as old value
         from falagard_element_interface import FalagardElementInterface
-        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName)
+        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, visual.tabbedEditor)
+        self.oldValueAsString = unicode(self.oldValue)
 
         # If the value is a subtype of
         from ceed.cegui import ceguitypes
@@ -116,7 +120,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         self.refreshText()
 
-        self.ignoreNextCallback = ignoreNextCallback
+        self.ignoreNextCall = ignoreNextCallback
 
     def refreshText(self):
         self.setText("Changing '%s' in '%s' to value '%s'" % (self.attributeName, self.falagardElementName, self.newValueAsString))
@@ -142,12 +146,20 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         from falagard_element_interface import FalagardElementInterface
         FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
 
+        from ceed.propertytree.properties import Property
+        #TODO Ident: Refresh the property view afterwards instead
+        self.falagardProperty.setValue(self.oldValue, reason=Property.ChangeValueReason.InnerValueChanged)
+
         self.visual.updateWidgetLookPreview()
 
     def redo(self):
         # We set the value using the setter callback
         from falagard_element_interface import FalagardElementInterface
         FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
+
+        from ceed.propertytree.properties import Property
+        #TODO Ident: Refresh the property view afterwards instead
+        self.falagardProperty.setValue(self.newValue, reason=Property.ChangeValueReason.InnerValueChanged)
 
         self.visual.updateWidgetLookPreview()
 
