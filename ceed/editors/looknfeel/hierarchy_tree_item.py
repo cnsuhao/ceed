@@ -82,7 +82,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
             name += u"\"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            name += u"\"" + falagardElement.getWidgetName() + u"\"" + u" (" + falagardElement.getWidgetLookName() + u")"
+            name += u"\"" + falagardElement.getWidgetName() + u"\"" + u" (" + falagardElement.getBaseWidgetType() + u")"
 
         # Elements that can be children of a ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
@@ -106,7 +106,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
 
         # The Image element
         elif isinstance(falagardElement, PyCEGUI.Image):
-            name += u" name:\"" + falagardElement.getName() + u"\""
+            name += u" \"" + falagardElement.getName() + u"\""
 
         return name, toolTip
 
@@ -133,7 +133,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(self.falagardElement, PyCEGUI.LayerSpecification):
             self.createLayerSpecificationChildren()
         elif isinstance(self.falagardElement, PyCEGUI.SectionSpecification):
-            self.createSectionSpecificationChildren()
+            return
 
     def createAndAddItem(self, falagardElement, prefix=u""):
         """
@@ -213,36 +213,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         area = self.falagardElement.getComponentArea()
         self.createAndAddItem(area)
 
-        testWindow = PyCEGUI.WindowManager.getSingleton().createWindow("DefaultWindow", "")
-
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_LEFT_CORNER, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: TopLeftCorner")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_RIGHT_CORNER, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: TopRightCorner")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_LEFT_CORNER, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: BottomLeftCorner")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_RIGHT_CORNER, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: BottomRightCorner")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_LEFT_EDGE, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: LeftEdge")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_RIGHT_EDGE, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: RightEdge")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_EDGE, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: TopEdge")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_EDGE, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: BottomEdge")
-        image = self.falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BACKGROUND, testWindow)
-        if image is not None:
-            self.createAndAddItem(image, u"Image: Background")
-
     def createLayerSpecificationChildren(self):
         """
         Creates and appends children items based on a LayerSpecification.
@@ -253,12 +223,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
             currentSectionSpecification = sectionIter.getCurrentValue()
             self.createAndAddItem(currentSectionSpecification)
             sectionIter.next()
-
-    def createSectionSpecificationChildren(self):
-        """
-        Creates and appends children items based on a SectionSpecification.
-        :return:
-        """
 
     def clone(self):
         ret = LookNFeelHierarchyItem(self.manipulator)
