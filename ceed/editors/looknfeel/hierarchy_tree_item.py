@@ -82,7 +82,7 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
             name += u"\"" + falagardElement.getName() + u"\""
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            name += u"\"" + falagardElement.getWidgetName() + u"\"" + u" (" + falagardElement.getBaseWidgetType() + u")"
+            name += u"\"" + falagardElement.getWidgetName() + u"\"" + u" (\"" + falagardElement.getBaseWidgetType() + u"\")"
 
         # Elements that can be children of a ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
