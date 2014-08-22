@@ -163,11 +163,15 @@ class UDim(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.udimToString(object)
+        return PyCEGUI.PropertyHelper.udimToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToUDim(stringValue)
+
+    @classmethod
+    def getPropertyType(cls):
+        return UDimProperty
 
     def __init__(self, scale=0.0, offset=0.0):
         super(UDim, self).__init__()
@@ -188,10 +192,6 @@ class UDim(Base):
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
 
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
-
-    @classmethod
-    def getPropertyType(cls):
-        return UDimProperty
 
 
 class USize(Base):
@@ -225,6 +225,18 @@ class USize(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.usizeToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUSize(stringValue)
+
+    @classmethod
+    def getPropertyType(cls):
+        return USizeProperty
+
     def __init__(self, width=UDim(), height=UDim()):
         super(USize, self).__init__()
         self.width = width
@@ -240,10 +252,6 @@ class USize(Base):
 
     def __repr__(self):
         return "{{{}, {}}}".format(self.width, self.height)
-
-    @classmethod
-    def getPropertyType(cls):
-        return USizeProperty
 
 
 class UVector2(Base):
@@ -282,7 +290,7 @@ class UVector2(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.uvector2ToString(object)
+        return PyCEGUI.PropertyHelper.uvector2ToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -356,7 +364,7 @@ class URect(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.urectToString(object)
+        return PyCEGUI.PropertyHelper.urectToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -851,7 +859,7 @@ class Colour(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.colourToString(object)
+        return PyCEGUI.PropertyHelper.colourToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -1247,6 +1255,7 @@ class ColourProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return Colour.tryParse(strValue)
+
 
 class ColourRectProperty(BaseProperty):
     """Property for ColourRect values."""
