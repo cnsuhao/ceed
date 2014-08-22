@@ -111,7 +111,7 @@ class FalagardElementInterface(object):
             elif attributeName == attributeList[1]:
                 return falagardElement.getDataType()
             elif attributeName == attributeList[2]:
-                return falagardElement.getInitialValue()
+                return FalagardElementInterface.getPropertyDefinitionBaseValue(falagardElement)
             elif attributeName == attributeList[3]:
                 return falagardElement.isLayoutOnWrite()
             elif attributeName == attributeList[4]:
@@ -126,7 +126,7 @@ class FalagardElementInterface(object):
             if attributeName == attributeList[0]:
                 return falagardElement.getTargetPropertyName()
             elif attributeName == attributeList[1]:
-                return FalagardElementInterface.getAttributeValuePropertyInitialiserValue(falagardElement, tabbedEditor)
+                return FalagardElementInterface.getPropertyInitialiserValue(falagardElement, tabbedEditor)
 
         if isinstance(falagardElement, PyCEGUI.NamedArea):
             # "name"
@@ -297,11 +297,13 @@ class FalagardElementInterface(object):
         if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
             # "name", "type", "initialValue", "layoutOnWrite", "redrawOnWrite", "fireEvent", "help"
             if attributeName == attributeList[0]:
+                #TODO Ident:
                 raise Exception("TODO RENAME")
             elif attributeName == attributeList[1]:
+                #TODO Ident
                 raise Exception("TODO TYPECHANGE")
             elif attributeName == attributeList[2]:
-                falagardElement.setInitialValue(attributeValue)
+                FalagardElementInterface.setPropertyDefinitionBaseValue(falagardElement, attributeValue)
             elif attributeName == attributeList[3]:
                 falagardElement.setLayoutOnWrite(attributeValue)
             elif attributeName == attributeList[4]:
@@ -316,9 +318,11 @@ class FalagardElementInterface(object):
         elif isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
             # "name", "value"
             if attributeName == attributeList[0]:
-                falagardElement.setTargetPropertyName(attributeValue)
+                #TODO: What to do with the initialiser value once the type changes?
+                #falagardElement.setTargetPropertyName(attributeValue)
+                raise Exception("TODO TYPECHANGE")
             elif attributeName == attributeList[1]:
-                falagardElement.setInitialiserValue(attributeValue)
+                FalagardElementInterface.setPropertyInitialiserValue(falagardElement, attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.NamedArea):
             # "name"
@@ -466,7 +470,7 @@ class FalagardElementInterface(object):
             raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.setAttributeValue")
 
     @staticmethod
-    def getAttributeValuePropertyInitialiserValue(propertyInitialiser, tabbedEditor):
+    def getPropertyInitialiserValue(propertyInitialiser, tabbedEditor):
 
         propertyName = propertyInitialiser.getTargetPropertyName()
         initialValue = propertyInitialiser.getInitialiserValue()
@@ -481,14 +485,13 @@ class FalagardElementInterface(object):
 
         # get a native data type for the CEGUI data type string, falling back to string
         from ceed.propertysetinspector import CEGUIPropertyManager
-        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(dataType)
+        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
 
-        # get the callable that creates this data type
-        # and the Property type to use.
+        # Create a CEGUI-typed object from the string
         from ceed.cegui import ceguitypes as ceguiTypes
         if issubclass(pythonDataType, ceguiTypes.Base):
             # if it is a subclass of our ceguitypes, do some special handling
-            value = pythonDataType.fromString(initialValue)
+            value = pythonDataType.tryToCeguiType(initialValue)
         else:
             if initialValue is None:
                 value = None
@@ -499,10 +502,62 @@ class FalagardElementInterface(object):
                 value = propertyTreeUtility.boolFromString(initialValue)
 
         return value
-        """
+
+    @staticmethod
+    def getPropertyDefinitionBaseValue(propertyDefBase):
+
+        dataType = propertyDefBase.getDataType()
+        initialValue = propertyDefBase.getInitialValue()
+
+        # get a native data type for the CEGUI data type string, falling back to string
+        from ceed.propertysetinspector import CEGUIPropertyManager
+        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
+
+        # Create a CEGUI-typed object from the string
+        from ceed.cegui import ceguitypes as ceguiTypes
+        if issubclass(pythonDataType, ceguiTypes.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            value = pythonDataType.tryToCeguiType(initialValue)
+        else:
+            if initialValue is None:
+                value = None
+            elif pythonDataType is bool:
+                # The built-in bool parses "false" as True
+                # so we replace the default value creator.
+                from ceed.propertytree import utility as propertyTreeUtility
+                value = propertyTreeUtility.boolFromString(initialValue)
+
+        return value
+
+    @staticmethod
+    def setPropertyInitialiserValue(propertyInitialiser, value):
+
+        valueType = type(value)
+
+        pythonType = FalagardElementAttributesManager.getPythonTypeFromCeguiType(valueType)
+
+        from ceed.cegui import ceguitypes
+        if issubclass(pythonType, ceguitypes.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            valueAsString = pythonType.toString(value)
+        else:
+            valueAsString = unicode(value)
+
+        propertyInitialiser.setInitialiserValue(valueAsString)
 
 
-        propertyMap = tabbedEditor.visual.widgetLookPropertyManager.propertyMap
-        value, propertyType, editorOptions = FalagardElementAttributesManager.retrieveValueAndPropertyType(propertyMap, "PropertyInitialiser", propertyName, dataType,
-                                                                                                           initialValue, True)
-                                                                                                           """
+    @staticmethod
+    def setPropertyDefinitionBaseValue(propertyDefBase, value):
+
+        valueType = type(value)
+
+        pythonType = FalagardElementAttributesManager.getPythonTypeFromCeguiType(valueType)
+
+        from ceed.cegui import ceguitypes
+        if issubclass(pythonType, ceguitypes.Base):
+            # if it is a subclass of our ceguitypes, do some special handling
+            valueAsString = pythonType.toString(value)
+        else:
+            valueAsString = unicode(value)
+
+        propertyDefBase.setInitialValue(valueAsString)
