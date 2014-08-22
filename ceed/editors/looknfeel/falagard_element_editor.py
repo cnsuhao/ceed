@@ -57,20 +57,13 @@ class LookNFeelFalagardElementEditorDockWidget(QtGui.QDockWidget):
         self.setWidget(self.inspector)
 
 
-class FalagardElementEditorProperty(pt.properties.Property):
+class FalagardElementEditorProperty(pt.properties.SinglePropertyWrapper):
     """Overrides the default Property to update the 'inner properties'
     and to create undoable commands that update the WidgetLookFeel element.
     """
 
-    def __init__(self, name, category, helpText, value, defaultValue, readOnly, editorOptions,
-                 visual, falagardElement, attributeName):
-        super(FalagardElementEditorProperty, self).__init__(name=name,
-                                                            category=category,
-                                                            helpText=helpText,
-                                                            value=value,
-                                                            defaultValue=defaultValue,
-                                                            readOnly=readOnly,
-                                                            editorOptions=editorOptions)
+    def __init__(self, ownedProperty, falagardElement, attributeName, visual):
+        super(FalagardElementEditorProperty, self).__init__(ownedProperty)
 
         self.visual = visual
         self.falagardElement = falagardElement
