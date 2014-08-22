@@ -108,9 +108,12 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             # if it is a subclass of our ceguitypes, do some special handling
             self.newValueAsString = unicode(newValue)
             self.newValue = newValueType.toCeguiType(self.newValueAsString)
-        elif issubclass(newValueType, unicode):
+        elif newValueType is unicode:
             self.newValueAsString = newValue
             self.newValue = newValue
+        elif newValueType is bool:
+            self.newValue = newValue
+            self.newValueAsString = unicode(newValue)
         else:
             raise Exception("Unexpected type encountered")
 
@@ -148,7 +151,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         from ceed.propertytree.properties import Property
         #TODO Ident: Refresh the property view afterwards instead
-        self.falagardProperty.setValue(self.oldValue, reason=Property.ChangeValueReason.InnerValueChanged)
+        # self.falagardProperty.setValue(self.oldValue, reason=Property.ChangeValueReason.InnerValueChanged)
 
         self.visual.updateWidgetLookPreview()
 
@@ -159,7 +162,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         from ceed.propertytree.properties import Property
         #TODO Ident: Refresh the property view afterwards instead
-        self.falagardProperty.setValue(self.newValue, reason=Property.ChangeValueReason.InnerValueChanged)
+        #self.falagardProperty.setValue(self.newValue, reason=Property.ChangeValueReason.InnerValueChanged)
 
         self.visual.updateWidgetLookPreview()
 
