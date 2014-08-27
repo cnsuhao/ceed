@@ -71,8 +71,18 @@ class FalagardElementAttributesManager(object):
 
     @staticmethod
     def getPythonTypeFromCeguiType(ceguiType):
-        # Returns a corresponding python type for a given CEGUI type
+        # Returns a corresponding Python type for a given CEGUI type
         return FalagardElementAttributesManager._typeMap.get(ceguiType, unicode)
+
+    @staticmethod
+    def getCeguiTypeTypeFromPythonType(pythonType):
+        # Returns a corresponding CEGUI type for a given Python type
+        typeMap = FalagardElementAttributesManager._typeMap
+        for ceguiTypeEntry, pythonTypeEntry in typeMap.iteritems():
+            if pythonTypeEntry == pythonType:
+                return ceguiTypeEntry
+
+        raise NotImplementedError("No conversion for this python type to a CEGUI type is known")
 
     def buildCategories(self, falagardElement):
         """Create all available Properties, PropertyDefinitions and PropertyLinkDefinition options for this WidgetLook
@@ -94,9 +104,9 @@ class FalagardElementAttributesManager(object):
         return OrderedDict(sorted(categories.items()))
 
     @staticmethod
-    def retrieveValueAndPropertyType(propertyMap, category, propertyName, dataType, currentValue, isProperty):
+    def getPythonCeguiTypeAndEditorOptions(propertyMap, category, propertyName, dataType):
         """
-        Returns an adjusted value and propertyType and editorOptions, using a propertyMap. Converts the value to the right internal python class for the given cegui type.
+        Returns the pythonised cegui type and the editoroptions, using a propertyMap.
         :param propertyMap:
         :param category:
         :param propertyName:
@@ -116,14 +126,20 @@ class FalagardElementAttributesManager(object):
         if pmEntry and pmEntry.editorSettings:
             editorOptions = pmEntry.editorSettings
 
-        if isProperty:
-            # get a native data type for the CEGUI data type string, falling back to string
-            from ceed.propertysetinspector import CEGUIPropertyManager
-            pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
-        else:
-            # get a native data type for the CEGUI data type, falling back to string
-            pythonDataType = FalagardElementAttributesManager.getPythonTypeFromCeguiType(dataType)
+        # get a native data type for the CEGUI data type, falling back to string
+        pythonDataType = FalagardElementAttributesManager.getPythonTypeFromCeguiType(dataType)
 
+        return pythonDataType, editorOptions
+
+    @staticmethod
+    def getEditorPropertyTypeAndValue(pythonDataType, currentValue):
+        """
+        Gets the editor options and the pythonised value based on the python data type and the native CEGUI type value.
+        Converts the value to the right internal python class for the given cegui type.
+        :param pythonDataType:
+        :param currentValue:
+        :return:
+        """
         # get the callable that creates this data type
         # and the Property type to use.
         if issubclass(pythonDataType, ct.Base):
@@ -142,7 +158,7 @@ class FalagardElementAttributesManager(object):
 
             propertyType = properties.Property
 
-        return value, propertyType, editorOptions
+        return value, propertyType
 
     def createSettingsForFalagardElement(self, falagardElement):
         """
@@ -161,37 +177,40 @@ class FalagardElementAttributesManager(object):
         attributeList = FalagardElementInterface.getListOfAttributes(falagardElement)
 
         for attributeName in attributeList:
-            attribute = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, self.visual.tabbedEditor)
-            newSetting = self.createPropertyForFalagardElement(falagardElement, attributeName, attribute, "")
+            attributeValue, attributeCeguiType = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, self.visual.tabbedEditor)
+            newSetting = self.createPropertyForFalagardElement(falagardElement, attributeName, attributeValue, attributeCeguiType, "")
             settings.append(newSetting)
 
         return settings
 
-    def createPropertyForFalagardElement(self, falagardElement, attributeName, attribute, helpText):
-        """Create one MultiPropertyWrapper based property for a specified FalagardElement's attribute (which can be an XML attribute or a child element)
+    def createPropertyForFalagardElement(self, falagardElement, attributeName, attributeValue, attributeCeguiType, helpText):
+        """
+        Create a FalagardElementEditorProperty based on a type-specific property for the FalagardElement's attribute
         """
 
-        # Get the CEGUI type for the attribute
-        attributeDataType = type(attribute)
-
-        from tabbed_editor import LookNFeelTabbedEditor
+        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
         falagardElementTypeStr = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
 
-        value, propertyType, editorOptions = self.retrieveValueAndPropertyType(self.propertyMap, falagardElementTypeStr, attributeName, attributeDataType, attribute, False)
-        defaultValue = value
+        # Get the python type representing the cegui type and also the editor options
+        pythonDataType, editorOptions = self.getPythonCeguiTypeAndEditorOptions(self.propertyMap, falagardElementTypeStr, attributeName, attributeCeguiType)
 
-        if attributeName == "look" and falagardElementTypeStr == "SectionSpecification" and value:
+        # Get the pythonised type of the value and also its editor-propertytype
+        pythonTypeValue, propertyType = self.getEditorPropertyTypeAndValue(pythonDataType, attributeValue)
+        defaultValue = pythonTypeValue
+
+        # Unmap the reference in case we reference to the WidgetLookFeel
+        if attributeName == "look" and falagardElementTypeStr == "SectionSpecification" and pythonTypeValue:
             from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-
-            value, widgetLookEditorID = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(value)
-            defaultValue = value
+            value, widgetLookEditorID = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(pythonTypeValue)
+            defaultValue = pythonTypeValue
 
         typedProperty = propertyType(name=attributeName,
                                      category=falagardElementTypeStr,
                                      helpText=helpText,
-                                     value=value,
+                                     value=pythonTypeValue,
                                      defaultValue=defaultValue,
                                      readOnly=False,
+                                     editorOptions=editorOptions,
                                      createComponents=True
                                      )
 

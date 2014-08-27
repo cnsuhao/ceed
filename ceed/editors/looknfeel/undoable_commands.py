@@ -98,7 +98,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
         # We retrieve the momentary value using the getter callback and store it as old value
         from falagard_element_interface import FalagardElementInterface
-        self.oldValue = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, visual.tabbedEditor)
+        self.oldValue, ceguiType = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, visual.tabbedEditor)
         self.oldValueAsString = unicode(self.oldValue)
 
         # If the value is a subtype of

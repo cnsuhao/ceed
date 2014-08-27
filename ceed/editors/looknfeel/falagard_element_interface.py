@@ -102,181 +102,209 @@ class FalagardElementInterface(object):
         """
         attributeList = FalagardElementInterface.getListOfAttributes(falagardElement)
 
+        attributeValue = None
         # Elements that can be children of a WidgetLookFeel:
 
         if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
             # "name", "type", "initialValue", "layoutOnWrite", "redrawOnWrite", "fireEvent", "help"
             if attributeName == attributeList[0]:
-                return falagardElement.getPropertyName()
+                attributeValue = falagardElement.getPropertyName()
             elif attributeName == attributeList[1]:
-                return falagardElement.getDataType()
+                attributeValue = falagardElement.getDataType()
             elif attributeName == attributeList[2]:
-                return FalagardElementInterface.getPropertyDefinitionBaseValue(falagardElement)
+                return FalagardElementInterface.getPropertyDefinitionBaseValueAsCeguiType(falagardElement)
             elif attributeName == attributeList[3]:
-                return falagardElement.isLayoutOnWrite()
+                attributeValue = falagardElement.isLayoutOnWrite()
             elif attributeName == attributeList[4]:
-                return falagardElement.isRedrawOnWrite()
+                attributeValue = falagardElement.isRedrawOnWrite()
             elif attributeName == attributeList[5]:
-                return falagardElement.getEventFiredOnWrite()
+                attributeValue = falagardElement.getEventFiredOnWrite()
             elif attributeName == attributeList[6]:
-                return falagardElement.getHelpString()
+                attributeValue = falagardElement.getHelpString()
 
         elif isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
             # "name", "value"
             if attributeName == attributeList[0]:
-                return falagardElement.getTargetPropertyName()
+                attributeValue = falagardElement.getTargetPropertyName()
             elif attributeName == attributeList[1]:
-                return FalagardElementInterface.getPropertyInitialiserValue(falagardElement, tabbedEditor)
+                return FalagardElementInterface.getPropertyInitialiserValueAsCeguiType(falagardElement, tabbedEditor)
 
         if isinstance(falagardElement, PyCEGUI.NamedArea):
             # "name"
             if attributeName == attributeList[0]:
-                return falagardElement.getName()
+                attributeValue = falagardElement.getName()
 
         elif isinstance(falagardElement, PyCEGUI.ImagerySection):
             # "name", "Colour", "ColourProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.getName()
+                attributeValue = falagardElement.getName()
             elif attributeName == attributeList[1]:
-                return falagardElement.getMasterColours()
+                attributeValue = falagardElement.getMasterColours()
             elif attributeName == attributeList[2]:
-                return falagardElement.getMasterColoursPropertySource()
+                attributeValue = falagardElement.getMasterColoursPropertySource()
 
         elif isinstance(falagardElement, PyCEGUI.StateImagery):
             # "name", "clipped"
             if attributeName == attributeList[0]:
-                return falagardElement.getName()
+                attributeValue = falagardElement.getName()
             if attributeName == attributeList[1]:
-                return falagardElement.isClippedToDisplay()
+                attributeValue = falagardElement.isClippedToDisplay()
 
         elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
             # "nameSuffix", "type", "renderer", "look", "autoWindow", "VertAlignment", "HorzAlignment"
             if attributeName == attributeList[0]:
-                return falagardElement.getWidgetName()
+                attributeValue = falagardElement.getWidgetName()
             elif attributeName == attributeList[1]:
-                return falagardElement.getBaseWidgetType()
+                attributeValue = falagardElement.getBaseWidgetType()
             elif attributeName == attributeList[2]:
-                return falagardElement.getWindowRendererType()
+                attributeValue = falagardElement.getWindowRendererType()
             elif attributeName == attributeList[3]:
-                return falagardElement.getWidgetLookName()
+                attributeValue = falagardElement.getWidgetLookName()
             elif attributeName == attributeList[4]:
-                return falagardElement.isAutoWindow()
+                attributeValue = falagardElement.isAutoWindow()
             elif attributeName == attributeList[5]:
-                return falagardElement.getVerticalWidgetAlignment()
+                attributeValue = falagardElement.getVerticalWidgetAlignment()
             elif attributeName == attributeList[6]:
-                return falagardElement.getHorizontalWidgetAlignment()
+                attributeValue = falagardElement.getHorizontalWidgetAlignment()
 
         # Elements that can be children of an ImagerySection:
         elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
             # "Image", "ImageProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.getImage()
+                attributeValue = falagardElement.getImage()
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[1]:
-                return falagardElement.getImagePropertySource()
+                attributeValue = falagardElement.getImagePropertySource()
             elif attributeName == attributeList[2]:
-                return falagardElement.getColours()
+                attributeValue = falagardElement.getColours()
             elif attributeName == attributeList[3]:
-                return falagardElement.getColoursPropertySource()
+                attributeValue = falagardElement.getColoursPropertySource()
             elif attributeName == attributeList[4]:
-                return falagardElement.getVerticalFormattingFromComponent()
+                attributeValue = falagardElement.getVerticalFormattingFromComponent()
             elif attributeName == attributeList[5]:
-                return falagardElement.getVerticalFormattingPropertySource()
+                attributeValue = falagardElement.getVerticalFormattingPropertySource()
             elif attributeName == attributeList[6]:
-                return falagardElement.getHorizontalFormattingFromComponent()
+                attributeValue = falagardElement.getHorizontalFormattingFromComponent()
             elif attributeName == attributeList[7]:
-                return falagardElement.getHorizontalFormattingPropertySource()
+                attributeValue = falagardElement.getHorizontalFormattingPropertySource()
 
         elif isinstance(falagardElement, PyCEGUI.TextComponent):
-            # "Text", "Font", "TextProperty", "FontProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
+            # ""Text", "TextProperty", "Font", "FontProperty", "Colour", "ColourProperty", "VertFormat",
+            # "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.getText()
+                attributeValue = falagardElement.getText()
             elif attributeName == attributeList[1]:
-                return falagardElement.getFont()
+                attributeValue = falagardElement.getTextPropertySource()
             elif attributeName == attributeList[2]:
-                return falagardElement.getTextPropertySource()
+                attributeValue = falagardElement.getFont()
+                if not attributeValue:
+                    return None, PyCEGUI.Font
             elif attributeName == attributeList[3]:
-                return falagardElement.getFontPropertySource()
+                attributeValue = falagardElement.getFontPropertySource()
             elif attributeName == attributeList[4]:
-                return falagardElement.getColours()
+                attributeValue = falagardElement.getColours()
             elif attributeName == attributeList[5]:
-                return falagardElement.getColoursPropertySource()
+                attributeValue = falagardElement.getColoursPropertySource()
             elif attributeName == attributeList[6]:
-                return falagardElement.getVerticalFormattingFromComponent()
+                attributeValue = falagardElement.getVerticalFormattingFromComponent()
             elif attributeName == attributeList[7]:
-                return falagardElement.getVerticalFormattingPropertySource()
+                attributeValue = falagardElement.getVerticalFormattingPropertySource()
             elif attributeName == attributeList[8]:
-                return falagardElement.getHorizontalFormattingFromComponent()
+                attributeValue = falagardElement.getHorizontalFormattingFromComponent()
             elif attributeName == attributeList[9]:
-                return falagardElement.getHorizontalFormattingPropertySource()
+                attributeValue = falagardElement.getHorizontalFormattingPropertySource()
 
         elif isinstance(falagardElement, PyCEGUI.FrameComponent):
             # "Colour", "ColourProperty", "TopLeftCorner", "TopRightCorner", "BottomLeftCorner",
             # "BottomRightCorner", "LeftEdge", "RightEdge", "TopEdge", "BottomEdge", "Background"
             if attributeName == attributeList[0]:
-                return falagardElement.getColours()
+                attributeValue = falagardElement.getColours()
             elif attributeName == attributeList[1]:
-                return falagardElement.getColoursPropertySource()
+                attributeValue = falagardElement.getColoursPropertySource()
             elif attributeName == attributeList[2]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_LEFT_CORNER)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_LEFT_CORNER)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[3]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_RIGHT_CORNER)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_RIGHT_CORNER)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[4]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_LEFT_CORNER)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_LEFT_CORNER)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[5]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_RIGHT_CORNER)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_RIGHT_CORNER)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[6]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_LEFT_EDGE)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_LEFT_EDGE)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[7]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_RIGHT_EDGE)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_RIGHT_EDGE)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[8]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_EDGE)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_TOP_EDGE)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[9]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_EDGE)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BOTTOM_EDGE)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
             elif attributeName == attributeList[10]:
-                return falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BACKGROUND)
+                attributeValue = falagardElement.getImage(PyCEGUI.FrameImageComponent.FIC_BACKGROUND)
+                if not attributeValue:
+                    return None, PyCEGUI.Image
 
         # Elements that can be children of a StateImagery:
         elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
             if attributeName == attributeList[0]:
-                return falagardElement.getLayerPriority()
+                attributeValue = falagardElement.getLayerPriority()
 
         # Elements that can be children of a LayerSpecification:
         elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
             # "section", "look", "controlProperty", "controlValue", "controlWidget", "Colour", "ColourProperty"
             if attributeName == attributeList[0]:
-                return falagardElement.getSectionName()
+                attributeValue = falagardElement.getSectionName()
             elif attributeName == attributeList[1]:
-                return falagardElement.getOwnerWidgetLookFeel()
+                attributeValue = falagardElement.getOwnerWidgetLookFeel()
             elif attributeName == attributeList[2]:
-                return falagardElement.getRenderControlPropertySource()
+                attributeValue = falagardElement.getRenderControlPropertySource()
             elif attributeName == attributeList[3]:
-                return falagardElement.getRenderControlValue()
+                attributeValue = falagardElement.getRenderControlValue()
             elif attributeName == attributeList[4]:
-                return falagardElement.getRenderControlWidget()
+                attributeValue = falagardElement.getRenderControlWidget()
             elif attributeName == attributeList[5]:
-                return falagardElement.getOverrideColours()
+                attributeValue = falagardElement.getOverrideColours()
             elif attributeName == attributeList[6]:
-                return falagardElement.getOverrideColoursPropertySource()
+                attributeValue = falagardElement.getOverrideColoursPropertySource()
 
         # A ComponentArea element
         elif isinstance(falagardElement, PyCEGUI.ComponentArea):
             if attributeName == attributeList[0]:
                 if falagardElement.isAreaFetchedFromProperty():
-                    return falagardElement.getAreaPropertySource()
+                    attributeValue = falagardElement.getAreaPropertySource()
                 else:
-                    return ""
+                    return None, unicode
             if attributeName == attributeList[1]:
                 if falagardElement.isAreaFetchedFromNamedArea():
-                    return falagardElement.getAreaPropertySource()
+                    attributeValue = falagardElement.getAreaPropertySource()
                 else:
-                    return ""
+                    return None, unicode
             if attributeName == attributeList[2]:
                 if falagardElement.isAreaFetchedFromNamedArea():
-                    return falagardElement.getNamedAreaSourceLook()
+                    attributeValue = falagardElement.getNamedAreaSourceLook()
                 else:
-                    return ""
+                    return None, unicode
 
-        raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.getAttributeValue")
+        # Please do not falsely "simplify" this line. The attributeValue may be False or "" but not None
+        if attributeValue is None:
+            raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.getAttributeValue")
+
+        return attributeValue, type(attributeValue)
 
     @staticmethod
     def setAttributeValue(falagardElement, attributeName, attributeValue):
@@ -470,7 +498,26 @@ class FalagardElementInterface(object):
             raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.setAttributeValue")
 
     @staticmethod
-    def getPropertyInitialiserValue(propertyInitialiser, tabbedEditor):
+    def getCeguiTypeValueFromString(pythonDataType, valueAsString):
+
+        # Create a CEGUI-typed object from the string
+        from ceed.cegui import ceguitypes as ceguiTypes
+        if issubclass(pythonDataType, ceguiTypes.Base):
+            # if the type is a subtype of the python cegui type, then use the conversion function
+            value = pythonDataType.tryToCeguiType(valueAsString)
+        else:
+            if valueAsString is None:
+                value = None
+            elif pythonDataType is bool:
+                # The built-in bool parses "false" as True
+                # so we replace the default value creator.
+                from ceed.propertytree import utility as propertyTreeUtility
+                value = propertyTreeUtility.boolFromString(valueAsString)
+
+        return value
+
+    @staticmethod
+    def getPropertyInitialiserValueAsCeguiType(propertyInitialiser, tabbedEditor):
 
         propertyName = propertyInitialiser.getTargetPropertyName()
         initialValue = propertyInitialiser.getInitialiserValue()
@@ -478,33 +525,21 @@ class FalagardElementInterface(object):
         # We create a dummy window to be able to retrieve the correct dataType
         dummyWindow = PyCEGUI.WindowManager.getSingleton().createWindow(tabbedEditor.targetWidgetLook)
         propertyInstance = dummyWindow.getPropertyInstance(propertyName)
-
         dataType = propertyInstance.getDataType()
-
         PyCEGUI.WindowManager.getSingleton().destroyWindow(dummyWindow)
 
         # get a native data type for the CEGUI data type string, falling back to string
         from ceed.propertysetinspector import CEGUIPropertyManager
         pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
 
-        # Create a CEGUI-typed object from the string
-        from ceed.cegui import ceguitypes as ceguiTypes
-        if issubclass(pythonDataType, ceguiTypes.Base):
-            # if it is a subclass of our ceguitypes, do some special handling
-            value = pythonDataType.tryToCeguiType(initialValue)
-        else:
-            if initialValue is None:
-                value = None
-            elif pythonDataType is bool:
-                # The built-in bool parses "false" as True
-                # so we replace the default value creator.
-                from ceed.propertytree import utility as propertyTreeUtility
-                value = propertyTreeUtility.boolFromString(initialValue)
+        value = FalagardElementInterface.getCeguiTypeValueFromString(pythonDataType, initialValue)
+        valueType = FalagardElementAttributesManager.getCeguiTypeTypeFromPythonType(pythonDataType)
 
-        return value
+        return value, valueType
+
 
     @staticmethod
-    def getPropertyDefinitionBaseValue(propertyDefBase):
+    def getPropertyDefinitionBaseValueAsCeguiType(propertyDefBase):
 
         dataType = propertyDefBase.getDataType()
         initialValue = propertyDefBase.getInitialValue()
@@ -513,21 +548,10 @@ class FalagardElementInterface(object):
         from ceed.propertysetinspector import CEGUIPropertyManager
         pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
 
-        # Create a CEGUI-typed object from the string
-        from ceed.cegui import ceguitypes as ceguiTypes
-        if issubclass(pythonDataType, ceguiTypes.Base):
-            # if it is a subclass of our ceguitypes, do some special handling
-            value = pythonDataType.tryToCeguiType(initialValue)
-        else:
-            if initialValue is None:
-                value = None
-            elif pythonDataType is bool:
-                # The built-in bool parses "false" as True
-                # so we replace the default value creator.
-                from ceed.propertytree import utility as propertyTreeUtility
-                value = propertyTreeUtility.boolFromString(initialValue)
+        value = FalagardElementInterface.getCeguiTypeValueFromString(pythonDataType, initialValue)
+        valueType = FalagardElementAttributesManager.getCeguiTypeTypeFromPythonType(pythonDataType)
 
-        return value
+        return value, valueType
 
     @staticmethod
     def setPropertyInitialiserValue(propertyInitialiser, value):
@@ -538,13 +562,12 @@ class FalagardElementInterface(object):
 
         from ceed.cegui import ceguitypes
         if issubclass(pythonType, ceguitypes.Base):
-            # if it is a subclass of our ceguitypes, do some special handling
+            # if the value's type is a subclass of a python ceguitype, convert the value to a string
             valueAsString = pythonType.toString(value)
         else:
             valueAsString = unicode(value)
 
         propertyInitialiser.setInitialiserValue(valueAsString)
-
 
     @staticmethod
     def setPropertyDefinitionBaseValue(propertyDefBase, value):
@@ -555,8 +578,10 @@ class FalagardElementInterface(object):
 
         from ceed.cegui import ceguitypes
         if issubclass(pythonType, ceguitypes.Base):
-            # if it is a subclass of our ceguitypes, do some special handling
+            # if the value's type is a subclass of a python ceguitype, convert the value to a string
             valueAsString = pythonType.toString(value)
+        elif value is None:
+            valueAsString = u""
         else:
             valueAsString = unicode(value)
 
