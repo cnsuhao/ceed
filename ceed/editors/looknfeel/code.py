@@ -52,8 +52,6 @@ class CodeEditing(multi.CodeEditMode):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
 
-        self.tabbedEditor.visual.destroyCurrentPreviewWidget()
-
         loadingSuccessful = True
         try:
             self.tabbedEditor.mapAndLoadLookNFeelFileString(code)
@@ -104,6 +102,7 @@ class CodeEditing(multi.CodeEditMode):
             originalWidgetLookName, _ = self.tabbedEditor.unmapMappedNameIntoOriginalParts(self.tabbedEditor.targetWidgetLook)
             self.moveToAndSelectWidgetLookFeel(originalWidgetLookName)
 
+
 class WidgetLookHighlighter(QtGui.QSyntaxHighlighter):
     """
     Highlighter for the LNF code editing
@@ -135,7 +134,7 @@ class WidgetLookHighlighter(QtGui.QSyntaxHighlighter):
         # However neither mpreisler or me (Ident) knew how to do it "the right way"
 
         highlightingFormat = QtGui.QTextCharFormat()
-        highlightingFormat.setForeground(QtGui.QColor(0, 100, 0))
+        highlightingFormat.setForeground(QtGui.QColor(0, 89, 176))
         highlightingFormat.setBackground(palette.color(QtGui.QPalette.Normal, QtGui.QPalette.Base))
 
         rule = [regexStart, regexEnd, highlightingFormat]
