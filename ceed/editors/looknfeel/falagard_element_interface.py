@@ -35,6 +35,51 @@ class FalagardElementInterface(object):
     """
 
     @staticmethod
+    def getFalagardElementTypeAsString(falagardElement):
+        """
+        Returns the CEGUI class name that is corresponding to the Falagard element's CEGUI-type
+        :param falagardElement:
+        :return:
+        """
+
+        from hierarchy_tree_model import LookNFeelHierarchyTreeModel
+
+        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
+            return u"PropertyDefinitionBase"
+        if isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
+            return u"PropertyInitialiser"
+        elif isinstance(falagardElement, PyCEGUI.NamedArea):
+            return u"NamedArea"
+        elif isinstance(falagardElement, PyCEGUI.ImagerySection):
+            return u"ImagerySection"
+        elif isinstance(falagardElement, PyCEGUI.StateImagery):
+            return u"StateImagery"
+        elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
+            return u"WidgetComponent"
+        elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
+            return u"ImageryComponent"
+        elif isinstance(falagardElement, PyCEGUI.TextComponent):
+            return u"TextComponent"
+        elif isinstance(falagardElement, PyCEGUI.FrameComponent):
+            return u"FrameComponent"
+        elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
+            return u"LayerSpecification"
+        elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
+            return u"SectionSpecification"
+        elif isinstance(falagardElement, PyCEGUI.ComponentArea):
+            return u"ComponentArea"
+        elif isinstance(falagardElement, PyCEGUI.ColourRect):
+            return u"ColourRect"
+        elif isinstance(falagardElement, PyCEGUI.Image):
+            return u"Image"
+        elif isinstance(falagardElement, LookNFeelHierarchyTreeModel):
+            return u""
+        elif falagardElement is None:
+            return u""
+        else:
+            raise Exception("Unknown Falagard element used in FalagardElementInterface.getFalagardElementTypeAsString")
+
+    @staticmethod
     def getListOfAttributes(falagardElement):
         """
         Returns a list of names of attributes for a given Falagard element. Children elements, which can only exist a maximum of one time, are also added to the list. The list
@@ -88,7 +133,7 @@ class FalagardElementInterface(object):
         elif isinstance(falagardElement, PyCEGUI.ComponentArea):
             return COMPONENT_AREA_ATTRIBUTES
         else:
-            return []
+            raise Exception("Unknown Falagard element used in FalagardElementInterface.getListOfAttributes")
 
     @staticmethod
     def getAttributeValue(falagardElement, attributeName, tabbedEditor):
@@ -498,9 +543,61 @@ class FalagardElementInterface(object):
             raise Exception("Unknown Falagard element and/or attribute used in FalagardElementInterface.setAttributeValue")
 
     @staticmethod
-    def getCeguiTypeValueFromString(pythonDataType, valueAsString):
+    def getPropertyInitialiserValueAsCeguiType(propertyInitialiser, tabbedEditor):
+        """
+        Returns a CEGUI value and CEGUI type based on the PropertyInitialiser value
+        :param propertyInitialiser:
+        :return:
+        """
+        propertyName = propertyInitialiser.getTargetPropertyName()
+        initialValue = propertyInitialiser.getInitialiserValue()
 
-        # Create a CEGUI-typed object from the string
+        # We create a dummy window to be able to retrieve the correct dataType
+        dummyWindow = PyCEGUI.WindowManager.getSingleton().createWindow(tabbedEditor.targetWidgetLook)
+        propertyInstance = dummyWindow.getPropertyInstance(propertyName)
+        dataType = propertyInstance.getDataType()
+        PyCEGUI.WindowManager.getSingleton().destroyWindow(dummyWindow)
+
+        return FalagardElementInterface.convertToCeguiValueAndCeguiType(initialValue, dataType)
+
+    @staticmethod
+    def getPropertyDefinitionBaseValueAsCeguiType(propertyDefBase):
+        """
+        Returns a CEGUI value and CEGUI type based on the PropertyDefinitionBase value
+        :param propertyDefBase:
+        :return:
+        """
+
+        dataType = propertyDefBase.getDataType()
+        initialValue = propertyDefBase.getInitialValue()
+
+        return FalagardElementInterface.convertToCeguiValueAndCeguiType(initialValue, dataType)
+
+    @staticmethod
+    def convertToCeguiValueAndCeguiType(valueAsString, dataTypeAsString):
+        """
+        Converts a string based CEGUI value and CEGUI type to the native CEGUI value and CEGUI type
+        :param valueAsString: str
+        :param dataTypeAsString: str
+        :return:
+        """
+        from ceed.propertysetinspector import CEGUIPropertyManager
+        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataTypeAsString)
+
+        value = FalagardElementInterface.getCeguiTypeValueFromString(pythonDataType, valueAsString)
+        valueType = FalagardElementAttributesManager.getCeguiTypeTypeFromPythonType(pythonDataType)
+
+        return value, valueType
+
+    @staticmethod
+    def getCeguiTypeValueFromString(pythonDataType, valueAsString):
+        """
+        Returns a CEGUI-typed object based on a given string and Python type
+        :param pythonDataType:
+        :param valueAsString: str
+        :return:
+        """
+
         from ceed.cegui import ceguitypes as ceguiTypes
         if issubclass(pythonDataType, ceguiTypes.Base):
             # if the type is a subtype of the python cegui type, then use the conversion function
@@ -515,43 +612,6 @@ class FalagardElementInterface(object):
                 value = propertyTreeUtility.boolFromString(valueAsString)
 
         return value
-
-    @staticmethod
-    def getPropertyInitialiserValueAsCeguiType(propertyInitialiser, tabbedEditor):
-
-        propertyName = propertyInitialiser.getTargetPropertyName()
-        initialValue = propertyInitialiser.getInitialiserValue()
-
-        # We create a dummy window to be able to retrieve the correct dataType
-        dummyWindow = PyCEGUI.WindowManager.getSingleton().createWindow(tabbedEditor.targetWidgetLook)
-        propertyInstance = dummyWindow.getPropertyInstance(propertyName)
-        dataType = propertyInstance.getDataType()
-        PyCEGUI.WindowManager.getSingleton().destroyWindow(dummyWindow)
-
-        # get a native data type for the CEGUI data type string, falling back to string
-        from ceed.propertysetinspector import CEGUIPropertyManager
-        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
-
-        value = FalagardElementInterface.getCeguiTypeValueFromString(pythonDataType, initialValue)
-        valueType = FalagardElementAttributesManager.getCeguiTypeTypeFromPythonType(pythonDataType)
-
-        return value, valueType
-
-
-    @staticmethod
-    def getPropertyDefinitionBaseValueAsCeguiType(propertyDefBase):
-
-        dataType = propertyDefBase.getDataType()
-        initialValue = propertyDefBase.getInitialValue()
-
-        # get a native data type for the CEGUI data type string, falling back to string
-        from ceed.propertysetinspector import CEGUIPropertyManager
-        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(dataType)
-
-        value = FalagardElementInterface.getCeguiTypeValueFromString(pythonDataType, initialValue)
-        valueType = FalagardElementAttributesManager.getCeguiTypeTypeFromPythonType(pythonDataType)
-
-        return value, valueType
 
     @staticmethod
     def setPropertyInitialiserValue(propertyInitialiser, value):

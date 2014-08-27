@@ -32,7 +32,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         self.dockWidget = dockWidget
         """ :type : LookNFeelHierarchyDockWidget """
-        self.setItemPrototype(LookNFeelHierarchyItem(None))
+        self.setItemPrototype(LookNFeelHierarchyItem(self))
 
         self.widgetLookObject = None
 
