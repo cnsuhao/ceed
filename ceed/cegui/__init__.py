@@ -394,7 +394,14 @@ class Instance(object):
         it = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
         while not it.isAtEnd():
             currentSkin = it.getCurrentValue().d_windowType.split('/')[0]
-            if currentSkin not in skins:
+
+            from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+            ceedInternalEditingPrefix = LookNFeelTabbedEditor.getEditorIDStringPrefix()
+            ceedInternalLNF = False
+            if currentSkin.startswith(ceedInternalEditingPrefix):
+                ceedInternalLNF = True
+
+            if currentSkin not in skins and not ceedInternalLNF:
                 skins.append(currentSkin)
 
             it.next()
@@ -441,8 +448,8 @@ class Instance(object):
 
         ret = {}
         ret["__no_skin__"] = ["DefaultWindow", "DragContainer",
-                             "VerticalLayoutContainer", "HorizontalLayoutContainer",
-                             "GridLayoutContainer"]
+                              "VerticalLayoutContainer", "HorizontalLayoutContainer",
+                              "GridLayoutContainer"]
 
         it = PyCEGUI.WindowFactoryManager.getSingleton().getFalagardMappingIterator()
         while not it.isAtEnd():
@@ -453,12 +460,19 @@ class Instance(object):
             look = mappedType[0]
             widget = mappedType[1]
 
-            # insert empty list for the look if it's a new look
-            if not look in ret:
-                ret[look] = []
+            from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+            ceedInternalEditingPrefix = LookNFeelTabbedEditor.getEditorIDStringPrefix()
+            ceedInternalLNF = False
+            if look.startswith(ceedInternalEditingPrefix):
+                ceedInternalLNF = True
 
-            # append widget name to the list for its look
-            ret[look].append(widget)
+            if not ceedInternalLNF:
+                # insert empty list for the look if it's a new look
+                if not look in ret:
+                    ret[look] = []
+
+                # append widget name to the list for its look
+                ret[look].append(widget)
 
             it.next()
 
