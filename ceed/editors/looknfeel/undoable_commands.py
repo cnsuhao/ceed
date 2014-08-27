@@ -108,7 +108,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             # if it is a subclass of our ceguitypes, do some special handling
             self.newValueAsString = unicode(newValue)
             self.newValue = newValueType.toCeguiType(self.newValueAsString)
-        elif newValueType is bool:
+        elif newValueType is bool or newValueType is unicode:
             self.newValue = newValue
             self.newValueAsString = unicode(newValue)
         else:
