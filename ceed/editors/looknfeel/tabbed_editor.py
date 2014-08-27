@@ -53,7 +53,7 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
                          "breaks you get to keep the pieces!",
                          "looknfeel_editor_experimental")
 
-        self.editorIDString = str(id(self))
+        self.editorIDString = self.getEditorIDStringPrefix() + str(id(self))
 
         self.requiresProject = True
 
@@ -97,6 +97,10 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         self.visual.initialise()
 
     @staticmethod
+    def getEditorIDStringPrefix():
+        return "ceed_internal-"
+
+    @staticmethod
     def unmapMappedNameIntoOriginalParts(mappedName):
         """
         Returns the original WidgetLookFeel name and the editorID, based on a mapped name
@@ -109,46 +113,6 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
             raise Exception('Failed to split the mapped name')
 
         return mappedNameSplitResult[1], mappedNameSplitResult[0]
-
-    @staticmethod
-    def getFalagardElementTypeAsString(falagardElement):
-        """
-        Returns the CEGUI class name that is corresponding to the Falagard Element as a string
-        :param falagardElement:
-        :return:
-        """
-
-        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
-            return u"PropertyDefinitionBase"
-        if isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
-            return u"PropertyInitialiser"
-        elif isinstance(falagardElement, PyCEGUI.NamedArea):
-            return u"NamedArea"
-        elif isinstance(falagardElement, PyCEGUI.ImagerySection):
-            return u"ImagerySection"
-        elif isinstance(falagardElement, PyCEGUI.StateImagery):
-            return u"StateImagery"
-        elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            return u"WidgetComponent"
-        elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
-            return u"ImageryComponent"
-        elif isinstance(falagardElement, PyCEGUI.TextComponent):
-            return u"TextComponent"
-        elif isinstance(falagardElement, PyCEGUI.FrameComponent):
-            return u"FrameComponent"
-        elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
-            return u"LayerSpecification"
-        elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
-            return u"SectionSpecification"
-        elif isinstance(falagardElement, PyCEGUI.ComponentArea):
-            return u"ComponentArea"
-        elif isinstance(falagardElement, PyCEGUI.ColourRect):
-            return u"ColourRect"
-        elif isinstance(falagardElement, PyCEGUI.Image):
-            return u"Image"
-
-        else:
-            return u"None"
 
     def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
