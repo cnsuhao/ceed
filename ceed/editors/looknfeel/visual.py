@@ -132,11 +132,7 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
     def updateToNewTargetWidgetLook(self):
         self.updateWidgetLookPreview()
 
-        if not self.tabbedEditor.targetWidgetLook:
-            self.falagardElementEditorDockWidget.inspector.setSource(None)
-        else:
-            widgetLookObject = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLook(self.tabbedEditor.targetWidgetLook)
-            self.falagardElementEditorDockWidget.inspector.setSource(widgetLookObject)
+        self.falagardElementEditorDockWidget.inspector.setSource(None)
 
         self.lookNFeelHierarchyDockWidget.updateToNewWidgetLook(self.tabbedEditor.targetWidgetLook)
 
