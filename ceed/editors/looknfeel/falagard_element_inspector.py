@@ -111,7 +111,6 @@ class FalagardElementAttributesManager(object):
         :param category:
         :param propertyName:
         :param dataType:
-        :param currentValue:
         :return: value and propertyType
         """
 
@@ -188,27 +187,25 @@ class FalagardElementAttributesManager(object):
         Create a FalagardElementEditorProperty based on a type-specific property for the FalagardElement's attribute
         """
 
-        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-        falagardElementTypeStr = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
+        from ceed.editors.looknfeel.falagard_element_interface import FalagardElementInterface
+        falagardElementTypeStr = FalagardElementInterface.getFalagardElementTypeAsString(falagardElement)
 
         # Get the python type representing the cegui type and also the editor options
         pythonDataType, editorOptions = self.getPythonCeguiTypeAndEditorOptions(self.propertyMap, falagardElementTypeStr, attributeName, attributeCeguiType)
 
         # Get the pythonised type of the value and also its editor-propertytype
         pythonTypeValue, propertyType = self.getEditorPropertyTypeAndValue(pythonDataType, attributeValue)
-        defaultValue = pythonTypeValue
 
         # Unmap the reference in case we reference to the WidgetLookFeel
         if attributeName == "look" and falagardElementTypeStr == "SectionSpecification" and pythonTypeValue:
             from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-            value, widgetLookEditorID = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(pythonTypeValue)
-            defaultValue = pythonTypeValue
+            pythonTypeValue, _ = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(pythonTypeValue)
 
         typedProperty = propertyType(name=attributeName,
                                      category=falagardElementTypeStr,
                                      helpText=helpText,
                                      value=pythonTypeValue,
-                                     defaultValue=defaultValue,
+                                     defaultValue=pythonTypeValue,
                                      readOnly=False,
                                      editorOptions=editorOptions,
                                      createComponents=True

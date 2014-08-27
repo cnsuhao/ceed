@@ -64,8 +64,8 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         """
         name = prefix
 
-        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-        toolTip = u"type: " + LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
+        from ceed.editors.looknfeel.falagard_element_interface import FalagardElementInterface
+        toolTip = u"type: " + FalagardElementInterface.getFalagardElementTypeAsString(falagardElement)
 
         # Elements that can be children of a WidgetLookFeel:
 

@@ -108,9 +108,6 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             # if it is a subclass of our ceguitypes, do some special handling
             self.newValueAsString = unicode(newValue)
             self.newValue = newValueType.toCeguiType(self.newValueAsString)
-        elif newValueType is unicode:
-            self.newValueAsString = newValue
-            self.newValue = newValue
         elif newValueType is bool:
             self.newValue = newValue
             self.newValueAsString = unicode(newValue)
@@ -118,8 +115,8 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             raise Exception("Unexpected type encountered")
 
         # Get the Falagard element's type as string so we can display better info
-        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-        self.falagardElementName = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
+        from ceed.editors.looknfeel.falagard_element_interface import FalagardElementInterface
+        self.falagardElementName = FalagardElementInterface.getFalagardElementTypeAsString(falagardElement)
 
         self.refreshText()
 
