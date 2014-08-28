@@ -457,13 +457,13 @@ class FalagardElementInterface(object):
                 falagardElement.setHorizontalFormattingPropertySource(attributeValue)
 
         elif isinstance(falagardElement, PyCEGUI.TextComponent):
-            # "Text", "Font", "TextProperty", "FontProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
+            # "Text", "TextProperty", "Font", "FontProperty", "Colour", "ColourProperty", "VertFormat", "VertFormatProperty", "HorzFormat", "HorzFormatProperty"
             if attributeName == attributeList[0]:
                 falagardElement.setText(attributeValue)
             elif attributeName == attributeList[1]:
-                falagardElement.setFont(attributeValue)
-            elif attributeName == attributeList[2]:
                 falagardElement.setTextPropertySource(attributeValue)
+            elif attributeName == attributeList[2]:
+                falagardElement.setFont(attributeValue)
             elif attributeName == attributeList[3]:
                 falagardElement.setFontPropertySource(attributeValue)
             elif attributeName == attributeList[4]:
@@ -610,6 +610,8 @@ class FalagardElementInterface(object):
                 # so we replace the default value creator.
                 from ceed.propertytree import utility as propertyTreeUtility
                 value = propertyTreeUtility.boolFromString(valueAsString)
+            elif pythonDataType is unicode:
+                value = valueAsString
 
         return value
 
