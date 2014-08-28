@@ -52,13 +52,7 @@ class CodeEditing(multi.CodeEditMode):
         # we have to make the context the current context to ensure textures are fine
         mainwindow.MainWindow.instance.ceguiContainerWidget.makeGLContextCurrent()
 
-        loadingSuccessful = True
-        try:
-            self.tabbedEditor.mapAndLoadLookNFeelFileString(code)
-        except:
-            self.tabbedEditor.mapAndLoadLookNFeelFileString(self.tabbedEditor.nativeData)
-            loadingSuccessful = False
-
+        loadingSuccessful = self.tabbedEditor.tryUpdatingWidgetLookFeel(code)
         self.tabbedEditor.visual.updateToNewTargetWidgetLook()
 
         return loadingSuccessful

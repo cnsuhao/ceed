@@ -114,6 +114,22 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
         return mappedNameSplitResult[1], mappedNameSplitResult[0]
 
+    def tryUpdatingWidgetLookFeel(self, sourceCode):
+        """
+        Tries to parse a LNF source code content
+        :param sourceCode:
+        :return:
+        """
+
+        loadingSuccessful = True
+        try:
+            self.mapAndLoadLookNFeelFileString(sourceCode)
+        except:
+            self.mapAndLoadLookNFeelFileString(self.nativeData)
+            loadingSuccessful = False
+
+        return loadingSuccessful
+
     def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
         # To prevent name collisions and also to prevent live-editing of WidgetLooks that are used somewhere in a layout editor or other look n' feel editor simultaneously,
