@@ -70,24 +70,24 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         # Add all properties
 
-        propDefNames = widgetLookObject.getPropertyDefinitionNames(True)
-        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(True)
+        propDefNames = widgetLookObject.getPropertyDefinitionNames(False)
+        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(False)
         if propDefNames:
             categoryItem = self.createAndAddCategoryToRoot("PropertyDefinitions", "type: PropertyDefinitionBase")
             for propDefName in propDefNames:
                 currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefName)
                 self.createAndAddItem(currentPropertyDef, categoryItem)
 
-        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(True)
-        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(True)
+        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(False)
+        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(False)
         if propLinkDefNames:
             categoryItem = self.createAndAddCategoryToRoot("PropertyLinkDefinitions", "type: PropertyDefinitionBase")
             for propLinkDefName in propLinkDefNames:
                 currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefName)
                 self.createAndAddItem(currentPropertyLinkDef, categoryItem)
 
-        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(True)
-        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(True)
+        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(False)
+        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(False)
         if propertyInitialiserNames:
             categoryItem = self.createAndAddCategoryToRoot("Properties", "type: PropertyInitialiser")
             for propertyInitialiserName in propertyInitialiserNames:
@@ -96,8 +96,8 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         # Create and add all view-dependent hierarchy items owned by the WidgetLookFeel
 
-        namedAreaMap = widgetLookObject.getNamedAreaMap(True)
-        namedAreaNames = widgetLookObject.getNamedAreaNames(True)
+        namedAreaMap = widgetLookObject.getNamedAreaMap(False)
+        namedAreaNames = widgetLookObject.getNamedAreaNames(False)
         if namedAreaNames:
             categoryItem = self.createAndAddCategoryToRoot("NamedAreas", "type: NamedArea")
             for namedAreaName in namedAreaNames:
@@ -107,22 +107,22 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         # Gather all elements associated with the currently selected view
         stateImageryNames, imagerySectionNames = self.getViewDependentElementNames(widgetLookObject)
 
-        imagerySectionMap = widgetLookObject.getImagerySectionMap(True)
+        imagerySectionMap = widgetLookObject.getImagerySectionMap(False)
         if imagerySectionNames:
             categoryItem = self.createAndAddCategoryToRoot("ImagerySections", "type: ImagerySection")
             for imagerySectionName in imagerySectionNames:
                 currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
                 self.createAndAddItem(currentImagerySection, categoryItem)
 
-        stateImageryMap = widgetLookObject.getStateImageryMap(True)
+        stateImageryMap = widgetLookObject.getStateImageryMap(False)
         if stateImageryNames:
             categoryItem = self.createAndAddCategoryToRoot("StateImageries", "type: StateImagery")
             for stateImageryName in stateImageryNames:
                 currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
                 self.createAndAddItem(currentStateImagery, categoryItem)
 
-        widgetComponentNames = widgetLookObject.getWidgetComponentNames(True)
-        widgetComponentMap = widgetLookObject.getWidgetComponentMap(True)
+        widgetComponentNames = widgetLookObject.getWidgetComponentNames(False)
+        widgetComponentMap = widgetLookObject.getWidgetComponentMap(False)
         if widgetComponentNames:
             categoryItem = self.createAndAddCategoryToRoot("WidgetComponents", "type: WidgetComponent")
             for widgetComponentName in widgetComponentNames:
@@ -153,19 +153,13 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         # (They could also be inside another WLF definition, in which case we won't display them)
         # All such ImagerySections will be added to a list
         referencedImagerySections = []
-        layerIter = viewedStateImagery.getLayerIterator()
-        while not layerIter.isAtEnd():
-            layer = layerIter.getCurrentValue()
-            sectionIter = layer.getSectionIterator()
-
-            while not sectionIter.isAtEnd():
-                currentSectionSpecification = sectionIter.getCurrentValue()
-                ownerWidgetFeel = currentSectionSpecification.getOwnerWidgetLookFeel()
+        layerSpecList = viewedStateImagery.getLayerSpecificationPointers()
+        for layerSpec in layerSpecList:
+            sectionSpecList = layerSpec.getSectionSpecificationPointers()
+            for sectionSpec in sectionSpecList:
+                ownerWidgetFeel = sectionSpec.getOwnerWidgetLookFeel()
                 if ownerWidgetFeel == self.widgetLookObject.getName():
-                    referencedImagerySections.append(currentSectionSpecification.getSectionName())
-
-                sectionIter.next()
-            layerIter.next()
+                    referencedImagerySections.append(sectionSpec.getSectionName())
 
         #We make each ImagerySection unique using a set
         imagerySectionNamesSet = set(referencedImagerySections)

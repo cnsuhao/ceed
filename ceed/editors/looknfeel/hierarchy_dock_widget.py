@@ -94,11 +94,10 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         # Add the default entry: The show-all option
         listOfComboboxEntries = [["Show all", None]]
 
-        stateIter = widgetLookObject.getStateIterator()
-        while not stateIter.isAtEnd():
-            currentStateImagery = stateIter.getCurrentValue()
-            listOfComboboxEntries.append([currentStateImagery.getName(), currentStateImagery.getName()])
-            stateIter.next()
+        stateImageryMap = widgetLookObject.getStateImageryMap()
+        for stateImageryMapEntry in stateImageryMap:
+            currentStateImageryName = stateImageryMapEntry.key
+            listOfComboboxEntries.append([currentStateImageryName, currentStateImageryName])
 
         # Sort the entries but keep "Show all" on top
         def getSortKey(listEntry):

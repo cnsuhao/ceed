@@ -175,11 +175,9 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         Creates and appends children items based on an ImagerySection.
         :return:
         """
-        layerIter = self.falagardElement.getLayerIterator()
-        while not layerIter.isAtEnd():
-            layer = layerIter.getCurrentValue()
-            self.createAndAddItem(layer)
-            layerIter.next()
+        layerSpecList = self.falagardElement.getLayerSpecificationPointers()
+        for layerSpec in layerSpecList:
+            self.createAndAddItem(layerSpec)
 
     def createWidgetComponentChildren(self):
         """
@@ -218,13 +216,6 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         Creates and appends children items based on a LayerSpecification.
         :return:
         """
-        sectionIter = self.falagardElement.getSectionIterator()
-        while not sectionIter.isAtEnd():
-            currentSectionSpecification = sectionIter.getCurrentValue()
-            self.createAndAddItem(currentSectionSpecification)
-            sectionIter.next()
-
-    def clone(self):
-        ret = LookNFeelHierarchyItem(self.manipulator)
-        ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.CheckStateRole)
-        return ret
+        sectionSpecList = self.falagardElement.getSectionSpecificationPointers()
+        for sectionSpec in sectionSpecList:
+            self.createAndAddItem(sectionSpec)
