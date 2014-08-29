@@ -89,6 +89,7 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         super(FalagardElementAttributeEdit, self).__init__()
 
         self.visual = visual
+        """ :type : LookNFeelVisualEditing """
 
         self.falagardElement = falagardElement
         self.attributeName = attributeName
@@ -161,6 +162,27 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         #TODO Ident: Refresh the property view afterwards instead
         #self.falagardProperty.setValue(self.newValue, reason=Property.ChangeValueReason.InnerValueChanged)
 
+        self.visual.destroyCurrentPreviewWidget()
+
+        self.visual.tabbedEditor.removeOwnedWidgetLookFalagardMappings()
+        self.visual.tabbedEditor.addMappedWidgetLookFalagardMappings()
+
         self.visual.updateWidgetLookPreview()
 
+        """
+        # We add every WidgetLookFeel name of this Look N' Feel to a StringSet
+        nameSet = self.visual.tabbedEditor.getStringSetOfWidgetLookFeelNames()
+        # We parse all WidgetLookFeels as XML to a string
+        import PyCEGUI
+        lookAndFeelString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookSetAsString(nameSet)
+
+        lookAndFeelString = self.visual.tabbedEditor.unmapWidgetLookReferences(lookAndFeelString)
+
+        self.visual.tabbedEditor.tryUpdatingWidgetLookFeel(lookAndFeelString)
+        self.visual.updateToNewTargetWidgetLook()
+        """
+
         super(FalagardElementAttributeEdit, self).redo()
+
+# needs to be at the end, imported to get the singleton
+from ceed import mainwindow
