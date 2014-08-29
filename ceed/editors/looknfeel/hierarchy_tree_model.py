@@ -70,38 +70,34 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         # Add all properties
 
-        propDefNames = widgetLookObject.getPropertyDefinitionNames(False)
         propertyDefMap = widgetLookObject.getPropertyDefinitionMap(False)
-        if propDefNames:
+        if propertyDefMap:
             categoryItem = self.createAndAddCategoryToRoot("PropertyDefinitions", "type: PropertyDefinitionBase")
-            for propDefName in propDefNames:
-                currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefName)
+            for propDefMapEntry in propertyDefMap:
+                currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefMapEntry.key)
                 self.createAndAddItem(currentPropertyDef, categoryItem)
 
-        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(False)
         propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(False)
-        if propLinkDefNames:
+        if propertyLinkDefMap:
             categoryItem = self.createAndAddCategoryToRoot("PropertyLinkDefinitions", "type: PropertyDefinitionBase")
-            for propLinkDefName in propLinkDefNames:
-                currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefName)
+            for propLinkDefMapEntry in propertyLinkDefMap:
+                currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefMapEntry.key)
                 self.createAndAddItem(currentPropertyLinkDef, categoryItem)
 
-        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(False)
         propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(False)
-        if propertyInitialiserNames:
+        if propertyInitialiserMap:
             categoryItem = self.createAndAddCategoryToRoot("Properties", "type: PropertyInitialiser")
-            for propertyInitialiserName in propertyInitialiserNames:
-                currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserName)
+            for propertyInitialiserMapEntry in propertyInitialiserMap:
+                currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserMapEntry.key)
                 self.createAndAddItem(currentPropertyInitialiser, categoryItem)
 
         # Create and add all view-dependent hierarchy items owned by the WidgetLookFeel
 
         namedAreaMap = widgetLookObject.getNamedAreaMap(False)
-        namedAreaNames = widgetLookObject.getNamedAreaNames(False)
-        if namedAreaNames:
+        if namedAreaMap:
             categoryItem = self.createAndAddCategoryToRoot("NamedAreas", "type: NamedArea")
-            for namedAreaName in namedAreaNames:
-                currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
+            for namedAreaMapEntry in namedAreaMap:
+                currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaMapEntry.key)
                 self.createAndAddItem(currentNamedArea, categoryItem)
 
         # Gather all elements associated with the currently selected view
@@ -121,12 +117,11 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
                 currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
                 self.createAndAddItem(currentStateImagery, categoryItem)
 
-        widgetComponentNames = widgetLookObject.getWidgetComponentNames(False)
         widgetComponentMap = widgetLookObject.getWidgetComponentMap(False)
-        if widgetComponentNames:
+        if widgetComponentMap:
             categoryItem = self.createAndAddCategoryToRoot("WidgetComponents", "type: WidgetComponent")
-            for widgetComponentName in widgetComponentNames:
-                widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
+            for widgetComponentMapEntry in widgetComponentMap:
+                widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentMapEntry.key)
                 self.createAndAddItem(widgetComponent, categoryItem)
 
     def getViewDependentElementNames(self, widgetLookObject):
