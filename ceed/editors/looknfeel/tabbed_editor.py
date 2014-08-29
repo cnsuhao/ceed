@@ -218,7 +218,7 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
         self.nameMappingsOfOwnedWidgetLooks = []
 
-        widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+        widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookPointerMap()
 
         for widgetLookEntry in widgetLookMap:
             widgetLookEditModeName = widgetLookEntry.key

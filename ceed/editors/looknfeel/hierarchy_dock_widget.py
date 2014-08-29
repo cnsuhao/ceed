@@ -88,7 +88,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
         if not self.tabbedEditor.targetWidgetLook:
             return
         else:
-            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookPointerMap()
             widgetLookObject = PyCEGUI.Workarounds.WidgetLookFeelMapGet(widgetLookMap, self.tabbedEditor.targetWidgetLook)
 
         # Add the default entry: The show-all option
@@ -130,7 +130,7 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
 
         widgetLookName = self.tabbedEditor.targetWidgetLook
         if widgetLookName:
-            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+            widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookPointerMap()
             widgetLookObject = PyCEGUI.Workarounds.WidgetLookFeelMapGet(widgetLookMap, widgetLookName)
             self.model.updateTree(widgetLookObject, limitDisplayTo)
         else:
