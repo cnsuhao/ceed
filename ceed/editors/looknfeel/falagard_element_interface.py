@@ -463,7 +463,7 @@ class FalagardElementInterface(object):
             elif attributeName == attributeList[1]:
                 falagardElement.setTextPropertySource(attributeValue)
             elif attributeName == attributeList[2]:
-                falagardElement.setFont(attributeValue)
+                falagardElement.setFont(attributeValue.getName())
             elif attributeName == attributeList[3]:
                 falagardElement.setFontPropertySource(attributeValue)
             elif attributeName == attributeList[4]:
