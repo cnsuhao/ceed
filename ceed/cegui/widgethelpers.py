@@ -215,11 +215,36 @@ class Manipulator(resizable.ResizableRectItem):
 
         return ret
 
-    def updateFromWidget(self, callUpdate = False):
+    def updateFromWidget(self, callUpdate = False, updateAncestorLCs = False):
+        """Updates this manipulator with associated widget properties. Mainly
+        position and size.
+
+        callUpdate - if True we also call update on the widget itself before
+                     querying its properties
+        updateParentLCs - if True we update ancestor layout containers
+        """
+
         assert(self.widget is not None)
 
         if callUpdate:
             self.widget.update(0.0)
+
+        if updateAncestorLCs:
+            # We are trying to find a topmost LC (in case of nested LCs) and
+            # recursively update it
+
+            item = self.parentItem()
+            topmostLC = None
+            while (item is not None and isinstance(item.widget, PyCEGUI.LayoutContainer)):
+                topmostLC = item
+                item = item.parentItem()
+
+            if topmostLC is not None:
+                topmostLC.updateFromWidget(True, False)
+
+                # No need to continue, this method will get called again with
+                # updateAncestorLCs = False
+                return
 
         unclippedOuterRect = self.widget.getUnclippedOuterRect().getFresh(True)
         pos = unclippedOuterRect.getPosition()
@@ -239,7 +264,9 @@ class Manipulator(resizable.ResizableRectItem):
             if not isinstance(item, Manipulator):
                 continue
 
-            item.updateFromWidget(callUpdate)
+            # if we are updating top to bottom we don't need to update ancestor
+            # layout containers, they will already be updated
+            item.updateFromWidget(callUpdate, False)
 
     def moveToFront(self):
         self.widget.moveToFront()
@@ -805,5 +832,5 @@ class SerialisationData(object):
                 widget.addChild(childWidget)
 
         # refresh the manipulator using newly set properties
-        ret.updateFromWidget()
+        ret.updateFromWidget(False, True)
         return ret
