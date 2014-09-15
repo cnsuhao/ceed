@@ -66,6 +66,11 @@ See the script's contents for more details.
 
 The only difference is that you need to start `runwrapper.bat` and the script will start ceed-gui automatically. This is the preferred choice on Windows because the terminal emulators are horrible.
 
+#### sample datafiles
+
+CEED comes with a few project files to get you started. See `data/samples/StockDatafiles_$version.project`.
+If you are using CEED from a repository instead of a source tarball, you need to fetch datafiles from the CEGUI repository. Use `./maintenance fetch-datafiles` to do that.
+
 ## Troubleshooting
 
 ### Can't import ceed.ui.something
