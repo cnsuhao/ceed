@@ -217,7 +217,7 @@ class CEGUIPropertyManager(object):
         self.propertyMap = propertyMap
 
     @staticmethod
-    def getTypeFromCEGUITypeString(ceguiStrType):
+    def getPythonTypeFromStringifiedCeguiType(ceguiStrType):
         #if not ceguiStrType in CEGUIPropertyManager._typeMap:
         #    print("TODO: " + ceguiStrType)
         return CEGUIPropertyManager._typeMap.get(ceguiStrType, unicode)
@@ -330,7 +330,7 @@ class CEGUIPropertyManager(object):
         if pmEntry and pmEntry.typeName:
             propertyDataType = pmEntry.typeName
         # get a native data type for the CEGUI data type, falling back to string
-        pythonDataType = CEGUIPropertyManager.getTypeFromCEGUITypeString(propertyDataType)
+        pythonDataType = CEGUIPropertyManager.getPythonTypeFromStringifiedCeguiType(propertyDataType)
 
         # get the callable that creates this data type
         # and the Property type to use.

@@ -31,6 +31,7 @@ from ceed.editors.looknfeel import code
 from ceed.editors.looknfeel import preview
 
 from ceed import settings
+from ceed import messages
 
 import ceed.compatibility.looknfeel as looknfeel_compatibility
 
@@ -46,7 +47,13 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
     def __init__(self, filePath):
         super(LookNFeelTabbedEditor, self).__init__(looknfeel_compatibility.manager, filePath)
 
-        self.editorIDString = str(id(self))
+        messages.warning(None, self, "LookNFeel Editor is experimental!",
+                         "This part of CEED is not considered to be ready for "
+                         "production. You have been warned. If everything "
+                         "breaks you get to keep the pieces!",
+                         "looknfeel_editor_experimental")
+
+        self.editorIDString = self.getEditorIDStringPrefix() + str(id(self))
 
         self.requiresProject = True
 
@@ -90,6 +97,10 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         self.visual.initialise()
 
     @staticmethod
+    def getEditorIDStringPrefix():
+        return "ceed_internal-"
+
+    @staticmethod
     def unmapMappedNameIntoOriginalParts(mappedName):
         """
         Returns the original WidgetLookFeel name and the editorID, based on a mapped name
@@ -103,45 +114,21 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
 
         return mappedNameSplitResult[1], mappedNameSplitResult[0]
 
-    @staticmethod
-    def getFalagardElementTypeAsString(falagardElement):
+    def tryUpdatingWidgetLookFeel(self, sourceCode):
         """
-        Returns the CEGUI class name that is corresponding to the Falagard Element as a string
-        :param falagardElement:
+        Tries to parse a LNF source code content
+        :param sourceCode:
         :return:
         """
 
-        if isinstance(falagardElement, PyCEGUI.PropertyDefinitionBase):
-            return u"PropertyDefinitionBase"
-        if isinstance(falagardElement, PyCEGUI.PropertyInitialiser):
-            return u"PropertyInitialiser"
-        elif isinstance(falagardElement, PyCEGUI.NamedArea):
-            return u"NamedArea"
-        elif isinstance(falagardElement, PyCEGUI.ImagerySection):
-            return u"ImagerySection"
-        elif isinstance(falagardElement, PyCEGUI.StateImagery):
-            return u"StateImagery"
-        elif isinstance(falagardElement, PyCEGUI.WidgetComponent):
-            return u"WidgetComponent"
-        elif isinstance(falagardElement, PyCEGUI.ImageryComponent):
-            return u"ImageryComponent"
-        elif isinstance(falagardElement, PyCEGUI.TextComponent):
-            return u"TextComponent"
-        elif isinstance(falagardElement, PyCEGUI.FrameComponent):
-            return u"FrameComponent"
-        elif isinstance(falagardElement, PyCEGUI.LayerSpecification):
-            return u"LayerSpecification"
-        elif isinstance(falagardElement, PyCEGUI.SectionSpecification):
-            return u"SectionSpecification"
-        elif isinstance(falagardElement, PyCEGUI.ComponentArea):
-            return u"ComponentArea"
-        elif isinstance(falagardElement, PyCEGUI.ColourRect):
-            return u"ColourRect"
-        elif isinstance(falagardElement, PyCEGUI.Image):
-            return u"Image"
+        loadingSuccessful = True
+        try:
+            self.mapAndLoadLookNFeelFileString(sourceCode)
+        except:
+            self.mapAndLoadLookNFeelFileString(self.nativeData)
+            loadingSuccessful = False
 
-        else:
-            return u"None"
+        return loadingSuccessful
 
     def mapAndLoadLookNFeelFileString(self, lookNFeelAsXMLString):
         # When we are loading a Look n' Feel file we want to load it into CEED in a way it doesn't collide with other LNF definitions stored into CEGUI.
@@ -231,7 +218,7 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
         # Returns an array containing tuples of the original WidgetLook name and the mapped one
         self.nameMappingsOfOwnedWidgetLooks = []
 
-        widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookMap()
+        widgetLookMap = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookPointerMap()
 
         for widgetLookEntry in widgetLookMap:
             widgetLookEditModeName = widgetLookEntry.key

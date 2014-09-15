@@ -163,11 +163,16 @@ class UDim(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.udimToString(object)
+        return PyCEGUI.PropertyHelper.udimToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToUDim(stringValue)
+
+    @classmethod
+    def getPropertyType(cls):
+        from ceguitype_editor_properties import UDimProperty
+        return UDimProperty
 
     def __init__(self, scale=0.0, offset=0.0):
         super(UDim, self).__init__()
@@ -188,10 +193,6 @@ class UDim(Base):
             return "{:.16f}".format(value).rstrip("0").rstrip(".")
 
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
-
-    @classmethod
-    def getPropertyType(cls):
-        return UDimProperty
 
 
 class USize(Base):
@@ -225,6 +226,19 @@ class USize(Base):
 
         return target, True
 
+    @classmethod
+    def tryToString(cls, ceguiObject):
+        return PyCEGUI.PropertyHelper.usizeToString(ceguiObject)
+
+    @classmethod
+    def tryToCeguiType(cls, stringValue):
+        return PyCEGUI.PropertyHelper.stringToUSize(stringValue)
+
+    @classmethod
+    def getPropertyType(cls):
+        from ceguitype_editor_properties import USizeProperty
+        return USizeProperty
+
     def __init__(self, width=UDim(), height=UDim()):
         super(USize, self).__init__()
         self.width = width
@@ -240,10 +254,6 @@ class USize(Base):
 
     def __repr__(self):
         return "{{{}, {}}}".format(self.width, self.height)
-
-    @classmethod
-    def getPropertyType(cls):
-        return USizeProperty
 
 
 class UVector2(Base):
@@ -282,7 +292,7 @@ class UVector2(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.uvector2ToString(object)
+        return PyCEGUI.PropertyHelper.uvector2ToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -308,6 +318,7 @@ class UVector2(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import UVector2Property
         return UVector2Property
 
 
@@ -356,7 +367,7 @@ class URect(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.urectToString(object)
+        return PyCEGUI.PropertyHelper.urectToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -382,6 +393,7 @@ class URect(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import URectProperty
         return URectProperty
 
 
@@ -423,6 +435,7 @@ class EnumBase(Base, properties.EnumValue):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import BaseProperty
         return BaseProperty
 
     def getEnumValues(self):
@@ -454,6 +467,7 @@ class HorizontalAlignment(EnumBase):
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToHorizontalAlignment(stringValue)
 
+
 class VerticalAlignment(EnumBase):
     """VerticalAlignment"""
 
@@ -471,6 +485,7 @@ class VerticalAlignment(EnumBase):
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToVerticalAlignment(stringValue)
+
 
 class HorizontalFormatting(EnumBase):
     """HorizontalFormatting"""
@@ -492,6 +507,7 @@ class HorizontalFormatting(EnumBase):
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToHorizontalFormatting(stringValue)
 
+
 class VerticalFormatting(EnumBase):
     """VerticalFormatting"""
 
@@ -511,6 +527,7 @@ class VerticalFormatting(EnumBase):
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToVerticalFormatting(stringValue)
+
 
 class HorizontalTextFormatting(EnumBase):
     """HorizontalTextFormatting"""
@@ -534,6 +551,7 @@ class HorizontalTextFormatting(EnumBase):
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToHorizontalTextFormatting(stringValue)
+
 
 class VerticalTextFormatting(EnumBase):
     """VerticalTextFormatting"""
@@ -724,6 +742,7 @@ class Quaternion(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import QuaternionProperty
         return QuaternionProperty
 
 
@@ -785,6 +804,7 @@ class XYZRotation(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import XYZRotationProperty
         return XYZRotationProperty
 
 
@@ -851,7 +871,7 @@ class Colour(Base):
 
     @classmethod
     def tryToString(cls, ceguiObject):
-        return PyCEGUI.PropertyHelper.colourToString(object)
+        return PyCEGUI.PropertyHelper.colourToString(ceguiObject)
 
     @classmethod
     def tryToCeguiType(cls, stringValue):
@@ -891,6 +911,7 @@ class Colour(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import ColourProperty
         return ColourProperty
 
 
@@ -978,6 +999,7 @@ class ColourRect(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import ColourRectProperty
         return ColourRectProperty
 
 
@@ -1001,6 +1023,7 @@ class StringWrapper(Base):
 
     @classmethod
     def getPropertyType(cls):
+        from ceguitype_editor_properties import BaseProperty
         return BaseProperty
 
 
@@ -1030,243 +1053,3 @@ class ImageRef(StringWrapper):
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToImage(stringValue)
-
-
-class BaseProperty(properties.Property):
-    """Base class for all Property types.
-
-    Note that, by default, it expects the components to map
-    directly to an attribute of it's value; with the first letter in lower case.
-
-    For example the UDimProperty has two components, 'Scale' and 'Offset' and
-    it also uses the UDim type that has the 'scale' and 'offset' attribute values.
-    """
-
-    def createComponents(self):
-        super(BaseProperty, self).createComponents()
-
-    def getComponents(self):
-        return self.components
-
-    @classmethod
-    def getAttrName(cls, componentName):
-        """Get the attribute name from the component name."""
-        return componentName[:1].lower() + componentName[1:]
-
-    def updateComponents(self, reason=properties.Property.ChangeValueReason.Unknown):
-        components = self.getComponents()
-        if components is not None:
-            for compName, compValue in components.items():
-                # set component value from attribute value
-                compValue.setValue(getattr(self.value, self.getAttrName(compName)), reason)
-
-    def componentValueChanged(self, component, reason):
-        # set attribute value from component value
-        setattr(self.value, self.getAttrName(component.name), component.value)
-        # trigger our value changed event directly because
-        # we didn't call 'setValue()' to do it for us.
-        self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
-
-
-class UDimProperty(BaseProperty):
-    """Property for UDim values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-        self.components["Scale"] = properties.Property(name="Scale", value=self.value.scale, defaultValue=self.defaultValue.scale,
-                                                       readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Offset"] = properties.Property(name="Offset", value=self.value.offset, defaultValue=self.defaultValue.offset,
-                                                        readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(UDimProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return UDim.tryParse(strValue)
-
-
-class USizeProperty(BaseProperty):
-    """Property for USize values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-        self.components["Width"] = UDimProperty(name="Width", value=self.value.width, defaultValue=self.defaultValue.width,
-                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Height"] = UDimProperty(name="Height", value=self.value.height, defaultValue=self.defaultValue.height,
-                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(USizeProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return USize.tryParse(strValue)
-
-
-class UVector2Property(BaseProperty):
-    """Property for UVector2 values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-        self.components["X"] = UDimProperty(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Y"] = UDimProperty(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                            readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(UVector2Property, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return UVector2.tryParse(strValue)
-
-
-class URectProperty(BaseProperty):
-    """Property for URect values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-        self.components["Left"] = UDimProperty(name="Left", value=self.value.left, defaultValue=self.defaultValue.left,
-                                               readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Top"] = UDimProperty(name="Top", value=self.value.top, defaultValue=self.defaultValue.top,
-                                              readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Right"] = UDimProperty(name="Right", value=self.value.right, defaultValue=self.defaultValue.right,
-                                                readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Bottom"] = UDimProperty(name="Bottom", value=self.value.bottom, defaultValue=self.defaultValue.bottom,
-                                                 readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(URectProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return URect.tryParse(strValue)
-
-
-class QuaternionProperty(BaseProperty):
-    """Property for Quaternion values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-
-        # TODO: Set min/max/step for W, X, Y, Z. See how it's done on XYZRotationProperty.
-        self.components["W"] = properties.Property(name="W", value=self.value.w, defaultValue=self.defaultValue.w,
-                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                                   readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        self.components["Degrees"] = XYZRotationProperty(name="Degrees",
-                                                         value=XYZRotation.fromQuaternion(self.value),
-                                                         defaultValue=XYZRotation.fromQuaternion(self.defaultValue),
-                                                         readOnly=self.readOnly,
-                                                         editorOptions=self.editorOptions)
-
-        super(QuaternionProperty, self).createComponents()
-
-    def updateComponents(self, reason=properties.Property.ChangeValueReason.Unknown):
-        components = self.getComponents()
-        if components is not None:
-            components["W"].setValue(self.value.w, reason)
-            components["X"].setValue(self.value.x, reason)
-            components["Y"].setValue(self.value.y, reason)
-            components["Z"].setValue(self.value.z, reason)
-            components["Degrees"].setValue(XYZRotation.fromQuaternion(self.value), reason)
-
-    def componentValueChanged(self, component, reason):
-        if component.name == "Degrees":
-            (wv, xv, yv, zv) = Quaternion.convertEulerDegreesToQuaternion(component.value.x, component.value.y, component.value.z)
-            self.components["W"].setValue(wv)
-            self.components["X"].setValue(xv)
-            self.components["Y"].setValue(yv)
-            self.components["Z"].setValue(zv)
-            self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
-        else:
-            super(QuaternionProperty, self).componentValueChanged(component, reason)
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return Quaternion.tryParse(strValue)
-
-
-class XYZRotationProperty(BaseProperty):
-    """Property for XYZRotation values."""
-
-    def createComponents(self):
-        editorOptions = {"numeric": {"min": -360, "max": 360, "wrapping": True}}
-
-        self.components = OrderedDict()
-
-        self.components["X"] = properties.Property(name="X", value=self.value.x, defaultValue=self.defaultValue.x,
-                                                   readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Y"] = properties.Property(name="Y", value=self.value.y, defaultValue=self.defaultValue.y,
-                                                   readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Z"] = properties.Property(name="Z", value=self.value.z, defaultValue=self.defaultValue.z,
-                                                   readOnly=self.readOnly, editorOptions=editorOptions)
-
-        super(XYZRotationProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return XYZRotation.tryParse(strValue)
-
-
-class ColourProperty(BaseProperty):
-    """Property for Colour values."""
-
-    def createComponents(self):
-        editorOptions = {"numeric": {"min": 0, "max": 255}}
-
-        self.components = OrderedDict()
-
-        self.components["Alpha"] = properties.Property(name="Alpha", value=self.value.alpha, defaultValue=self.defaultValue.alpha,
-                                                       readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Red"] = properties.Property(name="Red", value=self.value.red, defaultValue=self.defaultValue.red,
-                                                     readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Green"] = properties.Property(name="Green", value=self.value.green, defaultValue=self.defaultValue.green,
-                                                       readOnly=self.readOnly, editorOptions=editorOptions)
-        self.components["Blue"] = properties.Property(name="Blue", value=self.value.blue, defaultValue=self.defaultValue.blue,
-                                                      readOnly=self.readOnly, editorOptions=editorOptions)
-
-        super(ColourProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return Colour.tryParse(strValue)
-
-class ColourRectProperty(BaseProperty):
-    """Property for ColourRect values."""
-
-    def createComponents(self):
-        self.components = OrderedDict()
-
-        self.components["TopLeft"] = ColourProperty(name="TopLeft", value=self.value.topLeft, defaultValue=self.defaultValue.topLeft,
-                                                    readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["TopRight"] = ColourProperty(name="TopRight", value=self.value.topRight, defaultValue=self.defaultValue.topRight,
-                                                     readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["BottomLeft"] = ColourProperty(name="BottomLeft", value=self.value.bottomLeft, defaultValue=self.defaultValue.bottomLeft,
-                                                       readOnly=self.readOnly, editorOptions=self.editorOptions)
-        self.components["BottomRight"] = ColourProperty(name="BottomRight", value=self.value.bottomRight, defaultValue=self.defaultValue.bottomRight,
-                                                        readOnly=self.readOnly, editorOptions=self.editorOptions)
-
-        super(ColourRectProperty, self).createComponents()
-
-    def isStringRepresentationEditable(self):
-        return True
-
-    def tryParse(self, strValue):
-        return ColourRect.tryParse(strValue)

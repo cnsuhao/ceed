@@ -71,7 +71,7 @@ class MoveCommand(commands.UndoCommand):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
             widgetManipulator.update()
 
@@ -81,7 +81,7 @@ class MoveCommand(commands.UndoCommand):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
             # in case the pixel position didn't change but the absolute and negative components changed and canceled each other out
             widgetManipulator.update()
 
@@ -134,7 +134,7 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.oldPositions[widgetPath])
             widgetManipulator.widget.setSize(self.oldSizes[widgetPath])
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
             # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
             widgetManipulator.update()
 
@@ -145,7 +145,7 @@ class ResizeCommand(commands.UndoCommand):
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setPosition(self.newPositions[widgetPath])
             widgetManipulator.widget.setSize(self.newSizes[widgetPath])
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
             # in case the pixel size didn't change but the absolute and negative sizes changed and canceled each other out
             widgetManipulator.update()
 
@@ -288,13 +288,7 @@ class CreateCommand(commands.UndoCommand):
         if result.widget.getSize() == PyCEGUI.USize(PyCEGUI.UDim(0, 0), PyCEGUI.UDim(0, 0)):
             result.widget.setSize(PyCEGUI.USize(PyCEGUI.UDim(0, 50), PyCEGUI.UDim(0, 50)))
 
-        # the parent may want to reposition or resize its new child and may be
-        # doing lazy updates - i.e. a layout container
-        if result.parentItem() and isinstance(result.parentItem(), widgethelpers.Manipulator):
-            result.parentItem().updateFromWidget(True)
-
-        else:
-            result.updateFromWidget(True)
+        result.updateFromWidget(True, True)
 
         # ensure this isn't obscured by it's parent
         result.moveToFront()
@@ -363,7 +357,7 @@ class PropertyEditCommand(commands.UndoCommand):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.oldValues[widgetPath])
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
 
             self.notifyPropertyManager(widgetManipulator, self.ignoreNextPropertyManagerCallback)
         self.ignoreNextPropertyManagerCallback = False
@@ -375,7 +369,7 @@ class PropertyEditCommand(commands.UndoCommand):
         for widgetPath in self.widgetPaths:
             widgetManipulator = self.visual.scene.getManipulatorByPath(widgetPath)
             widgetManipulator.widget.setProperty(self.propertyName, self.newValue)
-            widgetManipulator.updateFromWidget()
+            widgetManipulator.updateFromWidget(False, True)
 
             self.notifyPropertyManager(widgetManipulator, self.ignoreNextPropertyManagerCallback)
         self.ignoreNextPropertyManagerCallback = False
@@ -578,9 +572,7 @@ class ReparentCommand(commands.UndoCommand):
             # and sort out the manipulators
             widgetManipulator.setParentItem(oldParentManipulator)
 
-            # the parent may want to reposition or resize its new child and may be
-            # doing lazy updates - i.e. a layout container
-            oldParentManipulator.updateFromWidget(True)
+            widgetManipulator.updateFromWidget(True, True)
 
             i += 1
 
@@ -617,9 +609,7 @@ class ReparentCommand(commands.UndoCommand):
             # and sort out the manipulators
             widgetManipulator.setParentItem(newParentManipulator)
 
-            # the parent may want to reposition or resize its new child and may be
-            # doing lazy updates - i.e. a layout container
-            newParentManipulator.updateFromWidget(True)
+            widgetManipulator.updateFromWidget(True, True)
 
             i += 1
 
@@ -685,7 +675,7 @@ class PasteCommand(commands.UndoCommand):
 
         # Update the topmost parent widget recursively to get possible resize or
         # repositions of the pasted widgets into the manipulator data.
-        targetManipulator.updateFromWidget(True)
+        targetManipulator.updateFromWidget(True, True)
 
         self.visual.hierarchyDockWidget.refresh()
 
@@ -1017,7 +1007,7 @@ class MoveInParentWidgetListCommand(commands.UndoCommand):
                 parentManipulator.widget.swapChildPositions(oldPosition, newPosition)
                 assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
 
-                parentManipulator.updateFromWidget(True)
+                parentManipulator.updateFromWidget(True, True)
 
     def redo(self):
         if self.delta != 0:
@@ -1032,6 +1022,6 @@ class MoveInParentWidgetListCommand(commands.UndoCommand):
                 parentManipulator.widget.swapChildPositions(oldPosition, newPosition)
                 assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
 
-                parentManipulator.updateFromWidget(True)
+                parentManipulator.updateFromWidget(True, True)
 
         super(MoveInParentWidgetListCommand, self).redo()

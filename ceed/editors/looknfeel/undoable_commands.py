@@ -20,9 +20,6 @@
 
 from ceed import commands
 
-from ceed.editors.looknfeel import widgethelpers
-import PyCEGUI
-
 idbase = 1300
 
 
@@ -47,7 +44,20 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         self.refreshText()
 
     def refreshText(self):
-        self.setText("Change the target of Look n' Feel editing from widget \"" + self.oldTargetWidgetLook + "\" to \"" + self.newTargetWidgetLook + "\"")
+        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
+        if self.oldTargetWidgetLook:
+            originalOldTargetName, _ = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.oldTargetWidgetLook)
+            originalOldTargetName = u"\"" + originalOldTargetName + u"\""
+        else:
+            originalOldTargetName = u"no selection"
+
+        if self.newTargetWidgetLook:
+            originalNewTargetName, _ = LookNFeelTabbedEditor.unmapMappedNameIntoOriginalParts(self.newTargetWidgetLook)
+            originalNewTargetName =  u"\"" + originalNewTargetName + u"\""
+        else:
+            originalNewTargetName, _ = u"no selection"
+
+        self.setText(u"Changed editing target from " + originalOldTargetName + " to " + originalNewTargetName)
 
     def id(self):
         return idbase + 1
@@ -75,19 +85,22 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
     """This command resizes given widgets from old positions and old sizes to new
     """
 
-    def __init__(self, visual, falagardElement, attributeName, newValue, getterCallback, setterCallback, ignoreNextCallback=False):
+    def __init__(self, falagardProperty, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
         super(FalagardElementAttributeEdit, self).__init__()
 
         self.visual = visual
+        """ :type : LookNFeelVisualEditing """
 
         self.falagardElement = falagardElement
         self.attributeName = attributeName
 
-        self.getterCallback = getterCallback
-        self.setterCallback = setterCallback
+        self.falagardProperty = falagardProperty
+        """ :type : FalagardElementEditorProperty"""
 
         # We retrieve the momentary value using the getter callback and store it as old value
-        self.oldValue = self.getterCallback(falagardElement, attributeName)
+        from falagard_element_interface import FalagardElementInterface
+        self.oldValue, ceguiType = FalagardElementInterface.getAttributeValue(falagardElement, attributeName, visual.tabbedEditor)
+        self.oldValueAsString = unicode(self.oldValue)
 
         # If the value is a subtype of
         from ceed.cegui import ceguitypes
@@ -96,19 +109,19 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
             # if it is a subclass of our ceguitypes, do some special handling
             self.newValueAsString = unicode(newValue)
             self.newValue = newValueType.toCeguiType(self.newValueAsString)
-        elif issubclass(newValueType, unicode):
-            self.newValueAsString = newValue
+        elif newValueType is bool or newValueType is unicode:
             self.newValue = newValue
+            self.newValueAsString = unicode(newValue)
         else:
             raise Exception("Unexpected type encountered")
 
         # Get the Falagard element's type as string so we can display better info
-        from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
-        self.falagardElementName = LookNFeelTabbedEditor.getFalagardElementTypeAsString(falagardElement)
+        from ceed.editors.looknfeel.falagard_element_interface import FalagardElementInterface
+        self.falagardElementName = FalagardElementInterface.getFalagardElementTypeAsString(falagardElement)
 
         self.refreshText()
 
-        self.ignoreNextCallback = ignoreNextCallback
+        self.ignoreNextCall = ignoreNextCallback
 
     def refreshText(self):
         self.setText("Changing '%s' in '%s' to value '%s'" % (self.attributeName, self.falagardElementName, self.newValueAsString))
@@ -117,20 +130,59 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
         return idbase + 2
 
     def mergeWith(self, cmd):
+        if self.falagardElement == cmd.falagardElement and self.attributeName == cmd.attributeName:
+            self.newValue = cmd.newValue
+            self.newValueAsString = cmd.newValueAsString
+
+            self.refreshText()
+
+            return True
+
         return False
 
     def undo(self):
         super(FalagardElementAttributeEdit, self).undo()
 
         # We set the value using the setter callback
-        self.setterCallback(self.falagardElement, self.attributeName, self.oldValue)
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.oldValue)
+
+        from ceed.propertytree.properties import Property
+        #TODO Ident: Refresh the property view afterwards instead
+        # self.falagardProperty.setValue(self.oldValue, reason=Property.ChangeValueReason.InnerValueChanged)
 
         self.visual.updateWidgetLookPreview()
 
     def redo(self):
         # We set the value using the setter callback
-        self.setterCallback(self.falagardElement, self.attributeName, self.newValue)
+        from falagard_element_interface import FalagardElementInterface
+        FalagardElementInterface.setAttributeValue(self.falagardElement, self.attributeName, self.newValue)
+
+        from ceed.propertytree.properties import Property
+        #TODO Ident: Refresh the property view afterwards instead
+        #self.falagardProperty.setValue(self.newValue, reason=Property.ChangeValueReason.InnerValueChanged)
+
+        self.visual.destroyCurrentPreviewWidget()
+
+        self.visual.tabbedEditor.removeOwnedWidgetLookFalagardMappings()
+        self.visual.tabbedEditor.addMappedWidgetLookFalagardMappings()
 
         self.visual.updateWidgetLookPreview()
 
+        """
+        # We add every WidgetLookFeel name of this Look N' Feel to a StringSet
+        nameSet = self.visual.tabbedEditor.getStringSetOfWidgetLookFeelNames()
+        # We parse all WidgetLookFeels as XML to a string
+        import PyCEGUI
+        lookAndFeelString = PyCEGUI.WidgetLookManager.getSingleton().getWidgetLookSetAsString(nameSet)
+
+        lookAndFeelString = self.visual.tabbedEditor.unmapWidgetLookReferences(lookAndFeelString)
+
+        self.visual.tabbedEditor.tryUpdatingWidgetLookFeel(lookAndFeelString)
+        self.visual.updateToNewTargetWidgetLook()
+        """
+
         super(FalagardElementAttributeEdit, self).redo()
+
+# needs to be at the end, imported to get the singleton
+from ceed import mainwindow

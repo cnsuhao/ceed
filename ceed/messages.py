@@ -40,6 +40,9 @@ def warning(app, parentWidget, title, message, token = None):
     same warning again. Passing a proper descriptive token is advised.
     """
 
+    if app is None:
+        app = QtGui.QApplication.instance()
+
     if token is None:
         token = hashlib.sha1(title + message).hexdigest()
 

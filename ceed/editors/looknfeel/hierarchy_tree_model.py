@@ -24,10 +24,6 @@ from PySide import QtCore
 from PySide import QtGui
 import cPickle
 
-from ceed import settings
-
-from ceed.editors.looknfeel import widgethelpers
-
 from hierarchy_tree_item import LookNFeelHierarchyItem
 
 class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
@@ -36,11 +32,11 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
         self.dockWidget = dockWidget
         """ :type : LookNFeelHierarchyDockWidget """
-        self.setItemPrototype(LookNFeelHierarchyItem(None))
+        self.setItemPrototype(LookNFeelHierarchyItem(self))
 
         self.widgetLookObject = None
 
-        self.limitDisplayTo = None
+        self.limitDisplayToStateImagery = None
         """ A string defining a name of a StateImagery. This StateImagery, and everything referenced within it, will be the only one
         to be displayed in the hierarchy. The value None means there won't be any limitation and everything will be displayed. """
 
@@ -53,7 +49,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :return:
         """
 
-        self.limitDisplayTo = limitDisplayTo
+        self.limitDisplayToStateImagery = limitDisplayTo
         self.widgetLookObject = widgetLookObject
 
         # Clear any existing hierarchy
@@ -62,10 +58,7 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         if self.widgetLookObject is None:
             return
 
-        if self.limitDisplayTo is None:
-            self.appendAllWidgetLookFeelChildren(self.widgetLookObject)
-        else:
-            self.appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self.widgetLookObject)
+        self.appendAllWidgetLookFeelChildren(self.widgetLookObject)
 
     def appendAllWidgetLookFeelChildren(self, widgetLookObject):
         """
@@ -74,116 +67,100 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return:
         """
-        propDefNames = widgetLookObject.getPropertyDefinitionNames(True)
-        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(True)
-        if propDefNames:
+
+        # Add all properties
+
+        propertyDefMap = widgetLookObject.getPropertyDefinitionMap(False)
+        if propertyDefMap:
             categoryItem = self.createAndAddCategoryToRoot("PropertyDefinitions", "type: PropertyDefinitionBase")
-            for propDefName in propDefNames:
-                currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefName)
+            for propDefMapEntry in propertyDefMap:
+                currentPropertyDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyDefMap, propDefMapEntry.key)
                 self.createAndAddItem(currentPropertyDef, categoryItem)
 
-        propLinkDefNames = widgetLookObject.getPropertyLinkDefinitionNames(True)
-        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(True)
-        if propLinkDefNames:
+        propertyLinkDefMap = widgetLookObject.getPropertyLinkDefinitionMap(False)
+        if propertyLinkDefMap:
             categoryItem = self.createAndAddCategoryToRoot("PropertyLinkDefinitions", "type: PropertyDefinitionBase")
-            for propLinkDefName in propLinkDefNames:
-                currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefName)
+            for propLinkDefMapEntry in propertyLinkDefMap:
+                currentPropertyLinkDef = PyCEGUI.Workarounds.PropertyDefinitionBaseMapGet(propertyLinkDefMap, propLinkDefMapEntry.key)
                 self.createAndAddItem(currentPropertyLinkDef, categoryItem)
 
-        propertyInitialiserNames = widgetLookObject.getPropertyInitialiserNames(True)
-        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(True)
-        if propertyInitialiserNames:
+        propertyInitialiserMap = widgetLookObject.getPropertyInitialiserMap(False)
+        if propertyInitialiserMap:
             categoryItem = self.createAndAddCategoryToRoot("Properties", "type: PropertyInitialiser")
-            for propertyInitialiserName in propertyInitialiserNames:
-                currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserName)
+            for propertyInitialiserMapEntry in propertyInitialiserMap:
+                currentPropertyInitialiser = PyCEGUI.Workarounds.PropertyInitialiserMapGet(propertyInitialiserMap, propertyInitialiserMapEntry.key)
                 self.createAndAddItem(currentPropertyInitialiser, categoryItem)
 
-        namedAreaNames = widgetLookObject.getNamedAreaNames(True)
-        namedAreaMap = widgetLookObject.getNamedAreaMap(True)
-        if namedAreaNames:
+        # Create and add all view-dependent hierarchy items owned by the WidgetLookFeel
+
+        namedAreaMap = widgetLookObject.getNamedAreaMap(False)
+        if namedAreaMap:
             categoryItem = self.createAndAddCategoryToRoot("NamedAreas", "type: NamedArea")
-            for namedAreaName in namedAreaNames:
-                currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaName)
+            for namedAreaMapEntry in namedAreaMap:
+                currentNamedArea = PyCEGUI.Workarounds.NamedAreaMapGet(namedAreaMap, namedAreaMapEntry.key)
                 self.createAndAddItem(currentNamedArea, categoryItem)
 
-        imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
-        imagerySectionMap = widgetLookObject.getImagerySectionMap(True)
+        # Gather all elements associated with the currently selected view
+        stateImageryNames, imagerySectionNames = self.getViewDependentElementNames(widgetLookObject)
+
+        imagerySectionMap = widgetLookObject.getImagerySectionMap(False)
         if imagerySectionNames:
             categoryItem = self.createAndAddCategoryToRoot("ImagerySections", "type: ImagerySection")
             for imagerySectionName in imagerySectionNames:
                 currentImagerySection = PyCEGUI.Workarounds.ImagerySectionMapGet(imagerySectionMap, imagerySectionName)
                 self.createAndAddItem(currentImagerySection, categoryItem)
 
-        stateImageryNames = widgetLookObject.getStateImageryNames(True)
-        stateImageryMap = widgetLookObject.getStateImageryMap(True)
+        stateImageryMap = widgetLookObject.getStateImageryMap(False)
         if stateImageryNames:
             categoryItem = self.createAndAddCategoryToRoot("StateImageries", "type: StateImagery")
             for stateImageryName in stateImageryNames:
                 currentStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, stateImageryName)
                 self.createAndAddItem(currentStateImagery, categoryItem)
 
-        widgetComponentNames = widgetLookObject.getWidgetComponentNames(True)
-        widgetComponentMap = widgetLookObject.getWidgetComponentMap(True)
-        if widgetComponentNames:
+        widgetComponentMap = widgetLookObject.getWidgetComponentMap(False)
+        if widgetComponentMap:
             categoryItem = self.createAndAddCategoryToRoot("WidgetComponents", "type: WidgetComponent")
-            for widgetComponentName in widgetComponentNames:
-                widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentName)
+            for widgetComponentMapEntry in widgetComponentMap:
+                widgetComponent = PyCEGUI.Workarounds.WidgetComponentMapGet(widgetComponentMap, widgetComponentMapEntry.key)
                 self.createAndAddItem(widgetComponent, categoryItem)
 
-    def appendOnlyWidgetLookFeelElementsReferencedInStateImagery(self, widgetLookObject):
+    def getViewDependentElementNames(self, widgetLookObject):
         """
-        Iterates over all contained elements of the WidgetLookFeel. It will add only those elements
-        which are referenced by the StateImagery that was selected to be viewed. Additionally, it will add
-        the elements referenced from within the StateImagery, which are part of the WidgetLookFeel
-
+        Returns the StateImagery, ImagerySection, WidgetComponent and NamedArea names associated with the current view
         :param widgetLookObject: PyCEGUI.WidgetLookFeel
         :return:
         """
-        displayedStateImageryName = self.limitDisplayTo
-        displayedStateImagery = None
 
-        # Iterate through all StateImageries to see if we find the StateImagery
-        # we want to exclusively display in the hierarchy
-        stateIter = widgetLookObject.getStateIterator()
-        while not stateIter.isAtEnd():
-            currentStateImagery = stateIter.getCurrentValue()
+        # We get all names of all elements
+        stateImageryNames = widgetLookObject.getStateImageryNames(True)
+        imagerySectionNames = widgetLookObject.getImagerySectionNames(True)
 
-            if displayedStateImageryName == currentStateImagery.getName():
-                displayedStateImagery = currentStateImagery
-                break
-            stateIter.next()
+        # If the current mode is unlimited, return all names unaltered
+        if self.limitDisplayToStateImagery is None:
+            return stateImageryNames, imagerySectionNames
 
-        # If no StateImagery was found we don't add a hierarchy
-        if displayedStateImagery is None:
-            return
+        # We retrieve the StateImagery object that we want to display exclusively
+        stateImageryMap = widgetLookObject.getStateImageryMap(True)
+        viewedStateImagery = PyCEGUI.Workarounds.StateImageryMapGet(stateImageryMap, self.limitDisplayToStateImagery)
 
-        referencedImagerySections = []
         # We iterate over all layers and all SectionSpecification in the layers, looking for all
         # ImagerySections that are referenced from there and are "owned" by this WidgetLookFeel
         # (They could also be inside another WLF definition, in which case we won't display them)
         # All such ImagerySections will be added to a list
-        layerIter = displayedStateImagery.getLayerIterator()
-        while not layerIter.isAtEnd():
-            layer = layerIter.getCurrentValue()
-            sectionIter = layer.getSectionIterator()
-
-            while not sectionIter.isAtEnd():
-                currentSectionSpecification = sectionIter.getCurrentValue()
-                ownerWidgetFeel = currentSectionSpecification.getOwnerWidgetLookFeel()
+        referencedImagerySections = []
+        layerSpecList = viewedStateImagery.getLayerSpecificationPointers()
+        for layerSpec in layerSpecList:
+            sectionSpecList = layerSpec.getSectionSpecificationPointers()
+            for sectionSpec in sectionSpecList:
+                ownerWidgetFeel = sectionSpec.getOwnerWidgetLookFeel()
                 if ownerWidgetFeel == self.widgetLookObject.getName():
-                    referencedImagerySections.append(currentSectionSpecification.getSectionName())
-
-                sectionIter.next()
-            layerIter.next()
+                    referencedImagerySections.append(sectionSpec.getSectionName())
 
         #We make each ImagerySection unique using a set
         imagerySectionNamesSet = set(referencedImagerySections)
-        for imagerySectionName in imagerySectionNamesSet:
-            imagerySection = widgetLookObject.getImagerySection(imagerySectionName)
-            self.createAndAddItem(imagerySection)
+        imagerySectionNames = list(imagerySectionNamesSet)
 
-        # At last we end the StateImagery itself to the root
-        self.createAndAddItem(displayedStateImagery)
+        return [self.limitDisplayToStateImagery], imagerySectionNames
 
     def createAndAddCategoryToRoot(self, name, toolTip):
         """

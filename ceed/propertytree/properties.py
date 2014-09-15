@@ -600,6 +600,77 @@ class MultiPropertyWrapper(Property):
 
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)
 
+class SinglePropertyWrapper(Property):
+    """A property wrapper that can be used for inheritation and in that way, for overriding functions.
+    Owns a property of a specific type."""
+
+    def __init__(self, wrappedProperty):
+        """Initialise the instance with the specified properties.
+
+        templateProperty -- A newly created instance of a property of the same type
+                            as the properties that are to be wrapped. This should be
+                            already initialised with the proper name, category, settings,
+                            etc. It will be used internally and it will be owned by
+                            this wrapper.
+        """
+
+        self.wrappedProperty = wrappedProperty
+
+        # initialise with the most used value and default value
+        super(SinglePropertyWrapper, self).__init__(name=self.wrappedProperty.name,
+                                                    category=self.wrappedProperty.category,
+                                                    helpText=self.wrappedProperty.helpText,
+                                                    value=self.wrappedProperty.value,
+                                                    defaultValue=self.wrappedProperty.defaultValue,
+                                                    readOnly=self.wrappedProperty.readOnly,
+                                                    editorOptions=self.wrappedProperty.editorOptions
+                                                    )
+
+        # subscribe to the valueChanged event of the template property.
+        self.wrappedProperty.valueChanged.subscribe(self.cb_templateValueChanged, {Property.ChangeValueReason.WrapperValueChanged, Property.ChangeValueReason.ParentValueChanged})
+
+    def finalise(self):
+
+        self.wrappedProperty.valueChanged.unsubscribe(self.cb_templateValueChanged)
+        self.wrappedProperty.finalise()
+        self.wrappedProperty = None
+
+        super(SinglePropertyWrapper, self).finalise()
+
+    def createComponents(self):
+        # We don't call super because we don't need to subscribe
+        # to the templateProperty's components!
+        self.componentsUpdate.trigger(self, self.ComponentsUpdateType.AfterCreate)
+
+    def getComponents(self):
+        return self.wrappedProperty.getComponents()
+
+    def finaliseComponents(self):
+        # We don't call super because we don't actually own any
+        # components, they're owned by the templateProperty
+        self.componentsUpdate.trigger(self, self.ComponentsUpdateType.BeforeDestroy)
+
+    def valueType(self):
+        return self.wrappedProperty.valueType()
+
+    def hasDefaultValue(self):
+        return self.wrappedProperty.hasDefaultValue()
+
+    def isStringRepresentationEditable(self):
+        return self.wrappedProperty.isStringRepresentationEditable()
+
+    def tryParse(self, strValue):
+        return self.wrappedProperty.tryParse(strValue)
+
+    def updateComponents(self, reason=Property.ChangeValueReason.Unknown):
+        self.wrappedProperty.setValue(self.value, reason)
+
+    def cb_templateValueChanged(self, sender, reason):
+        # The template's value is changed when its components change
+        # or when we change it's value directly to match our own.
+        # Unnecessary? if reason == Property.ChangeValueReason.ComponentValueChanged:
+        self.setValue(self.wrappedProperty.value, reason)
+
 class EnumValue(object):
     """Interface for properties that have a predetermined list
     of possible values, like enums.
