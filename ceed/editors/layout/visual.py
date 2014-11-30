@@ -180,8 +180,6 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
             if isinstance(item, widgethelpers.Manipulator):
                 manipulatorChildren.append(item)
 
-        manipulatorChildren = sorted(manipulatorChildren, key = lambda item: item.getWidgetPath())
-
         for item in manipulatorChildren:
             if self.shouldManipulatorBeSkipped(item):
                 # skip this branch as per settings
