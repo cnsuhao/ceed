@@ -88,7 +88,6 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
 
         for i in range(parent.getChildCount()):
             if parent.getChildAtIdx(i).getNamePath() == widget.getNamePath():
-                print i
                 return i
 
         return -1
