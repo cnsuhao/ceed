@@ -93,9 +93,26 @@ class Manipulator(resizable.ResizableRectItem):
         skipAutoWidgets - if true, auto widgets will be skipped over
         """
 
+        if isinstance(self.widget, PyCEGUI.TabControl):
+            self.createChildManipulatorsForTabControl(recursive, skipAutoWidgets)
+            return
+
         idx = 0
         while idx < self.widget.getChildCount():
             childWidget = self.widget.getChildAtIdx(idx)
+
+            if not skipAutoWidgets or not childWidget.isAutoWindow():
+                # note: we don't have to assign or attach the child manipulator here
+                #       just passing parent to the constructor is enough
+                self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
+
+            idx += 1
+
+    def createChildManipulatorsForTabControl(self, recursive=True, skipAutoWidgets=False):
+
+        idx = 0
+        while idx < self.widget.getTabCount():
+            childWidget = self.widget.getTabContentsAtIndex(idx)
 
             if not skipAutoWidgets or not childWidget.isAutoWindow():
                 # note: we don't have to assign or attach the child manipulator here
@@ -111,6 +128,10 @@ class Manipulator(resizable.ResizableRectItem):
         recursive - recurse into children?
         skipAutoWidgets - if true, auto widgets will be skipped over
         """
+
+        if isinstance(self.widget, PyCEGUI.TabControl):
+            self.createChildManipulatorsForTabControl(recursive, skipAutoWidgets)
+            return
 
         idx = 0
         while idx < self.widget.getChildCount():
@@ -176,6 +197,11 @@ class Manipulator(resizable.ResizableRectItem):
         Throws LookupError on failure.
         """
 
+        if isinstance(self.widget, PyCEGUI.TabControl):
+            manipulator = self.getTabControlPaneChildManipulatorByPath(widgetPath)
+            if manipulator is not None:
+                return manipulator
+
         path = widgetPath.split("/", 1)
         assert(len(path) >= 1)
 
@@ -194,6 +220,25 @@ class Manipulator(resizable.ResizableRectItem):
                         return item.getManipulatorByPath(remainder)
 
         raise LookupError("Can't find widget manipulator of path '" + widgetPath + "'")
+
+    def getTabControlPaneChildManipulatorByPath(self, widgetPath):
+        """Retrieves a manipulator relative to this manipulator by given widget path
+        for a TabControl widget. The children in this case are directly attached, in reality
+        they are children of the ContentPane however, which forces us to handle this extra
+
+        """
+        contentPaneChildPath = widgetPath.split("/", 1)
+        assert(len(contentPaneChildPath) >= 1)
+        directChildPath = ""
+        if len(contentPaneChildPath) == 2:
+            directChildPath = contentPaneChildPath[1]
+
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                if item.widget.getName() == directChildPath:
+                    return item
+
+        return None
 
     def getChildManipulators(self):
         ret = []
