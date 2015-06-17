@@ -543,7 +543,7 @@ class ColourValuePropertyEditor(PropertyEditor):
         hBoxLayout.addWidget(self.colourButton, 1)
         self.colourDialogParent = parent
 
-        self.colourButton.released.connect(self.colourButtonReleased)
+        self.colourButton.clicked.connect(self.colourButtonReleased)
         self.colourEditbox.textEdited.connect(self.lineEditTextEdited)
         self.colourEditbox.editingFinished.connect(self.lineEditEditingFinished)
 
