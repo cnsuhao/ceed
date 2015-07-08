@@ -200,7 +200,7 @@ class LookNFeel6To7Layer(compatibility.Layer):
             for childElement in element.iter("Child"):
                 compatibility_layout.cegui.Layout3To4Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)
 
 
 class LookNFeel7To6Layer(compatibility.Layer):
@@ -252,4 +252,4 @@ class LookNFeel7To6Layer(compatibility.Layer):
             for childElement in element.iter("Child"):
                 compatibility_layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)

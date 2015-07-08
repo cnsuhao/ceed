@@ -117,7 +117,7 @@ class CEGUI1ToCEGUI2Layer(compatibility.Layer):
                     image.set("yOffset", image.get("YOffset", "0"))
                     del image.attrib["yOffset"]
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root);
 
 class CEGUI2ToCEGUI1Layer(compatibility.Layer):
     def getSourceType(self):
@@ -192,4 +192,4 @@ class CEGUI2ToCEGUI1Layer(compatibility.Layer):
                     image.set("YOffset", image.get("yOffset", "0"))
                     del image.attrib["YOffset"]
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root);

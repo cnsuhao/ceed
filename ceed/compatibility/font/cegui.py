@@ -83,7 +83,7 @@ class Font2ToFont3Layer(compatibility.Layer):
             for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)
 
 class Font3ToFont2Layer(compatibility.Layer):
     def getSourceType(self):
@@ -114,4 +114,4 @@ class Font3ToFont2Layer(compatibility.Layer):
             for attr in ["codepoint", "image", "horzAdvance"]:
                 self.transformAttribute(mapping, attr)
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)

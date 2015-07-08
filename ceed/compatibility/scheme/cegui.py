@@ -135,7 +135,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
                 if rendererValue.startswith("Falagard/"):
                     falagardMapping.set("renderer", "Core/%s" % (rendererValue[9:]))
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)
 
 
 class CEGUI5ToCEGUI4Layer(compatibility.Layer):
@@ -208,4 +208,4 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
                 if rendererValue.startswith("Core/"):
                     falagardMapping.set("Renderer", "Falagard/%s" % (rendererValue[5:]))
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root)
