@@ -659,7 +659,7 @@ class PasteCommand(commands.UndoCommand):
 
             if wasRootWidget:
                 # this was a root widget being deleted, handle this accordingly
-                self.visual.setWidgetLookManipulator(None)
+                self.visual.setRootWidgetManipulator(None)
 
         self.visual.notifyWidgetManipulatorsRemoved(widgetPaths)
 
@@ -1008,6 +1008,7 @@ class MoveInParentWidgetListCommand(commands.UndoCommand):
                 assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
 
                 parentManipulator.updateFromWidget(True, True)
+                parentManipulator.treeItem.refreshOrderingData(True, True)
 
     def redo(self):
         if self.delta != 0:
@@ -1023,5 +1024,6 @@ class MoveInParentWidgetListCommand(commands.UndoCommand):
                 assert(newPosition == parentManipulator.widget.getPositionOfChild(widgetManipulator.widget))
 
                 parentManipulator.updateFromWidget(True, True)
+                parentManipulator.treeItem.refreshOrderingData(True, True)
 
         super(MoveInParentWidgetListCommand, self).redo()

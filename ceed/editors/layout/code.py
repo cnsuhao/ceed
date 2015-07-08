@@ -18,10 +18,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from ceed.editors import multi
+from ceed.editors import code_edit_restoring_view
 import PyCEGUI
 
-class CodeEditing(multi.CodeEditMode):
+
+class CodeEditing(code_edit_restoring_view.CodeEditingWithViewRestore):
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
 

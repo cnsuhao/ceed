@@ -53,16 +53,14 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
 
             self.setToolTip("type: %s" % (manipulator.widget.getType()))
 
-            # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
-            #       I have had weird segfaults when storing manipulator directly here, perhaps they
-            #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
-            #self.setData(0, Qt.UserRole, manipulator)
             # interlink them so we can react on selection changes
-            self.setData(manipulator.widget.getNamePath(), QtCore.Qt.UserRole)
             manipulator.treeItem = self
 
         else:
             super(WidgetHierarchyItem, self).__init__("<No widget>")
+
+        self.refreshPathData(False)
+        self.refreshOrderingData(False, False)
 
         self.setFlags(QtCore.Qt.ItemIsEnabled |
                       QtCore.Qt.ItemIsSelectable |
@@ -78,9 +76,29 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
         ret.setData(self.data(QtCore.Qt.CheckStateRole), QtCore.Qt.CheckStateRole)
         return ret
 
+    def getWidgetIdxInParent(self):
+        # TODO: Move this to CEGUI::Window
+        widget = self.manipulator.widget
+        if widget is None:
+            return -1
+
+        parent = widget.getParent()
+        if parent is None:
+            return 0
+
+        for i in range(parent.getChildCount()):
+            if parent.getChildAtIdx(i).getNamePath() == widget.getNamePath():
+                return i
+
+        return -1
+
     def refreshPathData(self, recursive = True):
         """Updates the stored path data for the item and its children
         """
+
+        # NOTE: We use widget path here because that's what QVariant can serialise and pass forth
+        #       I have had weird segfaults when storing manipulator directly here, perhaps they
+        #       are related to PySide, perhaps they were caused by my stupidity, we will never know!
 
         if self.manipulator is not None:
             self.setText(self.manipulator.widget.getName())
@@ -88,7 +106,26 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
 
             if recursive:
                 for i in range(self.rowCount()):
-                    self.child(i).refreshPathData()
+                    self.child(i).refreshPathData(True)
+
+    def refreshOrderingData(self, resort = True, recursive = True):
+        """Updates the stored ordering data for the item and its children
+        if resort is True the children are sorted according to their order in CEGUI::Window
+        """
+
+        # resort=True with recursive=False makes no sense and is a bug
+        assert(not resort or recursive)
+
+        if self.manipulator is not None:
+            self.setData(self.getWidgetIdxInParent(), QtCore.Qt.UserRole + 1)
+
+            if recursive:
+                for i in range(self.rowCount()):
+                    # we pass resort=False because sortChildren is recursive itself
+                    self.child(i).refreshOrderingData(False, True)
+
+            if resort:
+                self.sortChildren(0)
 
     def setData(self, value, role):
         if role == QtCore.Qt.CheckStateRole and self.manipulator is not None:
@@ -122,6 +159,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
         super(WidgetHierarchyTreeModel, self).__init__()
 
         self.dockWidget = dockWidget
+        self.setSortRole(QtCore.Qt.UserRole + 1)
         self.setItemPrototype(WidgetHierarchyItem(None))
 
     def data(self, index, role = QtCore.Qt.DisplayRole):
@@ -180,8 +218,6 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
             if isinstance(item, widgethelpers.Manipulator):
                 manipulatorChildren.append(item)
 
-        manipulatorChildren = sorted(manipulatorChildren, key = lambda item: item.getWidgetPath())
-
         for item in manipulatorChildren:
             if self.shouldManipulatorBeSkipped(item):
                 # skip this branch as per settings
@@ -235,6 +271,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
 
                 hierarchyItem.appendRow(self.constructSubtree(childManipulator))
 
+        hierarchyItem.refreshOrderingData(True, True)
         return True
 
     def getRootHierarchyItem(self):
@@ -835,10 +872,11 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
         self.clear()
 
         self.rootManipulator = manipulator
-        # root manipulator changed, perform a full update
-        self.rootManipulator.updateFromWidget(True)
 
         if self.rootManipulator is not None:
+            # root manipulator changed, perform a full update
+            self.rootManipulator.updateFromWidget(True)
+
             self.addItem(self.rootManipulator)
 
     def getManipulatorByPath(self, widgetPath):

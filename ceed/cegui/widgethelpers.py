@@ -86,23 +86,44 @@ class Manipulator(resizable.ResizableRectItem):
         ret.updateFromWidget()
         return ret
 
+    def getFunctionsChildCountAndChildGet(self):
+        """Returns function pointers for the child getter and the child count functions. This is
+        necessary since some windows, such as TabControl and ScrollablePane, use AutoWindows
+        as containers, but we want to attach the children directly to them and display them as such,
+        effectively hiding the auto windows.
+
+        Returns a tuple of a child-count getter and a children-by-index getter
+        """
+        if isinstance(self.widget, PyCEGUI.TabControl):
+            countGetter = self.widget.getTabCount
+            childGetter = self.widget.getTabContentsAtIndex
+        elif isinstance(self.widget, PyCEGUI.ScrollablePane):
+            countGetter = self.widget.getContentPane().getChildCount
+            childGetter = self.widget.getContentPane().getChildAtIdx
+        else:
+            countGetter = self.widget.getChildCount
+            childGetter = self.widget.getChildAtIdx
+
+        return countGetter, childGetter
+
     def createChildManipulators(self, recursive = True, skipAutoWidgets = False):
         """Creates manipulators for child widgets of widget manipulated by this manipulator
+        Special handling for widgets using children AutoWindows that act as  containers, such
+        as TabControl and ScrollablePane is done.
 
         recursive - recurse into children?
         skipAutoWidgets - if true, auto widgets will be skipped over
         """
 
-        idx = 0
-        while idx < self.widget.getChildCount():
-            childWidget = self.widget.getChildAtIdx(idx)
+        countGetter, childGetter = self.getFunctionsChildCountAndChildGet()
+
+        for idx in range(0, countGetter()):
+            childWidget = childGetter(idx)
 
             if not skipAutoWidgets or not childWidget.isAutoWindow():
                 # note: we don't have to assign or attach the child manipulator here
                 #       just passing parent to the constructor is enough
                 self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
-
-            idx += 1
 
     def createMissingChildManipulators(self, recursive = True, skipAutoWidgets = False):
         """Goes through child widgets of the manipulated widget and creates manipulator
@@ -112,9 +133,10 @@ class Manipulator(resizable.ResizableRectItem):
         skipAutoWidgets - if true, auto widgets will be skipped over
         """
 
-        idx = 0
-        while idx < self.widget.getChildCount():
-            childWidget = self.widget.getChildAtIdx(idx)
+        countGetter, childGetter = self.getFunctionsChildCountAndChildGet()
+
+        for idx in range(0, countGetter()):
+            childWidget = childGetter(idx)
 
             try:
                 # try to find a manipulator for currently examined child widget
@@ -127,8 +149,6 @@ class Manipulator(resizable.ResizableRectItem):
                     childManipulator = self.createChildManipulator(childWidget, recursive, skipAutoWidgets)
                     if recursive:
                         childManipulator.createMissingChildManipulators(True, skipAutoWidgets)
-
-            idx += 1
 
     def detach(self, detachWidget = True, destroyWidget = True, recursive = True):
         """Detaches itself from the GUI hierarchy and the manipulator hierarchy.
@@ -176,6 +196,11 @@ class Manipulator(resizable.ResizableRectItem):
         Throws LookupError on failure.
         """
 
+        if isinstance(self.widget, PyCEGUI.TabControl) or isinstance(self.widget, PyCEGUI.ScrollablePane):
+            manipulator = self.getManipulatorFromChildContainerByPath(widgetPath)
+            if manipulator is not None:
+                return manipulator
+
         path = widgetPath.split("/", 1)
         assert(len(path) >= 1)
 
@@ -194,6 +219,26 @@ class Manipulator(resizable.ResizableRectItem):
                         return item.getManipulatorByPath(remainder)
 
         raise LookupError("Can't find widget manipulator of path '" + widgetPath + "'")
+
+    def getManipulatorFromChildContainerByPath(self, widgetPath):
+        """Retrieves a manipulator relative to this manipulator by given widget path
+        for widget's that use autoWindow containers, such as ScrollablePanes and TabControl.
+        The children in these case should be treated as if they were attached to the window
+        directly, whereas in reality they use a container widget, which forces us to handle
+        these cases using this function
+        """
+        contentPaneChildPath = widgetPath.split("/", 1)
+        assert(len(contentPaneChildPath) >= 1)
+        directChildPath = ""
+        if len(contentPaneChildPath) == 2:
+            directChildPath = contentPaneChildPath[1]
+
+        for item in self.childItems():
+            if isinstance(item, Manipulator):
+                if item.widget.getName() == directChildPath:
+                    return item
+
+        return None
 
     def getChildManipulators(self):
         ret = []

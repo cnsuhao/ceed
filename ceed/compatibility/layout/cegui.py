@@ -272,7 +272,7 @@ class Layout3To4Layer(compatibility.Layer):
             # apply other changes
             log += self.applyChangesRecursively(window)
 
-        return unicode(ElementTree.tostring(root, "utf-8"), encoding = "utf-8")
+        return unicode(ceguihelpers.prettyPrintXMLElement(root), encoding = "utf-8")
 
 class Layout4To3Layer(compatibility.Layer):
     def getSourceType(self):
@@ -454,4 +454,4 @@ class Layout4To3Layer(compatibility.Layer):
             # apply other changes
             log += self.applyChangesRecursively(window)
 
-        return unicode(ElementTree.tostring(root, "utf-8"), encoding = "utf-8")
+        return unicode(ceguihelpers.prettyPrintXMLElement(root), encoding = "utf-8")

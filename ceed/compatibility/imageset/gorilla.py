@@ -121,7 +121,7 @@ class GorillaToCEGUI1Layer(compatibility.Layer):
 
             root.append(image)
 
-        return ElementTree.tostring(root, "utf-8")
+        return ceguihelpers.prettyPrintXMLElement(root);
 
 class CEGUI1ToGorillaLayer(compatibility.Layer):
     def getSourceType(self):

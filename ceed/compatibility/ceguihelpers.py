@@ -21,7 +21,11 @@
 """Misc helper functionality often reused in compatibility layers
 """
 
+from ceed import xmledit
+
 from xml.sax import parseString, handler
+from io import BytesIO
+from xml.etree import cElementTree as ElementTree
 
 def checkDataVersion(rootElement, version, data):
     """Checks that tag of the root element in data is as given
@@ -63,3 +67,17 @@ def checkDataVersion(rootElement, version, data):
         pass
 
     return False
+
+def prettyPrintXMLElement(rootElement):
+    """Takes an ElementTree.Element and returns a pretty printed UTF-8 XML file as string
+    based on it. This functions adds newlines and indents and adds the XML declaration
+    on top, which would be otherwise missing.
+
+    Returns a string containing the pretty printed XML file.
+    """
+    xmledit.indent(rootElement)
+    
+    tempFile = BytesIO()
+    elementTree = ElementTree.ElementTree(rootElement)
+    elementTree.write(tempFile, encoding='utf-8', xml_declaration=True) 
+    return tempFile.getvalue()
