@@ -27,19 +27,22 @@ class Manager(compatibility.Manager):
     def __init__(self):
         super(Manager, self).__init__()
 
-        self.EditorNativeType = cegui.CEGUIFont3
+        self.EditorNativeType = cegui.CEGUIFont4
         self.CEGUIVersionTypes = {
             "0.4" : cegui.CEGUIFont1,
             "0.5" : cegui.CEGUIFont2, # font rewrite
             "0.6" : cegui.CEGUIFont2,
             "0.7" : cegui.CEGUIFont2,
-            "0.8" : cegui.CEGUIFont3
+            "0.8" : cegui.CEGUIFont3,
+            "1.0" : cegui.CEGUIFont4
         }
 
         self.detectors.append(cegui.Font2TypeDetector())
         self.detectors.append(cegui.Font3TypeDetector())
+        self.detectors.append(cegui.Font4TypeDetector())
 
         self.layers.append(cegui.Font2ToFont3Layer())
         self.layers.append(cegui.Font3ToFont2Layer())
+        self.layers.append(cegui.Font3ToFont4Layer())
 
 manager = Manager()

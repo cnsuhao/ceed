@@ -1,7 +1,7 @@
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
-#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#   Copyright (C) 2011-2015   Martin Preisler <martin@preisler.me>
 #                             and contributing authors (see AUTHORS file)
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,7 @@ from xml.etree import cElementTree as ElementTree
 CEGUIFont1 = "CEGUI Font 1"
 CEGUIFont2 = "CEGUI Font 2"
 CEGUIFont3 = "CEGUI Font 3"
+CEGUIFont4 = "CEGUI Font 4"
 
 class Font2TypeDetector(compatibility.TypeDetector):
     def getType(self):
@@ -56,6 +57,19 @@ class Font3TypeDetector(compatibility.TypeDetector):
             return False
 
         return ceguihelpers.checkDataVersion("Font", "3", data)
+        
+class Font4TypeDetector(compatibility.TypeDetector):
+    def getType(self):
+        return CEGUIFont4
+
+    def getPossibleExtensions(self):
+        return set(["font"])
+
+    def matches(self, data, extension):
+        if extension not in ["", "font"]:
+            return False
+
+        return ceguihelpers.checkDataVersion("Font", "4", data)
 
 class Font2ToFont3Layer(compatibility.Layer):
     def getSourceType(self):
@@ -115,3 +129,20 @@ class Font3ToFont2Layer(compatibility.Layer):
                 self.transformAttribute(mapping, attr)
 
         return ceguihelpers.prettyPrintXMLElement(root)
+
+class Font3ToFont4Layer(compatibility.Layer):
+    def getSourceType(self):
+        return CEGUIFont3
+
+    def getTargetType(self):
+        return CEGUIFont4
+    
+    def transform(self, data):
+        fontElement = ElementTree.fromstring(data)
+        del fontElement.attrib["version"]
+        
+        root = ElementTree.Element("Fonts")
+        root.set("version", "4")
+        root.append(fontElement)
+
+        return ceguihelpers.prettyPrintXMLElement(root);        
