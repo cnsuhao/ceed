@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>KeyFramePropertiesDockWidget</class>
+ <class>AnimationListEditorKeyFramePropertiesDockWidget</class>
  <widget class="QDockWidget" name="KeyFramePropertiesDockWidget">
   <property name="geometry">
    <rect>

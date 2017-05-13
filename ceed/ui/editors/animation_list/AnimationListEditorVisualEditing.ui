@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>VisualEditing</class>
+ <class>AnimationListEditorVisualEditing</class>
  <widget class="QWidget" name="VisualEditing">
   <property name="geometry">
    <rect>
