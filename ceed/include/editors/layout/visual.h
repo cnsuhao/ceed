@@ -47,7 +47,7 @@ import ceed.propertytree as pt
 from ceed.propertytree.editors import PropertyEditorRegistry
 
 
-class WidgetHierarchyItem : public QtGui.QStandardItem
+class WidgetHierarchyItem : public QStandardItem
     def __init__(self, manipulator):
         self.manipulator = manipulator
 
@@ -157,7 +157,7 @@ class WidgetHierarchyItem : public QtGui.QStandardItem
                 child = self.child(i)
                 child.setLocked(locked, True)
 
-class WidgetHierarchyTreeModel : public QtGui.QStandardItemModel
+class WidgetHierarchyTreeModel : public QStandardItemModel
     def __init__(self, dockWidget):
         super(WidgetHierarchyTreeModel, self).__init__()
 
@@ -449,7 +449,7 @@ The actual widget hierarchy tree widget - what a horrible name
     it is a placeholder that will be put to use once the need arises - and it will.
 
 */
-class WidgetHierarchyTreeView : public QtGui.QTreeView
+class WidgetHierarchyTreeView : public QTreeView
 
 
     def __init__(self, parent = None):
@@ -598,7 +598,7 @@ class WidgetHierarchyTreeView : public QtGui.QTreeView
 Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
 
 */
-class HierarchyDockWidget : public QtGui.QDockWidget
+class HierarchyDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -743,7 +743,7 @@ class CEGUIWidgetPropertyManager : public CEGUIPropertyManager
 Lists and allows editing of properties of the selected widget(s).
 
 */
-class PropertiesDockWidget : public QtGui.QDockWidget
+class PropertiesDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -769,7 +769,7 @@ Represents a single available widget for creation (it has a mapping in the schem
     Also provides previews for the widgets
 
 */
-class WidgetTypeTreeWidget : public QtGui.QTreeWidget
+class WidgetTypeTreeWidget : public QTreeWidget
 
 
     def __init__(self, parent = None):
@@ -852,7 +852,7 @@ class WidgetTypeTreeWidget : public QtGui.QTreeWidget
 This lists available widgets you can create and allows their creation (by drag N drop)
 
 */
-class CreateWidgetDockWidget : public QtGui.QDockWidget
+class CreateWidgetDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -1257,7 +1257,7 @@ class EditingScene : public cegui_widgethelpers.GraphicsScene
             else:
                 event.ignore()
 
-class VisualEditing : public QtGui.QWidget, multi.EditMode
+class VisualEditing : public QWidget, multi.EditMode
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode

@@ -381,7 +381,7 @@ Validate the edit widget value when editing
     editing they have done.
 
 */
-class StringWrapperValidator : public QtGui.QValidator
+class StringWrapperValidator : public QValidator
 
 
     def __init__(self, swProperty, parent=None):

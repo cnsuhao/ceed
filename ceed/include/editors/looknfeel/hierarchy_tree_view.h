@@ -41,7 +41,7 @@ The WidgetLookFeel hierarchy tree definition
     This is based on the QTreeWidget widget.
 
 */
-class LookNFeelHierarchyTreeView : public QtGui.QTreeView
+class LookNFeelHierarchyTreeView : public QTreeView
 
 
     def __init__(self, parent=None):

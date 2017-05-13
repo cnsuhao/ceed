@@ -38,7 +38,7 @@ import ceed.ui.editors.notypedetected
 import ceed.ui.editors.multipletypesdetected
 import ceed.ui.editors.multiplepossiblefactories
 
-class NoTypeDetectedDialog : public QtGui.QDialog
+class NoTypeDetectedDialog : public QDialog
     def __init__(self, compatibilityManager):
         super(NoTypeDetectedDialog, self).__init__()
 
@@ -56,7 +56,7 @@ class NoTypeDetectedDialog : public QtGui.QDialog
 
             self.typeChoice.addItem(item)
 
-class MultipleTypesDetectedDialog : public QtGui.QDialog
+class MultipleTypesDetectedDialog : public QDialog
     def __init__(self, compatibilityManager, possibleTypes):
         super(MultipleTypesDetectedDialog, self).__init__()
 
@@ -79,7 +79,7 @@ class MultipleTypesDetectedDialog : public QtGui.QDialog
 
             self.typeChoice.addItem(item)
 
-class MultiplePossibleFactoriesDialog : public QtGui.QDialog
+class MultiplePossibleFactoriesDialog : public QDialog
     def __init__(self, possibleFactories):
         super(MultiplePossibleFactoriesDialog, self).__init__()
 

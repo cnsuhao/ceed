@@ -45,7 +45,7 @@ Full blown inspector widget for CEGUI PropertySet(s).
     it can show properties via 'setPropertySets'.
 
 */
-class PropertyInspectorWidget : public QtGui.QWidget
+class PropertyInspectorWidget : public QWidget
 
 
     def __init__(self, parent=None):

@@ -37,7 +37,7 @@ pixelsPerSecond = 1000
 Simply displays time position labels depending on the zoom level
 
 */
-class TimecodeLabel : public QtGui.QGraphicsRectItem
+class TimecodeLabel : public QGraphicsRectItem
 
 
     range = property(lambda self: self._getRange(),
@@ -141,7 +141,7 @@ class TimecodeLabel : public QtGui.QGraphicsRectItem
         finally:
             painter.restore()
 
-class AffectorTimelineKeyFrame : public QtGui.QGraphicsRectItem
+class AffectorTimelineKeyFrame : public QGraphicsRectItem
     keyFrame = property(lambda self: self.data(0),
                         lambda self, value: self.setData(0, value))
 
@@ -221,7 +221,7 @@ class AffectorTimelineKeyFrame : public QtGui.QGraphicsRectItem
 
         return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
 
-class AffectorTimelineSection : public QtGui.QGraphicsRectItem
+class AffectorTimelineSection : public QGraphicsRectItem
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineSection, self).__init__(timeline)
 
@@ -346,7 +346,7 @@ class AffectorTimelineSection : public QtGui.QGraphicsRectItem
         finally:
             painter.restore()
 
-class AffectorTimelineLabel : public QtGui.QGraphicsProxyWidget
+class AffectorTimelineLabel : public QGraphicsProxyWidget
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineLabel, self).__init__(timeline)
 
@@ -368,7 +368,7 @@ class AffectorTimelineLabel : public QtGui.QGraphicsProxyWidget
     def refresh(self):
         self.widget.setEditText(self.affector.getTargetProperty())
 
-class TimelinePositionBar : public QtGui.QGraphicsRectItem
+class TimelinePositionBar : public QGraphicsRectItem
     def __init__(self, timeline):
         super(TimelinePositionBar, self).__init__(timeline)
 
@@ -428,7 +428,7 @@ class TimelinePositionBar : public QtGui.QGraphicsRectItem
 
         return ret
 
-class AnimationTimeline : public QtGui.QGraphicsRectItem, QtCore.QObject
+class AnimationTimeline : public QGraphicsRectItem, QtCore.QObject
     """A timeline widget for just one CEGUI animation"""
 
     # old timeline position, new timeline position

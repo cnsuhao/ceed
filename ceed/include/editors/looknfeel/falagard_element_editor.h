@@ -42,7 +42,7 @@ from ceed.editors.looknfeel import undoable_commands
 This dock widget allows to add, remove or edit the Property, PropertyDefinition and PropertyLinkDefinition elements of a WidgetLook
 
 */
-class LookNFeelFalagardElementEditorDockWidget : public QtGui.QDockWidget
+class LookNFeelFalagardElementEditorDockWidget : public QDockWidget
 
 
     def __init__(self, visual, tabbedEditor):

@@ -37,7 +37,7 @@ This class represents the file system browser dock widget, usually located right
     it will open an editor tab for it.
 
 */
-class FileSystemBrowser : public QtGui.QDockWidget
+class FileSystemBrowser : public QDockWidget
 
 
     fileOpenRequested = QtCore.Signal(str)

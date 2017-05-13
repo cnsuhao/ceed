@@ -30,7 +30,7 @@ from PySide import QtGui
 import ceed.ui.widgets.filelineedit
 import ceed.ui.widgets.keysequencebuttondialog
 
-class FileLineEdit : public QtGui.QWidget
+class FileLineEdit : public QWidget
     ExistingFileMode = 1
     NewFileMode = 2
     ExistingDirectoryMode = 3
@@ -82,7 +82,7 @@ class FileLineEdit : public QtGui.QWidget
         if path != "":
             self.lineEdit.setText(path)
 
-class ColourButton : public QtGui.QPushButton
+class ColourButton : public QPushButton
     colourChanged = QtCore.Signal(QtGui.QColor)
 
     colour = property(fset = lambda button, colour: button.setColour(colour),
@@ -117,7 +117,7 @@ class ColourButton : public QtGui.QPushButton
 # this depends on ColourButton, can't be moved upwards
 import ceed.ui.widgets.penbuttondialog
 
-class PenButton : public QtGui.QPushButton
+class PenButton : public QPushButton
     class Dialog(QtGui.QDialog):
         def __init__(self, parent = None):
             super(PenButton.Dialog, self).__init__(parent)
@@ -248,7 +248,7 @@ class PenButton : public QtGui.QPushButton
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.pen = dialog.getPen()
 
-class KeySequenceButton : public QtGui.QPushButton
+class KeySequenceButton : public QPushButton
     class Dialog(QtGui.QDialog):
         def __init__(self, parent = None):
             super(KeySequenceButton.Dialog, self).__init__(parent)
@@ -309,7 +309,7 @@ A QLineEdit with an inline clear button.
     Based on http://labs.qt.nokia.com/2007/06/06/lineedit-with-a-clear-button/
 
 */
-class LineEditWithClearButton : public QtGui.QLineEdit
+class LineEditWithClearButton : public QLineEdit
 
 
     def __init__(self, parent=None):

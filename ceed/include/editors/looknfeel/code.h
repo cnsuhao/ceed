@@ -107,7 +107,7 @@ class CodeEditing : public multi.CodeEditMode
     Highlighter for the LNF code editing
 
 */
-class WidgetLookHighlighter : public QtGui.QSyntaxHighlighter
+class WidgetLookHighlighter : public QSyntaxHighlighter
 
     def __init__(self, parent):
         super(WidgetLookHighlighter, self).__init__(parent)

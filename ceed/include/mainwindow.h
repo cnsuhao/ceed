@@ -55,7 +55,7 @@ The central window of the application.
     This is a singleton class, it is assured to only be constructed once during runtime.
 
 */
-class MainWindow : public QtGui.QMainWindow
+class MainWindow : public QMainWindow
 
 
     # singleton pattern implementation

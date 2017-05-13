@@ -45,7 +45,7 @@ from ceed.editors.looknfeel.falagard_element_editor import LookNFeelFalagardElem
 from ceed.editors.looknfeel.falagard_element_inspector import FalagardElementAttributesManager
 
 
-class LookNFeelVisualEditing : public QtGui.QWidget, multi.EditMode
+class LookNFeelVisualEditing : public QWidget, multi.EditMode
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode
@@ -202,7 +202,7 @@ class LookNFeelVisualEditing : public QtGui.QWidget, multi.EditMode
 This dock widget allows to select a WidgetLook from a combobox and start editing it
 
 */
-class LookNFeelWidgetLookSelectorWidget : public QtGui.QDockWidget
+class LookNFeelWidgetLookSelectorWidget : public QDockWidget
 
 
     def __init__(self, visual, tabbedEditor):

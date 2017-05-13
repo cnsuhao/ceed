@@ -43,7 +43,7 @@ Shows GPLv3 and related info in the UI of the application as
     Almost all of it is in the .ui file, editable with QtDesigner
 
 */
-class LicenseDialog : public QtGui.QDialog
+class LicenseDialog : public QDialog
 
 
     def __init__(self):
@@ -63,7 +63,7 @@ About/Version dialog shown when user selects Help -> About.
     goes wrong for them.
 
 */
-class AboutDialog : public QtGui.QDialog
+class AboutDialog : public QDialog
 
 
     def __init__(self):

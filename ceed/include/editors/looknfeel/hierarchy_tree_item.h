@@ -33,7 +33,7 @@ from PySide import QtGui
 import PyCEGUI
 
 
-class LookNFeelHierarchyItem : public QtGui.QStandardItem
+class LookNFeelHierarchyItem : public QStandardItem
 
     def __init__(self, falagardElement, prefix=""):
         """

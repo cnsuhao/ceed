@@ -38,7 +38,7 @@ If you plan to use ResizableGraphicsRectItems, make sure you view them
     The overhead is minimal.
 
 */
-class GraphicsView : public QtGui.QGraphicsView
+class GraphicsView : public QGraphicsView
 
 
     def __init__(self, parent = None):
@@ -148,7 +148,7 @@ A rectangle that when moved resizes the parent resizable rect item.
     combinations and resize many things at once).
 
 */
-class ResizingHandle : public QtGui.QGraphicsRectItem
+class ResizingHandle : public QGraphicsRectItem
 
 
     def __init__(self, parent):
@@ -461,7 +461,7 @@ Rectangle that can be resized by dragging it's handles.
     or inside (if it's large). All this is tweakable.
 
 */
-class ResizableRectItem : public QtGui.QGraphicsRectItem
+class ResizableRectItem : public QGraphicsRectItem
 
 
     # This class is supposed to be inherited from and the "could be functions"

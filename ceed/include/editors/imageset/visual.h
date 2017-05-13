@@ -46,7 +46,7 @@ The only reason for this is to track when we are editing.
     TODO: Isn't there a better way to do this?
 
 */
-class ImageEntryItemDelegate : public QtGui.QItemDelegate
+class ImageEntryItemDelegate : public QItemDelegate
 
 
     def __init__(self):
@@ -69,7 +69,7 @@ class ImageEntryItemDelegate : public QtGui.QItemDelegate
 Provides list of images, property editing of currently selected image and create/delete
 
 */
-class ImagesetEditorDockWidget : public QtGui.QDockWidget
+class ImagesetEditorDockWidget : public QDockWidget
 
 
     def __init__(self, visual):

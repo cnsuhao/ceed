@@ -65,7 +65,7 @@ class LogMessageWrapper
 
 A debugging/info widget about the embedded CEGUI instance
 */
-class DebugInfo : public QtGui.QDialog
+class DebugInfo : public QDialog
 
 
     # This will allow us to view logs in Qt in the future
@@ -185,7 +185,7 @@ class ViewState
     Provides resolution changes, auto expanding and debug widget
 
 */
-class ContainerWidget : public QtGui.QWidget
+class ContainerWidget : public QWidget
 
 
     def __init__(self, ceguiInstance, mainWindow):

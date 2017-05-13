@@ -46,7 +46,7 @@ from ceed import xmledit
 Lists animations in the currently opened animation list XML
 
 */
-class AnimationListDockWidget : public QtGui.QDockWidget
+class AnimationListDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -79,7 +79,7 @@ class AnimationListDockWidget : public QtGui.QDockWidget
 Lists and allows editing of properties at current position of the timeline
 
 */
-class PropertiesDockWidget : public QtGui.QDockWidget
+class PropertiesDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -105,7 +105,7 @@ class PropertiesDockWidget : public QtGui.QDockWidget
 Lists and allows editing of properties at current position of the timeline
 
 */
-class KeyFramePropertiesDockWidget : public QtGui.QDockWidget
+class KeyFramePropertiesDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -189,7 +189,7 @@ class KeyFramePropertiesDockWidget : public QtGui.QDockWidget
 
                 self.sourcePropertyComboBox.lineEdit().setText(self.inspectedKeyFrame.getSourceProperty())
 
-class TimelineGraphicsView : public QtGui.QGraphicsView
+class TimelineGraphicsView : public QGraphicsView
     def __init__(self, parent = None):
         super(TimelineGraphicsView, self).__init__(parent)
 
@@ -206,7 +206,7 @@ class TimelineGraphicsView : public QtGui.QGraphicsView
 Shows a timeline of currently selected animation (from the animation list dock widget)
 
 */
-class TimelineDockWidget : public QtGui.QDockWidget
+class TimelineDockWidget : public QDockWidget
 
 
     def __init__(self, visual):
@@ -319,7 +319,7 @@ class AnimationDefinitionWrapper
 
         return ret
 
-class VisualEditing : public QtGui.QWidget, multi.EditMode
+class VisualEditing : public QWidget, multi.EditMode
     """This is the default visual editing mode for animation lists
 
     see editors.multi.EditMode

@@ -37,7 +37,7 @@ Text item showing image's label when the image is hovered or selected.
     You should not use this directly! Use ImageEntry.name instead to get the name.
 
 */
-class ImageLabel : public QtGui.QGraphicsTextItem
+class ImageLabel : public QGraphicsTextItem
 
 
     def __init__(self, imageEntry):
@@ -85,7 +85,7 @@ A crosshair showing where the imaginary (0, 0) point of the image is. The actual
     the artist's point of view.
 
 */
-class ImageOffset : public QtGui.QGraphicsPixmapItem
+class ImageOffset : public QGraphicsPixmapItem
 
 
     def __init__(self, imageEntry):
@@ -451,7 +451,7 @@ This is the whole imageset containing all the images (ImageEntries).
     to have the transparency background working properly.
 
 */
-class ImagesetEntry : public QtGui.QGraphicsPixmapItem
+class ImagesetEntry : public QGraphicsPixmapItem
 
 
     def __init__(self, visual):

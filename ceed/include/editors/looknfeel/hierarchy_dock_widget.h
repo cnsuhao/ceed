@@ -42,7 +42,7 @@ from hierarchy_tree_view import LookNFeelHierarchyTreeView
 Displays and manages the widget hierarchy. Contains the LookNFeelHierarchyTreeWidget.
 
 */
-class LookNFeelHierarchyDockWidget : public QtGui.QDockWidget
+class LookNFeelHierarchyDockWidget : public QDockWidget
 
 
     def __init__(self, visual, tabbedEditor):

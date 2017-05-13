@@ -37,7 +37,7 @@ from ceed import qtwidgets
 
 # Wrapper: Entry types
 # - One for each 'widgetHint'.
-class InterfaceEntry : public QtGui.QHBoxLayout
+class InterfaceEntry : public QHBoxLayout
     def __init__(self, entry, parent):
         super(InterfaceEntry, self).__init__()
         self.entry = entry
@@ -291,7 +291,7 @@ def interfaceEntryFactory(entry, parent):
         raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
 
 # Wrapper: Section
-class InterfaceSection : public QtGui.QGroupBox
+class InterfaceSection : public QGroupBox
     def __init__(self, section, parent):
         super(InterfaceSection, self).__init__()
         self.section = section
@@ -335,7 +335,7 @@ class InterfaceSection : public QtGui.QGroupBox
         self.modifiedEntries = []
 
 # Wrapper: Category
-class InterfaceCategory : public QtGui.QScrollArea
+class InterfaceCategory : public QScrollArea
     def __init__(self, category, parent):
         super(InterfaceCategory, self).__init__()
         self.category = category

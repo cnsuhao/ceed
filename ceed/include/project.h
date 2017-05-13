@@ -57,7 +57,7 @@ One item in the project
     This is usually a file or a folder
 
 */
-class Item : public QtGui.QStandardItem
+class Item : public QStandardItem
 
 
     Unknown = 1
@@ -315,7 +315,7 @@ This class encapsulates a project edited by the editor
     (.font, .layout, ...)
 
 */
-class Project : public QtGui.QStandardItemModel
+class Project : public QStandardItemModel
 
 
     def __init__(self):
@@ -487,7 +487,7 @@ This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
 
 */
-class ProjectManager : public QtGui.QDockWidget
+class ProjectManager : public QDockWidget
 
 
     project = property(lambda self: self.view.model(),
@@ -834,7 +834,7 @@ class ProjectManager : public QtGui.QDockWidget
 Dialog responsible for creation of entirely new projects.
 
 */
-class NewProjectDialog : public QtGui.QDialog
+class NewProjectDialog : public QDialog
 
 
     def __init__(self):
@@ -893,7 +893,7 @@ parent directory? (exception info: %s)" % (e))
 Dialog able to change various project settings
 
 */
-class ProjectSettingsDialog : public QtGui.QDialog
+class ProjectSettingsDialog : public QDialog
 
 
     def __init__(self, project):

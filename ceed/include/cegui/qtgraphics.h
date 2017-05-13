@@ -46,7 +46,7 @@ A scene that draws CEGUI as it's background.
     Interaction is also supported
 
 */
-class GraphicsScene : public QtGui.QGraphicsScene
+class GraphicsScene : public QGraphicsScene
 
 
     def __init__(self, ceguiInstance):

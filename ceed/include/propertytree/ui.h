@@ -47,7 +47,7 @@ from PySide import QtCore
 
 Base item for all items.
 */
-class PropertyTreeItem : public QtGui.QStandardItem
+class PropertyTreeItem : public QStandardItem
 
 
     def __init__(self, propertyTreeRow):
@@ -352,7 +352,7 @@ class PropertyRow : public PropertyTreeRow
 
 Facilitates editing of the rows' values.
 */
-class PropertyTreeItemDelegate : public QtGui.QStyledItemDelegate
+class PropertyTreeItemDelegate : public QStyledItemDelegate
 
 
     # Sample delegate
@@ -429,7 +429,7 @@ class PropertyTreeItemDelegate : public QtGui.QStyledItemDelegate
 
 QTreeView with some modifications for better results.
 */
-class PropertyTreeView : public QtGui.QTreeView
+class PropertyTreeView : public QTreeView
 
 
     def __init__(self, *args, **kwargs):
@@ -603,7 +603,7 @@ class PropertyTreeView : public QtGui.QTreeView
 
             i += 1
 
-class PropertyTreeItemModel : public QtGui.QStandardItemModel
+class PropertyTreeItemModel : public QStandardItemModel
 
     def buddy(self, index):
         """Point to the value item when the user tries to edit the name item."""
@@ -629,7 +629,7 @@ The property tree widget.
     Provides easy access methods.
 
 */
-class PropertyTreeWidget : public QtGui.QWidget
+class PropertyTreeWidget : public QWidget
 
 
     def __init__(self, parent = None):
