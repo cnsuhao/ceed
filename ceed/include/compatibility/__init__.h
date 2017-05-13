@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility___init___
+#define CEED_compatibility___init___
+
 """This module is the root of all compatibility support and layers in the editor
 """
 
@@ -229,3 +232,5 @@ class Manager(object):
 
 CEGUIVersions = ["0.6", "0.7", "0.8"]
 EditorEmbeddedCEGUIVersion = "0.8"
+
+#endif

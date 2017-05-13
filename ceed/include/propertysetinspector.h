@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertysetinspector_
+#define CEED_propertysetinspector_
+
 from PySide import QtCore
 from PySide import QtGui
 from .qtwidgets import LineEditWithClearButton
@@ -414,3 +417,4 @@ class CEGUIPropertyManager(object):
 
             for _, callback in ceguiPropertySet.propertyManagerCallbacks.iteritems():
                 callback()
+#endif

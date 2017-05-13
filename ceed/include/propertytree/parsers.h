@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_parsers_
+#define CEED_propertytree_parsers_
+
 """Parsing helpers.
 
 AstHelper -- Customised Python literal parsing.
@@ -166,3 +169,5 @@ def parseNamedValues(strValue, allowedNames=None, requiredNames=None, ignoreCase
                 return None
 
     return pairs
+
+#endif

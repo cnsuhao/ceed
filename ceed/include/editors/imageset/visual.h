@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_visual_
+#define CEED_editors_imageset_visual_
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtOpenGL
@@ -1075,3 +1078,5 @@ class VisualEditing(resizable.GraphicsView, multi.EditMode):
 from ceed import action
 from ceed import settings
 from ceed import mainwindow
+
+#endif

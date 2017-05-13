@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs_qsvg_
+#define CEED_metaimageset_inputs_qsvg_
+
 """Implements Qt TinySVG input of metaimageset.
 """
 
@@ -84,3 +87,5 @@ class QSVG(inputs.Input):
             images.append(image)
 
         return images
+
+#endif

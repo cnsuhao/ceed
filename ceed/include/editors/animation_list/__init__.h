@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_animation_list___init___
+#define CEED_editors_animation_list___init___
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -171,3 +174,5 @@ class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def create(self, filePath):
         return AnimationListTabbedEditor(filePath)
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_htmlview_
+#define CEED_editors_htmlview_
+
 from ceed import editors
 
 from PySide import QtWebKit
@@ -36,3 +39,5 @@ class HTMLViewTabbedEditor(editors.TabbedEditor):
 
     def hasChanges(self):
         return False
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_animation_list_undo_
+#define CEED_editors_animation_list_undo_
+
 from ceed import commands
 
 idbase = 1300
@@ -121,3 +124,5 @@ class MoveKeyFramesCommand(commands.UndoCommand):
         self.movedKeyFrames = newMovedKeyFrames
 
         self.visual.timelineDockWidget.timeline.refresh()
+
+#endif

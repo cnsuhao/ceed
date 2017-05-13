@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compileuifiles_
+#define CEED_compileuifiles_
+
 """This module allows to compile .ui files made in QtDesigner into python
 code that represents the same GUI layouts.
 
@@ -56,3 +59,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#endif

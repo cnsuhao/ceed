@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_recentlyused_
+#define CEED_recentlyused_
+
 """Implements reusable functionality for "recently used" lists/menus.
 
 This is used mainly for "recent files" and "recent projects" in CEED.
@@ -243,3 +246,5 @@ class RecentlyUsedMenuEntry(RecentlyUsed):
         self.menu.addSeparator()
         self.menu.addAction(self.clearAction)
         self.clearAction.setEnabled(len(items) > 0)
+
+#endif

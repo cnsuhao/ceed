@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset___init___
+#define CEED_editors_imageset___init___
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -199,3 +202,5 @@ class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def create(self, filePath):
         return ImagesetTabbedEditor(filePath)
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_animation_list_visual_
+#define CEED_editors_animation_list_visual_
+
 from PySide import QtGui
 
 import PyCEGUI
@@ -507,3 +510,5 @@ class VisualEditing(QtGui.QWidget, multi.EditMode):
 
 import ceed.ui.editors.animation_list.timelinedockwidget
 from ceed import mainwindow
+
+#endif

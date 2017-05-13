@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_looknfeel___init___
+#define CEED_compatibility_looknfeel___init___
+
 from ceed import compatibility
 from ceed.compatibility.looknfeel import cegui
 
@@ -48,3 +51,5 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.LookNFeel7To6Layer())
 
 manager = Manager()
+
+#endif

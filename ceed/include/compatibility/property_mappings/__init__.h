@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_property_mappings___init___
+#define CEED_compatibility_property_mappings___init___
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
@@ -53,3 +56,5 @@ class Manager(compatibility.Manager):
         self.detectors.append(PropertyMappings1TypeDetector())
 
 manager = Manager()
+
+#endif

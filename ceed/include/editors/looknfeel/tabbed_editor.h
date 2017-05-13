@@ -17,6 +17,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef CEED_editors_looknfeel_tabbed_editor_
+#define CEED_editors_looknfeel_tabbed_editor_
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
@@ -384,3 +387,5 @@ class LookNFeelTabbedEditor(MultiModeTabbedEditor):
     def zoomReset(self):
         if self.currentWidget() is self.visual:
             self.visual.scene.views()[0].zoomOriginal()
+
+#endif

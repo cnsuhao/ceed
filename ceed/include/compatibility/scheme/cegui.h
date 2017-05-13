@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_scheme_cegui_
+#define CEED_compatibility_scheme_cegui_
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
@@ -209,3 +212,5 @@ class CEGUI5ToCEGUI4Layer(compatibility.Layer):
                     falagardMapping.set("Renderer", "Falagard/%s" % (rendererValue[5:]))
 
         return ceguihelpers.prettyPrintXMLElement(root)
+
+#endif

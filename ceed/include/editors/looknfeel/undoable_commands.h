@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_undoable_commands_
+#define CEED_editors_looknfeel_undoable_commands_
+
 from ceed import commands
 
 idbase = 1300
@@ -186,3 +189,4 @@ class FalagardElementAttributeEdit(commands.UndoCommand):
 
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow
+#endif

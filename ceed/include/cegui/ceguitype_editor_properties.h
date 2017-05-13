@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_ceguitype_editor_properties_
+#define CEED_cegui_ceguitype_editor_properties_
+
 """Lightweight CEGUI property value types that can parse and write text."""
 
 from ceguitypes import *
@@ -262,3 +265,4 @@ class ColourRectProperty(BaseProperty):
 
     def tryParse(self, strValue):
         return ColourRect.tryParse(strValue)
+#endif

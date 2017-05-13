@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_animation_list_code_
+#define CEED_editors_animation_list_code_
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import multi
@@ -43,3 +46,5 @@ class CodeEditing(multi.CodeEditMode):
         else:
             self.tabbedEditor.visual.loadFromElement(element)
             return True
+
+#endif

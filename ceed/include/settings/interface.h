@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_settings_interface_
+#define CEED_settings_interface_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -109,3 +112,5 @@ class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
         # dialog is not handled here; although, this "bug as a feature" allows
         # Settings to be modified, closed, and it will remember (but not apply)
         # the previous changes.
+
+#endif

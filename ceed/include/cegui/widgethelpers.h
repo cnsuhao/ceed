@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_widgethelpers_
+#define CEED_cegui_widgethelpers_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -879,3 +882,5 @@ class SerialisationData(object):
         # refresh the manipulator using newly set properties
         ret.updateFromWidget(False, True)
         return ret
+
+#endif

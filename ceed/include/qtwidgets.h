@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_qtwidgets_
+#define CEED_qtwidgets_
+
 """Contains reusable widgets that I haven't found in Qt for some reason
 """
 
@@ -364,3 +367,5 @@ def getCheckerboardBrush(halfWidth = 5, halfHeight = 5,
     ret.setTexture(texture)
 
     return ret
+
+#endif

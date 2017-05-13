@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs_inkscape_svg_
+#define CEED_metaimageset_inputs_inkscape_svg_
+
 """Implements the more advanced SVG input of metaimageset (using Inkscape).
 """
 
@@ -337,3 +340,5 @@ class InkscapeSVG(inputs.Input):
             ret.extend(component.buildImages())
 
         return ret
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_error_
+#define CEED_error_
+
 """Implements a hook that displays a dialog whenever an exception is uncaught.
 We display information to the user about where to submit a bug report and what
 to include.
@@ -167,3 +170,5 @@ class ErrorHandler(object):
                 # and try to quit as soon as possible
                 # we don't care about exception safety/cleaning up at this point
                 sys.exit(1)
+
+#endif

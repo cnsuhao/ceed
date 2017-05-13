@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_xmledit_
+#define CEED_xmledit_
+
 from PySide import QtGui
 from PySide import QtCore
 
@@ -85,3 +88,5 @@ class XMLEditWidget(QtGui.QTextEdit):
         self.zoomIn()
 
         self.highlighter = XMLSyntaxHighlighter(self.document())
+
+#endif

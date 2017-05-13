@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_undo_
+#define CEED_editors_imageset_undo_
+
 from ceed import commands
 from ceed.editors.imageset import elements
 
@@ -740,3 +743,5 @@ class PasteCommand(commands.UndoCommand):
         self.visual.dockWidget.refresh()
 
         super(PasteCommand, self).redo()
+
+#endif

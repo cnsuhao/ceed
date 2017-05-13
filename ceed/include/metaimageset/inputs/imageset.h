@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs_imageset_
+#define CEED_metaimageset_inputs_imageset_
+
 """Implements CEGUI imagesets as inputs of metaimageset.
 """
 
@@ -84,3 +87,5 @@ class Imageset(inputs.Input):
             ret.append(inputs.Image(self.imagesetEntry.name + "/" + imageEntry.name, subImage, imageEntry.xoffset, imageEntry.yoffset))
 
         return ret
+
+#endif

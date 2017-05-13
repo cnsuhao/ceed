@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_settings_decl_
+#define CEED_cegui_settings_decl_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -45,3 +48,5 @@ def declare(settings):
                            help_ = "Second of the alternating colours to use. (use the same as first to get a solid background)",
                            defaultValue = QtGui.QColor(QtCore.Qt.lightGray), widgetHint = "colour",
                            sortingWeight = 4)
+
+#endif

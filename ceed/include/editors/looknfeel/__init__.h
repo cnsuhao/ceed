@@ -17,6 +17,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef CEED_editors_looknfeel___init___
+#define CEED_editors_looknfeel___init___
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #
@@ -59,3 +62,5 @@ class LookNFeelTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def create(self, filePath):
         return LookNFeelTabbedEditor(filePath)
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_visual_
+#define CEED_editors_layout_visual_
+
 from collections import OrderedDict
 
 from PySide import QtCore
@@ -1524,3 +1527,5 @@ import ceed.ui.editors.layout.createwidgetdockwidget
 from ceed import mainwindow
 from ceed import settings
 from ceed import action
+
+#endif

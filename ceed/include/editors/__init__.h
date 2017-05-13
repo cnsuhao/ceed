@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors___init___
+#define CEED_editors___init___
+
 """This module contains interfaces needed to run editors tabs (multi-file editing)
 
 Also groups all the editors together to avoid cluttering the root directory.
@@ -690,3 +693,5 @@ class MessageTabbedEditor(TabbedEditor):
         return False
 
 from ceed import settings
+
+#endif

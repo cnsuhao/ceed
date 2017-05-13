@@ -279,3 +279,5 @@ class CygonRectanglePacker(RectanglePacker):
                 del self.heightSlices[startSlice:endSlice]
                 if right < self.packingAreaWidth:
                     self.heightSlices.insert(startSlice, Point(right, returnHeight))
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_action_declaration_
+#define CEED_action_declaration_
+
 """Provides API to declare actions that are remapable
 (shortcuts can be changed) using the settings interface
 
@@ -161,3 +164,5 @@ class ActionManager(object):
 
     def declareSettingsCategory(self):
         self.settingsCategory = self.settings.createCategory(name = "action_shortcuts", label = "Shortcuts", sortingWeight = 999)
+
+#endif

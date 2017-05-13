@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_utility_
+#define CEED_propertytree_utility_
+
 """Misc utilities.
 
 getDictionaryTreePath -- Retrieve a value from a dictionary tree.
@@ -66,3 +69,5 @@ def boolFromString(text):
     if isinstance(text, bool):
         return text
     return text.lower() in ("true", "yes", "1") if text else False
+
+#endif

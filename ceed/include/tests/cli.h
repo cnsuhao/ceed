@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_tests_cli_
+#define CEED_tests_cli_
+
 import unittest
 import subprocess
 import os
@@ -46,3 +49,5 @@ class test_CommandLineTools(unittest.TestCase):
         tempFile = tempfile.NamedTemporaryFile()
 
         self._test_run("ceed-migrate", ["--sourceType", "CEGUI layout 3", "layout", layoutPath, tempFile.name])
+
+#endif

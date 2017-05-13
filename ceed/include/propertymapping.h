@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertymapping_
+#define CEED_propertymapping_
+
 """Settings for CEGUI properties.
 
 PropertyMappingEntry -- Settings for one property, identified by its origin and name.
@@ -171,3 +174,5 @@ class PropertyMap(object):
         self.entries.update(pmap.entries)
 
 from ceed.compatibility import property_mappings as compat
+
+#endif

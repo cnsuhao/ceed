@@ -23,6 +23,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_falagard_element_editor_
+#define CEED_editors_looknfeel_falagard_element_editor_
+
 from PySide import QtGui
 
 from ceed.propertysetinspector import PropertyInspectorWidget
@@ -91,3 +94,5 @@ class FalagardElementEditorProperty(pt.properties.SinglePropertyWrapper):
             return True
 
         return False
+
+#endif

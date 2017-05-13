@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED___init___
+#define CEED___init___
+
 # package stub file
 
 from ceed import version
@@ -30,3 +33,5 @@ __license__ = "GPLv3+"
 
 # __credits__ are hard to maintain, please see the AUTHORS file in the top directory
 # of a fresh mercurial clone
+
+#endif

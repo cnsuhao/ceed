@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_undo_
+#define CEED_editors_layout_undo_
+
 from ceed import commands
 
 from ceed.editors.layout import widgethelpers
@@ -1027,3 +1030,5 @@ class MoveInParentWidgetListCommand(commands.UndoCommand):
                 parentManipulator.treeItem.refreshOrderingData(True, True)
 
         super(MoveInParentWidgetListCommand, self).redo()
+
+#endif

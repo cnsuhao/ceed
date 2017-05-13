@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_resizable_
+#define CEED_resizable_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -862,3 +865,5 @@ class ResizableRectItem(QtGui.QGraphicsRectItem):
             self.notifyMoveFinished(newPos)
 
 from ceed import settings
+
+#endif

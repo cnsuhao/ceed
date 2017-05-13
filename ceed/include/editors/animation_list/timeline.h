@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_animation_list_timeline_
+#define CEED_editors_animation_list_timeline_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -598,3 +601,5 @@ class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
 
         if len(movedKeyFrames) > 0:
             self.keyFramesMoved.emit(movedKeyFrames)
+
+#endif

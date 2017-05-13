@@ -23,6 +23,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_hierarchy_tree_item_
+#define CEED_editors_looknfeel_hierarchy_tree_item_
+
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -220,3 +224,5 @@ class LookNFeelHierarchyItem(QtGui.QStandardItem):
         sectionSpecList = self.falagardElement.getSectionSpecificationPointers()
         for sectionSpec in sectionSpecList:
             self.createAndAddItem(sectionSpec)
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_mainwindow_
+#define CEED_mainwindow_
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtOpenGL
@@ -1485,3 +1488,5 @@ Details of this error: %s""" % (e))
 
     def slot_ceguiDebugInfo(self):
         self.ceguiContainerWidget.debugInfo.show()
+
+#endif

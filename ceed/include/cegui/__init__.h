@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui___init___
+#define CEED_cegui___init___
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtOpenGL
@@ -524,3 +527,5 @@ class Instance(object):
             PyCEGUI.WindowManager.getSingleton().destroyWindow(widgetInstance)
 
         return temporaryFBO.toImage()
+
+#endif

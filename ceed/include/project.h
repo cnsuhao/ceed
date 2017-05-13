@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_project_
+#define CEED_project_
+
 """Implements project file data model and GUI for interacting with it
 """
 
@@ -938,3 +941,5 @@ class ProjectSettingsDialog(QtGui.QDialog):
         self.schemesPath.setText(os.path.join(resourceDir, "schemes"))
         self.layoutsPath.setText(os.path.join(resourceDir, "layouts"))
         self.xmlSchemasPath.setText(os.path.join(resourceDir, "xml_schemas"))
+
+#endif

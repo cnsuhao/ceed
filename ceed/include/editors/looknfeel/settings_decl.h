@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_settings_decl_
+#define CEED_editors_looknfeel_settings_decl_
+
 from PySide import QtGui
 
 def declare(settings):
@@ -93,3 +96,5 @@ def declare(settings):
                        help_ = "Auto widgets are usually handled by LookNFeel and except in very special circumstances, you don't want to deal with them at all. Only use if you know what you are doing! This might clutter the interface a lot.",
                        defaultValue = False, widgetHint = "checkbox",
                        sortingWeight = 10)
+
+#endif

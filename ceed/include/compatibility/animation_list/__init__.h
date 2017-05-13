@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_animation_list___init___
+#define CEED_compatibility_animation_list___init___
+
 from ceed import compatibility
 #from xml.etree import cElementTree as ElementTree
 
@@ -53,3 +56,5 @@ class Manager(compatibility.Manager):
         self.detectors.append(AnimationList1TypeDetector())
 
 manager = Manager()
+
+#endif

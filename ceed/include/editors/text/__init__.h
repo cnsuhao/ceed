@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_text___init___
+#define CEED_editors_text___init___
+
 from PySide import QtGui
 from ceed import editors
 
@@ -98,3 +101,5 @@ class TextTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def create(self, filePath):
         return TextTabbedEditor(filePath)
+
+#endif

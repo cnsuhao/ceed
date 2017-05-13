@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_layout___init___
+#define CEED_compatibility_layout___init___
+
 from ceed import compatibility
 from ceed.compatibility.layout import cegui
 
@@ -44,3 +47,5 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.Layout4To3Layer())
 
 manager = Manager()
+
+#endif

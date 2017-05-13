@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_about_
+#define CEED_about_
+
 """Implements the License and About dialogs
 """
 
@@ -70,3 +73,5 @@ class AboutDialog(QtGui.QDialog):
         self.findChild(QtGui.QLabel, "PySideVersion").setText("PySide: %s" % (version.PYSIDE))
         self.findChild(QtGui.QLabel, "QtVersion").setText("Qt: %s" % (version.QT))
         self.findChild(QtGui.QLabel, "PyCEGUIVersion").setText("PyCEGUI: %s" % (version.PYCEGUI))
+
+#endif

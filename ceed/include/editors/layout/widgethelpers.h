@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_widgethelpers_
+#define CEED_editors_layout_widgethelpers_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -407,3 +410,5 @@ class SerialisationData(cegui_widgethelpers.SerialisationData):
 
 from ceed import settings
 from ceed import action
+
+#endif

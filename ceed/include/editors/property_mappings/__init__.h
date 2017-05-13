@@ -17,6 +17,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef CEED_editors_property_mappings___init___
+#define CEED_editors_property_mappings___init___
 """
 from PySide import QtGui
 
@@ -71,3 +74,5 @@ class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
         return PropertyMappingsTabbedEditor(filePath)
 
 """
+
+#endif

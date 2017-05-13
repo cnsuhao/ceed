@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_settings_declaration_
+#define CEED_settings_declaration_
+
 class Entry(object):
     """Is the value itself, inside a section. This is what's directly used when
     accessing settings.
@@ -379,3 +382,5 @@ class Settings(object):
         if recursive:
             for category in self.categories:
                 category.sort()
+
+#endif

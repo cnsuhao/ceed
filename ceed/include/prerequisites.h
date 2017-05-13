@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_prerequisites_
+#define CEED_prerequisites_
+
 """This module is used to check dependencies of CEED, check their versions
 and provide helpful info when something goes wrong.
 """
@@ -117,3 +120,5 @@ def check(supressMessagesIfNotFatal = True):
         messageBox("Following problems found: \n" + unicode("\n").join(messages))
 
     return ret
+
+#endif

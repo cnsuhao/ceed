@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_messages_
+#define CEED_messages_
+
 """Provides messages that users can dismiss (choose to never show again)
 """
 
@@ -65,3 +68,5 @@ def warning(app, parentWidget, title, message, token = None):
 
     if response == QtGui.QMessageBox.ButtonRole.RejectRole:
         app.qsettings.setValue(qsettingsKey, True)
+
+#endif

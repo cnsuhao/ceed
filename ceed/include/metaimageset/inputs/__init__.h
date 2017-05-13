@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs___init___
+#define CEED_metaimageset_inputs___init___
+
 """Defines interfaces for metaimageset inputs and the images that are returned
 from these inputs.
 """
@@ -69,3 +72,5 @@ class Input(object):
         """
 
         raise NotImplementedError("Each Input subclass must override Input.buildImages!")
+
+#endif

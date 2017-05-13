@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_settings_decl_
+#define CEED_editors_imageset_settings_decl_
+
 def declare(settings):
     category = settings.createCategory(name = "imageset", label = "Imageset editing")
 
@@ -32,3 +35,5 @@ def declare(settings):
                     help_ = "Will use partial 2D updates using accelerated 2D machinery. The performance of this is very dependent on your platform and hardware. MacOSX handles partial updates much better than Linux it seems. If you have a very good GPU, don't tick this.",
                     defaultValue = False, widgetHint = "checkbox", changeRequiresRestart = True,
                     sortingWeight = 2)
+
+#endif

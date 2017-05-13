@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree___init___
+#define CEED_propertytree___init___
+
 """Provides a way to build, categorise, visualise and edit a list of properties.
 
 properties -- Built-in properties, representing one simple value.
@@ -123,3 +126,5 @@ import editors
 import ui
 
 __all__ = ["properties", "compositeproperties", "editors", "ui"]
+
+#endif

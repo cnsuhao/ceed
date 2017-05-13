@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_filesystembrowser_
+#define CEED_filesystembrowser_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -156,3 +159,5 @@ class FileSystemBrowser(QtGui.QDockWidget):
             self.setDirectory(newPath)
 
 import ceed.mainwindow
+
+#endif

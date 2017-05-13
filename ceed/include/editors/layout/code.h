@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_code_
+#define CEED_editors_layout_code_
+
 from ceed.editors import code_edit_restoring_view
 import PyCEGUI
 
@@ -56,3 +59,5 @@ class CodeEditing(code_edit_restoring_view.CodeEditingWithViewRestore):
 
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow
+
+#endif

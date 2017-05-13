@@ -18,4 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_tests_compatibility___init___
+#define CEED_tests_compatibility___init___
+
 # package stub file
+
+#endif

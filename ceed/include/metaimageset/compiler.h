@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_compiler_
+#define CEED_metaimageset_compiler_
+
 import math
 import os.path
 
@@ -264,3 +267,5 @@ class CompilerInstance(object):
         print("")
         print("Side size overhead: ".rjust(rjustChars) + "%f%%" % ((sideSize - theoreticalMinSize) / (theoreticalMinSize) * 100))
         print("Area (squared) overhead: ".rjust(rjustChars) + "%f%%" % ((sideSize * sideSize - theoreticalMinSize * theoreticalMinSize) / (theoreticalMinSize * theoreticalMinSize) * 100))
+
+#endif

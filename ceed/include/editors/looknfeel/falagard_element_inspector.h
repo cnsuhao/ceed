@@ -23,6 +23,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_falagard_element_inspector_
+#define CEED_editors_looknfeel_falagard_element_inspector_
+
 from ceed.propertytree import properties
 from ceed.propertytree import utility as ptUtility
 
@@ -250,3 +253,5 @@ class FalagardElementSettingCategory(object):
         :return:
         """
         self.properties = OrderedDict(self.properties.items())
+
+#endif

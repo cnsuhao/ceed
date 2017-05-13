@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_settings_persistence_
+#define CEED_settings_persistence_
+
 class PersistenceProvider(object):
     def __init__(self):
         pass
@@ -39,3 +42,5 @@ class QSettingsPersistenceProvider(PersistenceProvider):
 
     def download(self, entry):
         return self.qsettings.value(entry.getPath())
+
+#endif

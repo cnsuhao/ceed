@@ -23,6 +23,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_visual_
+#define CEED_editors_looknfeel_visual_
 
 from PySide import QtCore
 from PySide import QtGui
@@ -368,3 +370,5 @@ import ceed.ui.editors.looknfeel.looknfeelpropertyeditordockwidget
 from ceed import mainwindow
 from ceed import settings
 from ceed import action
+
+#endif

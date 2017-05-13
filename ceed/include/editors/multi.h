@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_multi_
+#define CEED_editors_multi_
+
 ##
 # This module contains interfaces for multi mode tabbed editors (visual, source, ...)
 
@@ -326,3 +329,5 @@ class MultiModeTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
             self.undoStack.push(cmd)
 
         self.currentTabIndex = newTabIndex
+
+#endif

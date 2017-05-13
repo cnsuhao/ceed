@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_code_edit_restoring_view_
+#define CEED_editors_code_edit_restoring_view_
+
 from PySide import QtGui
 
 from ceed.editors import multi
@@ -64,3 +67,5 @@ class CodeEditingWithViewRestore(multi.CodeEditMode):
         self.lastCursorSelectionEnd = textCursor.selectionEnd()
 
         return super(CodeEditingWithViewRestore, self).propagateToVisual()
+
+#endif

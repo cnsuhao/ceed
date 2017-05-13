@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_editors_
+#define CEED_propertytree_editors_
+
 """The standard editors for the property tree.
 
 PropertyEditorRegistry -- Maintains a list of the available editors and the types they can edit; creates the appropriate editor for a property.
@@ -650,3 +653,5 @@ class ColourValuePropertyEditor(PropertyEditor):
 PropertyEditorRegistry.addStandardEditor(ColourValuePropertyEditor)
 
 from ceed import mainwindow
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_looknfeel_cegui_
+#define CEED_compatibility_looknfeel_cegui_
+
 from ceed import compatibility
 from ceed.compatibility import layout as compatibility_layout
 from ceed.compatibility import ceguihelpers
@@ -253,3 +256,5 @@ class LookNFeel7To6Layer(compatibility.Layer):
                 compatibility_layout.cegui.Layout4To3Layer.transformPropertiesOf(childElement, nameAttribute = "name", valueAttribute = "value", windowType = childElement.get("type"))
 
         return ceguihelpers.prettyPrintXMLElement(root)
+
+#endif

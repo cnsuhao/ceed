@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs_registry_
+#define CEED_metaimageset_inputs_registry_
+
 """You only have to extend these functions to add more inputs to metaimageset.
 """
 
@@ -51,3 +54,5 @@ def loadFromElement(metaImageset, element):
 # We currently just use the input classes to save to element
 #def saveElement(metaImageset, element):
 #    pass
+
+#endif

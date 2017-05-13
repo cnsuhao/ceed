@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_layout_cegui_
+#define CEED_compatibility_layout_cegui_
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
@@ -455,3 +458,5 @@ class Layout4To3Layer(compatibility.Layer):
             log += self.applyChangesRecursively(window)
 
         return unicode(ceguihelpers.prettyPrintXMLElement(root), encoding = "utf-8")
+
+#endif

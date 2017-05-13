@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_elements_
+#define CEED_editors_imageset_elements_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -570,3 +573,5 @@ class ImagesetEntry(QtGui.QGraphicsPixmapItem):
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow
 from ceed import settings
+
+#endif

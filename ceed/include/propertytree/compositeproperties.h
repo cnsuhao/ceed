@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_compositeproperties_
+#define CEED_propertytree_compositeproperties_
+
 """The standard composite properties.
 
 DictionaryProperty -- Generic property based on a dictionary.
@@ -167,3 +170,5 @@ class DictionaryProperty(Property):
             # recreate our components
             self.finaliseComponents()
             self.createComponents()
+
+#endif

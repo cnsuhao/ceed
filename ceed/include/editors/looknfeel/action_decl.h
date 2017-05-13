@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_action_decl_
+#define CEED_editors_looknfeel_action_decl_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -71,3 +74,5 @@ def declare(actionManager):
                      help_ = "This allows you to easily press a shortcut and immediately search through properties without having to reach for a mouse.",
                      icon = QtGui.QIcon("icons/looknfeel_editing/focus_property_inspector_filter_box.png"),
                      defaultShortcut = QtGui.QKeySequence(QtGui.QKeySequence.Find))
+
+#endif

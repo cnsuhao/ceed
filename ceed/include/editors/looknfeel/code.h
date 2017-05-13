@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_code_
+#define CEED_editors_looknfeel_code_
+
 from ceed.editors import multi
 
 from PySide import QtGui
@@ -178,3 +181,5 @@ class WidgetLookHighlighter(QtGui.QSyntaxHighlighter):
 
 # needs to be at the end, imported to get the singleton
 from ceed import mainwindow
+
+#endif

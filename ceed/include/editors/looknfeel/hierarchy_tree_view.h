@@ -23,6 +23,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_hierarchy_tree_view_
+#define CEED_editors_looknfeel_hierarchy_tree_view_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -131,3 +134,5 @@ class LookNFeelHierarchyTreeView(QtGui.QTreeView):
         self.deleteAction.setEnabled(haveSel)
 
         self.contextMenu.exec_(event.globalPos())
+
+#endif

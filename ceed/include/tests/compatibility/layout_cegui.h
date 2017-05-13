@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_tests_compatibility_layout_cegui_
+#define CEED_tests_compatibility_layout_cegui_
+
 import unittest
 
 from ceed.compatibility.layout import cegui
@@ -81,3 +84,5 @@ class test_Layout3and4Layers(unittest.TestCase):
 
     def test_vanillaWindows(self):
         self._test_conversion("VanillaWindows")
+
+#endif

@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_properties_
+#define CEED_propertytree_properties_
+
 """The basic properties.
 
 Property -- The base class for all properties, has name, value, etc.
@@ -686,3 +689,5 @@ class EnumValue(object):
     def getEnumValues(self):
         """Return a dictionary of all possible values and their display names."""
         pass
+
+#endif

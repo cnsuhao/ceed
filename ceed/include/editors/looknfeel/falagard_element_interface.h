@@ -23,6 +23,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_falagard_element_interface_
+#define CEED_editors_looknfeel_falagard_element_interface_
+
 import PyCEGUI
 
 from falagard_element_inspector import FalagardElementAttributesManager
@@ -648,3 +651,5 @@ class FalagardElementInterface(object):
             valueAsString = unicode(value)
 
         propertyDefBase.setInitialValue(valueAsString)
+
+#endif

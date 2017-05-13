@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_container_
+#define CEED_cegui_container_
+
 """Implementation of a convenience Qt and CEGUI interaction containment.
 
 Allows you to use CEGUI as if it were a Qt widget.
@@ -338,3 +341,5 @@ class ContainerWidget(QtGui.QWidget):
         self.debugInfo.show()
 
 from ceed import settings
+
+#endif

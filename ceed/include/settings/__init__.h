@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_settings___init___
+#define CEED_settings___init___
+
 """Declares global settings entries. Provides an entry point to the settings
 system via getEntry(..).
 """
@@ -97,3 +100,5 @@ def getEntry(path):
     return Settings.instance.getEntry(path)
 
 __all__ = ["declaration", "persistence", "interface", "Settings", "getEntry"]
+
+#endif

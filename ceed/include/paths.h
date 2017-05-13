@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_paths_
+#define CEED_paths_
+
 """This module contains means to get various CEED related paths in various
 environments.
 """
@@ -95,3 +98,5 @@ if not FROZEN:
     assert(os.path.exists(UI_DIR))
 
 assert(os.path.exists(DATA_DIR))
+
+#endif

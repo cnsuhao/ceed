@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_commands_
+#define CEED_commands_
+
 from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon, QWidget, QVBoxLayout
 
 class UndoCommand(QUndoCommand):
@@ -56,3 +59,5 @@ class UndoViewer(QDockWidget):
         self.view.setStack(stack)
         # if stack is None this effectively disables the entire dock widget to improve UX
         self.setEnabled(stack is not None)
+
+#endif

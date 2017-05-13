@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_application_
+#define CEED_application_
+
 from PySide.QtCore import Qt, QSettings
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 
@@ -93,3 +96,5 @@ class Application(QApplication):
 
         self.errorHandler = error.ErrorHandler(self.mainWindow)
         self.errorHandler.installExceptionHook()
+
+#endif

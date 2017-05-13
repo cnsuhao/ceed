@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_code_
+#define CEED_editors_imageset_code_
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import code_edit_restoring_view
@@ -48,3 +51,5 @@ class CodeEditing(code_edit_restoring_view.CodeEditingWithViewRestore):
         else:
             self.tabbedEditor.visual.loadImagesetEntryFromElement(element)
             return True
+
+#endif

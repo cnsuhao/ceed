@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_qtgraphics_
+#define CEED_cegui_qtgraphics_
+
 from PySide import QtCore
 from PySide import QtGui
 from PySide import QtOpenGL
@@ -515,3 +518,5 @@ class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
             super(GraphicsView, self).keyPressEvent(event)
 
 from ceed import settings
+
+#endif

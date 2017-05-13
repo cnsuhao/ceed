@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset_inputs_bitmap_
+#define CEED_metaimageset_inputs_bitmap_
+
 """Implements simple bitmaps as inputs of metaimageset.
 """
 
@@ -66,3 +69,5 @@ class Bitmap(inputs.Input):
             images.append(image)
 
         return images
+
+#endif

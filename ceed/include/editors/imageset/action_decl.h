@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_imageset_action_decl_
+#define CEED_editors_imageset_action_decl_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -46,3 +49,5 @@ def declare(actionManager):
                      help_ = "This allows you to easily press a shortcut and immediately search through image definitions without having to reach for a mouse.",
                      icon = QtGui.QIcon("icons/imageset_editing/focus_image_list_filter_box.png"),
                      defaultShortcut = QtGui.QKeySequence(QtGui.QKeySequence.Find))
+
+#endif

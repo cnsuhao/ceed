@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_font___init___
+#define CEED_compatibility_font___init___
+
 from ceed import compatibility
 from ceed.compatibility.font import cegui
 
@@ -43,3 +46,5 @@ class Manager(compatibility.Manager):
         self.layers.append(cegui.Font3ToFont2Layer())
 
 manager = Manager()
+
+#endif

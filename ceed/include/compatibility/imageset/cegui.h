@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_imageset_cegui_
+#define CEED_compatibility_imageset_cegui_
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 
@@ -193,3 +196,5 @@ class CEGUI2ToCEGUI1Layer(compatibility.Layer):
                     del image.attrib["YOffset"]
 
         return ceguihelpers.prettyPrintXMLElement(root);
+
+#endif

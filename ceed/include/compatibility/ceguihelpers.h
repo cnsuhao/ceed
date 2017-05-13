@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_ceguihelpers_
+#define CEED_compatibility_ceguihelpers_
+
 """Misc helper functionality often reused in compatibility layers
 """
 
@@ -81,3 +84,5 @@ def prettyPrintXMLElement(rootElement):
     elementTree = ElementTree.ElementTree(rootElement)
     elementTree.write(tempFile, encoding='utf-8', xml_declaration=True) 
     return tempFile.getvalue()
+
+#endif

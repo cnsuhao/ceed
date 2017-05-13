@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_hierarchy_tree_model_
+#define CEED_editors_looknfeel_hierarchy_tree_model_
+
 import PyCEGUI
 
 from PySide import QtCore
@@ -259,3 +262,5 @@ class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
 
     def dropMimeData(self, data, action, row, column, parent):
         return False
+
+#endif

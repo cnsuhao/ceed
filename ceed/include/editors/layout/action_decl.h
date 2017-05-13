@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_action_decl_
+#define CEED_editors_layout_action_decl_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -121,3 +124,5 @@ def declare(actionManager):
     cat.createAction(name = "recursively_unlock_widget", label = "&Unlock Widget (recursively)",
                      help_ = "Unlocks the widget and all its child widgets for moving and resizing in the visual editing mode.",
                      icon = QtGui.QIcon("icons/layout_editing/unlock_widget_recursively.png"))
+
+#endif

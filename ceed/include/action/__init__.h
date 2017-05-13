@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_action___init___
+#define CEED_action___init___
+
 """Uses the declaration API to declare generic actions in the application.
 
 Also provides ConnectionGroup, which can be used to make mass connecting and
@@ -303,3 +306,5 @@ def getAction(path):
 
     assert(ActionManager.instance is not None)
     return ActionManager.instance.getAction(path)
+
+#endif

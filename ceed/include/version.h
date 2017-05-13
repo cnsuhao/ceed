@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_version_
+#define CEED_version_
+
 """This module is used as a centrepoint to gather version info
 
 Beyond version information, we also store a few other details - e.g. system
@@ -118,3 +121,5 @@ try:
 
 except:
     pass
+
+#endif

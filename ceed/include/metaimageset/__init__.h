@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_metaimageset___init___
+#define CEED_metaimageset___init___
+
 """This module provides all metaimageset API core functionality (except editing)
 """
 
@@ -76,3 +79,5 @@ class MetaImageset(object):
             ret.append(element)
 
         return ret
+
+#endif

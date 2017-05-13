@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout_preview_
+#define CEED_editors_layout_preview_
+
 from PySide import QtGui
 
 from ceed.editors import multi
@@ -86,3 +89,5 @@ class LayoutPreviewer(QtGui.QWidget, multi.EditMode):
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow
+
+#endif

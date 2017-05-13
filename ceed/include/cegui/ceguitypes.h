@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_cegui_ceguitypes_
+#define CEED_cegui_ceguitypes_
+
 """Lightweight CEGUI property value types that can parse and write text."""
 
 import abc
@@ -1053,3 +1056,4 @@ class ImageRef(StringWrapper):
     @classmethod
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToImage(stringValue)
+#endif

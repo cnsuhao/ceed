@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_propertytree_ui_
+#define CEED_propertytree_ui_
+
 """Qt property tree widget supporting classes.
 
 PropertyTreeItem -- Base item for all items.
@@ -808,3 +811,5 @@ class PropertyTreeWidget(QtGui.QWidget):
             self.view.setRowHidden(i, QtCore.QModelIndex(), True if visibleItemsLeft == 0 else False)
 
             i += 1
+
+#endif

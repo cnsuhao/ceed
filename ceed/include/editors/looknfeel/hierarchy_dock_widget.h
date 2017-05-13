@@ -23,6 +23,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_looknfeel_hierarchy_dock_widget_
+#define CEED_editors_looknfeel_hierarchy_dock_widget_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -228,3 +231,5 @@ class LookNFeelHierarchyDockWidget(QtGui.QDockWidget):
                 return True
 
         return super(LookNFeelHierarchyDockWidget, self).keyReleaseEvent(event)
+
+#endif

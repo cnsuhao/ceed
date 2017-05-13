@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_font_cegui_
+#define CEED_compatibility_font_cegui_
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 from ceed.compatibility.imageset import cegui as imageset_cegui_compat
@@ -115,3 +118,5 @@ class Font3ToFont2Layer(compatibility.Layer):
                 self.transformAttribute(mapping, attr)
 
         return ceguihelpers.prettyPrintXMLElement(root)
+
+#endif

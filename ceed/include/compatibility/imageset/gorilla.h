@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_compatibility_imageset_gorilla_
+#define CEED_compatibility_imageset_gorilla_
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed import compatibility
@@ -143,3 +146,5 @@ class CEGUI1ToGorillaLayer(compatibility.Layer):
             ret += "%s %s %s %s %s\n" % (image.get("Name"), image.get("XPos"), image.get("YPos"), image.get("Width"), image.get("Height"))
 
         return ret
+
+#endif

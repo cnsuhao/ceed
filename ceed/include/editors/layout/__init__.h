@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_editors_layout___init___
+#define CEED_editors_layout___init___
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -187,3 +190,5 @@ class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
 
     def create(self, filePath):
         return LayoutTabbedEditor(filePath)
+
+#endif

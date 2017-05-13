@@ -18,6 +18,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CEED_settings_interface_types_
+#define CEED_settings_interface_types_
+
 from PySide import QtCore
 from PySide import QtGui
 
@@ -387,3 +390,5 @@ class InterfaceCategory(QtGui.QScrollArea):
 
 # Wrapper: Tabs
 # TODO
+
+#endif
