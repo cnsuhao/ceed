@@ -32,10 +32,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from bisect import bisect_left
 
-class OutOfSpaceError(Exception):
+class OutOfSpaceError : public Exception
     pass
 
-class Point(object):
+class Point : public object
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -44,7 +44,7 @@ class Point(object):
         """Compares the starting position of height slices"""
         return self.x - other.x
 
-class RectanglePacker(object):
+class RectanglePacker : public object
     """Base class for rectangle packing algorithms
 
     By uniting all rectangle packers under this common base class, you can
@@ -87,7 +87,7 @@ class RectanglePacker(object):
 
         raise NotImplementedError
 
-class CygonRectanglePacker(RectanglePacker):
+class CygonRectanglePacker : public RectanglePacker
     """
     Packer using a custom algorithm by Markus 'Cygon' Ewald
 

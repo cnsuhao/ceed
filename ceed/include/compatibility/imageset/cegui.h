@@ -29,7 +29,7 @@ from xml.etree import cElementTree as ElementTree
 CEGUIImageset1 = "CEGUI imageset 1"
 CEGUIImageset2 = "CEGUI imageset 2"
 
-class Imageset1TypeDetector(compatibility.TypeDetector):
+class Imageset1TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIImageset1
 
@@ -44,7 +44,7 @@ class Imageset1TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("Imageset", None, data)
 
-class Imageset2TypeDetector(compatibility.TypeDetector):
+class Imageset2TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIImageset2
 
@@ -57,7 +57,7 @@ class Imageset2TypeDetector(compatibility.TypeDetector):
 
         return ceguihelpers.checkDataVersion("Imageset", "2", data)
 
-class CEGUI1ToCEGUI2Layer(compatibility.Layer):
+class CEGUI1ToCEGUI2Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIImageset1
 
@@ -122,7 +122,7 @@ class CEGUI1ToCEGUI2Layer(compatibility.Layer):
 
         return ceguihelpers.prettyPrintXMLElement(root);
 
-class CEGUI2ToCEGUI1Layer(compatibility.Layer):
+class CEGUI2ToCEGUI1Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIImageset2
 

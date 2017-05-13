@@ -32,7 +32,7 @@ import os.path
 import glob
 from xml.etree import cElementTree as ElementTree
 
-class Bitmap(inputs.Input):
+class Bitmap : public inputs.Input
     def __init__(self, metaImageset):
         super(Bitmap, self).__init__(metaImageset)
 

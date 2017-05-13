@@ -45,7 +45,7 @@ from ceed.editors.looknfeel.falagard_element_editor import LookNFeelFalagardElem
 from ceed.editors.looknfeel.falagard_element_inspector import FalagardElementAttributesManager
 
 
-class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
+class LookNFeelVisualEditing : public QtGui.QWidget, multi.EditMode
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode
@@ -196,7 +196,7 @@ class LookNFeelVisualEditing(QtGui.QWidget, multi.EditMode):
         return ret
 
 
-class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
+class LookNFeelWidgetLookSelectorWidget : public QtGui.QDockWidget
     """This dock widget allows to select a WidgetLook from a combobox and start editing it
     """
 
@@ -259,7 +259,7 @@ class LookNFeelWidgetLookSelectorWidget(QtGui.QDockWidget):
         self.fileNameLabel.setToolTip(fileNameStr)
 
 
-class EditingScene(cegui_widgethelpers.GraphicsScene):
+class EditingScene : public cegui_widgethelpers.GraphicsScene
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
     visual editing centre screen where CEGUI is rendered.
 

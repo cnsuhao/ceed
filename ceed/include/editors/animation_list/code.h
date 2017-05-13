@@ -25,7 +25,7 @@ from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import multi
 
-class CodeEditing(multi.CodeEditMode):
+class CodeEditing : public multi.CodeEditMode
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
 

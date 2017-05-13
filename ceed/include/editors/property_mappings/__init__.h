@@ -31,7 +31,7 @@ from xml.etree import cElementTree as ElementTree
 
 ##
 # Property mapping file editor
-class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
+class PropertyMappingsTabbedEditor : public editors.UndoStackTabbedEditor
     def __init__(self, filePath):
 
         super(PropertyMappingsTabbedEditor, self).__init__(property_mappings_compatibility.manager, filePath)
@@ -56,7 +56,7 @@ class PropertyMappingsTabbedEditor(editors.UndoStackTabbedEditor):
     def finalise(self):
         super(PropertyMappingsTabbedEditor, self).finalise()
 
-class PropertyMappingsTabbedEditorFactory(editors.TabbedEditorFactory):
+class PropertyMappingsTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = set(["pmappings"])
         return extensions

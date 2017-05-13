@@ -34,7 +34,7 @@ from xml.etree import cElementTree as ElementTree
 
 from PySide import QtGui
 
-class Imageset(inputs.Input):
+class Imageset : public inputs.Input
     class FakeImagesetEntry(imageset_elements.ImagesetEntry):
         class FakeVisual(object):
             def refreshSceneRect(self):

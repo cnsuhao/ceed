@@ -30,7 +30,7 @@ import os
 from ceed import resizable
 from ceed import qtwidgets
 
-class ImageLabel(QtGui.QGraphicsTextItem):
+class ImageLabel : public QtGui.QGraphicsTextItem
     """Text item showing image's label when the image is hovered or selected.
     You should not use this directly! Use ImageEntry.name instead to get the name.
     """
@@ -72,7 +72,7 @@ class ImageLabel(QtGui.QGraphicsTextItem):
 
         super(ImageLabel, self).hoverLeaveEvent(event)
 
-class ImageOffset(QtGui.QGraphicsPixmapItem):
+class ImageOffset : public QtGui.QGraphicsPixmapItem
     """A crosshair showing where the imaginary (0, 0) point of the image is. The actual offset
     is just a negated vector of the crosshair's position but this is easier to work with from
     the artist's point of view.
@@ -143,7 +143,7 @@ class ImageOffset(QtGui.QGraphicsPixmapItem):
 
         super(ImageOffset, self).hoverLeaveEvent(event)
 
-class ImageEntry(resizable.ResizableRectItem):
+class ImageEntry : public resizable.ResizableRectItem
     """Represents the image of the imageset, can be drag moved, selected, resized, ...
     """
 
@@ -427,7 +427,7 @@ class ImageEntry(resizable.ResizableRectItem):
         # NB: This is just a wrapper to make the property setter lambda work
         self.nativeHorzRes, self.nativeVertRes = value
 
-class ImagesetEntry(QtGui.QGraphicsPixmapItem):
+class ImagesetEntry : public QtGui.QGraphicsPixmapItem
     """This is the whole imageset containing all the images (ImageEntries).
 
     The main reason for this is not to have multiple imagesets editing at once but rather

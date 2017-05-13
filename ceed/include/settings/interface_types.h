@@ -37,7 +37,7 @@ from ceed import qtwidgets
 
 # Wrapper: Entry types
 # - One for each 'widgetHint'.
-class InterfaceEntry(QtGui.QHBoxLayout):
+class InterfaceEntry : public QtGui.QHBoxLayout
     def __init__(self, entry, parent):
         super(InterfaceEntry, self).__init__()
         self.entry = entry
@@ -69,7 +69,7 @@ class InterfaceEntry(QtGui.QHBoxLayout):
     def markAsUnchanged(self):
         self.entry.markAsUnchanged()
 
-class InterfaceEntryString(InterfaceEntry):
+class InterfaceEntryString : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryString, self).__init__(entry, parent)
         self.entryWidget = QtGui.QLineEdit()
@@ -86,7 +86,7 @@ class InterfaceEntryString(InterfaceEntry):
         self.entry.editedValue = str(text)
         super(InterfaceEntryString, self).onChange(text)
 
-class InterfaceEntryInt(InterfaceEntry):
+class InterfaceEntryInt : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryInt, self).__init__(entry, parent)
         self.entryWidget = QtGui.QLineEdit()
@@ -114,7 +114,7 @@ class InterfaceEntryInt(InterfaceEntry):
 
         super(InterfaceEntryInt, self).onChange(text)
 
-class InterfaceEntryFloat(InterfaceEntry):
+class InterfaceEntryFloat : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryFloat, self).__init__(entry, parent)
         self.entryWidget = QtGui.QLineEdit()
@@ -142,7 +142,7 @@ class InterfaceEntryFloat(InterfaceEntry):
 
         super(InterfaceEntryFloat, self).onChange(text)
 
-class InterfaceEntryCheckbox(InterfaceEntry):
+class InterfaceEntryCheckbox : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryCheckbox, self).__init__(entry, parent)
         self.entryWidget = QtGui.QCheckBox()
@@ -165,7 +165,7 @@ class InterfaceEntryCheckbox(InterfaceEntry):
         self.entry.editedValue = state
         super(InterfaceEntryCheckbox, self).onChange(state)
 
-class InterfaceEntryColour(InterfaceEntry):
+class InterfaceEntryColour : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryColour, self).__init__(entry, parent)
         self.entryWidget = qtwidgets.ColourButton()
@@ -188,7 +188,7 @@ class InterfaceEntryColour(InterfaceEntry):
         self.entry.editedValue = colour
         super(InterfaceEntryColour, self).onChange(colour)
 
-class InterfaceEntryPen(InterfaceEntry):
+class InterfaceEntryPen : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryPen, self).__init__(entry, parent)
         self.entryWidget = qtwidgets.PenButton()
@@ -211,7 +211,7 @@ class InterfaceEntryPen(InterfaceEntry):
         self.entry.editedValue = pen
         super(InterfaceEntryPen, self).onChange(pen)
 
-class InterfaceEntryKeySequence(InterfaceEntry):
+class InterfaceEntryKeySequence : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryKeySequence, self).__init__(entry, parent)
         self.entryWidget = qtwidgets.KeySequenceButton()
@@ -234,7 +234,7 @@ class InterfaceEntryKeySequence(InterfaceEntry):
         self.entry.editedValue = keySequence
         super(InterfaceEntryKeySequence, self).onChange(keySequence)
 
-class InterfaceEntryCombobox(InterfaceEntry):
+class InterfaceEntryCombobox : public InterfaceEntry
     def __init__(self, entry, parent):
         super(InterfaceEntryCombobox, self).__init__(entry, parent)
         self.entryWidget = QtGui.QComboBox()
@@ -291,7 +291,7 @@ def interfaceEntryFactory(entry, parent):
         raise RuntimeError("I don't understand widget hint '%s'" % (entry.widgetHint))
 
 # Wrapper: Section
-class InterfaceSection(QtGui.QGroupBox):
+class InterfaceSection : public QtGui.QGroupBox
     def __init__(self, section, parent):
         super(InterfaceSection, self).__init__()
         self.section = section
@@ -335,7 +335,7 @@ class InterfaceSection(QtGui.QGroupBox):
         self.modifiedEntries = []
 
 # Wrapper: Category
-class InterfaceCategory(QtGui.QScrollArea):
+class InterfaceCategory : public QtGui.QScrollArea
     def __init__(self, category, parent):
         super(InterfaceCategory, self).__init__()
         self.category = category

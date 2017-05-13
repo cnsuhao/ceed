@@ -25,7 +25,7 @@ from PySide import QtGui
 from ceed import editors
 import ceed.ui.bitmapeditor
 
-class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
+class BitmapTabbedEditor : public editors.TabbedEditor, QtGui.QWidget
     """A simple external bitmap editor starter/image viewer
     """
 
@@ -51,7 +51,7 @@ class BitmapTabbedEditor(editors.TabbedEditor, QtGui.QWidget):
     def hasChanges(self):
         return False
 
-class BitmapTabbedEditorFactory(editors.TabbedEditorFactory):
+class BitmapTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = set(["png", "jpg", "jpeg", "tga", "dds"])
         return extensions

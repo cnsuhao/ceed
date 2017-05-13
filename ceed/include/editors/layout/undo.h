@@ -29,7 +29,7 @@ import PyCEGUI
 idbase = 1200
 
 
-class MoveCommand(commands.UndoCommand):
+class MoveCommand : public commands.UndoCommand
     """This command simply moves given widgets from old positions to new
     """
 
@@ -93,7 +93,7 @@ class MoveCommand(commands.UndoCommand):
         super(MoveCommand, self).redo()
 
 
-class ResizeCommand(commands.UndoCommand):
+class ResizeCommand : public commands.UndoCommand
     """This command resizes given widgets from old positions and old sizes to new
     """
 
@@ -157,7 +157,7 @@ class ResizeCommand(commands.UndoCommand):
         super(ResizeCommand, self).redo()
 
 
-class DeleteCommand(commands.UndoCommand):
+class DeleteCommand : public commands.UndoCommand
     """This command deletes given widgets"""
 
     def __init__(self, visual, widgetPaths):
@@ -247,7 +247,7 @@ class DeleteCommand(commands.UndoCommand):
         super(DeleteCommand, self).redo()
 
 
-class CreateCommand(commands.UndoCommand):
+class CreateCommand : public commands.UndoCommand
     """This command creates one widget"""
 
     def __init__(self, visual, parentWidgetPath, widgetType, widgetName):
@@ -301,7 +301,7 @@ class CreateCommand(commands.UndoCommand):
         super(CreateCommand, self).redo()
 
 
-class PropertyEditCommand(commands.UndoCommand):
+class PropertyEditCommand : public commands.UndoCommand
     """This command resizes given widgets from old positions and old sizes to new
     """
 
@@ -383,7 +383,7 @@ class PropertyEditCommand(commands.UndoCommand):
         super(PropertyEditCommand, self).redo()
 
 
-class HorizontalAlignCommand(commands.UndoCommand):
+class HorizontalAlignCommand : public commands.UndoCommand
     """This command aligns selected widgets accordingly
     """
 
@@ -446,7 +446,7 @@ class HorizontalAlignCommand(commands.UndoCommand):
 
         super(HorizontalAlignCommand, self).redo()
 
-class VerticalAlignCommand(commands.UndoCommand):
+class VerticalAlignCommand : public commands.UndoCommand
     """This command aligns selected widgets accordingly
     """
 
@@ -510,7 +510,7 @@ class VerticalAlignCommand(commands.UndoCommand):
         super(VerticalAlignCommand, self).redo()
 
 
-class ReparentCommand(commands.UndoCommand):
+class ReparentCommand : public commands.UndoCommand
     """This command changes parent of given windows
     """
 
@@ -620,7 +620,7 @@ class ReparentCommand(commands.UndoCommand):
         super(ReparentCommand, self).redo()
 
 
-class PasteCommand(commands.UndoCommand):
+class PasteCommand : public commands.UndoCommand
     """This command pastes clipboard data to the given widget
     """
 
@@ -685,7 +685,7 @@ class PasteCommand(commands.UndoCommand):
         super(PasteCommand, self).redo()
 
 
-class NormaliseSizeCommand(ResizeCommand):
+class NormaliseSizeCommand : public ResizeCommand
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         newSizes = {}
         for widgetPath in widgetPaths:
@@ -710,7 +710,7 @@ class NormaliseSizeCommand(ResizeCommand):
         return False
 
 
-class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
+class NormaliseSizeToRelativeCommand : public NormaliseSizeCommand
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         # even though this will be set again in the ResizeCommand constructor we need to set it right now
         # because otherwise the normaliseSize will not work!
@@ -736,7 +736,7 @@ class NormaliseSizeToRelativeCommand(NormaliseSizeCommand):
         return idbase + 10
 
 
-class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
+class NormaliseSizeToAbsoluteCommand : public NormaliseSizeCommand
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
         # even though this will be set again in the ResizeCommand constructor we need to set it right now
         # because otherwise the normaliseSize will not work!
@@ -761,7 +761,7 @@ class NormaliseSizeToAbsoluteCommand(NormaliseSizeCommand):
         return idbase + 11
 
 
-class NormalisePositionCommand(MoveCommand):
+class NormalisePositionCommand : public MoveCommand
     def __init__(self, visual, widgetPaths, oldPositions):
         newPositions = {}
         for widgetPath, oldPosition in oldPositions.iteritems():
@@ -785,7 +785,7 @@ class NormalisePositionCommand(MoveCommand):
         return False
 
 
-class NormalisePositionToRelativeCommand(NormalisePositionCommand):
+class NormalisePositionToRelativeCommand : public NormalisePositionCommand
     def __init__(self, visual, widgetPaths, oldPositions):
         # even though this will be set again in the MoveCommand constructor we need to set it right now
         # because otherwise the normalisePosition method will not work!
@@ -810,7 +810,7 @@ class NormalisePositionToRelativeCommand(NormalisePositionCommand):
         return idbase + 12
 
 
-class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
+class NormalisePositionToAbsoluteCommand : public NormalisePositionCommand
     def __init__(self, visual, widgetPaths, oldPositions):
         # even though this will be set again in the MoveCommand constructor we need to set it right now
         # because otherwise the normalisePosition method will not work!
@@ -835,7 +835,7 @@ class NormalisePositionToAbsoluteCommand(NormalisePositionCommand):
         return idbase + 13
 
 
-class RenameCommand(commands.UndoCommand):
+class RenameCommand : public commands.UndoCommand
     """This command changes the name of the given widget
     """
 
@@ -900,7 +900,7 @@ class RenameCommand(commands.UndoCommand):
         super(RenameCommand, self).redo()
 
 
-class RoundPositionCommand(MoveCommand):
+class RoundPositionCommand : public MoveCommand
     def __init__(self, visual, widgetPaths, oldPositions):
 
         # calculate the new, rounded positions for the widget(s)
@@ -934,7 +934,7 @@ class RoundPositionCommand(MoveCommand):
             return False
 
 
-class RoundSizeCommand(ResizeCommand):
+class RoundSizeCommand : public ResizeCommand
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes):
 
         # calculate the new, rounded sizes for the widget(s)
@@ -968,7 +968,7 @@ class RoundSizeCommand(ResizeCommand):
         else:
             return False
 
-class MoveInParentWidgetListCommand(commands.UndoCommand):
+class MoveInParentWidgetListCommand : public commands.UndoCommand
     def __init__(self, visual, widgetPaths, delta):
         super(MoveInParentWidgetListCommand, self).__init__()
 

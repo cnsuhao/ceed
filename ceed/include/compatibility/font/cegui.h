@@ -31,7 +31,7 @@ CEGUIFont1 = "CEGUI Font 1"
 CEGUIFont2 = "CEGUI Font 2"
 CEGUIFont3 = "CEGUI Font 3"
 
-class Font2TypeDetector(compatibility.TypeDetector):
+class Font2TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIFont2
 
@@ -47,7 +47,7 @@ class Font2TypeDetector(compatibility.TypeDetector):
 
         return ceguihelpers.checkDataVersion("Font", None, data)
 
-class Font3TypeDetector(compatibility.TypeDetector):
+class Font3TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIFont3
 
@@ -60,7 +60,7 @@ class Font3TypeDetector(compatibility.TypeDetector):
 
         return ceguihelpers.checkDataVersion("Font", "3", data)
 
-class Font2ToFont3Layer(compatibility.Layer):
+class Font2ToFont3Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIFont2
 
@@ -88,7 +88,7 @@ class Font2ToFont3Layer(compatibility.Layer):
 
         return ceguihelpers.prettyPrintXMLElement(root)
 
-class Font3ToFont2Layer(compatibility.Layer):
+class Font3ToFont2Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIFont3
 

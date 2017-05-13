@@ -26,7 +26,7 @@ from ceed import commands
 idbase = 1300
 
 
-class TargetWidgetChangeCommand(commands.UndoCommand):
+class TargetWidgetChangeCommand : public commands.UndoCommand
     """This command changes the Look n' Feel widget targeted for editing to another one
     """
 
@@ -84,7 +84,7 @@ class TargetWidgetChangeCommand(commands.UndoCommand):
         super(TargetWidgetChangeCommand, self).redo()
 
 
-class FalagardElementAttributeEdit(commands.UndoCommand):
+class FalagardElementAttributeEdit : public commands.UndoCommand
     """This command resizes given widgets from old positions and old sizes to new
     """
 

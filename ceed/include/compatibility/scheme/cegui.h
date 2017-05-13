@@ -33,7 +33,7 @@ CEGUIScheme4 = "CEGUI scheme 4"
 CEGUIScheme5 = "CEGUI scheme 5"
 
 
-class Scheme4TypeDetector(compatibility.TypeDetector):
+class Scheme4TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIScheme4
 
@@ -49,7 +49,7 @@ class Scheme4TypeDetector(compatibility.TypeDetector):
         return ceguihelpers.checkDataVersion("GUIScheme", None, data)
 
 
-class Scheme5TypeDetector(compatibility.TypeDetector):
+class Scheme5TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUIScheme5
 
@@ -63,7 +63,7 @@ class Scheme5TypeDetector(compatibility.TypeDetector):
         return ceguihelpers.checkDataVersion("GUIScheme", "5", data)
 
 
-class CEGUI4ToCEGUI5Layer(compatibility.Layer):
+class CEGUI4ToCEGUI5Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIScheme4
 
@@ -141,7 +141,7 @@ class CEGUI4ToCEGUI5Layer(compatibility.Layer):
         return ceguihelpers.prettyPrintXMLElement(root)
 
 
-class CEGUI5ToCEGUI4Layer(compatibility.Layer):
+class CEGUI5ToCEGUI4Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUIScheme5
 

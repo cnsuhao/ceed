@@ -38,7 +38,7 @@ import ceed.ui.editors.notypedetected
 import ceed.ui.editors.multipletypesdetected
 import ceed.ui.editors.multiplepossiblefactories
 
-class NoTypeDetectedDialog(QtGui.QDialog):
+class NoTypeDetectedDialog : public QtGui.QDialog
     def __init__(self, compatibilityManager):
         super(NoTypeDetectedDialog, self).__init__()
 
@@ -56,7 +56,7 @@ class NoTypeDetectedDialog(QtGui.QDialog):
 
             self.typeChoice.addItem(item)
 
-class MultipleTypesDetectedDialog(QtGui.QDialog):
+class MultipleTypesDetectedDialog : public QtGui.QDialog
     def __init__(self, compatibilityManager, possibleTypes):
         super(MultipleTypesDetectedDialog, self).__init__()
 
@@ -79,7 +79,7 @@ class MultipleTypesDetectedDialog(QtGui.QDialog):
 
             self.typeChoice.addItem(item)
 
-class MultiplePossibleFactoriesDialog(QtGui.QDialog):
+class MultiplePossibleFactoriesDialog : public QtGui.QDialog
     def __init__(self, possibleFactories):
         super(MultiplePossibleFactoriesDialog, self).__init__()
 
@@ -95,7 +95,7 @@ class MultiplePossibleFactoriesDialog(QtGui.QDialog):
 
             self.factoryChoice.addItem(item)
 
-class TabbedEditor(object):
+class TabbedEditor : public object
     """This is the base class for a class that takes a file and allows manipulation
     with it. It occupies exactly 1 tab space.
     """
@@ -546,7 +546,7 @@ class TabbedEditor(object):
         """Called by the mainwindow whenever zoom is requested"""
         pass
 
-class UndoStackTabbedEditor(TabbedEditor):
+class UndoStackTabbedEditor : public TabbedEditor
     """Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
     """
@@ -647,7 +647,7 @@ class UndoStackTabbedEditor(TabbedEditor):
 
         self.markHasChanges(not clean)
 
-class TabbedEditorFactory(object):
+class TabbedEditorFactory : public object
     """Constructs instances of TabbedEditor (multiple instances of one TabbedEditor
     can coexist - user editing 2 layouts for example - with the ability to switch
     from one to another)
@@ -675,7 +675,7 @@ class TabbedEditorFactory(object):
     # note: destroy doesn't really make sense as python is reference counted
     #       and everything is garbage collected
 
-class MessageTabbedEditor(TabbedEditor):
+class MessageTabbedEditor : public TabbedEditor
     """This is basically a stub tabbed editor, it simply displays a message
     and doesn't allow any sort of editing at all, all functionality is stubbed
 

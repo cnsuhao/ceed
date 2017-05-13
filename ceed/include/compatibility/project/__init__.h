@@ -26,7 +26,7 @@ from ceed.compatibility import ceguihelpers
 
 Project1 = "CEED Project 1"
 
-class Project1TypeDetector(compatibility.TypeDetector):
+class Project1TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return Project1
 
@@ -42,7 +42,7 @@ class Project1TypeDetector(compatibility.TypeDetector):
         # the cegui helper function here.
         return ceguihelpers.checkDataVersion("Project", Project1, data)
 
-class Manager(compatibility.Manager):
+class Manager : public compatibility.Manager
     """Manager of CEED project compatibility layers"""
 
     def __init__(self):

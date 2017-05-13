@@ -28,7 +28,7 @@ from ceed.editors import multi
 import PyCEGUI
 
 
-class LookNFeelPreviewer(QtGui.QWidget, multi.EditMode):
+class LookNFeelPreviewer : public QtGui.QWidget, multi.EditMode
     """Provides "Live Preview" which is basically interactive CEGUI rendering
     without any other outlines or what not over it.
     """

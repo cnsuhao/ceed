@@ -32,14 +32,14 @@ import math
 
 # This module contains helping classes for CEGUI widget handling
 
-class GraphicsScene(qtgraphics.GraphicsScene):
+class GraphicsScene : public qtgraphics.GraphicsScene
     """If you plan to use widget manipulators, use a scene inherited from this class.
     """
 
     def __init__(self, ceguiInstance):
         super(GraphicsScene, self).__init__(ceguiInstance)
 
-class Manipulator(resizable.ResizableRectItem):
+class Manipulator : public resizable.ResizableRectItem
     """This is a rectangle that is synchronised with given CEGUI widget,
     it provides moving and resizing functionality
     """
@@ -744,7 +744,7 @@ class Manipulator(resizable.ResizableRectItem):
 
         return impl_hasNonAutoWidgetDescendants(self.widget)
 
-class SerialisationData(object):
+class SerialisationData : public object
     """Allows to "freeze" CEGUI widget to data that is easy to retain in python,
     this is a helper class that can be used for copy/paste, undo commands, etc...
     """

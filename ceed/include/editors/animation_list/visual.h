@@ -40,7 +40,7 @@ from ceed import propertytree
 from xml.etree import cElementTree as ElementTree
 from ceed import xmledit
 
-class AnimationListDockWidget(QtGui.QDockWidget):
+class AnimationListDockWidget : public QtGui.QDockWidget
     """Lists animations in the currently opened animation list XML
     """
 
@@ -68,7 +68,7 @@ class AnimationListDockWidget(QtGui.QDockWidget):
         cmd = undo.ChangeCurrentAnimationDefinitionCommand(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
-class PropertiesDockWidget(QtGui.QDockWidget):
+class PropertiesDockWidget : public QtGui.QDockWidget
     """Lists and allows editing of properties at current position of the timeline
     """
 
@@ -89,7 +89,7 @@ class PropertiesDockWidget(QtGui.QDockWidget):
 
         self.setWidget(self.inspector)
 
-class KeyFramePropertiesDockWidget(QtGui.QDockWidget):
+class KeyFramePropertiesDockWidget : public QtGui.QDockWidget
     """Lists and allows editing of properties at current position of the timeline
     """
 
@@ -174,7 +174,7 @@ class KeyFramePropertiesDockWidget(QtGui.QDockWidget):
 
                 self.sourcePropertyComboBox.lineEdit().setText(self.inspectedKeyFrame.getSourceProperty())
 
-class TimelineGraphicsView(QtGui.QGraphicsView):
+class TimelineGraphicsView : public QtGui.QGraphicsView
     def __init__(self, parent = None):
         super(TimelineGraphicsView, self).__init__(parent)
 
@@ -185,7 +185,7 @@ class TimelineGraphicsView(QtGui.QGraphicsView):
 
         self.dockWidget.timeline.notifyMouseReleased()
 
-class TimelineDockWidget(QtGui.QDockWidget):
+class TimelineDockWidget : public QtGui.QDockWidget
     """Shows a timeline of currently selected animation (from the animation list dock widget)
     """
 
@@ -243,7 +243,7 @@ class TimelineDockWidget(QtGui.QDockWidget):
         cmd = undo.MoveKeyFramesCommand(self.visual, movedKeyFrames)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
-class EditingScene(cegui.widgethelpers.GraphicsScene):
+class EditingScene : public cegui.widgethelpers.GraphicsScene
     """This scene is used just to preview the animation in the state user selects.
     """
 
@@ -252,7 +252,7 @@ class EditingScene(cegui.widgethelpers.GraphicsScene):
 
         self.visual = visual
 
-class AnimationDefinitionWrapper(object):
+class AnimationDefinitionWrapper : public object
     """Represents one of the animations in the list, takes care of loading and saving it from/to XML element
     """
 
@@ -289,7 +289,7 @@ class AnimationDefinitionWrapper(object):
 
         return ret
 
-class VisualEditing(QtGui.QWidget, multi.EditMode):
+class VisualEditing : public QtGui.QWidget, multi.EditMode
     """This is the default visual editing mode for animation lists
 
     see editors.multi.EditMode

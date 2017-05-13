@@ -26,7 +26,7 @@ from PySide import QtGui
 from ceed.editors import multi
 
 
-class CodeEditingWithViewRestore(multi.CodeEditMode):
+class CodeEditingWithViewRestore : public multi.CodeEditMode
     def __init__(self):
         super(CodeEditingWithViewRestore, self).__init__()
 

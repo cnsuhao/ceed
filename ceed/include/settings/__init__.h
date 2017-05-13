@@ -30,7 +30,7 @@ from ceed.settings import persistence
 from ceed.settings import interface
 
 
-class Settings(declaration.Settings):
+class Settings : public declaration.Settings
     instance = None
 
     def __init__(self, qsettings):

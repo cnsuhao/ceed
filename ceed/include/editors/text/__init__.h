@@ -28,7 +28,7 @@ from ceed import editors
 #       Scintilla would probably be overkill though, I can't imagine anyone
 #       doing any serious text editing in this application
 
-class TextTabbedEditor(editors.TabbedEditor):
+class TextTabbedEditor : public editors.TabbedEditor
     """Multi purpose text editor
     """
 
@@ -82,7 +82,7 @@ class TextTabbedEditor(editors.TabbedEditor):
 
         return super(TextTabbedEditor, self).saveAs(targetPath, updateCurrentPath)
 
-class TextTabbedEditorFactory(editors.TabbedEditorFactory):
+class TextTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = {"py", "lua", "txt", "xml"}
         # this is just temporary, will go away when scheme, looknfeel and font editors are in place

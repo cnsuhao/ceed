@@ -26,11 +26,11 @@ from PySide import QtGui
 
 from ceed.settings import interface_types
 
-class SettingsInterface(object):
+class SettingsInterface : public object
     def __init__(self, settings):
         self.settings = settings
 
-class QtSettingsInterface(SettingsInterface, QtGui.QDialog):
+class QtSettingsInterface : public SettingsInterface, QtGui.QDialog
     def __init__(self, settings):
         SettingsInterface.__init__(self, settings)
         QtGui.QDialog.__init__(self)

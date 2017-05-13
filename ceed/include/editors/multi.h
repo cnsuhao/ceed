@@ -29,7 +29,7 @@ from ceed import commands
 
 from PySide.QtGui import QTabWidget, QTextEdit, QMessageBox, QWidget
 
-class ModeSwitchCommand(commands.UndoCommand):
+class ModeSwitchCommand : public commands.UndoCommand
     """Undo command that is pushed to the undo stack whenever user switches edit modes.
 
     Switching edit mode has to be an undoable command because the other commands might
@@ -67,7 +67,7 @@ class ModeSwitchCommand(commands.UndoCommand):
 
         super(ModeSwitchCommand, self).redo()
 
-class EditMode(object):
+class EditMode : public object
     """Interface class for the edit mode widgets (more a mixin class)
     This practically just ensures that the inherited classes have activate and deactivate
     methods.
@@ -97,7 +97,7 @@ class EditMode(object):
 
         return True
 
-class CodeEditModeCommand(commands.UndoCommand):
+class CodeEditModeCommand : public commands.UndoCommand
     """
     Undo command for code edit mode.
 
@@ -158,7 +158,7 @@ class CodeEditModeCommand(commands.UndoCommand):
 
         super(CodeEditModeCommand, self).redo()
 
-class CodeEditMode(QTextEdit, EditMode):
+class CodeEditMode : public QTextEdit, EditMode
     """This is the most used alternative editing mode that allows you to edit raw code.
 
     Raw code is mostly XML in CEGUI formats but can be anything else in a generic sense
@@ -252,7 +252,7 @@ class CodeEditMode(QTextEdit, EditMode):
 
         self.lastUndoText = self.toPlainText()
 
-class MultiModeTabbedEditor(editors.UndoStackTabbedEditor, QTabWidget):
+class MultiModeTabbedEditor : public editors.UndoStackTabbedEditor, QTabWidget
     """This class represents tabbed editor that has little tabs on the bottom
     allowing you to switch editing "modes" - visual, code, ...
 

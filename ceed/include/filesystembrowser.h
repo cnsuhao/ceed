@@ -29,7 +29,7 @@ import os
 import ceed.ui.filesystembrowser
 
 
-class FileSystemBrowser(QtGui.QDockWidget):
+class FileSystemBrowser : public QtGui.QDockWidget
     """This class represents the file system browser dock widget, usually located right bottom
     in the main window. It can browse your entire filesystem and if you double click a file
     it will open an editor tab for it.

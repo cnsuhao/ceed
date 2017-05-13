@@ -26,7 +26,7 @@
 from ceguitypes import *
 
 
-class BaseProperty(properties.Property):
+class BaseProperty : public properties.Property
     """Base class for all Property types.
 
     Note that, by default, it expects the components to map
@@ -62,7 +62,7 @@ class BaseProperty(properties.Property):
         self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
 
 
-class UDimProperty(BaseProperty):
+class UDimProperty : public BaseProperty
     """Property for UDim values."""
 
     def createComponents(self):
@@ -81,7 +81,7 @@ class UDimProperty(BaseProperty):
         return UDim.tryParse(strValue)
 
 
-class USizeProperty(BaseProperty):
+class USizeProperty : public BaseProperty
     """Property for USize values."""
 
     def createComponents(self):
@@ -100,7 +100,7 @@ class USizeProperty(BaseProperty):
         return USize.tryParse(strValue)
 
 
-class UVector2Property(BaseProperty):
+class UVector2Property : public BaseProperty
     """Property for UVector2 values."""
 
     def createComponents(self):
@@ -119,7 +119,7 @@ class UVector2Property(BaseProperty):
         return UVector2.tryParse(strValue)
 
 
-class URectProperty(BaseProperty):
+class URectProperty : public BaseProperty
     """Property for URect values."""
 
     def createComponents(self):
@@ -142,7 +142,7 @@ class URectProperty(BaseProperty):
         return URect.tryParse(strValue)
 
 
-class QuaternionProperty(BaseProperty):
+class QuaternionProperty : public BaseProperty
     """Property for Quaternion values."""
 
     def createComponents(self):
@@ -193,7 +193,7 @@ class QuaternionProperty(BaseProperty):
         return Quaternion.tryParse(strValue)
 
 
-class XYZRotationProperty(BaseProperty):
+class XYZRotationProperty : public BaseProperty
     """Property for XYZRotation values."""
 
     def createComponents(self):
@@ -217,7 +217,7 @@ class XYZRotationProperty(BaseProperty):
         return XYZRotation.tryParse(strValue)
 
 
-class ColourProperty(BaseProperty):
+class ColourProperty : public BaseProperty
     """Property for Colour values."""
 
     def createComponents(self):
@@ -243,7 +243,7 @@ class ColourProperty(BaseProperty):
         return Colour.tryParse(strValue)
 
 
-class ColourRectProperty(BaseProperty):
+class ColourRectProperty : public BaseProperty
     """Property for ColourRect values."""
 
     def createComponents(self):

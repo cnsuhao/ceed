@@ -42,7 +42,7 @@ from ceed.cegui import ceguitypes as ct
 from PySide import QtGui, QtCore
 
 
-class PropertyEditorRegistry(object):
+class PropertyEditorRegistry : public object
     """The registry contains a (sorted) list of property editor
     types that can be used for each value type.
     """
@@ -117,7 +117,7 @@ class PropertyEditorRegistry(object):
         return None
 
 
-class PropertyEditor(object):
+class PropertyEditor : public object
     """Abstract base class for a property editor.
 
     A property editor instance is created when required
@@ -210,7 +210,7 @@ class PropertyEditor(object):
         return True
 
 
-class StringPropertyEditor(PropertyEditor):
+class StringPropertyEditor : public PropertyEditor
     """Editor for strings.
 
     Supports line edit (the default) or combo-box mode.
@@ -284,7 +284,7 @@ class StringPropertyEditor(PropertyEditor):
 PropertyEditorRegistry.addStandardEditor(StringPropertyEditor)
 
 
-class NumericPropertyEditor(PropertyEditor):
+class NumericPropertyEditor : public PropertyEditor
     DefaultDecimals = 16
     DefaultMin = -999999
     DefaultMax = 999999
@@ -328,7 +328,7 @@ class NumericPropertyEditor(PropertyEditor):
 PropertyEditorRegistry.addStandardEditor(NumericPropertyEditor)
 
 
-class BoolPropertyEditor(PropertyEditor):
+class BoolPropertyEditor : public PropertyEditor
     @classmethod
     def getSupportedValueTypes(cls):
         return {bool: 0}
@@ -354,7 +354,7 @@ class BoolPropertyEditor(PropertyEditor):
 PropertyEditorRegistry.addStandardEditor(BoolPropertyEditor)
 
 
-class StringWrapperValidator(QtGui.QValidator):
+class StringWrapperValidator : public QtGui.QValidator
     """Validate the edit widget value when editing
     a StringWrapperProperty.
 
@@ -373,7 +373,7 @@ class StringWrapperValidator(QtGui.QValidator):
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
 
 
-class EnumValuePropertyEditor(PropertyEditor):
+class EnumValuePropertyEditor : public PropertyEditor
     """Editor for EnumValue-based values (Combo box)."""
 
     @classmethod
@@ -415,7 +415,7 @@ class EnumValuePropertyEditor(PropertyEditor):
 PropertyEditorRegistry.addStandardEditor(EnumValuePropertyEditor)
 
 
-class DynamicChoicesEditor(PropertyEditor):
+class DynamicChoicesEditor : public PropertyEditor
     """Editor for strings where user chooses from several options like in a combobox.
 
     The difference is that this combobox gets the values from an external place
@@ -451,7 +451,7 @@ class DynamicChoicesEditor(PropertyEditor):
         super(DynamicChoicesEditor, self).setWidgetValueFromProperty()
 
 
-class FontEditor(DynamicChoicesEditor):
+class FontEditor : public DynamicChoicesEditor
     @classmethod
     def getSupportedValueTypes(cls):
         return {ct.FontRef: 0}
@@ -473,7 +473,7 @@ class FontEditor(DynamicChoicesEditor):
 PropertyEditorRegistry.addStandardEditor(FontEditor)
 
 
-class ImageEditor(DynamicChoicesEditor):
+class ImageEditor : public DynamicChoicesEditor
     @classmethod
     def getSupportedValueTypes(cls):
         return {ct.ImageRef: 0}
@@ -495,7 +495,7 @@ class ImageEditor(DynamicChoicesEditor):
 PropertyEditorRegistry.addStandardEditor(ImageEditor)
 
 
-class ColourValuePropertyEditor(PropertyEditor):
+class ColourValuePropertyEditor : public PropertyEditor
     """Editor for CEGUI::Colour-based values (QColorDialog)."""
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):

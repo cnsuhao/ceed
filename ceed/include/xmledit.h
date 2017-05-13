@@ -45,7 +45,7 @@ def indent(elem, level = 0, tabImpostor = "    "):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
-class XMLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
+class XMLSyntaxHighlighter : public QtGui.QSyntaxHighlighter
     def __init__(self, parent = None):
         super(XMLSyntaxHighlighter, self).__init__(parent)
 
@@ -80,7 +80,7 @@ class XMLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 
                 index = expression.indexIn(text, index + length)
 
-class XMLEditWidget(QtGui.QTextEdit):
+class XMLEditWidget : public QtGui.QTextEdit
     def __init__(self):
         super(XMLEditWidget, self).__init__()
 

@@ -28,7 +28,7 @@ from ceed.compatibility.imageset import cegui
 
 GorillaFile = "Gorilla file"
 
-class GorillaTypeDetector(compatibility.TypeDetector):
+class GorillaTypeDetector : public compatibility.TypeDetector
     def getType(self):
         return GorillaFile
 
@@ -42,7 +42,7 @@ class GorillaTypeDetector(compatibility.TypeDetector):
         # todo: we should be at least a bit more precise
         return True
 
-class GorillaToCEGUI1Layer(compatibility.Layer):
+class GorillaToCEGUI1Layer : public compatibility.Layer
     def getSourceType(self):
         return GorillaFile
 
@@ -126,7 +126,7 @@ class GorillaToCEGUI1Layer(compatibility.Layer):
 
         return ceguihelpers.prettyPrintXMLElement(root);
 
-class CEGUI1ToGorillaLayer(compatibility.Layer):
+class CEGUI1ToGorillaLayer : public compatibility.Layer
     def getSourceType(self):
         return cegui.CEGUIImageset1
 

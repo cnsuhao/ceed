@@ -28,7 +28,7 @@ from xml.etree import cElementTree as ElementTree
 
 import os
 
-class test_Layout3To4Layer(unittest.TestCase):
+class test_Layout3To4Layer : public unittest.TestCase
     def setUp(self):
         self.layer = cegui.Layout3To4Layer()
 
@@ -54,7 +54,7 @@ class test_Layout3To4Layer(unittest.TestCase):
         self.assertEqual(element.get("Name"), "Root")
         self.assertEqual(childElement.get("Name"), "Child")
 
-class test_Layout3and4Layers(unittest.TestCase):
+class test_Layout3and4Layers : public unittest.TestCase
     def setUp(self):
         self.maxDiff = None
 

@@ -34,7 +34,7 @@ import ceed.ui.aboutdialog
 from ceed import version
 
 
-class LicenseDialog(QtGui.QDialog):
+class LicenseDialog : public QtGui.QDialog
     """Shows GPLv3 and related info in the UI of the application as
     FSF recommends.
 
@@ -48,7 +48,7 @@ class LicenseDialog(QtGui.QDialog):
         self.ui.setupUi(self)
 
 
-class AboutDialog(QtGui.QDialog):
+class AboutDialog : public QtGui.QDialog
     """About/Version dialog shown when user selects Help -> About.
 
     The main goal is to show versions of various things, we can then tell the

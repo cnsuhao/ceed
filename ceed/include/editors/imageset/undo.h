@@ -32,7 +32,7 @@ idbase = 1100
 # it's easier to work with and avoids unnecessary conversions all the time
 # you should however always use the ImageEntry's properties (xpos, ypos, ...)!
 
-class MoveCommand(commands.UndoCommand):
+class MoveCommand : public commands.UndoCommand
     """This command simply moves given images from old position to the new
     You can use GeometryChangeCommand instead and use the same rects as old new as current rects,
     this is there just to save memory.
@@ -102,7 +102,7 @@ class MoveCommand(commands.UndoCommand):
 
         super(MoveCommand, self).redo()
 
-class GeometryChangeCommand(commands.UndoCommand):
+class GeometryChangeCommand : public commands.UndoCommand
     """Changes geometry of given images, that means that positions as well as rects might change
     Can even implement MoveCommand as a special case but would eat more RAM.
     """
@@ -189,7 +189,7 @@ class GeometryChangeCommand(commands.UndoCommand):
 
         super(GeometryChangeCommand, self).redo()
 
-class OffsetMoveCommand(commands.UndoCommand):
+class OffsetMoveCommand : public commands.UndoCommand
     def __init__(self, visual, imageNames, oldPositions, newPositions):
         super(OffsetMoveCommand, self).__init__()
 
@@ -250,7 +250,7 @@ class OffsetMoveCommand(commands.UndoCommand):
 
         super(OffsetMoveCommand, self).redo()
 
-class RenameCommand(commands.UndoCommand):
+class RenameCommand : public commands.UndoCommand
     """Changes name of one image (always just one image!)
     """
 
@@ -295,7 +295,7 @@ class RenameCommand(commands.UndoCommand):
 
         super(RenameCommand, self).redo()
 
-class PropertyEditCommand(commands.UndoCommand):
+class PropertyEditCommand : public commands.UndoCommand
     """Changes one property of the image.
 
     We do this separately from Move, OffsetMove, etc commands because we want to
@@ -343,7 +343,7 @@ class PropertyEditCommand(commands.UndoCommand):
 
         super(PropertyEditCommand, self).redo()
 
-class CreateCommand(commands.UndoCommand):
+class CreateCommand : public commands.UndoCommand
     """Creates one image with given parameters
     """
 
@@ -395,7 +395,7 @@ class CreateCommand(commands.UndoCommand):
 
         super(CreateCommand, self).redo()
 
-class DeleteCommand(commands.UndoCommand):
+class DeleteCommand : public commands.UndoCommand
     """Deletes given image entries
     """
 
@@ -449,7 +449,7 @@ class DeleteCommand(commands.UndoCommand):
 
         super(DeleteCommand, self).redo()
 
-class ImagesetRenameCommand(commands.UndoCommand):
+class ImagesetRenameCommand : public commands.UndoCommand
     """Changes name of the imageset
     """
 
@@ -493,7 +493,7 @@ class ImagesetRenameCommand(commands.UndoCommand):
 
         super(ImagesetRenameCommand, self).redo()
 
-class ImagesetChangeImageCommand(commands.UndoCommand):
+class ImagesetChangeImageCommand : public commands.UndoCommand
     """Changes the underlying image of the imageset
     """
 
@@ -536,7 +536,7 @@ class ImagesetChangeImageCommand(commands.UndoCommand):
 
         super(ImagesetChangeImageCommand, self).redo()
 
-class ImagesetChangeNativeResolutionCommand(commands.UndoCommand):
+class ImagesetChangeNativeResolutionCommand : public commands.UndoCommand
     """Changes native resolution of the imageset
     """
 
@@ -587,7 +587,7 @@ class ImagesetChangeNativeResolutionCommand(commands.UndoCommand):
 
         super(ImagesetChangeNativeResolutionCommand, self).redo()
 
-class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
+class ImagesetChangeAutoScaledCommand : public commands.UndoCommand
     """Changes auto scaled value
     """
 
@@ -634,7 +634,7 @@ class ImagesetChangeAutoScaledCommand(commands.UndoCommand):
 
         super(ImagesetChangeAutoScaledCommand, self).redo()
 
-class DuplicateCommand(commands.UndoCommand):
+class DuplicateCommand : public commands.UndoCommand
     """Duplicates given image entries
     """
 
@@ -687,7 +687,7 @@ class DuplicateCommand(commands.UndoCommand):
 
         super(DuplicateCommand, self).redo()
 
-class PasteCommand(commands.UndoCommand):
+class PasteCommand : public commands.UndoCommand
     """This command pastes clipboard data to the given imageset.
     Based on DuplicateCommand.
     """

@@ -24,7 +24,7 @@
 from PySide import QtCore
 from PySide import QtGui
 
-class GraphicsView(QtGui.QGraphicsView):
+class GraphicsView : public QtGui.QGraphicsView
     """If you plan to use ResizableGraphicsRectItems, make sure you view them
     via a GraphicsView that is inherited from this exact class.
 
@@ -133,7 +133,7 @@ class GraphicsView(QtGui.QGraphicsView):
 
         self.lastDragScrollMousePosition = event.pos()
 
-class ResizingHandle(QtGui.QGraphicsRectItem):
+class ResizingHandle : public QtGui.QGraphicsRectItem
     """A rectangle that when moved resizes the parent resizable rect item.
 
     The reason to go with a child GraphicsRectItem instead of just overriding mousePressEvent et al
@@ -244,7 +244,7 @@ class ResizingHandle(QtGui.QGraphicsRectItem):
     def scaleChanged(self, sx, sy):
         pass
 
-class EdgeResizingHandle(ResizingHandle):
+class EdgeResizingHandle : public ResizingHandle
     """Resizing handle positioned on one of the 4 edges
     """
 
@@ -263,7 +263,7 @@ class EdgeResizingHandle(ResizingHandle):
 
         super(EdgeResizingHandle, self).hoverLeaveEvent(event)
 
-class TopEdgeResizingHandle(EdgeResizingHandle):
+class TopEdgeResizingHandle : public EdgeResizingHandle
     def __init__(self, parent):
         super(TopEdgeResizingHandle, self).__init__(parent)
 
@@ -284,7 +284,7 @@ class TopEdgeResizingHandle(EdgeResizingHandle):
                                      transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
-class BottomEdgeResizingHandle(EdgeResizingHandle):
+class BottomEdgeResizingHandle : public EdgeResizingHandle
     def __init__(self, parent):
         super(BottomEdgeResizingHandle, self).__init__(parent)
 
@@ -305,7 +305,7 @@ class BottomEdgeResizingHandle(EdgeResizingHandle):
                                      transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
-class LeftEdgeResizingHandle(EdgeResizingHandle):
+class LeftEdgeResizingHandle : public EdgeResizingHandle
     def __init__(self, parent):
         super(LeftEdgeResizingHandle, self).__init__(parent)
 
@@ -326,7 +326,7 @@ class LeftEdgeResizingHandle(EdgeResizingHandle):
                                      transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
-class RightEdgeResizingHandle(EdgeResizingHandle):
+class RightEdgeResizingHandle : public EdgeResizingHandle
     def __init__(self, parent):
         super(RightEdgeResizingHandle, self).__init__(parent)
 
@@ -347,7 +347,7 @@ class RightEdgeResizingHandle(EdgeResizingHandle):
                                      transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
-class CornerResizingHandle(ResizingHandle):
+class CornerResizingHandle : public ResizingHandle
     """Resizing handle positioned in one of the 4 corners.
     """
 
@@ -378,7 +378,7 @@ class CornerResizingHandle(ResizingHandle):
 
         super(CornerResizingHandle, self).hoverLeaveEvent(event)
 
-class TopRightCornerResizingHandle(CornerResizingHandle):
+class TopRightCornerResizingHandle : public CornerResizingHandle
     def __init__(self, parent):
         super(TopRightCornerResizingHandle, self).__init__(parent)
 
@@ -391,7 +391,7 @@ class TopRightCornerResizingHandle(CornerResizingHandle):
 
         return QtCore.QPointF(dx2 + self.pos().x(), dy1 + self.pos().y())
 
-class BottomRightCornerResizingHandle(CornerResizingHandle):
+class BottomRightCornerResizingHandle : public CornerResizingHandle
     def __init__(self, parent):
         super(BottomRightCornerResizingHandle, self).__init__(parent)
 
@@ -404,7 +404,7 @@ class BottomRightCornerResizingHandle(CornerResizingHandle):
 
         return QtCore.QPointF(dx2 + self.pos().x(), dy2 + self.pos().y())
 
-class BottomLeftCornerResizingHandle(CornerResizingHandle):
+class BottomLeftCornerResizingHandle : public CornerResizingHandle
     def __init__(self, parent):
         super(BottomLeftCornerResizingHandle, self).__init__(parent)
 
@@ -417,7 +417,7 @@ class BottomLeftCornerResizingHandle(CornerResizingHandle):
 
         return QtCore.QPointF(dx1 + self.pos().x(), dy2 + self.pos().y())
 
-class TopLeftCornerResizingHandle(CornerResizingHandle):
+class TopLeftCornerResizingHandle : public CornerResizingHandle
     def __init__(self, parent):
         super(TopLeftCornerResizingHandle, self).__init__(parent)
 
@@ -430,7 +430,7 @@ class TopLeftCornerResizingHandle(CornerResizingHandle):
 
         return QtCore.QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
 
-class ResizableRectItem(QtGui.QGraphicsRectItem):
+class ResizableRectItem : public QtGui.QGraphicsRectItem
     """Rectangle that can be resized by dragging it's handles.
 
     Inherit from this class to gain resizing and moving capabilities.

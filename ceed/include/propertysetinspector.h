@@ -36,7 +36,7 @@ from collections import OrderedDict
 import PyCEGUI
 
 
-class PropertyInspectorWidget(QtGui.QWidget):
+class PropertyInspectorWidget : public QtGui.QWidget
     """Full blown inspector widget for CEGUI PropertySet(s).
 
     Requires a call to 'setPropertyManager()' before
@@ -183,7 +183,7 @@ class PropertyInspectorWidget(QtGui.QWidget):
         self.selectionLabel.setText(finalText)
         self.selectionLabel.setToolTip(self.selectionLabelTooltip)
 
-class CEGUIPropertyManager(object):
+class CEGUIPropertyManager : public object
     """Builds propertytree properties from CEGUI properties and PropertySets,
     using a PropertyMap.
     """

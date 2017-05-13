@@ -25,7 +25,7 @@
 from these inputs.
 """
 
-class Image(object):
+class Image : public object
     """Instance of the image, containing a bitmap (QImage)
     and xOffset and yOffset
     """
@@ -42,7 +42,7 @@ class Image(object):
         self.xOffset = xOffset
         self.yOffset = yOffset
 
-class Input(object):
+class Input : public object
     """Describes any input image source for the meta imageset.
 
     This can be imageset, bitmap image, SVG image, ...

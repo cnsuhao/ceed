@@ -34,7 +34,7 @@ import glob
 
 from xml.etree import cElementTree as ElementTree
 
-class QSVG(inputs.Input):
+class QSVG : public inputs.Input
     """Simplistic SVGTiny renderer from Qt. This might not interpret effects
     and other features of your SVGs but will be drastically faster and does
     not require Inkscape to be installed.

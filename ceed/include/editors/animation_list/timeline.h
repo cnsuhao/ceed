@@ -31,7 +31,7 @@ import time
 # default amount of pixels per second for 100% zoom
 pixelsPerSecond = 1000
 
-class TimecodeLabel(QtGui.QGraphicsRectItem):
+class TimecodeLabel : public QtGui.QGraphicsRectItem
     """Simply displays time position labels depending on the zoom level
     """
 
@@ -136,7 +136,7 @@ class TimecodeLabel(QtGui.QGraphicsRectItem):
         finally:
             painter.restore()
 
-class AffectorTimelineKeyFrame(QtGui.QGraphicsRectItem):
+class AffectorTimelineKeyFrame : public QtGui.QGraphicsRectItem
     keyFrame = property(lambda self: self.data(0),
                         lambda self, value: self.setData(0, value))
 
@@ -216,7 +216,7 @@ class AffectorTimelineKeyFrame(QtGui.QGraphicsRectItem):
 
         return super(AffectorTimelineKeyFrame, self).itemChange(change, value)
 
-class AffectorTimelineSection(QtGui.QGraphicsRectItem):
+class AffectorTimelineSection : public QtGui.QGraphicsRectItem
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineSection, self).__init__(timeline)
 
@@ -341,7 +341,7 @@ class AffectorTimelineSection(QtGui.QGraphicsRectItem):
         finally:
             painter.restore()
 
-class AffectorTimelineLabel(QtGui.QGraphicsProxyWidget):
+class AffectorTimelineLabel : public QtGui.QGraphicsProxyWidget
     def __init__(self, timeline = None, affector = None):
         super(AffectorTimelineLabel, self).__init__(timeline)
 
@@ -363,7 +363,7 @@ class AffectorTimelineLabel(QtGui.QGraphicsProxyWidget):
     def refresh(self):
         self.widget.setEditText(self.affector.getTargetProperty())
 
-class TimelinePositionBar(QtGui.QGraphicsRectItem):
+class TimelinePositionBar : public QtGui.QGraphicsRectItem
     def __init__(self, timeline):
         super(TimelinePositionBar, self).__init__(timeline)
 
@@ -423,7 +423,7 @@ class TimelinePositionBar(QtGui.QGraphicsRectItem):
 
         return ret
 
-class AnimationTimeline(QtGui.QGraphicsRectItem, QtCore.QObject):
+class AnimationTimeline : public QtGui.QGraphicsRectItem, QtCore.QObject
     """A timeline widget for just one CEGUI animation"""
 
     # old timeline position, new timeline position

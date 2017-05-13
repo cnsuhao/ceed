@@ -36,7 +36,7 @@ import sys
 from xml.etree import cElementTree as ElementTree
 
 
-class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
+class AnimationListTabbedEditor : public editors.multi.MultiModeTabbedEditor
     """Animation list file editor (XML file containing list of animations)
     """
 
@@ -158,7 +158,7 @@ class AnimationListTabbedEditor(editors.multi.MultiModeTabbedEditor):
         return False
 
 
-class AnimationListTabbedEditorFactory(editors.TabbedEditorFactory):
+class AnimationListTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = set(["anims"])
         return extensions

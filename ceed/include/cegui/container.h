@@ -38,7 +38,7 @@ from ceed.cegui import qtgraphics
 import ceed.ui.ceguidebuginfo
 import PyCEGUI
 
-class LogMessageWrapper(object):
+class LogMessageWrapper : public object
     def __init__(self, message, level):
         self.message = message
         self.level = level
@@ -60,7 +60,7 @@ class LogMessageWrapper(object):
 
         return "<tr><td style=\"background: %s\">%s</td><td>%s</td></tr>\n" % (bgColour, stringLevel, self.message)
 
-class DebugInfo(QtGui.QDialog):
+class DebugInfo : public QtGui.QDialog
     """A debugging/info widget about the embedded CEGUI instance"""
 
     # This will allow us to view logs in Qt in the future
@@ -164,13 +164,13 @@ font-size: 10px;
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
 
-class ViewState(object):
+class ViewState : public object
     def __init__(self):
         self.transform = None
         self.horizontalScroll = 0
         self.verticalScroll = 0
 
-class ContainerWidget(QtGui.QWidget):
+class ContainerWidget : public QtGui.QWidget
     """
     This widget is what you should use (alongside your GraphicsScene derived class) to
     put CEGUI inside parts of the editor.

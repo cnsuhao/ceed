@@ -26,7 +26,7 @@ from ceed import compatibility
 from ceed.compatibility.imageset import cegui
 from ceed.compatibility.imageset import gorilla
 
-class Manager(compatibility.Manager):
+class Manager : public compatibility.Manager
     """Manager of imageset compatibility layers"""
 
     def __init__(self):

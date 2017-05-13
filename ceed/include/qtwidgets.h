@@ -30,7 +30,7 @@ from PySide import QtGui
 import ceed.ui.widgets.filelineedit
 import ceed.ui.widgets.keysequencebuttondialog
 
-class FileLineEdit(QtGui.QWidget):
+class FileLineEdit : public QtGui.QWidget
     ExistingFileMode = 1
     NewFileMode = 2
     ExistingDirectoryMode = 3
@@ -82,7 +82,7 @@ class FileLineEdit(QtGui.QWidget):
         if path != "":
             self.lineEdit.setText(path)
 
-class ColourButton(QtGui.QPushButton):
+class ColourButton : public QtGui.QPushButton
     colourChanged = QtCore.Signal(QtGui.QColor)
 
     colour = property(fset = lambda button, colour: button.setColour(colour),
@@ -117,7 +117,7 @@ class ColourButton(QtGui.QPushButton):
 # this depends on ColourButton, can't be moved upwards
 import ceed.ui.widgets.penbuttondialog
 
-class PenButton(QtGui.QPushButton):
+class PenButton : public QtGui.QPushButton
     class Dialog(QtGui.QDialog):
         def __init__(self, parent = None):
             super(PenButton.Dialog, self).__init__(parent)
@@ -248,7 +248,7 @@ class PenButton(QtGui.QPushButton):
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.pen = dialog.getPen()
 
-class KeySequenceButton(QtGui.QPushButton):
+class KeySequenceButton : public QtGui.QPushButton
     class Dialog(QtGui.QDialog):
         def __init__(self, parent = None):
             super(KeySequenceButton.Dialog, self).__init__(parent)
@@ -299,7 +299,7 @@ class KeySequenceButton(QtGui.QPushButton):
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.keySequence = dialog.keySequence
 
-class LineEditWithClearButton(QtGui.QLineEdit):
+class LineEditWithClearButton : public QtGui.QLineEdit
     """A QLineEdit with an inline clear button.
 
     Hitting Escape in the line edit clears it.

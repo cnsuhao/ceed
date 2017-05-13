@@ -50,7 +50,7 @@ def convertToPortablePath(inputPath):
     return unicode(os.path.normpath(inputPath)).replace("\\", "/")
 
 
-class Item(QtGui.QStandardItem):
+class Item : public QtGui.QStandardItem
     """One item in the project
     This is usually a file or a folder
     """
@@ -301,7 +301,7 @@ class Item(QtGui.QStandardItem):
             return False
 
 
-class Project(QtGui.QStandardItemModel):
+class Project : public QtGui.QStandardItemModel
     """This class encapsulates a project edited by the editor
 
     A project is basically a set of files and folders that are CEGUI related
@@ -470,7 +470,7 @@ class Project(QtGui.QStandardItemModel):
         return False
 
 
-class ProjectManager(QtGui.QDockWidget):
+class ProjectManager : public QtGui.QDockWidget
     """This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
     """
@@ -813,7 +813,7 @@ class ProjectManager(QtGui.QDockWidget):
                 self.project.changed = True
 
 
-class NewProjectDialog(QtGui.QDialog):
+class NewProjectDialog : public QtGui.QDialog
     """Dialog responsible for creation of entirely new projects.
     """
 
@@ -867,7 +867,7 @@ parent directory? (exception info: %s)" % (e))
         return ret
 
 
-class ProjectSettingsDialog(QtGui.QDialog):
+class ProjectSettingsDialog : public QtGui.QDialog
     """Dialog able to change various project settings
     """
 

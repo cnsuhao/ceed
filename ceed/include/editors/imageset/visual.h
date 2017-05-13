@@ -37,7 +37,7 @@ from ceed.editors.imageset import undo
 import ceed.ui.editors.imageset.dockwidget
 import cPickle
 
-class ImageEntryItemDelegate(QtGui.QItemDelegate):
+class ImageEntryItemDelegate : public QtGui.QItemDelegate
     """The only reason for this is to track when we are editing.
 
     We need this to discard key events when editor is open.
@@ -58,7 +58,7 @@ class ImageEntryItemDelegate(QtGui.QItemDelegate):
 
         self.editing = False
 
-class ImagesetEditorDockWidget(QtGui.QDockWidget):
+class ImagesetEditorDockWidget : public QtGui.QDockWidget
     """Provides list of images, property editing of currently selected image and create/delete
     """
 
@@ -430,7 +430,7 @@ class ImagesetEditorDockWidget(QtGui.QDockWidget):
         cmd = undo.PropertyEditCommand(self.visual, self.activeImageEntry.name, "nativeRes", (oldHorzRes, oldVertRes), (newHorzRes, newVertRes))
         self.visual.tabbedEditor.undoStack.push(cmd)
 
-class VisualEditing(resizable.GraphicsView, multi.EditMode):
+class VisualEditing : public resizable.GraphicsView, multi.EditMode
     """This is the "Visual" tab for imageset editing
     """
 

@@ -40,7 +40,7 @@ from collections import OrderedDict
 from . import utility
 
 
-class PropertyCategory(object):
+class PropertyCategory : public object
     """A category for properties.
     Categories have a name and hold a list of properties.
     """
@@ -81,7 +81,7 @@ class PropertyCategory(object):
 
         self.properties = OrderedDict(sorted(self.properties.items(), key=getSortKey, reverse=reverse))
 
-class PropertyEventSubscription(object):
+class PropertyEventSubscription : public object
     """A subscription to a PropertyEvent."""
 
     def __init__(self, callback, excludedReasons=None, includedReasons=None):
@@ -137,7 +137,7 @@ class PropertyEventSubscription(object):
         """
         return not self.__eq__(other)
 
-class PropertyEvent(object):
+class PropertyEvent : public object
 
     def __init__(self, maxRecursionDepth=None, assertOnDepthExceeded=False):
         """Custom event.
@@ -197,7 +197,7 @@ class PropertyEvent(object):
         finally:
             self.recursionDepth -= 1
 
-class Property(object):
+class Property : public object
     """A property which is the base for all properties.
 
     The most important fields of a property are 'name' and 'value'.
@@ -431,7 +431,7 @@ class Property(object):
 
         return utility.getDictionaryTreePath(self.editorOptions, path, defaultValue)
 
-class StringWrapperProperty(Property):
+class StringWrapperProperty : public Property
     """Special purpose property used to wrap the string value
     of another property so it can be edited.
     """
@@ -460,7 +460,7 @@ class StringWrapperProperty(Property):
 
         return False
 
-class MultiPropertyWrapper(Property):
+class MultiPropertyWrapper : public Property
     """Special purpose property used to group many properties of the same type in one."""
 
     @classmethod
@@ -603,7 +603,7 @@ class MultiPropertyWrapper(Property):
 
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)
 
-class SinglePropertyWrapper(Property):
+class SinglePropertyWrapper : public Property
     """A property wrapper that can be used for inheritation and in that way, for overriding functions.
     Owns a property of a specific type."""
 
@@ -674,7 +674,7 @@ class SinglePropertyWrapper(Property):
         # Unnecessary? if reason == Property.ChangeValueReason.ComponentValueChanged:
         self.setValue(self.wrappedProperty.value, reason)
 
-class EnumValue(object):
+class EnumValue : public object
     """Interface for properties that have a predetermined list
     of possible values, like enums.
 

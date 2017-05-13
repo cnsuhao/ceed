@@ -30,7 +30,7 @@ CEGUILayout2 = "CEGUI layout 2"
 CEGUILayout3 = "CEGUI layout 3"
 CEGUILayout4 = "CEGUI layout 4"
 
-class Layout2TypeDetector(compatibility.TypeDetector):
+class Layout2TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUILayout2
 
@@ -45,7 +45,7 @@ class Layout2TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("GUILayout", None, data)
 
-class Layout3TypeDetector(compatibility.TypeDetector):
+class Layout3TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUILayout3
 
@@ -60,7 +60,7 @@ class Layout3TypeDetector(compatibility.TypeDetector):
         # (implement XSD based TypeDetector?)
         return ceguihelpers.checkDataVersion("GUILayout", None, data)
 
-class Layout4TypeDetector(compatibility.TypeDetector):
+class Layout4TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUILayout4
 
@@ -73,7 +73,7 @@ class Layout4TypeDetector(compatibility.TypeDetector):
 
         return ceguihelpers.checkDataVersion("GUILayout", "4", data)
 
-class Layout3To4Layer(compatibility.Layer):
+class Layout3To4Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUILayout3
 
@@ -277,7 +277,7 @@ class Layout3To4Layer(compatibility.Layer):
 
         return unicode(ceguihelpers.prettyPrintXMLElement(root), encoding = "utf-8")
 
-class Layout4To3Layer(compatibility.Layer):
+class Layout4To3Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUILayout4
 

@@ -31,7 +31,7 @@ there are serious reasons not to do that.
 from PySide.QtCore import Qt
 from PySide.QtGui import QAction, QKeySequence, QIcon
 
-class Action(QAction):
+class Action : public QAction
     """The only thing different in this from QAction is the ability to change the shortcut of it
     using CEED's settings API/interface.
 
@@ -79,7 +79,7 @@ class Action(QAction):
         # when the entry changes, we want to change our shortcut too!
         self.settingsEntry.subscribe(self.setShortcut)
 
-class ActionCategory(object):
+class ActionCategory : public object
     """Actions are grouped into categories
 
     examples: General for all round actions (Exit, Undo, Redo, ...), Layout editing for layout editing (duh!), ...
@@ -127,7 +127,7 @@ class ActionCategory(object):
 
         self.settingsSection = category.createSection(name = self.name, label = self.label)
 
-class ActionManager(object):
+class ActionManager : public object
     """Usually a singleton that manages all action categories and therefore
     actions within them.
     """

@@ -26,7 +26,7 @@ from ceed.compatibility import ceguihelpers
 
 PropertyMappings1 = "CEED Property Mappings 1"
 
-class PropertyMappings1TypeDetector(compatibility.TypeDetector):
+class PropertyMappings1TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return PropertyMappings1
 
@@ -39,7 +39,7 @@ class PropertyMappings1TypeDetector(compatibility.TypeDetector):
         # the cegui helper function here.
         return ceguihelpers.checkDataVersion("mappings", PropertyMappings1, data)
 
-class Manager(compatibility.Manager):
+class Manager : public compatibility.Manager
     """Manager of CEED project compatibility layers"""
 
     def __init__(self):

@@ -25,7 +25,7 @@ from ceed import editors
 
 from PySide import QtWebKit
 
-class HTMLViewTabbedEditor(editors.TabbedEditor):
+class HTMLViewTabbedEditor : public editors.TabbedEditor
     """This is basically a stub tabbed editor, it simply displays a HTML message
     and doesn't allow any sort of editing at all, all functionality is stubbed
 

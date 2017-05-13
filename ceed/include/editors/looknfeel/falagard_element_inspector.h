@@ -38,7 +38,7 @@ from falagard_element_editor import FalagardElementEditorProperty
 import PyCEGUI
 
 
-class FalagardElementAttributesManager(object):
+class FalagardElementAttributesManager : public object
     """Builds propertytree settings from a CEGUI Falagard element, allowing to edit its attributes in the editor.
     """
 
@@ -219,7 +219,7 @@ class FalagardElementAttributesManager(object):
         return FalagardElementEditorProperty(typedProperty, falagardElement, attributeName, self.visual)
 
 
-class FalagardElementSettingCategory(object):
+class FalagardElementSettingCategory : public object
     """ A category for Falagard element settings.
     Categories have a name and hold a list of settings.
     """

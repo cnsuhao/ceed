@@ -46,7 +46,7 @@ import ceed.compatibility.looknfeel as looknfeel_compatibility
 
 from ceed.editors.looknfeel.tabbed_editor import LookNFeelTabbedEditor
 
-class LookNFeelTabbedEditorFactory(editors.TabbedEditorFactory):
+class LookNFeelTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = looknfeel_compatibility.manager.getAllPossibleExtensions()
         return extensions

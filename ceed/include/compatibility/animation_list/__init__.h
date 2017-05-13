@@ -26,7 +26,7 @@ from ceed import compatibility
 
 AnimationList1 = "CEGUI Animation List 1"
 
-class AnimationList1TypeDetector(compatibility.TypeDetector):
+class AnimationList1TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return AnimationList1
 
@@ -40,7 +40,7 @@ class AnimationList1TypeDetector(compatibility.TypeDetector):
         # TODO
         return True
 
-class Manager(compatibility.Manager):
+class Manager : public compatibility.Manager
     """Manager of CEGUI animation list compatibility layers"""
 
     def __init__(self):

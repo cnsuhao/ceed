@@ -35,7 +35,7 @@ from ceed import resizable
 from ceed import cegui
 from ceed import qtwidgets
 
-class GraphicsScene(QtGui.QGraphicsScene):
+class GraphicsScene : public QtGui.QGraphicsScene
     """A scene that draws CEGUI as it's background.
 
     Subclass this to be able to show Qt graphics items and widgets
@@ -185,7 +185,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
         painter.endNativePainting()
 
-class GraphicsView(resizable.GraphicsView, cegui.GLContextProvider):
+class GraphicsView : public resizable.GraphicsView, cegui.GLContextProvider
     """This is a final class, not suitable for subclassing. This views given scene
     using QGLWidget. It's designed to work with cegui.GraphicsScene derived classes.
     """

@@ -26,7 +26,7 @@ import subprocess
 import os
 import tempfile
 
-class test_CommandLineTools(unittest.TestCase):
+class test_CommandLineTools : public unittest.TestCase
     def setUp(self):
         self.basePath = os.path.join(os.path.dirname(__file__), "..", "..")
 

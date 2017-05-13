@@ -31,7 +31,7 @@ from collections import OrderedDict
 
 from xml.etree import cElementTree as ElementTree
 
-class PropertyMappingEntry(object):
+class PropertyMappingEntry : public object
     """Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
     to allow its viewing and editing.
 
@@ -106,7 +106,7 @@ class PropertyMappingEntry(object):
 
         return element
 
-class PropertyMap(object):
+class PropertyMap : public object
     """Container for property mapping entries."""
 
     @classmethod

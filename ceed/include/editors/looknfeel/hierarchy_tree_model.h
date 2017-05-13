@@ -29,7 +29,7 @@ import cPickle
 
 from hierarchy_tree_item import LookNFeelHierarchyItem
 
-class LookNFeelHierarchyTreeModel(QtGui.QStandardItemModel):
+class LookNFeelHierarchyTreeModel : public QtGui.QStandardItemModel
     def __init__(self, dockWidget):
         super(LookNFeelHierarchyTreeModel, self).__init__()
 

@@ -74,7 +74,7 @@ def exportSVG(svgPath, layers, targetPngPath):
     stdout = subprocess.check_output(cmdLine, stderr = subprocess.STDOUT)
     # FIXME: debug logging of stdout?
 
-class Component(object):
+class Component : public object
     def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xOffset = 0, yOffset = 0):
         self.svg = svg
 
@@ -139,7 +139,7 @@ class Component(object):
 
         return self.cachedImages
 
-class FrameComponent(object):
+class FrameComponent : public object
     def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, cornerWidth = 1, cornerHeight = 1, layers = "", skip = ""):
         self.svg = svg
 
@@ -291,7 +291,7 @@ class FrameComponent(object):
 
         return self.cachedImages
 
-class InkscapeSVG(inputs.Input):
+class InkscapeSVG : public inputs.Input
     """Just one particular SVGs, support advanced features and renders everything
     using Inkscape, the output should be of higher quality than the SVGTiny renderer
     above. Requires Inkscape to be installed and the inkscape binary to be in $PATH.

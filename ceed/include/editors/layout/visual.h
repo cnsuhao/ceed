@@ -47,7 +47,7 @@ import ceed.propertytree as pt
 from ceed.propertytree.editors import PropertyEditorRegistry
 
 
-class WidgetHierarchyItem(QtGui.QStandardItem):
+class WidgetHierarchyItem : public QtGui.QStandardItem
     def __init__(self, manipulator):
         self.manipulator = manipulator
 
@@ -157,7 +157,7 @@ class WidgetHierarchyItem(QtGui.QStandardItem):
                 child = self.child(i)
                 child.setLocked(locked, True)
 
-class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
+class WidgetHierarchyTreeModel : public QtGui.QStandardItemModel
     def __init__(self, dockWidget):
         super(WidgetHierarchyTreeModel, self).__init__()
 
@@ -441,7 +441,7 @@ class WidgetHierarchyTreeModel(QtGui.QStandardItemModel):
 
         return False
 
-class WidgetHierarchyTreeView(QtGui.QTreeView):
+class WidgetHierarchyTreeView : public QtGui.QTreeView
     """The actual widget hierarchy tree widget - what a horrible name
     This is a Qt widget that does exactly the same as QTreeWidget for now,
     it is a placeholder that will be put to use once the need arises - and it will.
@@ -587,7 +587,7 @@ class WidgetHierarchyTreeView(QtGui.QTreeView):
                 item.setLocked(locked, recursive)
 
 
-class HierarchyDockWidget(QtGui.QDockWidget):
+class HierarchyDockWidget : public QtGui.QDockWidget
     """Displays and manages the widget hierarchy. Contains the WidgetHierarchyTreeWidget.
     """
 
@@ -632,7 +632,7 @@ class HierarchyDockWidget(QtGui.QDockWidget):
 
         return super(HierarchyDockWidget, self).keyReleaseEvent(event)
 
-class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
+class WidgetMultiPropertyWrapper : public pt.properties.MultiPropertyWrapper
     """Overrides the default MultiPropertyWrapper to update the 'inner properties'
     and then create undo commands to update the CEGUI widgets.
     """
@@ -674,7 +674,7 @@ class WidgetMultiPropertyWrapper(pt.properties.MultiPropertyWrapper):
         return False
 
 
-class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
+class CEGUIWidgetPropertyManager : public CEGUIPropertyManager
     """Customises the CEGUIPropertyManager by binding to a 'visual'
     so it can manipulate the widgets via undo commands.
 
@@ -717,7 +717,7 @@ class CEGUIWidgetPropertyManager(CEGUIPropertyManager):
 
         return categories
 
-class PropertiesDockWidget(QtGui.QDockWidget):
+class PropertiesDockWidget : public QtGui.QDockWidget
     """Lists and allows editing of properties of the selected widget(s).
     """
 
@@ -735,7 +735,7 @@ class PropertiesDockWidget(QtGui.QDockWidget):
 
         self.setWidget(self.inspector)
 
-class WidgetTypeTreeWidget(QtGui.QTreeWidget):
+class WidgetTypeTreeWidget : public QtGui.QTreeWidget
     """Represents a single available widget for creation (it has a mapping in the scheme or is
     a stock special widget - like DefaultWindow).
 
@@ -816,7 +816,7 @@ class WidgetTypeTreeWidget(QtGui.QTreeWidget):
 
         return super(WidgetTypeTreeWidget, self).viewportEvent(event)
 
-class CreateWidgetDockWidget(QtGui.QDockWidget):
+class CreateWidgetDockWidget : public QtGui.QDockWidget
     """This lists available widgets you can create and allows their creation (by drag N drop)
     """
 
@@ -855,7 +855,7 @@ class CreateWidgetDockWidget(QtGui.QDockWidget):
                 widgetItem.setText(0, widget)
                 skinItem.addChild(widgetItem)
 
-class EditingScene(cegui_widgethelpers.GraphicsScene):
+class EditingScene : public cegui_widgethelpers.GraphicsScene
     """This scene contains all the manipulators users want to interact it. You can visualise it as the
     visual editing centre screen where CEGUI is rendered.
 
@@ -1217,7 +1217,7 @@ class EditingScene(cegui_widgethelpers.GraphicsScene):
             else:
                 event.ignore()
 
-class VisualEditing(QtGui.QWidget, multi.EditMode):
+class VisualEditing : public QtGui.QWidget, multi.EditMode
     """This is the default visual editing mode
 
     see ceed.editors.multi.EditMode

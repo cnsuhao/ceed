@@ -37,7 +37,7 @@ from ceed.propertytree import parsers
 from PySide import QtGui
 
 
-class Base(object):
+class Base : public object
     """Abstract base class for all value types."""
 
     __metaclass__ = abc.ABCMeta
@@ -137,7 +137,7 @@ class Base(object):
         return not (self.__eq__(other))
 
 
-class UDim(Base):
+class UDim : public Base
     """UDim"""
 
     pattern = '\s*\{' + \
@@ -198,7 +198,7 @@ class UDim(Base):
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
 
-class USize(Base):
+class USize : public Base
     """USize (uses UDim)"""
 
     pattern = '\s*\{' + \
@@ -259,7 +259,7 @@ class USize(Base):
         return "{{{}, {}}}".format(self.width, self.height)
 
 
-class UVector2(Base):
+class UVector2 : public Base
     """UVector2 (uses UDim)
 
     Very similar to USize.
@@ -325,7 +325,7 @@ class UVector2(Base):
         return UVector2Property
 
 
-class URect(Base):
+class URect : public Base
     """URect (uses UDim)"""
 
     pattern = '\s*\{' + \
@@ -400,7 +400,7 @@ class URect(Base):
         return URectProperty
 
 
-class EnumBase(Base, properties.EnumValue):
+class EnumBase : public Base, properties.EnumValue
     """Base class for types that have a predetermined list of possible values."""
 
     # key-value pairs of allowed values
@@ -445,7 +445,7 @@ class EnumBase(Base, properties.EnumValue):
         return self.enumValues
 
 
-class AspectMode(EnumBase):
+class AspectMode : public EnumBase
     """AspectMode"""
 
     enumValues = OrderedDict([("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand")])
@@ -454,7 +454,7 @@ class AspectMode(EnumBase):
         super(AspectMode, self).__init__(value)
 
 
-class HorizontalAlignment(EnumBase):
+class HorizontalAlignment : public EnumBase
     """HorizontalAlignment"""
 
     enumValues = OrderedDict([("Left", "Left"), ("Centre", "Centre"), ("Right", "Right")])
@@ -471,7 +471,7 @@ class HorizontalAlignment(EnumBase):
         return PyCEGUI.PropertyHelper.stringToHorizontalAlignment(stringValue)
 
 
-class VerticalAlignment(EnumBase):
+class VerticalAlignment : public EnumBase
     """VerticalAlignment"""
 
     enumValues = OrderedDict([("Top", "Top"),
@@ -490,7 +490,7 @@ class VerticalAlignment(EnumBase):
         return PyCEGUI.PropertyHelper.stringToVerticalAlignment(stringValue)
 
 
-class HorizontalFormatting(EnumBase):
+class HorizontalFormatting : public EnumBase
     """HorizontalFormatting"""
 
     enumValues = OrderedDict([("LeftAligned", "Left"),
@@ -511,7 +511,7 @@ class HorizontalFormatting(EnumBase):
         return PyCEGUI.PropertyHelper.stringToHorizontalFormatting(stringValue)
 
 
-class VerticalFormatting(EnumBase):
+class VerticalFormatting : public EnumBase
     """VerticalFormatting"""
 
     enumValues = OrderedDict([("TopAligned", "Top"),
@@ -532,7 +532,7 @@ class VerticalFormatting(EnumBase):
         return PyCEGUI.PropertyHelper.stringToVerticalFormatting(stringValue)
 
 
-class HorizontalTextFormatting(EnumBase):
+class HorizontalTextFormatting : public EnumBase
     """HorizontalTextFormatting"""
 
     enumValues = OrderedDict([("LeftAligned", "Left"),
@@ -556,7 +556,7 @@ class HorizontalTextFormatting(EnumBase):
         return PyCEGUI.PropertyHelper.stringToHorizontalTextFormatting(stringValue)
 
 
-class VerticalTextFormatting(EnumBase):
+class VerticalTextFormatting : public EnumBase
     """VerticalTextFormatting"""
 
     enumValues = OrderedDict([("TopAligned", "Top"),
@@ -574,7 +574,7 @@ class VerticalTextFormatting(EnumBase):
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToVerticalTextFormatting(stringValue)
 
-class WindowUpdateMode(EnumBase):
+class WindowUpdateMode : public EnumBase
     """WindowUpdateMode"""
 
     enumValues = OrderedDict([("Always", "Always"), ("Visible", "Visible"), ("Never", "Never")])
@@ -583,7 +583,7 @@ class WindowUpdateMode(EnumBase):
         super(WindowUpdateMode, self).__init__(value)
 
 
-class SortMode(EnumBase):
+class SortMode : public EnumBase
     """ItemListBase::SortMode"""
 
     enumValues = OrderedDict([("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort")])
@@ -592,7 +592,7 @@ class SortMode(EnumBase):
         super(SortMode, self).__init__(value)
 
 
-class Quaternion(Base):
+class Quaternion : public Base
     """Quaternion"""
     #pylint: disable-msg=C0103
     # invalid name x,y,z etc.
@@ -749,7 +749,7 @@ class Quaternion(Base):
         return QuaternionProperty
 
 
-class XYZRotation(Base):
+class XYZRotation : public Base
     #pylint: disable-msg=C0103
     # invalid name x,y,z etc.
 
@@ -811,7 +811,7 @@ class XYZRotation(Base):
         return XYZRotationProperty
 
 
-class Colour(Base):
+class Colour : public Base
     """Colour
 
     Can parse hex strings like:
@@ -918,7 +918,7 @@ class Colour(Base):
         return ColourProperty
 
 
-class ColourRect(Base):
+class ColourRect : public Base
     """ColourRect
 
     Can parse strings like:
@@ -1006,7 +1006,7 @@ class ColourRect(Base):
         return ColourRectProperty
 
 
-class StringWrapper(Base):
+class StringWrapper : public Base
     """Simple string that does no parsing but allows us to map editors to it"""
 
     def __init__(self, value):
@@ -1030,7 +1030,7 @@ class StringWrapper(Base):
         return BaseProperty
 
 
-class FontRef(StringWrapper):
+class FontRef : public StringWrapper
     @classmethod
     def tryParse(cls, strValue, target=None):
         return FontRef(strValue), True
@@ -1044,7 +1044,7 @@ class FontRef(StringWrapper):
         return PyCEGUI.PropertyHelper.stringToFont(stringValue)
 
 
-class ImageRef(StringWrapper):
+class ImageRef : public StringWrapper
     @classmethod
     def tryParse(cls, strValue, target=None):
         return ImageRef(strValue), True

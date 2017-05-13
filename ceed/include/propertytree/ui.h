@@ -42,7 +42,7 @@ from .editors import StringWrapperValidator
 from PySide import QtGui
 from PySide import QtCore
 
-class PropertyTreeItem(QtGui.QStandardItem):
+class PropertyTreeItem : public QtGui.QStandardItem
     """Base item for all items."""
 
     def __init__(self, propertyTreeRow):
@@ -68,7 +68,7 @@ class PropertyTreeItem(QtGui.QStandardItem):
         font.setBold(value)
         self.setFont(font)
 
-class PropertyTreeRow(object):
+class PropertyTreeRow : public object
     """Pair of name and value items, manages it's child rows."""
     def __init__(self):
         self.nameItem = PropertyTreeItem(self)
@@ -222,7 +222,7 @@ class PropertyTreeRow(object):
                 visibleCount += 1
         return visibleCount
 
-class PropertyCategoryRow(PropertyTreeRow):
+class PropertyCategoryRow : public PropertyTreeRow
     """Special tree items placed at the root of the tree."""
 
     def __init__(self, propertyCategory):
@@ -269,7 +269,7 @@ class PropertyCategoryRow(PropertyTreeRow):
             row = PropertyRow(prop)
             self.appendChildRow(row)
 
-class PropertyRow(PropertyTreeRow):
+class PropertyRow : public PropertyTreeRow
     """Tree row bound to a Property."""
 
     def __init__(self, boundProperty):
@@ -327,7 +327,7 @@ class PropertyRow(PropertyTreeRow):
         """
         self.nameItem.setBold(not self.property.hasDefaultValue())
 
-class PropertyTreeItemDelegate(QtGui.QStyledItemDelegate):
+class PropertyTreeItemDelegate : public QtGui.QStyledItemDelegate
     """Facilitates editing of the rows' values."""
 
     # Sample delegate
@@ -399,7 +399,7 @@ class PropertyTreeItemDelegate(QtGui.QStyledItemDelegate):
 
         row.editor.setPropertyValueFromWidget()
 
-class PropertyTreeView(QtGui.QTreeView):
+class PropertyTreeView : public QtGui.QTreeView
     """QTreeView with some modifications for better results."""
 
     def __init__(self, *args, **kwargs):
@@ -573,7 +573,7 @@ class PropertyTreeView(QtGui.QTreeView):
 
             i += 1
 
-class PropertyTreeItemModel(QtGui.QStandardItemModel):
+class PropertyTreeItemModel : public QtGui.QStandardItemModel
 
     def buddy(self, index):
         """Point to the value item when the user tries to edit the name item."""
@@ -590,7 +590,7 @@ class PropertyTreeItemModel(QtGui.QStandardItemModel):
 
         return super(PropertyTreeItemModel, self).buddy(index)
 
-class PropertyTreeWidget(QtGui.QWidget):
+class PropertyTreeWidget : public QtGui.QWidget
     """The property tree widget.
 
     Sets up any options necessary.

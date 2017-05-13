@@ -21,7 +21,7 @@
 #ifndef CEED_settings_declaration_
 #define CEED_settings_declaration_
 
-class Entry(object):
+class Entry : public object
     """Is the value itself, inside a section. This is what's directly used when
     accessing settings.
 
@@ -150,7 +150,7 @@ class Entry(object):
         self._setValue(persistedValue, False)
         self.hasChanges = False
 
-class Section(object):
+class Section : public object
     """Groups entries, is usually represented by a group box in the interface
     """
 
@@ -219,7 +219,7 @@ class Section(object):
         self.entries = sorted(self.entries, key = lambda entry: entry.name)
         self.entries = sorted(self.entries, key = lambda entry: entry.sortingWeight)
 
-class Category(object):
+class Category : public object
     """Groups sections, is usually represented by a tab in the interface
     """
 
@@ -307,7 +307,7 @@ class Category(object):
             for section in self.sections:
                 section.sort()
 
-class Settings(object):
+class Settings : public object
     def __init__(self, name, label = None, help_ = ""):
         if label is None:
             label = name

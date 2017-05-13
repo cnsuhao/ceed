@@ -30,7 +30,7 @@ import os.path
 
 from ceed.metaimageset.inputs import registry as input_registry
 
-class MetaImageset(object):
+class MetaImageset : public object
     def __init__(self, filePath):
         self.filePath = filePath
 

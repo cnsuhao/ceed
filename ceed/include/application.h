@@ -28,7 +28,7 @@ import logging
 
 from ceed import version
 
-class SplashScreen(QSplashScreen):
+class SplashScreen : public QSplashScreen
     def __init__(self):
         super(SplashScreen, self).__init__(QPixmap("images/splashscreen.png"))
 
@@ -36,7 +36,7 @@ class SplashScreen(QSplashScreen):
         self.setWindowFlags(Qt.SplashScreen | Qt.WindowStaysOnTopHint)
         self.showMessage("version: %s" % (version.CEED), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
 
-class Application(QApplication):
+class Application : public QApplication
     """The central application class
     """
 

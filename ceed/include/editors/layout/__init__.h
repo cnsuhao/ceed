@@ -35,7 +35,7 @@ from ceed.editors.layout import preview
 
 import PyCEGUI
 
-class LayoutTabbedEditor(editors.multi.MultiModeTabbedEditor):
+class LayoutTabbedEditor : public editors.multi.MultiModeTabbedEditor
     """Binds all layout editing functionality together
     """
 
@@ -174,7 +174,7 @@ class LayoutTabbedEditor(editors.multi.MultiModeTabbedEditor):
         if self.currentWidget() is self.visual:
             self.visual.scene.views()[0].zoomOriginal()
 
-class LayoutTabbedEditorFactory(editors.TabbedEditorFactory):
+class LayoutTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = layout_compatibility.manager.getAllPossibleExtensions()
         return extensions

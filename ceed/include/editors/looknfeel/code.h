@@ -28,7 +28,7 @@ from PySide import QtCore
 
 import PyCEGUI
 
-class CodeEditing(multi.CodeEditMode):
+class CodeEditing : public multi.CodeEditMode
     def __init__(self, tabbedEditor):
         """
         :param tabbedEditor: LookNFeelTabbedEditor
@@ -100,7 +100,7 @@ class CodeEditing(multi.CodeEditMode):
             self.moveToAndSelectWidgetLookFeel(originalWidgetLookName)
 
 
-class WidgetLookHighlighter(QtGui.QSyntaxHighlighter):
+class WidgetLookHighlighter : public QtGui.QSyntaxHighlighter
     """
     Highlighter for the LNF code editing
     """

@@ -40,7 +40,7 @@ CEGUILookNFeel6 = "CEGUI looknfeel 6"
 CEGUILookNFeel7 = "CEGUI looknfeel 7"
 
 
-class LookNFeel6TypeDetector(compatibility.TypeDetector):
+class LookNFeel6TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUILookNFeel6
 
@@ -56,7 +56,7 @@ class LookNFeel6TypeDetector(compatibility.TypeDetector):
         return ceguihelpers.checkDataVersion("Falagard", None, data)
 
 
-class LookNFeel7TypeDetector(compatibility.TypeDetector):
+class LookNFeel7TypeDetector : public compatibility.TypeDetector
     def getType(self):
         return CEGUILookNFeel7
 
@@ -70,7 +70,7 @@ class LookNFeel7TypeDetector(compatibility.TypeDetector):
         return ceguihelpers.checkDataVersion("Falagard", "7", data)
 
 
-class LookNFeel6To7Layer(compatibility.Layer):
+class LookNFeel6To7Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUILookNFeel6
 
@@ -206,7 +206,7 @@ class LookNFeel6To7Layer(compatibility.Layer):
         return ceguihelpers.prettyPrintXMLElement(root)
 
 
-class LookNFeel7To6Layer(compatibility.Layer):
+class LookNFeel7To6Layer : public compatibility.Layer
     def getSourceType(self):
         return CEGUILookNFeel7
 

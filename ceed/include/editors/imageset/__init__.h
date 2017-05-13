@@ -46,7 +46,7 @@ Image Offset - allows you to change the pivot point of the image entry which by 
 Underlying image - the image that lies under the image entries/rectangles (bitmap image)
 """
 
-class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
+class ImagesetTabbedEditor : public editors.multi.MultiModeTabbedEditor
     """Binds all imageset editing functionality together
     """
 
@@ -186,7 +186,7 @@ class ImagesetTabbedEditor(editors.multi.MultiModeTabbedEditor):
         if self.currentWidget() is self.visual:
             self.visual.zoomOriginal()
 
-class ImagesetTabbedEditorFactory(editors.TabbedEditorFactory):
+class ImagesetTabbedEditorFactory : public editors.TabbedEditorFactory
     def getFileExtensions(self):
         extensions = imageset_compatibility.manager.getAllPossibleExtensions()
         return extensions

@@ -31,7 +31,7 @@ import PyCEGUI
 from falagard_element_inspector import FalagardElementAttributesManager
 
 
-class FalagardElementInterface(object):
+class FalagardElementInterface : public object
     """ Implements static functions that can be used to get an set the
     attributes of Falagard elements. Also contains a list of all attributes
     for each type of Falagard element.

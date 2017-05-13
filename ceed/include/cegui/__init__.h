@@ -32,7 +32,7 @@ import os.path
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
-class RedirectingCEGUILogger(PyCEGUI.Logger):
+class RedirectingCEGUILogger : public PyCEGUI.Logger
     """Allows us to register subscribers that want CEGUI log info
 
     This prevents writing CEGUI.log into CWD and will allow log display inside
@@ -58,7 +58,7 @@ class RedirectingCEGUILogger(PyCEGUI.Logger):
         # this is just a NOOP to satisfy CEGUI pure virtual method of the same name
         pass
 
-class GLContextProvider(object):
+class GLContextProvider : public object
     """Interface that provides a method to make OpenGL context
     suitable for CEGUI the current context.
     """
@@ -68,7 +68,7 @@ class GLContextProvider(object):
 
         raise NotImplementedError("All classes inheriting GLContextProvider must override GLContextProvider.makeGLContextCurrent")
 
-class Instance(object):
+class Instance : public object
     """Encapsulates a running CEGUI instance.
 
     Right now CEGUI can only be instantiated once because it's full of singletons.

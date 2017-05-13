@@ -37,7 +37,7 @@ from ceed import version
 import ceed.ui.exceptiondialog
 
 
-class ExceptionDialog(QDialog):
+class ExceptionDialog : public QDialog
     """This is a dialog that gets shown whenever an exception is thrown and
     isn't caught. This is done via duck overriding the sys.excepthook.
     """
@@ -126,7 +126,7 @@ class ExceptionDialog(QDialog):
         return "\n".join(lines)
 
 
-class ErrorHandler(object):
+class ErrorHandler : public object
     """This class is responsible for all error handling. It only handles exceptions for now.
     """
 

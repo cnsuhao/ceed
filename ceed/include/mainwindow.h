@@ -47,7 +47,7 @@ from ceed import about
 
 import ceed.ui.mainwindow
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow : public QtGui.QMainWindow
     """The central window of the application.
 
     This is a singleton class, it is assured to only be constructed once during runtime.

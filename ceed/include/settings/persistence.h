@@ -21,7 +21,7 @@
 #ifndef CEED_settings_persistence_
 #define CEED_settings_persistence_
 
-class PersistenceProvider(object):
+class PersistenceProvider : public object
     def __init__(self):
         pass
 
@@ -31,7 +31,7 @@ class PersistenceProvider(object):
     def download(self, entry):
         pass
 
-class QSettingsPersistenceProvider(PersistenceProvider):
+class QSettingsPersistenceProvider : public PersistenceProvider
     def __init__(self, qsettings):
         super(QSettingsPersistenceProvider, self).__init__()
 

@@ -25,7 +25,7 @@ from ceed.editors import code_edit_restoring_view
 import PyCEGUI
 
 
-class CodeEditing(code_edit_restoring_view.CodeEditingWithViewRestore):
+class CodeEditing : public code_edit_restoring_view.CodeEditingWithViewRestore
     def __init__(self, tabbedEditor):
         super(CodeEditing, self).__init__()
 

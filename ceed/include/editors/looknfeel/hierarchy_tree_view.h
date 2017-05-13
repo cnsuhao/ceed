@@ -34,7 +34,7 @@ from ceed import action
 from hierarchy_tree_item import LookNFeelHierarchyItem
 
 
-class LookNFeelHierarchyTreeView(QtGui.QTreeView):
+class LookNFeelHierarchyTreeView : public QtGui.QTreeView
     """The WidgetLookFeel hierarchy tree definition
     This is based on the QTreeWidget widget.
     """

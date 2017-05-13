@@ -32,7 +32,7 @@ from .properties import Property
 
 from .parsers import AstHelper
 
-class DictionaryProperty(Property):
+class DictionaryProperty : public Property
     """A generic composite property based on a dict (or OrderedDict).
 
     The key-value pairs are used as components. A value can be a Property
