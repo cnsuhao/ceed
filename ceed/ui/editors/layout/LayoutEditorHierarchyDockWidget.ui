@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HierarchyDockWidget</class>
+ <class>LayoutEditorHierarchyDockWidget</class>
  <widget class="QDockWidget" name="HierarchyDockWidget">
   <property name="enabled">
    <bool>false</bool>
