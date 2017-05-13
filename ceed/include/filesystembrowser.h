@@ -26,8 +26,7 @@ from PySide import QtGui
 
 import os
 
-import ceed.ui.filesystembrowser
-
+#include "ui_FileSystemBrowser.h"
 
 /*!
 \brief FileSystemBrowser

@@ -34,8 +34,8 @@ import logging
 from OpenGL import GL
 
 from ceed import version
-import ceed.ui.exceptiondialog
 
+#include "ui_ExceptionDialog.h"
 
 /*!
 \brief ExceptionDialog

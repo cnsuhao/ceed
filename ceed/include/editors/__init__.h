@@ -34,9 +34,9 @@ import codecs
 
 from ceed import compatibility
 
-import ceed.ui.editors.notypedetected
-import ceed.ui.editors.multipletypesdetected
-import ceed.ui.editors.multiplepossiblefactories
+#include "ui_NoTypeDetectedDialog.h"
+#include "ui_MultipleTypesDetectedDialog.h"
+#include "ui_MultiplePossibleFactoriesDialog.h"
 
 class NoTypeDetectedDialog : public QDialog
     def __init__(self, compatibilityManager):

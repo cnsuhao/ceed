@@ -30,9 +30,10 @@ from ceed import cegui
 from ceed.editors.animation_list import timeline
 from ceed.editors.animation_list import undo
 
-import ceed.ui.editors.animation_list.animationlistdockwidget
-import ceed.ui.editors.animation_list.keyframepropertiesdockwidget
-import ceed.ui.editors.animation_list.visualediting
+#include "ui_AnimationListEditorDockWidget.h"
+#include "ui_AnimationListEditorKeyFramePropertiesDockWidget.h"
+#include "ui_AnimationListEditorVisualEditing.h"
+#include "ui_AnimationListEditorTimelineDockWidget.h"
 
 from ceed import propertysetinspector
 from ceed import propertytree
@@ -538,7 +539,6 @@ class VisualEditing : public QWidget, multi.EditMode
     def zoomReset(self):
         return self.timelineDockWidget.zoomReset()
 
-import ceed.ui.editors.animation_list.timelinedockwidget
 from ceed import mainwindow
 
 #endif

@@ -27,8 +27,9 @@
 from PySide import QtCore
 from PySide import QtGui
 
-import ceed.ui.widgets.filelineedit
-import ceed.ui.widgets.keysequencebuttondialog
+#include "ui_FileLineEdit.h"
+#include "ui_KeySequenceButtonDialog.h"
+#include "ui_PenButtonDialog.h"
 
 class FileLineEdit : public QWidget
     ExistingFileMode = 1
@@ -113,9 +114,6 @@ class ColourButton : public QPushButton
 
         if colour.isValid():
             self.colour = colour
-
-# this depends on ColourButton, can't be moved upwards
-import ceed.ui.widgets.penbuttondialog
 
 class PenButton : public QPushButton
     class Dialog(QtGui.QDialog):

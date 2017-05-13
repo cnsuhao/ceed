@@ -46,6 +46,10 @@ import ceed.propertytree as pt
 
 from ceed.propertytree.editors import PropertyEditorRegistry
 
+# needs to be at the end to sort circular deps
+#include "ui_LayoutEditorHierarchyDockWidget.h"
+#include "ui_LayoutEditorCreateWidgetDockWidget.h"
+
 
 class WidgetHierarchyItem : public QStandardItem
     def __init__(self, manipulator):
@@ -1558,10 +1562,6 @@ class VisualEditing : public QWidget, multi.EditMode
 
     def performDelete(self):
         return self.scene.deleteSelectedWidgets()
-
-# needs to be at the end to sort circular deps
-import ceed.ui.editors.layout.hierarchydockwidget
-import ceed.ui.editors.layout.createwidgetdockwidget
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow

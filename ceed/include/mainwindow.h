@@ -45,7 +45,7 @@ from ceed import messages
 from ceed import recentlyused
 from ceed import about
 
-import ceed.ui.mainwindow
+#include "ui_MainWindow.h"
 
 /*!
 \brief MainWindow

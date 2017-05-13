@@ -35,7 +35,9 @@ import logging
 
 from ceed.cegui import qtgraphics
 
-import ceed.ui.ceguidebuginfo
+#include "ui_CEGUIWidgetInfo.h"
+#include "ui_CEGUIContainerWidget.h"
+
 import PyCEGUI
 
 class LogMessageWrapper
@@ -165,9 +167,6 @@ font-size: 10px;
         self.currentFPSBox.setText("%0.6f" % (1.0 / lastRenderDelta))
 
         QtCore.QTimer.singleShot(500, self.updateFPSTick)
-
-# we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
-import ceed.ui.ceguicontainerwidget
 
 class ViewState
     def __init__(self):

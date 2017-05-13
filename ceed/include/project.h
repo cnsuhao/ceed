@@ -39,10 +39,9 @@ from ceed import qtwidgets
 import ceed.compatibility.project as project_compatibility
 from ceed import xmledit
 
-import ceed.ui.projectmanager
-import ceed.ui.newprojectdialog
-import ceed.ui.projectsettingsdialog
-
+#include "ui_ProjectManager.h"
+#include "ui_NewProjectDialog.h"
+#include "ui_ProjectSettingsDialog.h"
 
 # TODO: Should probably be moved somewhere else because it's reusable
 def convertToPortablePath(inputPath):

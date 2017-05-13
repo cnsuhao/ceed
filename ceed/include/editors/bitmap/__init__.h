@@ -23,7 +23,8 @@
 
 from PySide import QtGui
 from ceed import editors
-import ceed.ui.bitmapeditor
+
+#include "ui_BitmapEditor.h"
 
 class BitmapTabbedEditor : public editors.TabbedEditor, QtGui.QWidget
     """A simple external bitmap editor starter/image viewer

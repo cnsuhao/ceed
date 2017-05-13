@@ -34,7 +34,8 @@ from ceed import resizable
 from ceed.editors.imageset import elements
 from ceed.editors.imageset import undo
 
-import ceed.ui.editors.imageset.dockwidget
+#include "ui_ImagesetEditorDockWidget.h"
+
 import cPickle
 
 /*!

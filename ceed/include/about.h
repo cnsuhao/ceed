@@ -28,8 +28,8 @@
 
 from PySide import QtGui
 
-import ceed.ui.licensedialog
-import ceed.ui.aboutdialog
+#include "ui_LicenseDialog.h"
+#include "ui_AboutDialog.h"
 
 from ceed import version
 

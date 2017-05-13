@@ -44,6 +44,9 @@ from ceed.editors.looknfeel.hierarchy_dock_widget import LookNFeelHierarchyDockW
 from ceed.editors.looknfeel.falagard_element_editor import LookNFeelFalagardElementEditorDockWidget
 from ceed.editors.looknfeel.falagard_element_inspector import FalagardElementAttributesManager
 
+#include "ui_LookNFeelEditorHierarchyDockWidget.h"
+#include "ui_LookNFeelEditorWidgetLookSelectorWidget.h"
+#include "ui_LookNFeelEditorPropertyEditorDockWidget.h"
 
 class LookNFeelVisualEditing : public QWidget, multi.EditMode
     """This is the default visual editing mode
@@ -370,11 +373,6 @@ class EditingScene : public cegui_widgethelpers.GraphicsScene
 
         else:
             event.accept()
-
-# needs to be at the end to sort circular deps
-import ceed.ui.editors.looknfeel.looknfeelhierarchydockwidget
-import ceed.ui.editors.looknfeel.looknfeelwidgetlookselectorwidget
-import ceed.ui.editors.looknfeel.looknfeelpropertyeditordockwidget
 
 # needs to be at the end, import to get the singleton
 from ceed import mainwindow
