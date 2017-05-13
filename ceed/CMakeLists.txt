@@ -1,0 +1,73 @@
+file(GLOB CEED_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+qt4_wrap_cpp(CEED_HEADERS_MOC ${CEED_HEADERS})
+
+file(GLOB CEED_UIS "${CMAKE_CURRENT_SOURCE_DIR}/ui/*.ui")
+qt4_wrap_ui(CEED_UIS_HEADERS ${CEED_UIS})
+
+file(GLOB CEED_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+
+include(${QT_USE_FILE})
+
+set(CEED_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include
+    # Qt4 is handled by ${QT_USE_FILE} above
+    ${CEGUI_INCLUDE_DIRS}
+)
+
+set(CEED_LINK_LIBRARIES
+    ${QT_LIBRARIES}
+    ${CEGUI_LIBRARIES}
+)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/Config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/Config.h")
+
+include_directories(${CEED_INCLUDE_DIRS})
+
+# Which languages we want generated
+#set(CEED_LANGUAGES de_DE fr_FR)
+set(CEED_LANGUAGES)
+set(CEED_LANGUAGE_TS_FILES)
+
+foreach(LANGUAGE ${CEED_LANGUAGES})
+    set(TS_FILE "${CMAKE_CURRENT_SOURCE_DIR}/i18n/${LANGUAGE}.ts")
+    set(CEED_LANGUAGE_TS_FILES ${CEED_LANGUAGE_TS_FILES} ${TS_FILE})
+    set_source_files_properties(${TS_FILE} PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/i18n")
+endforeach()
+
+if (CEED_LANGUAGE_TS_FILES)
+    set(TRANSLATION_SOURCES ${CEED_HEADERS} ${CEED_SOURCES} ${CEED_UIS_HEADERS})
+    qt4_create_translation(qm_files ${TRANSLATION_SOURCES} ${CEED_LANGUAGE_TS_FILES})
+endif()
+
+if (APPLE)
+    set(CEED_SOURCES ${CEED_SOURCES} AppIcon.icns)
+    set_source_files_properties(AppIcon.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+endif()
+if (WIN32)
+    set(CEED_SOURCES ${CEED_SOURCES} ${CMAKE_BINARY_DIR}/win32-resource.rc)
+endif()
+
+add_executable("ceed-gui" MACOSX_BUNDLE
+    ${CEED_HEADERS}
+    ${CEED_SOURCES}
+
+    ${CEED_HEADERS_MOC}
+    ${CEED_UIS_HEADERS}
+    ${CEED_LANGUAGE_TS_FILES}
+)
+
+set_target_properties("ceed-gui" PROPERTIES MACOSX_BUNDLE_INFO_PLIST MacOSXBundleInfo.plist.in)
+set(MACOSX_BUNDLE_BUNDLE_NAME "CEED")
+set(MACOSX_BUNDLE_BUNDLE_VERSION "${CEED_VERSION}")
+set(MACOSX_BUNDLE_LONG_VERSION_STRING "${CEED_VERSION}")
+set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${CEED_VERSION}")
+set(MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2011-2017 Martin Preisler")
+set(MACOSX_BUNDLE_GUI_IDENTIFIER "uk.co.cegui.ceed")
+set(MACOSX_BUNDLE_ICON_FILE AppIcon)
+
+target_link_libraries("ceed-gui" ${CEED_LINK_LIBRARIES})
+
+install(TARGETS "ceed-gui"
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    BUNDLE DESTINATION .
+)
