@@ -19,7 +19,7 @@ set(CEED_LINK_LIBRARIES
     ${CEGUI_LIBRARIES}
 )
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/Config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/Config.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/CEEDConfig.h.in" "${CMAKE_CURRENT_BINARY_DIR}/CEEDConfig.h")
 
 include_directories(${CEED_INCLUDE_DIRS})
 
