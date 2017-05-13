@@ -29,9 +29,14 @@ import PyCEGUI
 idbase = 1200
 
 
+/*!
+\brief MoveCommand
+
+This command simply moves given widgets from old positions to new
+
+*/
 class MoveCommand : public commands.UndoCommand
-    """This command simply moves given widgets from old positions to new
-    """
+
 
     def __init__(self, visual, widgetPaths, oldPositions, newPositions):
         super(MoveCommand, self).__init__()
@@ -93,9 +98,14 @@ class MoveCommand : public commands.UndoCommand
         super(MoveCommand, self).redo()
 
 
+/*!
+\brief ResizeCommand
+
+This command resizes given widgets from old positions and old sizes to new
+
+*/
 class ResizeCommand : public commands.UndoCommand
-    """This command resizes given widgets from old positions and old sizes to new
-    """
+
 
     def __init__(self, visual, widgetPaths, oldPositions, oldSizes, newPositions, newSizes):
         super(ResizeCommand, self).__init__()
@@ -157,8 +167,13 @@ class ResizeCommand : public commands.UndoCommand
         super(ResizeCommand, self).redo()
 
 
+/*!
+\brief DeleteCommand
+
+This command deletes given widgets
+*/
 class DeleteCommand : public commands.UndoCommand
-    """This command deletes given widgets"""
+
 
     def __init__(self, visual, widgetPaths):
         super(DeleteCommand, self).__init__()
@@ -247,8 +262,13 @@ class DeleteCommand : public commands.UndoCommand
         super(DeleteCommand, self).redo()
 
 
+/*!
+\brief CreateCommand
+
+This command creates one widget
+*/
 class CreateCommand : public commands.UndoCommand
-    """This command creates one widget"""
+
 
     def __init__(self, visual, parentWidgetPath, widgetType, widgetName):
         super(CreateCommand, self).__init__()
@@ -301,9 +321,14 @@ class CreateCommand : public commands.UndoCommand
         super(CreateCommand, self).redo()
 
 
+/*!
+\brief PropertyEditCommand
+
+This command resizes given widgets from old positions and old sizes to new
+
+*/
 class PropertyEditCommand : public commands.UndoCommand
-    """This command resizes given widgets from old positions and old sizes to new
-    """
+
 
     def __init__(self, visual, propertyName, widgetPaths, oldValues, newValue, ignoreNextPropertyManagerCallback=False):
         super(PropertyEditCommand, self).__init__()
@@ -383,9 +408,14 @@ class PropertyEditCommand : public commands.UndoCommand
         super(PropertyEditCommand, self).redo()
 
 
+/*!
+\brief HorizontalAlignCommand
+
+This command aligns selected widgets accordingly
+
+*/
 class HorizontalAlignCommand : public commands.UndoCommand
-    """This command aligns selected widgets accordingly
-    """
+
 
     def __init__(self, visual, widgetPaths, oldAlignments, newAlignment):
         super(HorizontalAlignCommand, self).__init__()
@@ -446,9 +476,14 @@ class HorizontalAlignCommand : public commands.UndoCommand
 
         super(HorizontalAlignCommand, self).redo()
 
+/*!
+\brief VerticalAlignCommand
+
+This command aligns selected widgets accordingly
+
+*/
 class VerticalAlignCommand : public commands.UndoCommand
-    """This command aligns selected widgets accordingly
-    """
+
 
     def __init__(self, visual, widgetPaths, oldAlignments, newAlignment):
         super(VerticalAlignCommand, self).__init__()
@@ -510,9 +545,14 @@ class VerticalAlignCommand : public commands.UndoCommand
         super(VerticalAlignCommand, self).redo()
 
 
+/*!
+\brief ReparentCommand
+
+This command changes parent of given windows
+
+*/
 class ReparentCommand : public commands.UndoCommand
-    """This command changes parent of given windows
-    """
+
 
     def __init__(self, visual, oldWidgetPaths, newWidgetPaths):
         super(ReparentCommand, self).__init__()
@@ -620,9 +660,14 @@ class ReparentCommand : public commands.UndoCommand
         super(ReparentCommand, self).redo()
 
 
+/*!
+\brief PasteCommand
+
+This command pastes clipboard data to the given widget
+
+*/
 class PasteCommand : public commands.UndoCommand
-    """This command pastes clipboard data to the given widget
-    """
+
 
     def __init__(self, visual, clipboardData, targetWidgetPath):
         super(PasteCommand, self).__init__()
@@ -835,9 +880,14 @@ class NormalisePositionToAbsoluteCommand : public NormalisePositionCommand
         return idbase + 13
 
 
+/*!
+\brief RenameCommand
+
+This command changes the name of the given widget
+
+*/
 class RenameCommand : public commands.UndoCommand
-    """This command changes the name of the given widget
-    """
+
 
     def __init__(self, visual, oldWidgetPath, newWidgetName):
         super(RenameCommand, self).__init__()

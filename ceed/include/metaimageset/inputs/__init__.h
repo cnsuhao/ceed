@@ -25,10 +25,15 @@
 from these inputs.
 """
 
-class Image : public object
-    """Instance of the image, containing a bitmap (QImage)
+/*!
+\brief Image
+
+Instance of the image, containing a bitmap (QImage)
     and xOffset and yOffset
-    """
+
+*/
+class Image : public object
+
 
     def __init__(self, name, qimage, xOffset = 0, yOffset = 0):
         self.name = name
@@ -42,11 +47,16 @@ class Image : public object
         self.xOffset = xOffset
         self.yOffset = yOffset
 
-class Input : public object
-    """Describes any input image source for the meta imageset.
+/*!
+\brief Input
+
+Describes any input image source for the meta imageset.
 
     This can be imageset, bitmap image, SVG image, ...
-    """
+
+*/
+class Input : public object
+
 
     def __init__(self, metaImageset):
         """metaImageset - the parent MetaImageset class"""

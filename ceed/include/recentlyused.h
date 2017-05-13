@@ -32,10 +32,15 @@ We may use it for even more in the future
 from PySide import QtGui
 
 
-class RecentlyUsed : public object
-    """This class can be used to store pointers to Items like files and images
+/*!
+\brief RecentlyUsed
+
+This class can be used to store pointers to Items like files and images
     for later reuse within the application.
-    """
+
+*/
+class RecentlyUsed : public object
+
 
     def __init__(self, qsettings, sectionIdentifier):
         self.sectionIdentifier = "recentlyUsedIdentifier/" + sectionIdentifier
@@ -186,9 +191,14 @@ class RecentlyUsed : public object
         return reconst
 
 
+/*!
+\brief RecentlyUsedMenuEntry
+
+This class can be used to manage a Qt Menu entry to items.
+
+*/
 class RecentlyUsedMenuEntry : public RecentlyUsed
-    """This class can be used to manage a Qt Menu entry to items.
-    """
+
 
     def __init__(self, qsettings, sectionIdentifier):
         super(RecentlyUsedMenuEntry, self).__init__(qsettings, sectionIdentifier)

@@ -95,10 +95,15 @@ class MultiplePossibleFactoriesDialog : public QtGui.QDialog
 
             self.factoryChoice.addItem(item)
 
-class TabbedEditor : public object
-    """This is the base class for a class that takes a file and allows manipulation
+/*!
+\brief TabbedEditor
+
+This is the base class for a class that takes a file and allows manipulation
     with it. It occupies exactly 1 tab space.
-    """
+
+*/
+class TabbedEditor : public object
+
 
     def __init__(self, compatibilityManager, filePath):
         """Constructs the editor.
@@ -546,10 +551,15 @@ class TabbedEditor : public object
         """Called by the mainwindow whenever zoom is requested"""
         pass
 
-class UndoStackTabbedEditor : public TabbedEditor
-    """Used for tabbed editors that have one shared undo stack. This saves a lot
+/*!
+\brief UndoStackTabbedEditor
+
+Used for tabbed editors that have one shared undo stack. This saves a lot
     of boilerplate code for undo/redo action synchronisation and the undo/redo itself
-    """
+
+*/
+class UndoStackTabbedEditor : public TabbedEditor
+
 
     def __init__(self, compatibilityManager, filePath):
         super(UndoStackTabbedEditor, self).__init__(compatibilityManager, filePath)
@@ -647,11 +657,16 @@ class UndoStackTabbedEditor : public TabbedEditor
 
         self.markHasChanges(not clean)
 
-class TabbedEditorFactory : public object
-    """Constructs instances of TabbedEditor (multiple instances of one TabbedEditor
+/*!
+\brief TabbedEditorFactory
+
+Constructs instances of TabbedEditor (multiple instances of one TabbedEditor
     can coexist - user editing 2 layouts for example - with the ability to switch
     from one to another)
-    """
+
+*/
+class TabbedEditorFactory : public object
+
 
     def getFileExtensions(self):
         """Returns a set of file extensions (without prefix dots) that can be edited by this factory"""
@@ -675,12 +690,17 @@ class TabbedEditorFactory : public object
     # note: destroy doesn't really make sense as python is reference counted
     #       and everything is garbage collected
 
-class MessageTabbedEditor : public TabbedEditor
-    """This is basically a stub tabbed editor, it simply displays a message
+/*!
+\brief MessageTabbedEditor
+
+This is basically a stub tabbed editor, it simply displays a message
     and doesn't allow any sort of editing at all, all functionality is stubbed
 
     This is for internal use only so there is no factory for this particular editor
-    """
+
+*/
+class MessageTabbedEditor : public TabbedEditor
+
     def __init__(self, filePath, message):
         super(MessageTabbedEditor, self).__init__(None, filePath)
 

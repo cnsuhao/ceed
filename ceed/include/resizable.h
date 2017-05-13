@@ -24,8 +24,10 @@
 from PySide import QtCore
 from PySide import QtGui
 
-class GraphicsView : public QtGui.QGraphicsView
-    """If you plan to use ResizableGraphicsRectItems, make sure you view them
+/*!
+\brief GraphicsView
+
+If you plan to use ResizableGraphicsRectItems, make sure you view them
     via a GraphicsView that is inherited from this exact class.
 
     The reason for that is that The ResizableRectItem needs to counter-scale
@@ -34,7 +36,10 @@ class GraphicsView : public QtGui.QGraphicsView
     cegui.GraphicsView inherits from this class because you are likely to use
     resizables on top of CEGUI. If you don't need them, simply don't use them.
     The overhead is minimal.
-    """
+
+*/
+class GraphicsView : public QtGui.QGraphicsView
+
 
     def __init__(self, parent = None):
         super(GraphicsView, self).__init__(parent)
@@ -133,13 +138,18 @@ class GraphicsView : public QtGui.QGraphicsView
 
         self.lastDragScrollMousePosition = event.pos()
 
-class ResizingHandle : public QtGui.QGraphicsRectItem
-    """A rectangle that when moved resizes the parent resizable rect item.
+/*!
+\brief ResizingHandle
+
+A rectangle that when moved resizes the parent resizable rect item.
 
     The reason to go with a child GraphicsRectItem instead of just overriding mousePressEvent et al
     is to easily support multi selection resizing (you can multi-select various edges in all imaginable
     combinations and resize many things at once).
-    """
+
+*/
+class ResizingHandle : public QtGui.QGraphicsRectItem
+
 
     def __init__(self, parent):
         super(ResizingHandle, self).__init__(parent)
@@ -244,9 +254,14 @@ class ResizingHandle : public QtGui.QGraphicsRectItem
     def scaleChanged(self, sx, sy):
         pass
 
+/*!
+\brief EdgeResizingHandle
+
+Resizing handle positioned on one of the 4 edges
+
+*/
 class EdgeResizingHandle : public ResizingHandle
-    """Resizing handle positioned on one of the 4 edges
-    """
+
 
     def __init__(self, parent):
         super(EdgeResizingHandle, self).__init__(parent)
@@ -347,9 +362,14 @@ class RightEdgeResizingHandle : public EdgeResizingHandle
                                      transform.m31(), transform.m32(), transform.m33())
         self.setTransform(transform)
 
+/*!
+\brief CornerResizingHandle
+
+Resizing handle positioned in one of the 4 corners.
+
+*/
 class CornerResizingHandle : public ResizingHandle
-    """Resizing handle positioned in one of the 4 corners.
-    """
+
 
     def __init__(self, parent):
         super(CornerResizingHandle, self).__init__(parent)
@@ -430,14 +450,19 @@ class TopLeftCornerResizingHandle : public CornerResizingHandle
 
         return QtCore.QPointF(dx1 + self.pos().x(), dy1 + self.pos().y())
 
-class ResizableRectItem : public QtGui.QGraphicsRectItem
-    """Rectangle that can be resized by dragging it's handles.
+/*!
+\brief ResizableRectItem
+
+Rectangle that can be resized by dragging it's handles.
 
     Inherit from this class to gain resizing and moving capabilities.
 
     Depending on the size, the handles are shown outside the rectangle (if it's small)
     or inside (if it's large). All this is tweakable.
-    """
+
+*/
+class ResizableRectItem : public QtGui.QGraphicsRectItem
+
 
     # This class is supposed to be inherited from and the "could be functions"
     # methods are supposed to be overriden, the refactor messages by pylint

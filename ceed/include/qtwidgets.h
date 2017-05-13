@@ -299,13 +299,18 @@ class KeySequenceButton : public QtGui.QPushButton
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.keySequence = dialog.keySequence
 
-class LineEditWithClearButton : public QtGui.QLineEdit
-    """A QLineEdit with an inline clear button.
+/*!
+\brief LineEditWithClearButton
+
+A QLineEdit with an inline clear button.
 
     Hitting Escape in the line edit clears it.
 
     Based on http://labs.qt.nokia.com/2007/06/06/lineedit-with-a-clear-button/
-    """
+
+*/
+class LineEditWithClearButton : public QtGui.QLineEdit
+
 
     def __init__(self, parent=None):
         super(LineEditWithClearButton, self).__init__(parent)

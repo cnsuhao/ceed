@@ -31,13 +31,18 @@ from collections import OrderedDict
 
 from xml.etree import cElementTree as ElementTree
 
-class PropertyMappingEntry : public object
-    """Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
+/*!
+\brief PropertyMappingEntry
+
+Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
     to allow its viewing and editing.
 
     If target inspector name is \"\" then this mapping means that the property should
     be ignored in the property set inspector listing.
-    """
+
+*/
+class PropertyMappingEntry : public object
+
 
     @classmethod
     def fromElement(cls, element):
@@ -106,8 +111,13 @@ class PropertyMappingEntry : public object
 
         return element
 
+/*!
+\brief PropertyMap
+
+Container for property mapping entries.
+*/
 class PropertyMap : public object
-    """Container for property mapping entries."""
+
 
     @classmethod
     def fromElement(cls, element):

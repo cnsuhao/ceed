@@ -23,17 +23,27 @@
 
 from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon, QWidget, QVBoxLayout
 
-class UndoCommand : public QUndoCommand
-    """The base class of all undo commands of CEED.
+/*!
+\brief UndoCommand
+
+The base class of all undo commands of CEED.
     Internal: Currently serves no special purpose but might serve on in the future!
-    """
+
+*/
+class UndoCommand : public QUndoCommand
+
 
     def __init__(self):
         super(UndoCommand, self).__init__()
 
+/*!
+\brief UndoViewer
+
+A dockwidget able to view the entire undo history of given undo stack.
+
+*/
 class UndoViewer : public QDockWidget
-    """A dockwidget able to view the entire undo history of given undo stack.
-    """
+
 
     def __init__(self):
         super(UndoViewer, self).__init__()

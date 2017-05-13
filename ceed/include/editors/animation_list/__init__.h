@@ -36,9 +36,14 @@ import sys
 from xml.etree import cElementTree as ElementTree
 
 
+/*!
+\brief AnimationListTabbedEditor
+
+Animation list file editor (XML file containing list of animations)
+
+*/
 class AnimationListTabbedEditor : public editors.multi.MultiModeTabbedEditor
-    """Animation list file editor (XML file containing list of animations)
-    """
+
 
     def __init__(self, filePath):
         super(AnimationListTabbedEditor, self).__init__(animation_list_compatibility.manager, filePath)

@@ -26,9 +26,14 @@ from ceed import commands
 idbase = 1300
 
 
+/*!
+\brief TargetWidgetChangeCommand
+
+This command changes the Look n' Feel widget targeted for editing to another one
+
+*/
 class TargetWidgetChangeCommand : public commands.UndoCommand
-    """This command changes the Look n' Feel widget targeted for editing to another one
-    """
+
 
     def __init__(self, visual, tabbedEditor, newTargetWidgetLook):
         """
@@ -84,9 +89,14 @@ class TargetWidgetChangeCommand : public commands.UndoCommand
         super(TargetWidgetChangeCommand, self).redo()
 
 
+/*!
+\brief FalagardElementAttributeEdit
+
+This command resizes given widgets from old positions and old sizes to new
+
+*/
 class FalagardElementAttributeEdit : public commands.UndoCommand
-    """This command resizes given widgets from old positions and old sizes to new
-    """
+
 
     def __init__(self, falagardProperty, visual, falagardElement, attributeName, newValue, ignoreNextCallback=False):
         super(FalagardElementAttributeEdit, self).__init__()

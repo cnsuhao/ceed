@@ -39,8 +39,13 @@ class PropertyMappings1TypeDetector : public compatibility.TypeDetector
         # the cegui helper function here.
         return ceguihelpers.checkDataVersion("mappings", PropertyMappings1, data)
 
+/*!
+\brief Manager
+
+Manager of CEED project compatibility layers
+*/
 class Manager : public compatibility.Manager
-    """Manager of CEED project compatibility layers"""
+
 
     def __init__(self):
         super(Manager, self).__init__()

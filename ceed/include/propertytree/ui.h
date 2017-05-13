@@ -42,8 +42,13 @@ from .editors import StringWrapperValidator
 from PySide import QtGui
 from PySide import QtCore
 
+/*!
+\brief PropertyTreeItem
+
+Base item for all items.
+*/
 class PropertyTreeItem : public QtGui.QStandardItem
-    """Base item for all items."""
+
 
     def __init__(self, propertyTreeRow):
         super(PropertyTreeItem, self).__init__()
@@ -68,8 +73,13 @@ class PropertyTreeItem : public QtGui.QStandardItem
         font.setBold(value)
         self.setFont(font)
 
+/*!
+\brief PropertyTreeRow
+
+Pair of name and value items, manages it's child rows.
+*/
 class PropertyTreeRow : public object
-    """Pair of name and value items, manages it's child rows."""
+
     def __init__(self):
         self.nameItem = PropertyTreeItem(self)
         self.valueItem = PropertyTreeItem(self)
@@ -222,8 +232,13 @@ class PropertyTreeRow : public object
                 visibleCount += 1
         return visibleCount
 
+/*!
+\brief PropertyCategoryRow
+
+Special tree items placed at the root of the tree.
+*/
 class PropertyCategoryRow : public PropertyTreeRow
-    """Special tree items placed at the root of the tree."""
+
 
     def __init__(self, propertyCategory):
         # set the category before super init because
@@ -269,8 +284,13 @@ class PropertyCategoryRow : public PropertyTreeRow
             row = PropertyRow(prop)
             self.appendChildRow(row)
 
+/*!
+\brief PropertyRow
+
+Tree row bound to a Property.
+*/
 class PropertyRow : public PropertyTreeRow
-    """Tree row bound to a Property."""
+
 
     def __init__(self, boundProperty):
         # set the property before super init because
@@ -327,8 +347,13 @@ class PropertyRow : public PropertyTreeRow
         """
         self.nameItem.setBold(not self.property.hasDefaultValue())
 
+/*!
+\brief PropertyTreeItemDelegate
+
+Facilitates editing of the rows' values.
+*/
 class PropertyTreeItemDelegate : public QtGui.QStyledItemDelegate
-    """Facilitates editing of the rows' values."""
+
 
     # Sample delegate
     # http://www.qtforum.org/post/81956/qtreeview-qstandarditem-and-singals.html#post81956
@@ -399,8 +424,13 @@ class PropertyTreeItemDelegate : public QtGui.QStyledItemDelegate
 
         row.editor.setPropertyValueFromWidget()
 
+/*!
+\brief PropertyTreeView
+
+QTreeView with some modifications for better results.
+*/
 class PropertyTreeView : public QtGui.QTreeView
-    """QTreeView with some modifications for better results."""
+
 
     def __init__(self, *args, **kwargs):
         QtGui.QTreeView.__init__(self, *args, **kwargs)
@@ -590,12 +620,17 @@ class PropertyTreeItemModel : public QtGui.QStandardItemModel
 
         return super(PropertyTreeItemModel, self).buddy(index)
 
-class PropertyTreeWidget : public QtGui.QWidget
-    """The property tree widget.
+/*!
+\brief PropertyTreeWidget
+
+The property tree widget.
 
     Sets up any options necessary.
     Provides easy access methods.
-    """
+
+*/
+class PropertyTreeWidget : public QtGui.QWidget
+
 
     def __init__(self, parent = None):
         """Initialise the widget instance.

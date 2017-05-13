@@ -37,8 +37,13 @@ from ceed.propertytree import parsers
 from PySide import QtGui
 
 
+/*!
+\brief Base
+
+Abstract base class for all value types.
+*/
 class Base : public object
-    """Abstract base class for all value types."""
+
 
     __metaclass__ = abc.ABCMeta
 
@@ -137,8 +142,13 @@ class Base : public object
         return not (self.__eq__(other))
 
 
+/*!
+\brief UDim
+
+UDim
+*/
 class UDim : public Base
-    """UDim"""
+
 
     pattern = '\s*\{' + \
               Base.floatPattern + \
@@ -198,8 +208,13 @@ class UDim : public Base
         return "{{{}, {}}}".format(fmt(self.scale), fmt(self.offset))
 
 
+/*!
+\brief USize
+
+USize (uses UDim)
+*/
 class USize : public Base
-    """USize (uses UDim)"""
+
 
     pattern = '\s*\{' + \
               UDim.pattern + \
@@ -259,11 +274,16 @@ class USize : public Base
         return "{{{}, {}}}".format(self.width, self.height)
 
 
-class UVector2 : public Base
-    """UVector2 (uses UDim)
+/*!
+\brief UVector2
+
+UVector2 (uses UDim)
 
     Very similar to USize.
-    """
+
+*/
+class UVector2 : public Base
+
 
     pattern = '\s*\{' + \
               UDim.pattern + \
@@ -325,8 +345,13 @@ class UVector2 : public Base
         return UVector2Property
 
 
+/*!
+\brief URect
+
+URect (uses UDim)
+*/
 class URect : public Base
-    """URect (uses UDim)"""
+
 
     pattern = '\s*\{' + \
               UDim.pattern + \
@@ -445,8 +470,13 @@ class EnumBase : public Base, properties.EnumValue
         return self.enumValues
 
 
+/*!
+\brief AspectMode
+
+AspectMode
+*/
 class AspectMode : public EnumBase
-    """AspectMode"""
+
 
     enumValues = OrderedDict([("Ignore", "Ignore"), ("Shrink", "Shrink"), ("Expand", "Expand")])
 
@@ -454,8 +484,13 @@ class AspectMode : public EnumBase
         super(AspectMode, self).__init__(value)
 
 
+/*!
+\brief HorizontalAlignment
+
+HorizontalAlignment
+*/
 class HorizontalAlignment : public EnumBase
-    """HorizontalAlignment"""
+
 
     enumValues = OrderedDict([("Left", "Left"), ("Centre", "Centre"), ("Right", "Right")])
 
@@ -471,8 +506,13 @@ class HorizontalAlignment : public EnumBase
         return PyCEGUI.PropertyHelper.stringToHorizontalAlignment(stringValue)
 
 
+/*!
+\brief VerticalAlignment
+
+VerticalAlignment
+*/
 class VerticalAlignment : public EnumBase
-    """VerticalAlignment"""
+
 
     enumValues = OrderedDict([("Top", "Top"),
                               ("Centre", "Centre"),
@@ -490,8 +530,13 @@ class VerticalAlignment : public EnumBase
         return PyCEGUI.PropertyHelper.stringToVerticalAlignment(stringValue)
 
 
+/*!
+\brief HorizontalFormatting
+
+HorizontalFormatting
+*/
 class HorizontalFormatting : public EnumBase
-    """HorizontalFormatting"""
+
 
     enumValues = OrderedDict([("LeftAligned", "Left"),
                               ("CentreAligned", "Centre"),
@@ -511,8 +556,13 @@ class HorizontalFormatting : public EnumBase
         return PyCEGUI.PropertyHelper.stringToHorizontalFormatting(stringValue)
 
 
+/*!
+\brief VerticalFormatting
+
+VerticalFormatting
+*/
 class VerticalFormatting : public EnumBase
-    """VerticalFormatting"""
+
 
     enumValues = OrderedDict([("TopAligned", "Top"),
                               ("CentreAligned", "Centre"),
@@ -532,8 +582,13 @@ class VerticalFormatting : public EnumBase
         return PyCEGUI.PropertyHelper.stringToVerticalFormatting(stringValue)
 
 
+/*!
+\brief HorizontalTextFormatting
+
+HorizontalTextFormatting
+*/
 class HorizontalTextFormatting : public EnumBase
-    """HorizontalTextFormatting"""
+
 
     enumValues = OrderedDict([("LeftAligned", "Left"),
                               ("CentreAligned", "Centre"),
@@ -556,8 +611,13 @@ class HorizontalTextFormatting : public EnumBase
         return PyCEGUI.PropertyHelper.stringToHorizontalTextFormatting(stringValue)
 
 
+/*!
+\brief VerticalTextFormatting
+
+VerticalTextFormatting
+*/
 class VerticalTextFormatting : public EnumBase
-    """VerticalTextFormatting"""
+
 
     enumValues = OrderedDict([("TopAligned", "Top"),
                               ("CentreAligned", "Centre"),
@@ -574,8 +634,13 @@ class VerticalTextFormatting : public EnumBase
     def tryToCeguiType(cls, stringValue):
         return PyCEGUI.PropertyHelper.stringToVerticalTextFormatting(stringValue)
 
+/*!
+\brief WindowUpdateMode
+
+WindowUpdateMode
+*/
 class WindowUpdateMode : public EnumBase
-    """WindowUpdateMode"""
+
 
     enumValues = OrderedDict([("Always", "Always"), ("Visible", "Visible"), ("Never", "Never")])
 
@@ -583,8 +648,13 @@ class WindowUpdateMode : public EnumBase
         super(WindowUpdateMode, self).__init__(value)
 
 
+/*!
+\brief SortMode
+
+ItemListBase::SortMode
+*/
 class SortMode : public EnumBase
-    """ItemListBase::SortMode"""
+
 
     enumValues = OrderedDict([("Ascending", "Ascending"), ("Descending", "Descending"), ("UserSort", "UserSort")])
 
@@ -592,8 +662,13 @@ class SortMode : public EnumBase
         super(SortMode, self).__init__(value)
 
 
+/*!
+\brief Quaternion
+
+Quaternion
+*/
 class Quaternion : public Base
-    """Quaternion"""
+
     #pylint: disable-msg=C0103
     # invalid name x,y,z etc.
 
@@ -811,15 +886,20 @@ class XYZRotation : public Base
         return XYZRotationProperty
 
 
-class Colour : public Base
-    """Colour
+/*!
+\brief Colour
+
+Colour
 
     Can parse hex strings like:
         [#]RGB
         [#]RRGGBB
         [#]AARRGGBB
     and named colors like 'green', 'skyblue', 'whitesmoke' using QtGui.Color.
-    """
+
+*/
+class Colour : public Base
+
 
     pattern = '\s*#?(?:[0-9a-fA-F]+)\s*'
     rex = re.compile(pattern, re.IGNORECASE)
@@ -918,8 +998,10 @@ class Colour : public Base
         return ColourProperty
 
 
-class ColourRect : public Base
-    """ColourRect
+/*!
+\brief ColourRect
+
+ColourRect
 
     Can parse strings like:
         colour
@@ -931,7 +1013,10 @@ class ColourRect : public Base
             [#]RRGGBB
             [#]AARRGGBB
             or a named color like 'green', 'skyblue', 'whitesmoke'
-    """
+
+*/
+class ColourRect : public Base
+
 
     pattern = '\s*#?(?:[0-9a-fA-F]+)\s*'
     rex = re.compile(pattern, re.IGNORECASE)
@@ -1006,8 +1091,13 @@ class ColourRect : public Base
         return ColourRectProperty
 
 
+/*!
+\brief StringWrapper
+
+Simple string that does no parsing but allows us to map editors to it
+*/
 class StringWrapper : public Base
-    """Simple string that does no parsing but allows us to map editors to it"""
+
 
     def __init__(self, value):
         super(StringWrapper, self).__init__()

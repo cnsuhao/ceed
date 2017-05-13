@@ -25,12 +25,17 @@ from ceed import editors
 
 from PySide import QtWebKit
 
-class HTMLViewTabbedEditor : public editors.TabbedEditor
-    """This is basically a stub tabbed editor, it simply displays a HTML message
+/*!
+\brief HTMLViewTabbedEditor
+
+This is basically a stub tabbed editor, it simply displays a HTML message
     and doesn't allow any sort of editing at all, all functionality is stubbed
 
     This is for internal use only so there is no factory for this particular editor
-    """
+
+*/
+class HTMLViewTabbedEditor : public editors.TabbedEditor
+
     def __init__(self, filePath, message):
         super(HTMLViewTabbedEditor, self).__init__(None, filePath)
 

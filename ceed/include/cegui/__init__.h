@@ -32,12 +32,17 @@ import os.path
 import PyCEGUI
 import PyCEGUIOpenGLRenderer
 
-class RedirectingCEGUILogger : public PyCEGUI.Logger
-    """Allows us to register subscribers that want CEGUI log info
+/*!
+\brief RedirectingCEGUILogger
+
+Allows us to register subscribers that want CEGUI log info
 
     This prevents writing CEGUI.log into CWD and will allow log display inside
     the app in the future
-    """
+
+*/
+class RedirectingCEGUILogger : public PyCEGUI.Logger
+
 
     def __init__(self):
         # don't use super here, PyCEGUI.Logger is an old-style class
@@ -58,22 +63,32 @@ class RedirectingCEGUILogger : public PyCEGUI.Logger
         # this is just a NOOP to satisfy CEGUI pure virtual method of the same name
         pass
 
-class GLContextProvider : public object
-    """Interface that provides a method to make OpenGL context
+/*!
+\brief GLContextProvider
+
+Interface that provides a method to make OpenGL context
     suitable for CEGUI the current context.
-    """
+
+*/
+class GLContextProvider : public object
+
 
     def makeGLContextCurrent(self):
         """Activates the OpenGL context held by this provider"""
 
         raise NotImplementedError("All classes inheriting GLContextProvider must override GLContextProvider.makeGLContextCurrent")
 
-class Instance : public object
-    """Encapsulates a running CEGUI instance.
+/*!
+\brief Instance
+
+Encapsulates a running CEGUI instance.
 
     Right now CEGUI can only be instantiated once because it's full of singletons.
     This might change in the future though...
-    """
+
+*/
+class Instance : public object
+
 
     def __init__(self, contextProvider = None):
         self.contextProvider = contextProvider

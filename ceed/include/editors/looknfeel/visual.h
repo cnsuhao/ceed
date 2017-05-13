@@ -196,9 +196,14 @@ class LookNFeelVisualEditing : public QtGui.QWidget, multi.EditMode
         return ret
 
 
+/*!
+\brief LookNFeelWidgetLookSelectorWidget
+
+This dock widget allows to select a WidgetLook from a combobox and start editing it
+
+*/
 class LookNFeelWidgetLookSelectorWidget : public QtGui.QDockWidget
-    """This dock widget allows to select a WidgetLook from a combobox and start editing it
-    """
+
 
     def __init__(self, visual, tabbedEditor):
         """
@@ -259,12 +264,17 @@ class LookNFeelWidgetLookSelectorWidget : public QtGui.QDockWidget
         self.fileNameLabel.setToolTip(fileNameStr)
 
 
-class EditingScene : public cegui_widgethelpers.GraphicsScene
-    """This scene contains all the manipulators users want to interact it. You can visualise it as the
+/*!
+\brief EditingScene
+
+This scene contains all the manipulators users want to interact it. You can visualise it as the
     visual editing centre screen where CEGUI is rendered.
 
     It renders CEGUI on it's background and outlines (via Manipulators) in front of it.
-    """
+
+*/
+class EditingScene : public cegui_widgethelpers.GraphicsScene
+
 
     def __init__(self, visual):
         super(EditingScene, self).__init__(mainwindow.MainWindow.instance.ceguiInstance)

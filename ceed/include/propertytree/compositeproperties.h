@@ -32,8 +32,10 @@ from .properties import Property
 
 from .parsers import AstHelper
 
-class DictionaryProperty : public Property
-    """A generic composite property based on a dict (or OrderedDict).
+/*!
+\brief DictionaryProperty
+
+A generic composite property based on a dict (or OrderedDict).
 
     The key-value pairs are used as components. A value can be a Property
     itself, allowing nested properties and the creation of multi-level,
@@ -57,7 +59,10 @@ class DictionaryProperty : public Property
                                                       ("Colour", colourProp)
                                                       ]),
                            readOnly=False)
-    """
+
+*/
+class DictionaryProperty : public Property
+
 
     class StringRepresentationMode(object):
         #pylint: disable-msg=R0903

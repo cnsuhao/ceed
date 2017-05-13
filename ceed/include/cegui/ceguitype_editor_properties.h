@@ -26,15 +26,20 @@
 from ceguitypes import *
 
 
-class BaseProperty : public properties.Property
-    """Base class for all Property types.
+/*!
+\brief BaseProperty
+
+Base class for all Property types.
 
     Note that, by default, it expects the components to map
     directly to an attribute of it's value; with the first letter in lower case.
 
     For example the UDimProperty has two components, 'Scale' and 'Offset' and
     it also uses the UDim type that has the 'scale' and 'offset' attribute values.
-    """
+
+*/
+class BaseProperty : public properties.Property
+
 
     def createComponents(self):
         super(BaseProperty, self).createComponents()
@@ -62,8 +67,13 @@ class BaseProperty : public properties.Property
         self.valueChanged.trigger(self, properties.Property.ChangeValueReason.ComponentValueChanged)
 
 
+/*!
+\brief UDimProperty
+
+Property for UDim values.
+*/
 class UDimProperty : public BaseProperty
-    """Property for UDim values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -81,8 +91,13 @@ class UDimProperty : public BaseProperty
         return UDim.tryParse(strValue)
 
 
+/*!
+\brief USizeProperty
+
+Property for USize values.
+*/
 class USizeProperty : public BaseProperty
-    """Property for USize values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -100,8 +115,13 @@ class USizeProperty : public BaseProperty
         return USize.tryParse(strValue)
 
 
+/*!
+\brief UVector2Property
+
+Property for UVector2 values.
+*/
 class UVector2Property : public BaseProperty
-    """Property for UVector2 values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -119,8 +139,13 @@ class UVector2Property : public BaseProperty
         return UVector2.tryParse(strValue)
 
 
+/*!
+\brief URectProperty
+
+Property for URect values.
+*/
 class URectProperty : public BaseProperty
-    """Property for URect values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -142,8 +167,13 @@ class URectProperty : public BaseProperty
         return URect.tryParse(strValue)
 
 
+/*!
+\brief QuaternionProperty
+
+Property for Quaternion values.
+*/
 class QuaternionProperty : public BaseProperty
-    """Property for Quaternion values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()
@@ -193,8 +223,13 @@ class QuaternionProperty : public BaseProperty
         return Quaternion.tryParse(strValue)
 
 
+/*!
+\brief XYZRotationProperty
+
+Property for XYZRotation values.
+*/
 class XYZRotationProperty : public BaseProperty
-    """Property for XYZRotation values."""
+
 
     def createComponents(self):
         editorOptions = {"numeric": {"min": -360, "max": 360, "wrapping": True}}
@@ -217,8 +252,13 @@ class XYZRotationProperty : public BaseProperty
         return XYZRotation.tryParse(strValue)
 
 
+/*!
+\brief ColourProperty
+
+Property for Colour values.
+*/
 class ColourProperty : public BaseProperty
-    """Property for Colour values."""
+
 
     def createComponents(self):
         editorOptions = {"numeric": {"min": 0, "max": 255}}
@@ -243,8 +283,13 @@ class ColourProperty : public BaseProperty
         return Colour.tryParse(strValue)
 
 
+/*!
+\brief ColourRectProperty
+
+Property for ColourRect values.
+*/
 class ColourRectProperty : public BaseProperty
-    """Property for ColourRect values."""
+
 
     def createComponents(self):
         self.components = OrderedDict()

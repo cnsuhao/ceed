@@ -37,12 +37,17 @@ from ceed.editors.imageset import undo
 import ceed.ui.editors.imageset.dockwidget
 import cPickle
 
-class ImageEntryItemDelegate : public QtGui.QItemDelegate
-    """The only reason for this is to track when we are editing.
+/*!
+\brief ImageEntryItemDelegate
+
+The only reason for this is to track when we are editing.
 
     We need this to discard key events when editor is open.
     TODO: Isn't there a better way to do this?
-    """
+
+*/
+class ImageEntryItemDelegate : public QtGui.QItemDelegate
+
 
     def __init__(self):
         super(ImageEntryItemDelegate, self).__init__()
@@ -58,9 +63,14 @@ class ImageEntryItemDelegate : public QtGui.QItemDelegate
 
         self.editing = False
 
+/*!
+\brief ImagesetEditorDockWidget
+
+Provides list of images, property editing of currently selected image and create/delete
+
+*/
 class ImagesetEditorDockWidget : public QtGui.QDockWidget
-    """Provides list of images, property editing of currently selected image and create/delete
-    """
+
 
     def __init__(self, visual):
         super(ImagesetEditorDockWidget, self).__init__()

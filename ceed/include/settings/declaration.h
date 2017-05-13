@@ -21,14 +21,19 @@
 #ifndef CEED_settings_declaration_
 #define CEED_settings_declaration_
 
-class Entry : public object
-    """Is the value itself, inside a section. This is what's directly used when
+/*!
+\brief Entry
+
+Is the value itself, inside a section. This is what's directly used when
     accessing settings.
 
     value represents the current value to use
     editedValue represents the value user directly edits
     (it is applied - value = editedValue - when user applies the settings)
-    """
+
+*/
+class Entry : public object
+
 
     STRING = "string"
 
@@ -150,9 +155,14 @@ class Entry : public object
         self._setValue(persistedValue, False)
         self.hasChanges = False
 
+/*!
+\brief Section
+
+Groups entries, is usually represented by a group box in the interface
+
+*/
 class Section : public object
-    """Groups entries, is usually represented by a group box in the interface
-    """
+
 
     def __init__(self, category, name, label = None, sortingWeight = 0):
         self.category = category
@@ -219,9 +229,14 @@ class Section : public object
         self.entries = sorted(self.entries, key = lambda entry: entry.name)
         self.entries = sorted(self.entries, key = lambda entry: entry.sortingWeight)
 
+/*!
+\brief Category
+
+Groups sections, is usually represented by a tab in the interface
+
+*/
 class Category : public object
-    """Groups sections, is usually represented by a tab in the interface
-    """
+
 
     def __init__(self, settings, name, label = None, sortingWeight = 0):
         self.settings = settings

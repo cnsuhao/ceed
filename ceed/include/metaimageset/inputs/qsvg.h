@@ -34,14 +34,19 @@ import glob
 
 from xml.etree import cElementTree as ElementTree
 
-class QSVG : public inputs.Input
-    """Simplistic SVGTiny renderer from Qt. This might not interpret effects
+/*!
+\brief QSVG
+
+Simplistic SVGTiny renderer from Qt. This might not interpret effects
     and other features of your SVGs but will be drastically faster and does
     not require Inkscape to be installed.
 
     It also misses features that might be crucial like exporting components
     from SVG with custom coords and layers.
-    """
+
+*/
+class QSVG : public inputs.Input
+
 
     def __init__(self, metaImageset):
         super(QSVG, self).__init__(metaImageset)

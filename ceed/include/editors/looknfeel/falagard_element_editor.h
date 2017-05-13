@@ -36,9 +36,14 @@ from ceed.propertytree.editors import PropertyEditorRegistry
 from ceed.editors.looknfeel import undoable_commands
 
 
+/*!
+\brief LookNFeelFalagardElementEditorDockWidget
+
+This dock widget allows to add, remove or edit the Property, PropertyDefinition and PropertyLinkDefinition elements of a WidgetLook
+
+*/
 class LookNFeelFalagardElementEditorDockWidget : public QtGui.QDockWidget
-    """This dock widget allows to add, remove or edit the Property, PropertyDefinition and PropertyLinkDefinition elements of a WidgetLook
-    """
+
 
     def __init__(self, visual, tabbedEditor):
         """
@@ -61,10 +66,15 @@ class LookNFeelFalagardElementEditorDockWidget : public QtGui.QDockWidget
         self.setWidget(self.inspector)
 
 
-class FalagardElementEditorProperty : public pt.properties.SinglePropertyWrapper
-    """Overrides the default Property to update the 'inner properties'
+/*!
+\brief FalagardElementEditorProperty
+
+Overrides the default Property to update the 'inner properties'
     and to create undoable commands that update the WidgetLookFeel element.
-    """
+
+*/
+class FalagardElementEditorProperty : public pt.properties.SinglePropertyWrapper
+
 
     def __init__(self, ownedProperty, falagardElement, attributeName, visual):
         super(FalagardElementEditorProperty, self).__init__(ownedProperty)

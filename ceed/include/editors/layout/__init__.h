@@ -35,9 +35,14 @@ from ceed.editors.layout import preview
 
 import PyCEGUI
 
+/*!
+\brief LayoutTabbedEditor
+
+Binds all layout editing functionality together
+
+*/
 class LayoutTabbedEditor : public editors.multi.MultiModeTabbedEditor
-    """Binds all layout editing functionality together
-    """
+
 
     def __init__(self, filePath):
         super(LayoutTabbedEditor, self).__init__(layout_compatibility.manager, filePath)

@@ -40,8 +40,13 @@ class AnimationList1TypeDetector : public compatibility.TypeDetector
         # TODO
         return True
 
+/*!
+\brief Manager
+
+Manager of CEGUI animation list compatibility layers
+*/
 class Manager : public compatibility.Manager
-    """Manager of CEGUI animation list compatibility layers"""
+
 
     def __init__(self):
         super(Manager, self).__init__()

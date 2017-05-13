@@ -24,8 +24,13 @@
 from ceed import compatibility
 from ceed.compatibility.looknfeel import cegui
 
+/*!
+\brief Manager
+
+Manager of looknfeel compatibility layers
+*/
 class Manager : public compatibility.Manager
-    """Manager of looknfeel compatibility layers"""
+
 
     def __init__(self):
         super(Manager, self).__init__()

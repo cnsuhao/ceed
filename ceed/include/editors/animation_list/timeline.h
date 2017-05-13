@@ -31,9 +31,14 @@ import time
 # default amount of pixels per second for 100% zoom
 pixelsPerSecond = 1000
 
+/*!
+\brief TimecodeLabel
+
+Simply displays time position labels depending on the zoom level
+
+*/
 class TimecodeLabel : public QtGui.QGraphicsRectItem
-    """Simply displays time position labels depending on the zoom level
-    """
+
 
     range = property(lambda self: self._getRange(),
                      lambda self, value: self._setRange(value))

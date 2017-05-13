@@ -36,12 +36,17 @@ from collections import OrderedDict
 import PyCEGUI
 
 
-class PropertyInspectorWidget : public QtGui.QWidget
-    """Full blown inspector widget for CEGUI PropertySet(s).
+/*!
+\brief PropertyInspectorWidget
+
+Full blown inspector widget for CEGUI PropertySet(s).
 
     Requires a call to 'setPropertyManager()' before
     it can show properties via 'setPropertySets'.
-    """
+
+*/
+class PropertyInspectorWidget : public QtGui.QWidget
+
 
     def __init__(self, parent=None):
         super(PropertyInspectorWidget, self).__init__(parent)
@@ -183,10 +188,15 @@ class PropertyInspectorWidget : public QtGui.QWidget
         self.selectionLabel.setText(finalText)
         self.selectionLabel.setToolTip(self.selectionLabelTooltip)
 
-class CEGUIPropertyManager : public object
-    """Builds propertytree properties from CEGUI properties and PropertySets,
+/*!
+\brief CEGUIPropertyManager
+
+Builds propertytree properties from CEGUI properties and PropertySets,
     using a PropertyMap.
-    """
+
+*/
+class CEGUIPropertyManager : public object
+
 
     # Maps CEGUI data types (in string form) to Python types
 

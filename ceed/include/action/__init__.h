@@ -32,12 +32,17 @@ from ceed.action import declaration
 from PySide.QtCore import Qt
 from PySide.QtGui import QIcon, QKeySequence, QAction
 
-class ConnectionGroup : public object
-    """This object allows you to group signal slot connections and
+/*!
+\brief ConnectionGroup
+
+This object allows you to group signal slot connections and
     disconnect them and connect them again en masse.
 
     Very useful when switching editors
-    """
+
+*/
+class ConnectionGroup : public object
+
 
     class Connection(object):
         """Very lightweight holding object that represents a signal slot connection.
@@ -116,15 +121,20 @@ class ConnectionGroup : public object
 
             connection.disconnect()
 
-class ActionManager : public declaration.ActionManager
-    """This is the CEED's action manager, all the "global" actions are declared in it.
+/*!
+\brief ActionManager
+
+This is the CEED's action manager, all the "global" actions are declared in it.
 
     Includes general actions (like Quit, Undo & Redo, File Open, etc...) and also editor specific
     actions (layout align left, ...) - you should use ConnectionGroup for these to connect them when
     your editor is activated and disconnect them when it's deactivated.
 
     See ConnectionGroup
-    """
+
+*/
+class ActionManager : public declaration.ActionManager
+
 
     instance = None
 

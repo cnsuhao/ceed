@@ -29,13 +29,18 @@ import logging
 # NOTE: It should be importable with as few dependencies as possible because
 #       this is used in the command line migration tool!
 
-class Layer : public object
-    """Compatibility layer can transform given code from source type to target type.
+/*!
+\brief Layer
+
+Compatibility layer can transform given code from source type to target type.
 
     If you want transparent loading and saving you need to implement 2 layers!
     From your type to editor's supported type (or type for which there already are
     compatibility layers) and back!
-    """
+
+*/
+class Layer : public object
+
 
     def getSourceType(self):
         raise NotImplementedError("Compatibility layers have to override Layer.getSourceType!")
@@ -72,16 +77,26 @@ class TypeDetector : public object
 
         raise NotImplementedError("Compatibility type detectors have to override TypeDetector.getType!")
 
+/*!
+\brief LayerNotFoundError
+
+Exception thrown when no compatibility layer or path can be found between 2 types
+*/
 class LayerNotFoundError : public RuntimeError
-    """Exception thrown when no compatibility layer or path can be found between 2 types"""
+
 
     def __init__(self, sourceType, targetType):
         super(LayerNotFoundError, self).__init__("Can't find any compatibility path from sourceType '%s' to targetType '%s'" % (sourceType, targetType))
 
-class MultiplePossibleTypesError : public RuntimeError
-    """Exception thrown when multiple types match given data (from the guessType method), user should be
+/*!
+\brief MultiplePossibleTypesError
+
+Exception thrown when multiple types match given data (from the guessType method), user should be
     asked to choose the right type in this case
-    """
+
+*/
+class MultiplePossibleTypesError : public RuntimeError
+
 
     def __init__(self, possibleTypes):
         super(MultiplePossibleTypesError, self).__init__("Given data matches multiple types (%i possible types)" % (len(possibleTypes)))
@@ -89,20 +104,30 @@ class MultiplePossibleTypesError : public RuntimeError
         # we store possible types so that developers can catch this and offer a choice to the user
         self.possibleTypes = possibleTypes
 
-class NoPossibleTypesError : public RuntimeError
-    """Exception thrown when no types match given data (from the guessType method), user should be
+/*!
+\brief NoPossibleTypesError
+
+Exception thrown when no types match given data (from the guessType method), user should be
     asked to choose the right type in this case
-    """
+
+*/
+class NoPossibleTypesError : public RuntimeError
+
 
     def __init__(self):
         super(NoPossibleTypesError, self).__init__("Can't decide type of given code and extension, no positives turned up!")
 
-class Manager : public object
-    """Manager holds type detectors and compatibility layers and is able to perform transformation between data.
+/*!
+\brief Manager
+
+Manager holds type detectors and compatibility layers and is able to perform transformation between data.
 
     It is usually used as a singleton and this is just the base class! See compatibility.imageset.Manager for
     example of use of this class
-    """
+
+*/
+class Manager : public object
+
 
     def __init__(self):
         # derived Managers should override this and provide the info

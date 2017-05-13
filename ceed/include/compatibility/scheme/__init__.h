@@ -24,8 +24,13 @@
 from ceed import compatibility
 from ceed.compatibility.scheme import cegui
 
+/*!
+\brief Manager
+
+Manager of scheme compatibility layers
+*/
 class Manager : public compatibility.Manager
-    """Manager of scheme compatibility layers"""
+
 
     def __init__(self):
         super(Manager, self).__init__()

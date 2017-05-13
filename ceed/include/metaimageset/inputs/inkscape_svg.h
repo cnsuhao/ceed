@@ -291,13 +291,18 @@ class FrameComponent : public object
 
         return self.cachedImages
 
-class InkscapeSVG : public inputs.Input
-    """Just one particular SVGs, support advanced features and renders everything
+/*!
+\brief InkscapeSVG
+
+Just one particular SVGs, support advanced features and renders everything
     using Inkscape, the output should be of higher quality than the SVGTiny renderer
     above. Requires Inkscape to be installed and the inkscape binary to be in $PATH.
 
     Each component is one "image" to be passed to the metaimageset compiler.
-    """
+
+*/
+class InkscapeSVG : public inputs.Input
+
 
     def __init__(self, metaImageset):
         super(InkscapeSVG, self).__init__(metaImageset)

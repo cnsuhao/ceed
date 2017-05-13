@@ -58,9 +58,14 @@ import PyCEGUI
 import re
 
 
+/*!
+\brief LookNFeelTabbedEditor
+
+Binds all Look n' Feel editing functionality together
+
+*/
 class LookNFeelTabbedEditor : public MultiModeTabbedEditor
-    """Binds all Look n' Feel editing functionality together
-    """
+
 
     def __init__(self, filePath):
         super(LookNFeelTabbedEditor, self).__init__(looknfeel_compatibility.manager, filePath)

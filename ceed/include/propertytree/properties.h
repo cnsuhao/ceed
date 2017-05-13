@@ -40,10 +40,15 @@ from collections import OrderedDict
 from . import utility
 
 
-class PropertyCategory : public object
-    """A category for properties.
+/*!
+\brief PropertyCategory
+
+A category for properties.
     Categories have a name and hold a list of properties.
-    """
+
+*/
+class PropertyCategory : public object
+
     def __init__(self, name):
         """Initialise the instance with the specified name."""
         self.name = name
@@ -81,8 +86,13 @@ class PropertyCategory : public object
 
         self.properties = OrderedDict(sorted(self.properties.items(), key=getSortKey, reverse=reverse))
 
+/*!
+\brief PropertyEventSubscription
+
+A subscription to a PropertyEvent.
+*/
 class PropertyEventSubscription : public object
-    """A subscription to a PropertyEvent."""
+
 
     def __init__(self, callback, excludedReasons=None, includedReasons=None):
         """Initialise the subscription to call the specified callback.
@@ -197,13 +207,18 @@ class PropertyEvent : public object
         finally:
             self.recursionDepth -= 1
 
-class Property : public object
-    """A property which is the base for all properties.
+/*!
+\brief Property
+
+A property which is the base for all properties.
 
     The most important fields of a property are 'name' and 'value'.
     A property instance should be able to return the type of its value
     and has a simple mechanism to notify others when its value changes.
-    """
+
+*/
+class Property : public object
+
 
     # TODO: Is it necessary to set this to False for releases or is
     # the release made with optimisations?
@@ -431,10 +446,15 @@ class Property : public object
 
         return utility.getDictionaryTreePath(self.editorOptions, path, defaultValue)
 
-class StringWrapperProperty : public Property
-    """Special purpose property used to wrap the string value
+/*!
+\brief StringWrapperProperty
+
+Special purpose property used to wrap the string value
     of another property so it can be edited.
-    """
+
+*/
+class StringWrapperProperty : public Property
+
 
     def __init__(self, innerProperty, instantApply=False):
         super(StringWrapperProperty, self).__init__(innerProperty.name + "__wrapper__",
@@ -460,8 +480,13 @@ class StringWrapperProperty : public Property
 
         return False
 
+/*!
+\brief MultiPropertyWrapper
+
+Special purpose property used to group many properties of the same type in one.
+*/
 class MultiPropertyWrapper : public Property
-    """Special purpose property used to group many properties of the same type in one."""
+
 
     @classmethod
     def gatherValueData(cls, properties):
@@ -603,9 +628,14 @@ class MultiPropertyWrapper : public Property
 
         self.setValue(self.allValues[0], Property.ChangeValueReason.InnerValueChanged)
 
+/*!
+\brief SinglePropertyWrapper
+
+A property wrapper that can be used for inheritation and in that way, for overriding functions.
+    Owns a property of a specific type.
+*/
 class SinglePropertyWrapper : public Property
-    """A property wrapper that can be used for inheritation and in that way, for overriding functions.
-    Owns a property of a specific type."""
+
 
     def __init__(self, wrappedProperty):
         """Initialise the instance with the specified properties.
@@ -674,12 +704,17 @@ class SinglePropertyWrapper : public Property
         # Unnecessary? if reason == Property.ChangeValueReason.ComponentValueChanged:
         self.setValue(self.wrappedProperty.value, reason)
 
-class EnumValue : public object
-    """Interface for properties that have a predetermined list
+/*!
+\brief EnumValue
+
+Interface for properties that have a predetermined list
     of possible values, like enums.
 
     Used by the EnumValuePropertyEditor (combo box).
-    """
+
+*/
+class EnumValue : public object
+
     #pylint: disable-msg=R0903
     # too few public methods (1/2) - it's an interface
 

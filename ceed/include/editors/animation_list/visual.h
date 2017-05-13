@@ -40,9 +40,14 @@ from ceed import propertytree
 from xml.etree import cElementTree as ElementTree
 from ceed import xmledit
 
+/*!
+\brief AnimationListDockWidget
+
+Lists animations in the currently opened animation list XML
+
+*/
 class AnimationListDockWidget : public QtGui.QDockWidget
-    """Lists animations in the currently opened animation list XML
-    """
+
 
     def __init__(self, visual):
         super(AnimationListDockWidget, self).__init__()
@@ -68,9 +73,14 @@ class AnimationListDockWidget : public QtGui.QDockWidget
         cmd = undo.ChangeCurrentAnimationDefinitionCommand(self.visual, newName, oldName)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
+/*!
+\brief PropertiesDockWidget
+
+Lists and allows editing of properties at current position of the timeline
+
+*/
 class PropertiesDockWidget : public QtGui.QDockWidget
-    """Lists and allows editing of properties at current position of the timeline
-    """
+
 
     def __init__(self, visual):
         super(PropertiesDockWidget, self).__init__()
@@ -89,9 +99,14 @@ class PropertiesDockWidget : public QtGui.QDockWidget
 
         self.setWidget(self.inspector)
 
+/*!
+\brief KeyFramePropertiesDockWidget
+
+Lists and allows editing of properties at current position of the timeline
+
+*/
 class KeyFramePropertiesDockWidget : public QtGui.QDockWidget
-    """Lists and allows editing of properties at current position of the timeline
-    """
+
 
     def __init__(self, visual):
         super(KeyFramePropertiesDockWidget, self).__init__()
@@ -185,9 +200,14 @@ class TimelineGraphicsView : public QtGui.QGraphicsView
 
         self.dockWidget.timeline.notifyMouseReleased()
 
+/*!
+\brief TimelineDockWidget
+
+Shows a timeline of currently selected animation (from the animation list dock widget)
+
+*/
 class TimelineDockWidget : public QtGui.QDockWidget
-    """Shows a timeline of currently selected animation (from the animation list dock widget)
-    """
+
 
     def __init__(self, visual):
         super(TimelineDockWidget, self).__init__()
@@ -243,18 +263,28 @@ class TimelineDockWidget : public QtGui.QDockWidget
         cmd = undo.MoveKeyFramesCommand(self.visual, movedKeyFrames)
         self.visual.tabbedEditor.undoStack.push(cmd)
 
+/*!
+\brief EditingScene
+
+This scene is used just to preview the animation in the state user selects.
+
+*/
 class EditingScene : public cegui.widgethelpers.GraphicsScene
-    """This scene is used just to preview the animation in the state user selects.
-    """
+
 
     def __init__(self, visual):
         super(EditingScene, self).__init__(mainwindow.MainWindow.instance.ceguiInstance)
 
         self.visual = visual
 
+/*!
+\brief AnimationDefinitionWrapper
+
+Represents one of the animations in the list, takes care of loading and saving it from/to XML element
+
+*/
 class AnimationDefinitionWrapper : public object
-    """Represents one of the animations in the list, takes care of loading and saving it from/to XML element
-    """
+
 
     def __init__(self, visual):
         self.visual = visual

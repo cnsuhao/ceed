@@ -35,14 +35,19 @@ from ceed import resizable
 from ceed import cegui
 from ceed import qtwidgets
 
-class GraphicsScene : public QtGui.QGraphicsScene
-    """A scene that draws CEGUI as it's background.
+/*!
+\brief GraphicsScene
+
+A scene that draws CEGUI as it's background.
 
     Subclass this to be able to show Qt graphics items and widgets
     on top of the embedded CEGUI widget!
 
     Interaction is also supported
-    """
+
+*/
+class GraphicsScene : public QtGui.QGraphicsScene
+
 
     def __init__(self, ceguiInstance):
         super(GraphicsScene, self).__init__()

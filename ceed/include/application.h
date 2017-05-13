@@ -36,9 +36,14 @@ class SplashScreen : public QSplashScreen
         self.setWindowFlags(Qt.SplashScreen | Qt.WindowStaysOnTopHint)
         self.showMessage("version: %s" % (version.CEED), Qt.AlignTop | Qt.AlignRight, Qt.GlobalColor.white)
 
+/*!
+\brief Application
+
+The central application class
+
+*/
 class Application : public QApplication
-    """The central application class
-    """
+
 
     def __init__(self, argv, debug = False):
         super(Application, self).__init__(argv)

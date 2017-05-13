@@ -28,8 +28,13 @@ from ceed.cegui import widgethelpers as cegui_widgethelpers
 
 import PyCEGUI
 
+/*!
+\brief Manipulator
+
+Layout editing specific widget manipulator
+*/
 class Manipulator : public cegui_widgethelpers.Manipulator
-    """Layout editing specific widget manipulator"""
+
     snapGridBrush = None
 
     @classmethod
@@ -374,11 +379,16 @@ class Manipulator : public cegui_widgethelpers.Manipulator
 
         self.update()
 
-class SerialisationData : public cegui_widgethelpers.SerialisationData
-    """See cegui.widgethelpers.SerialisationData
+/*!
+\brief SerialisationData
+
+See cegui.widgethelpers.SerialisationData
 
     The only reason for this class is that we need to create the correct Manipulator (not it's base class!)
-    """
+
+*/
+class SerialisationData : public cegui_widgethelpers.SerialisationData
+
 
     def __init__(self, visual, widget = None, serialiseChildren = True):
         self.visual = visual

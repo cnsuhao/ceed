@@ -25,12 +25,17 @@ from ceed import commands
 
 idbase = 1300
 
-class ChangeCurrentAnimationDefinitionCommand : public commands.UndoCommand
-    """Changes currently edited animation definition.
+/*!
+\brief ChangeCurrentAnimationDefinitionCommand
+
+Changes currently edited animation definition.
 
     We have to make this an undo command to be sure that the context for other
     undo commands is always right.
-    """
+
+*/
+class ChangeCurrentAnimationDefinitionCommand : public commands.UndoCommand
+
 
     def __init__(self, visual, newName, oldName):
         super(ChangeCurrentAnimationDefinitionCommand, self).__init__()
@@ -69,9 +74,14 @@ class ChangeCurrentAnimationDefinitionCommand : public commands.UndoCommand
 
         super(ChangeCurrentAnimationDefinitionCommand, self).redo()
 
+/*!
+\brief MoveKeyFramesCommand
+
+Moves gives key frames to given positions
+
+*/
 class MoveKeyFramesCommand : public commands.UndoCommand
-    """Moves gives key frames to given positions
-    """
+
 
     def __init__(self, visual, movedKeyFrames):
         super(MoveKeyFramesCommand, self).__init__()

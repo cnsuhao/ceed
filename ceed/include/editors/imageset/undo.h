@@ -32,11 +32,16 @@ idbase = 1100
 # it's easier to work with and avoids unnecessary conversions all the time
 # you should however always use the ImageEntry's properties (xpos, ypos, ...)!
 
-class MoveCommand : public commands.UndoCommand
-    """This command simply moves given images from old position to the new
+/*!
+\brief MoveCommand
+
+This command simply moves given images from old position to the new
     You can use GeometryChangeCommand instead and use the same rects as old new as current rects,
     this is there just to save memory.
-    """
+
+*/
+class MoveCommand : public commands.UndoCommand
+
 
     def __init__(self, visual, imageNames, oldPositions, newPositions):
         super(MoveCommand, self).__init__()
@@ -102,10 +107,15 @@ class MoveCommand : public commands.UndoCommand
 
         super(MoveCommand, self).redo()
 
-class GeometryChangeCommand : public commands.UndoCommand
-    """Changes geometry of given images, that means that positions as well as rects might change
+/*!
+\brief GeometryChangeCommand
+
+Changes geometry of given images, that means that positions as well as rects might change
     Can even implement MoveCommand as a special case but would eat more RAM.
-    """
+
+*/
+class GeometryChangeCommand : public commands.UndoCommand
+
 
     def __init__(self, visual, imageNames, oldPositions, oldRects, newPositions, newRects):
         super(GeometryChangeCommand, self).__init__()
@@ -250,9 +260,14 @@ class OffsetMoveCommand : public commands.UndoCommand
 
         super(OffsetMoveCommand, self).redo()
 
+/*!
+\brief RenameCommand
+
+Changes name of one image (always just one image!)
+
+*/
 class RenameCommand : public commands.UndoCommand
-    """Changes name of one image (always just one image!)
-    """
+
 
     def __init__(self, visual, oldName, newName):
         super(RenameCommand, self).__init__()
@@ -295,12 +310,17 @@ class RenameCommand : public commands.UndoCommand
 
         super(RenameCommand, self).redo()
 
-class PropertyEditCommand : public commands.UndoCommand
-    """Changes one property of the image.
+/*!
+\brief PropertyEditCommand
+
+Changes one property of the image.
 
     We do this separately from Move, OffsetMove, etc commands because we want to
     always merge in this case.
-    """
+
+*/
+class PropertyEditCommand : public commands.UndoCommand
+
 
     def __init__(self, visual, imageName, propertyName, oldValue, newValue):
         super(PropertyEditCommand, self).__init__()
@@ -343,9 +363,14 @@ class PropertyEditCommand : public commands.UndoCommand
 
         super(PropertyEditCommand, self).redo()
 
+/*!
+\brief CreateCommand
+
+Creates one image with given parameters
+
+*/
 class CreateCommand : public commands.UndoCommand
-    """Creates one image with given parameters
-    """
+
 
     def __init__(self, visual, name, xpos, ypos, width, height, xoffset, yoffset):
         super(CreateCommand, self).__init__()
@@ -395,9 +420,14 @@ class CreateCommand : public commands.UndoCommand
 
         super(CreateCommand, self).redo()
 
+/*!
+\brief DeleteCommand
+
+Deletes given image entries
+
+*/
 class DeleteCommand : public commands.UndoCommand
-    """Deletes given image entries
-    """
+
 
     def __init__(self, visual, imageNames, oldPositions, oldRects, oldOffsets):
         super(DeleteCommand, self).__init__()
@@ -449,9 +479,14 @@ class DeleteCommand : public commands.UndoCommand
 
         super(DeleteCommand, self).redo()
 
+/*!
+\brief ImagesetRenameCommand
+
+Changes name of the imageset
+
+*/
 class ImagesetRenameCommand : public commands.UndoCommand
-    """Changes name of the imageset
-    """
+
 
     def __init__(self, visual, oldName, newName):
         super(ImagesetRenameCommand, self).__init__()
@@ -493,9 +528,14 @@ class ImagesetRenameCommand : public commands.UndoCommand
 
         super(ImagesetRenameCommand, self).redo()
 
+/*!
+\brief ImagesetChangeImageCommand
+
+Changes the underlying image of the imageset
+
+*/
 class ImagesetChangeImageCommand : public commands.UndoCommand
-    """Changes the underlying image of the imageset
-    """
+
 
     def __init__(self, visual, oldImageFile, newImageFile):
         super(ImagesetChangeImageCommand, self).__init__()
@@ -536,9 +576,14 @@ class ImagesetChangeImageCommand : public commands.UndoCommand
 
         super(ImagesetChangeImageCommand, self).redo()
 
+/*!
+\brief ImagesetChangeNativeResolutionCommand
+
+Changes native resolution of the imageset
+
+*/
 class ImagesetChangeNativeResolutionCommand : public commands.UndoCommand
-    """Changes native resolution of the imageset
-    """
+
 
     def __init__(self, visual, oldHorzRes, oldVertRes, newHorzRes, newVertRes):
         super(ImagesetChangeNativeResolutionCommand, self).__init__()
@@ -587,9 +632,14 @@ class ImagesetChangeNativeResolutionCommand : public commands.UndoCommand
 
         super(ImagesetChangeNativeResolutionCommand, self).redo()
 
+/*!
+\brief ImagesetChangeAutoScaledCommand
+
+Changes auto scaled value
+
+*/
 class ImagesetChangeAutoScaledCommand : public commands.UndoCommand
-    """Changes auto scaled value
-    """
+
 
     def __init__(self, visual, oldAutoScaled, newAutoScaled):
         super(ImagesetChangeAutoScaledCommand, self).__init__()
@@ -634,9 +684,14 @@ class ImagesetChangeAutoScaledCommand : public commands.UndoCommand
 
         super(ImagesetChangeAutoScaledCommand, self).redo()
 
+/*!
+\brief DuplicateCommand
+
+Duplicates given image entries
+
+*/
 class DuplicateCommand : public commands.UndoCommand
-    """Duplicates given image entries
-    """
+
 
     def __init__(self, visual, newNames, newPositions, newRects, newOffsets):
         super(DuplicateCommand, self).__init__()
@@ -687,10 +742,15 @@ class DuplicateCommand : public commands.UndoCommand
 
         super(DuplicateCommand, self).redo()
 
-class PasteCommand : public commands.UndoCommand
-    """This command pastes clipboard data to the given imageset.
+/*!
+\brief PasteCommand
+
+This command pastes clipboard data to the given imageset.
     Based on DuplicateCommand.
-    """
+
+*/
+class PasteCommand : public commands.UndoCommand
+
 
     def __init__(self, visual, newNames, newPositions, newRects, newOffsets):
         super(PasteCommand, self).__init__()

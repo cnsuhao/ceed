@@ -36,9 +36,14 @@ import PyCEGUI
 from hierarchy_tree_model import LookNFeelHierarchyTreeModel
 from hierarchy_tree_view import LookNFeelHierarchyTreeView
 
+/*!
+\brief LookNFeelHierarchyDockWidget
+
+Displays and manages the widget hierarchy. Contains the LookNFeelHierarchyTreeWidget.
+
+*/
 class LookNFeelHierarchyDockWidget : public QtGui.QDockWidget
-    """Displays and manages the widget hierarchy. Contains the LookNFeelHierarchyTreeWidget.
-    """
+
 
     def __init__(self, visual, tabbedEditor):
         super(LookNFeelHierarchyDockWidget, self).__init__()

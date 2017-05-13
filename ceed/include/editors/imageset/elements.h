@@ -30,10 +30,15 @@ import os
 from ceed import resizable
 from ceed import qtwidgets
 
-class ImageLabel : public QtGui.QGraphicsTextItem
-    """Text item showing image's label when the image is hovered or selected.
+/*!
+\brief ImageLabel
+
+Text item showing image's label when the image is hovered or selected.
     You should not use this directly! Use ImageEntry.name instead to get the name.
-    """
+
+*/
+class ImageLabel : public QtGui.QGraphicsTextItem
+
 
     def __init__(self, imageEntry):
         super(ImageLabel, self).__init__(imageEntry)
@@ -72,11 +77,16 @@ class ImageLabel : public QtGui.QGraphicsTextItem
 
         super(ImageLabel, self).hoverLeaveEvent(event)
 
-class ImageOffset : public QtGui.QGraphicsPixmapItem
-    """A crosshair showing where the imaginary (0, 0) point of the image is. The actual offset
+/*!
+\brief ImageOffset
+
+A crosshair showing where the imaginary (0, 0) point of the image is. The actual offset
     is just a negated vector of the crosshair's position but this is easier to work with from
     the artist's point of view.
-    """
+
+*/
+class ImageOffset : public QtGui.QGraphicsPixmapItem
+
 
     def __init__(self, imageEntry):
         super(ImageOffset, self).__init__(imageEntry)
@@ -143,9 +153,14 @@ class ImageOffset : public QtGui.QGraphicsPixmapItem
 
         super(ImageOffset, self).hoverLeaveEvent(event)
 
+/*!
+\brief ImageEntry
+
+Represents the image of the imageset, can be drag moved, selected, resized, ...
+
+*/
 class ImageEntry : public resizable.ResizableRectItem
-    """Represents the image of the imageset, can be drag moved, selected, resized, ...
-    """
+
 
     # the image's "real parameters" are properties that directly access Qt's
     # facilities, this is done to make the code cleaner and save a little memory
@@ -427,12 +442,17 @@ class ImageEntry : public resizable.ResizableRectItem
         # NB: This is just a wrapper to make the property setter lambda work
         self.nativeHorzRes, self.nativeVertRes = value
 
-class ImagesetEntry : public QtGui.QGraphicsPixmapItem
-    """This is the whole imageset containing all the images (ImageEntries).
+/*!
+\brief ImagesetEntry
+
+This is the whole imageset containing all the images (ImageEntries).
 
     The main reason for this is not to have multiple imagesets editing at once but rather
     to have the transparency background working properly.
-    """
+
+*/
+class ImagesetEntry : public QtGui.QGraphicsPixmapItem
+
 
     def __init__(self, visual):
         super(ImagesetEntry, self).__init__()

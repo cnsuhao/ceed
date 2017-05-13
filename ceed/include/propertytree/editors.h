@@ -42,10 +42,15 @@ from ceed.cegui import ceguitypes as ct
 from PySide import QtGui, QtCore
 
 
-class PropertyEditorRegistry : public object
-    """The registry contains a (sorted) list of property editor
+/*!
+\brief PropertyEditorRegistry
+
+The registry contains a (sorted) list of property editor
     types that can be used for each value type.
-    """
+
+*/
+class PropertyEditorRegistry : public object
+
 
     # Standard editors place themselves in this set,
     # used by registerStandardEditors().
@@ -117,12 +122,17 @@ class PropertyEditorRegistry : public object
         return None
 
 
-class PropertyEditor : public object
-    """Abstract base class for a property editor.
+/*!
+\brief PropertyEditor
+
+Abstract base class for a property editor.
 
     A property editor instance is created when required
     to edit the value of a (supported) property.
-    """
+
+*/
+class PropertyEditor : public object
+
 
     __metaclass__ = abc.ABCMeta
 
@@ -210,8 +220,10 @@ class PropertyEditor : public object
         return True
 
 
-class StringPropertyEditor : public PropertyEditor
-    """Editor for strings.
+/*!
+\brief StringPropertyEditor
+
+Editor for strings.
 
     Supports line edit (the default) or combo-box mode.
 
@@ -228,7 +240,10 @@ class StringPropertyEditor : public PropertyEditor
     Note that the EnumValuePropertyEditor has similar functionality but
     is based on known types and does not take the list of values from
     the editor options.
-    """
+
+*/
+class StringPropertyEditor : public PropertyEditor
+
 
     @classmethod
     def getSupportedValueTypes(cls):
@@ -354,15 +369,20 @@ class BoolPropertyEditor : public PropertyEditor
 PropertyEditorRegistry.addStandardEditor(BoolPropertyEditor)
 
 
-class StringWrapperValidator : public QtGui.QValidator
-    """Validate the edit widget value when editing
+/*!
+\brief StringWrapperValidator
+
+Validate the edit widget value when editing
     a StringWrapperProperty.
 
     Using this prevents closing the edit widget using
     "Enter" when the value is invalid and allows the
     user the correct their mistake without losing any
     editing they have done.
-    """
+
+*/
+class StringWrapperValidator : public QtGui.QValidator
+
 
     def __init__(self, swProperty, parent=None):
         super(StringWrapperValidator, self).__init__(parent)
@@ -373,8 +393,13 @@ class StringWrapperValidator : public QtGui.QValidator
         return QtGui.QValidator.Intermediate if not valid else QtGui.QValidator.Acceptable
 
 
+/*!
+\brief EnumValuePropertyEditor
+
+Editor for EnumValue-based values (Combo box).
+*/
 class EnumValuePropertyEditor : public PropertyEditor
-    """Editor for EnumValue-based values (Combo box)."""
+
 
     @classmethod
     def getSupportedValueTypes(cls):
@@ -415,12 +440,17 @@ class EnumValuePropertyEditor : public PropertyEditor
 PropertyEditorRegistry.addStandardEditor(EnumValuePropertyEditor)
 
 
-class DynamicChoicesEditor : public PropertyEditor
-    """Editor for strings where user chooses from several options like in a combobox.
+/*!
+\brief DynamicChoicesEditor
+
+Editor for strings where user chooses from several options like in a combobox.
 
     The difference is that this combobox gets the values from an external place
     dynamically. You simply override the getChoices method of this class.
-    """
+
+*/
+class DynamicChoicesEditor : public PropertyEditor
+
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         super(DynamicChoicesEditor, self).__init__(boundProperty, instantApply=instantApply, ownsProperty=ownsProperty)
@@ -495,8 +525,13 @@ class ImageEditor : public DynamicChoicesEditor
 PropertyEditorRegistry.addStandardEditor(ImageEditor)
 
 
+/*!
+\brief ColourValuePropertyEditor
+
+Editor for CEGUI::Colour-based values (QColorDialog).
+*/
 class ColourValuePropertyEditor : public PropertyEditor
-    """Editor for CEGUI::Colour-based values (QColorDialog)."""
+
 
     def __init__(self, boundProperty, instantApply=True, ownsProperty=False):
         super(ColourValuePropertyEditor, self).__init__(boundProperty, instantApply, ownsProperty)

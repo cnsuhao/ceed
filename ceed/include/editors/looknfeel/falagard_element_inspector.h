@@ -38,9 +38,14 @@ from falagard_element_editor import FalagardElementEditorProperty
 import PyCEGUI
 
 
+/*!
+\brief FalagardElementAttributesManager
+
+Builds propertytree settings from a CEGUI Falagard element, allowing to edit its attributes in the editor.
+
+*/
 class FalagardElementAttributesManager : public object
-    """Builds propertytree settings from a CEGUI Falagard element, allowing to edit its attributes in the editor.
-    """
+
 
     # Maps CEGUI data types (in string form) to Python types
 
@@ -219,10 +224,15 @@ class FalagardElementAttributesManager : public object
         return FalagardElementEditorProperty(typedProperty, falagardElement, attributeName, self.visual)
 
 
-class FalagardElementSettingCategory : public object
-    """ A category for Falagard element settings.
+/*!
+\brief FalagardElementSettingCategory
+
+ A category for Falagard element settings.
     Categories have a name and hold a list of settings.
-    """
+
+*/
+class FalagardElementSettingCategory : public object
+
 
     def __init__(self, name):
         """Initialise the instance with the specified name."""

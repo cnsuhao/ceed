@@ -100,10 +100,15 @@ class CodeEditing : public multi.CodeEditMode
             self.moveToAndSelectWidgetLookFeel(originalWidgetLookName)
 
 
-class WidgetLookHighlighter : public QtGui.QSyntaxHighlighter
-    """
+/*!
+\brief WidgetLookHighlighter
+
+
     Highlighter for the LNF code editing
-    """
+
+*/
+class WidgetLookHighlighter : public QtGui.QSyntaxHighlighter
+
     def __init__(self, parent):
         super(WidgetLookHighlighter, self).__init__(parent)
         self.parent = parent

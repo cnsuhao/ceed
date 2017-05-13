@@ -28,9 +28,14 @@ from ceed import editors
 #       Scintilla would probably be overkill though, I can't imagine anyone
 #       doing any serious text editing in this application
 
+/*!
+\brief TextTabbedEditor
+
+Multi purpose text editor
+
+*/
 class TextTabbedEditor : public editors.TabbedEditor
-    """Multi purpose text editor
-    """
+
 
     def __init__(self, filePath):
         super(TextTabbedEditor, self).__init__(None, filePath)

@@ -29,8 +29,10 @@ from ceed import commands
 
 from PySide.QtGui import QTabWidget, QTextEdit, QMessageBox, QWidget
 
-class ModeSwitchCommand : public commands.UndoCommand
-    """Undo command that is pushed to the undo stack whenever user switches edit modes.
+/*!
+\brief ModeSwitchCommand
+
+Undo command that is pushed to the undo stack whenever user switches edit modes.
 
     Switching edit mode has to be an undoable command because the other commands might
     or might not make sense if user is not in the right mode.
@@ -38,7 +40,10 @@ class ModeSwitchCommand : public commands.UndoCommand
     This has a drawback that switching to Live Preview (layout editing) and back is
     undoable even though you can't affect the document in any way whilst in Live Preview
     mode.
-    """
+
+*/
+class ModeSwitchCommand : public commands.UndoCommand
+
 
     def __init__(self, tabbedEditor, oldTabIndex, newTabIndex):
         super(ModeSwitchCommand, self).__init__()
@@ -67,11 +72,16 @@ class ModeSwitchCommand : public commands.UndoCommand
 
         super(ModeSwitchCommand, self).redo()
 
-class EditMode : public object
-    """Interface class for the edit mode widgets (more a mixin class)
+/*!
+\brief EditMode
+
+Interface class for the edit mode widgets (more a mixin class)
     This practically just ensures that the inherited classes have activate and deactivate
     methods.
-    """
+
+*/
+class EditMode : public object
+
 
     def __init__(self):
         pass
@@ -97,13 +107,18 @@ class EditMode : public object
 
         return True
 
-class CodeEditModeCommand : public commands.UndoCommand
-    """
+/*!
+\brief CodeEditModeCommand
+
+
     Undo command for code edit mode.
 
     TODO: Extremely memory hungry implementation for now, I have to figure out how to use my own
     QUndoStack with QTextDocument in the future to fix this.
-    """
+
+*/
+class CodeEditModeCommand : public commands.UndoCommand
+
 
     def __init__(self, codeEditing, oldText, newText, totalChange):
         super(CodeEditModeCommand, self).__init__()

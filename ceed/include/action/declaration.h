@@ -31,12 +31,17 @@ there are serious reasons not to do that.
 from PySide.QtCore import Qt
 from PySide.QtGui import QAction, QKeySequence, QIcon
 
-class Action : public QAction
-    """The only thing different in this from QAction is the ability to change the shortcut of it
+/*!
+\brief Action
+
+The only thing different in this from QAction is the ability to change the shortcut of it
     using CEED's settings API/interface.
 
     While it isn't needed/required to use this everywhere where QAction is used, it is recommended.
-    """
+
+*/
+class Action : public QAction
+
 
     def __init__(self, category, name, label = None, help_ = "", icon = QIcon(),
                  defaultShortcut = QKeySequence(), settingsLabel = None,
@@ -79,11 +84,16 @@ class Action : public QAction
         # when the entry changes, we want to change our shortcut too!
         self.settingsEntry.subscribe(self.setShortcut)
 
-class ActionCategory : public object
-    """Actions are grouped into categories
+/*!
+\brief ActionCategory
+
+Actions are grouped into categories
 
     examples: General for all round actions (Exit, Undo, Redo, ...), Layout editing for layout editing (duh!), ...
-    """
+
+*/
+class ActionCategory : public object
+
 
     def __init__(self, manager, name, label = None):
         if label is None:
@@ -127,10 +137,15 @@ class ActionCategory : public object
 
         self.settingsSection = category.createSection(name = self.name, label = self.label)
 
-class ActionManager : public object
-    """Usually a singleton that manages all action categories and therefore
+/*!
+\brief ActionManager
+
+Usually a singleton that manages all action categories and therefore
     actions within them.
-    """
+
+*/
+class ActionManager : public object
+
 
     def __init__(self, mainWindow, settings):
         self.mainWindow = mainWindow

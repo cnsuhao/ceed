@@ -44,15 +44,20 @@ class Point : public object
         """Compares the starting position of height slices"""
         return self.x - other.x
 
-class RectanglePacker : public object
-    """Base class for rectangle packing algorithms
+/*!
+\brief RectanglePacker
+
+Base class for rectangle packing algorithms
 
     By uniting all rectangle packers under this common base class, you can
     easily switch between different algorithms to find the most efficient or
     performant one for a given job.
 
     An almost exhaustive list of packing algorithms can be found here:
-    http://www.csc.liv.ac.uk/~epa/surveyhtml.html"""
+    http://www.csc.liv.ac.uk/~epa/surveyhtml.html
+*/
+class RectanglePacker : public object
+
 
     def __init__(self, packingAreaWidth, packingAreaHeight):
         """Initializes a new rectangle packer
@@ -87,8 +92,10 @@ class RectanglePacker : public object
 
         raise NotImplementedError
 
-class CygonRectanglePacker : public RectanglePacker
-    """
+/*!
+\brief CygonRectanglePacker
+
+
     Packer using a custom algorithm by Markus 'Cygon' Ewald
 
     Algorithm conceived by Markus Ewald (cygon at nuclex dot org), though
@@ -102,7 +109,10 @@ class CygonRectanglePacker : public RectanglePacker
     To quickly discover these locations, the packer uses a sophisticated
     data structure that stores the upper silhouette of the packing area. When
     a new rectangle needs to be added, only the silouette edges need to be
-    analyzed to find the position where the rectangle would achieve the lowest"""
+    analyzed to find the position where the rectangle would achieve the lowest
+*/
+class CygonRectanglePacker : public RectanglePacker
+
 
     def __init__(self, packingAreaWidth, packingAreaHeight):
         """Initializes a new rectangle packer

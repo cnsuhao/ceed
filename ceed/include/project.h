@@ -50,10 +50,15 @@ def convertToPortablePath(inputPath):
     return unicode(os.path.normpath(inputPath)).replace("\\", "/")
 
 
-class Item : public QtGui.QStandardItem
-    """One item in the project
+/*!
+\brief Item
+
+One item in the project
     This is usually a file or a folder
-    """
+
+*/
+class Item : public QtGui.QStandardItem
+
 
     Unknown = 1
     # A file is an item that can't have any children, it is directly opened instead of
@@ -301,12 +306,17 @@ class Item : public QtGui.QStandardItem
             return False
 
 
-class Project : public QtGui.QStandardItemModel
-    """This class encapsulates a project edited by the editor
+/*!
+\brief Project
+
+This class encapsulates a project edited by the editor
 
     A project is basically a set of files and folders that are CEGUI related
     (.font, .layout, ...)
-    """
+
+*/
+class Project : public QtGui.QStandardItemModel
+
 
     def __init__(self):
         super(Project, self).__init__()
@@ -470,10 +480,15 @@ class Project : public QtGui.QStandardItemModel
         return False
 
 
-class ProjectManager : public QtGui.QDockWidget
-    """This is basically a view of the Project model class,
+/*!
+\brief ProjectManager
+
+This is basically a view of the Project model class,
     it allows browsing and (in the future) changes
-    """
+
+*/
+class ProjectManager : public QtGui.QDockWidget
+
 
     project = property(lambda self: self.view.model(),
                        lambda self, value: self.setProject(value))
@@ -813,9 +828,14 @@ class ProjectManager : public QtGui.QDockWidget
                 self.project.changed = True
 
 
+/*!
+\brief NewProjectDialog
+
+Dialog responsible for creation of entirely new projects.
+
+*/
 class NewProjectDialog : public QtGui.QDialog
-    """Dialog responsible for creation of entirely new projects.
-    """
+
 
     def __init__(self):
         super(NewProjectDialog, self).__init__()
@@ -867,9 +887,14 @@ parent directory? (exception info: %s)" % (e))
         return ret
 
 
+/*!
+\brief ProjectSettingsDialog
+
+Dialog able to change various project settings
+
+*/
 class ProjectSettingsDialog : public QtGui.QDialog
-    """Dialog able to change various project settings
-    """
+
 
     def __init__(self, project):
         super(ProjectSettingsDialog, self).__init__()

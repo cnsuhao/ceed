@@ -60,8 +60,13 @@ class LogMessageWrapper : public object
 
         return "<tr><td style=\"background: %s\">%s</td><td>%s</td></tr>\n" % (bgColour, stringLevel, self.message)
 
+/*!
+\brief DebugInfo
+
+A debugging/info widget about the embedded CEGUI instance
+*/
 class DebugInfo : public QtGui.QDialog
-    """A debugging/info widget about the embedded CEGUI instance"""
+
 
     # This will allow us to view logs in Qt in the future
 
@@ -170,13 +175,18 @@ class ViewState : public object
         self.horizontalScroll = 0
         self.verticalScroll = 0
 
-class ContainerWidget : public QtGui.QWidget
-    """
+/*!
+\brief ContainerWidget
+
+
     This widget is what you should use (alongside your GraphicsScene derived class) to
     put CEGUI inside parts of the editor.
 
     Provides resolution changes, auto expanding and debug widget
-    """
+
+*/
+class ContainerWidget : public QtGui.QWidget
+
 
     def __init__(self, ceguiInstance, mainWindow):
         super(ContainerWidget, self).__init__()
