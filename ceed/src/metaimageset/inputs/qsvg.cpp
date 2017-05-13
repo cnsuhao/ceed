@@ -1,0 +1,1 @@
+#include "qsvg.h"
