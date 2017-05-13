@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LookNFeelWidgetLookSelector</class>
+ <class>LookNFeelEditorWidgetLookSelectorWidget</class>
  <widget class="QDockWidget" name="LookNFeelWidgetLookSelector">
   <property name="enabled">
    <bool>false</bool>
