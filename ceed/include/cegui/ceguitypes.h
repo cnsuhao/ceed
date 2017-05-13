@@ -42,7 +42,7 @@ from PySide import QtGui
 
 Abstract base class for all value types.
 */
-class Base : public object
+class Base
 
 
     __metaclass__ = abc.ABCMeta

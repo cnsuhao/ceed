@@ -39,7 +39,7 @@ This class can be used to store pointers to Items like files and images
     for later reuse within the application.
 
 */
-class RecentlyUsed : public object
+class RecentlyUsed
 
 
     def __init__(self, qsettings, sectionIdentifier):

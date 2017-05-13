@@ -49,7 +49,7 @@ The registry contains a (sorted) list of property editor
     types that can be used for each value type.
 
 */
-class PropertyEditorRegistry : public object
+class PropertyEditorRegistry
 
 
     # Standard editors place themselves in this set,
@@ -131,7 +131,7 @@ Abstract base class for a property editor.
     to edit the value of a (supported) property.
 
 */
-class PropertyEditor : public object
+class PropertyEditor
 
 
     __metaclass__ = abc.ABCMeta

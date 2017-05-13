@@ -137,7 +137,7 @@ class ExceptionDialog : public QDialog
 This class is responsible for all error handling. It only handles exceptions for now.
 
 */
-class ErrorHandler : public object
+class ErrorHandler
 
 
     # TODO: handle stderr messages as soft errors

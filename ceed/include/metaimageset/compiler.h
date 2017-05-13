@@ -35,7 +35,7 @@ from PySide import QtCore
 from PySide import QtGui
 
 
-class ImageInstance : public object
+class ImageInstance
     def __init__(self, x, y, image):
         self.x = x
         self.y = y
@@ -43,7 +43,7 @@ class ImageInstance : public object
         self.image = image
 
 
-class CompilerInstance : public object
+class CompilerInstance
     def __init__(self, metaImageset):
         self.jobs = 1
         self.sizeIncrement = 5

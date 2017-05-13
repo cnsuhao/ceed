@@ -38,7 +38,7 @@ from ceed.cegui import qtgraphics
 import ceed.ui.ceguidebuginfo
 import PyCEGUI
 
-class LogMessageWrapper : public object
+class LogMessageWrapper
     def __init__(self, message, level):
         self.message = message
         self.level = level
@@ -169,7 +169,7 @@ font-size: 10px;
 # we import here to avoid circular dependencies (GraphicsView has to be defined at this point)
 import ceed.ui.ceguicontainerwidget
 
-class ViewState : public object
+class ViewState
     def __init__(self):
         self.transform = None
         self.horizontalScroll = 0

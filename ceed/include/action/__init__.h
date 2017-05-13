@@ -41,7 +41,7 @@ This object allows you to group signal slot connections and
     Very useful when switching editors
 
 */
-class ConnectionGroup : public object
+class ConnectionGroup
 
 
     class Connection(object):

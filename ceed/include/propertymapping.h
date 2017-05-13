@@ -41,7 +41,7 @@ Maps a CEGUI::Property (by origin and name) to a CEGUI Type and PropertyEditor
     be ignored in the property set inspector listing.
 
 */
-class PropertyMappingEntry : public object
+class PropertyMappingEntry
 
 
     @classmethod
@@ -116,7 +116,7 @@ class PropertyMappingEntry : public object
 
 Container for property mapping entries.
 */
-class PropertyMap : public object
+class PropertyMap
 
 
     @classmethod

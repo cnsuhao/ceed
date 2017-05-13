@@ -102,7 +102,7 @@ This is the base class for a class that takes a file and allows manipulation
     with it. It occupies exactly 1 tab space.
 
 */
-class TabbedEditor : public object
+class TabbedEditor
 
 
     def __init__(self, compatibilityManager, filePath):
@@ -665,7 +665,7 @@ Constructs instances of TabbedEditor (multiple instances of one TabbedEditor
     from one to another)
 
 */
-class TabbedEditorFactory : public object
+class TabbedEditorFactory
 
 
     def getFileExtensions(self):

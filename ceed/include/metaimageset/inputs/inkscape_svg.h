@@ -74,7 +74,7 @@ def exportSVG(svgPath, layers, targetPngPath):
     stdout = subprocess.check_output(cmdLine, stderr = subprocess.STDOUT)
     # FIXME: debug logging of stdout?
 
-class Component : public object
+class Component
     def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, layers = "", xOffset = 0, yOffset = 0):
         self.svg = svg
 
@@ -139,7 +139,7 @@ class Component : public object
 
         return self.cachedImages
 
-class FrameComponent : public object
+class FrameComponent
     def __init__(self, svg, name = "", x = 0, y = 0, width = 1, height = 1, cornerWidth = 1, cornerHeight = 1, layers = "", skip = ""):
         self.svg = svg
 

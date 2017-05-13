@@ -21,7 +21,7 @@
 #ifndef CEED_settings_persistence_
 #define CEED_settings_persistence_
 
-class PersistenceProvider : public object
+class PersistenceProvider
     def __init__(self):
         pass
 

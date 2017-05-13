@@ -92,7 +92,7 @@ Actions are grouped into categories
     examples: General for all round actions (Exit, Undo, Redo, ...), Layout editing for layout editing (duh!), ...
 
 */
-class ActionCategory : public object
+class ActionCategory
 
 
     def __init__(self, manager, name, label = None):
@@ -144,7 +144,7 @@ Usually a singleton that manages all action categories and therefore
     actions within them.
 
 */
-class ActionManager : public object
+class ActionManager
 
 
     def __init__(self, mainWindow, settings):

@@ -761,7 +761,7 @@ Allows to "freeze" CEGUI widget to data that is easy to retain in python,
     this is a helper class that can be used for copy/paste, undo commands, etc...
 
 */
-class SerialisationData : public object
+class SerialisationData
 
 
     def __init__(self, widget = None, serialiseChildren = True):

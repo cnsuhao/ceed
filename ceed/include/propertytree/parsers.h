@@ -35,7 +35,7 @@ from ast import Str, Num, Tuple, List, Dict, Name, Expression, parse, BinOp, Add
 
 from collections import OrderedDict
 
-class AstHelper : public object
+class AstHelper
 
     @staticmethod
     def delegate_literal_eval(node_or_string, convertHook=None):

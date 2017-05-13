@@ -32,7 +32,7 @@ Is the value itself, inside a section. This is what's directly used when
     (it is applied - value = editedValue - when user applies the settings)
 
 */
-class Entry : public object
+class Entry
 
 
     STRING = "string"
@@ -161,7 +161,7 @@ class Entry : public object
 Groups entries, is usually represented by a group box in the interface
 
 */
-class Section : public object
+class Section
 
 
     def __init__(self, category, name, label = None, sortingWeight = 0):
@@ -235,7 +235,7 @@ class Section : public object
 Groups sections, is usually represented by a tab in the interface
 
 */
-class Category : public object
+class Category
 
 
     def __init__(self, settings, name, label = None, sortingWeight = 0):
@@ -322,7 +322,7 @@ class Category : public object
             for section in self.sections:
                 section.sort()
 
-class Settings : public object
+class Settings
     def __init__(self, name, label = None, help_ = ""):
         if label is None:
             label = name

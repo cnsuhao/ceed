@@ -283,7 +283,7 @@ class EditingScene : public cegui.widgethelpers.GraphicsScene
 Represents one of the animations in the list, takes care of loading and saving it from/to XML element
 
 */
-class AnimationDefinitionWrapper : public object
+class AnimationDefinitionWrapper
 
 
     def __init__(self, visual):

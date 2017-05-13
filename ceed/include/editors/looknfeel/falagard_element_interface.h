@@ -39,7 +39,7 @@ from falagard_element_inspector import FalagardElementAttributesManager
     for each type of Falagard element.
 
 */
-class FalagardElementInterface : public object
+class FalagardElementInterface
 
 
     @staticmethod

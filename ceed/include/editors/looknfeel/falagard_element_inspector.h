@@ -44,7 +44,7 @@ import PyCEGUI
 Builds propertytree settings from a CEGUI Falagard element, allowing to edit its attributes in the editor.
 
 */
-class FalagardElementAttributesManager : public object
+class FalagardElementAttributesManager
 
 
     # Maps CEGUI data types (in string form) to Python types
@@ -231,7 +231,7 @@ class FalagardElementAttributesManager : public object
     Categories have a name and hold a list of settings.
 
 */
-class FalagardElementSettingCategory : public object
+class FalagardElementSettingCategory
 
 
     def __init__(self, name):

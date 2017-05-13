@@ -32,7 +32,7 @@ Instance of the image, containing a bitmap (QImage)
     and xOffset and yOffset
 
 */
-class Image : public object
+class Image
 
 
     def __init__(self, name, qimage, xOffset = 0, yOffset = 0):
@@ -55,7 +55,7 @@ Describes any input image source for the meta imageset.
     This can be imageset, bitmap image, SVG image, ...
 
 */
-class Input : public object
+class Input
 
 
     def __init__(self, metaImageset):

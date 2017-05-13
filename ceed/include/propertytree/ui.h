@@ -78,7 +78,7 @@ class PropertyTreeItem : public QtGui.QStandardItem
 
 Pair of name and value items, manages it's child rows.
 */
-class PropertyTreeRow : public object
+class PropertyTreeRow
 
     def __init__(self):
         self.nameItem = PropertyTreeItem(self)

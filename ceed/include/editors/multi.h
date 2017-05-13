@@ -80,7 +80,7 @@ Interface class for the edit mode widgets (more a mixin class)
     methods.
 
 */
-class EditMode : public object
+class EditMode
 
 
     def __init__(self):

@@ -195,7 +195,7 @@ Builds propertytree properties from CEGUI properties and PropertySets,
     using a PropertyMap.
 
 */
-class CEGUIPropertyManager : public object
+class CEGUIPropertyManager
 
 
     # Maps CEGUI data types (in string form) to Python types

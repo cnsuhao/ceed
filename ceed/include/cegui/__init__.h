@@ -70,7 +70,7 @@ Interface that provides a method to make OpenGL context
     suitable for CEGUI the current context.
 
 */
-class GLContextProvider : public object
+class GLContextProvider
 
 
     def makeGLContextCurrent(self):
@@ -87,7 +87,7 @@ Encapsulates a running CEGUI instance.
     This might change in the future though...
 
 */
-class Instance : public object
+class Instance
 
 
     def __init__(self, contextProvider = None):

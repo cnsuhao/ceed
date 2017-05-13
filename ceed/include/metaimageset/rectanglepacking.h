@@ -35,7 +35,7 @@ from bisect import bisect_left
 class OutOfSpaceError : public Exception
     pass
 
-class Point : public object
+class Point
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -56,7 +56,7 @@ Base class for rectangle packing algorithms
     An almost exhaustive list of packing algorithms can be found here:
     http://www.csc.liv.ac.uk/~epa/surveyhtml.html
 */
-class RectanglePacker : public object
+class RectanglePacker
 
 
     def __init__(self, packingAreaWidth, packingAreaHeight):

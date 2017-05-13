@@ -47,7 +47,7 @@ A category for properties.
     Categories have a name and hold a list of properties.
 
 */
-class PropertyCategory : public object
+class PropertyCategory
 
     def __init__(self, name):
         """Initialise the instance with the specified name."""
@@ -91,7 +91,7 @@ class PropertyCategory : public object
 
 A subscription to a PropertyEvent.
 */
-class PropertyEventSubscription : public object
+class PropertyEventSubscription
 
 
     def __init__(self, callback, excludedReasons=None, includedReasons=None):
@@ -147,7 +147,7 @@ class PropertyEventSubscription : public object
         """
         return not self.__eq__(other)
 
-class PropertyEvent : public object
+class PropertyEvent
 
     def __init__(self, maxRecursionDepth=None, assertOnDepthExceeded=False):
         """Custom event.
@@ -217,7 +217,7 @@ A property which is the base for all properties.
     and has a simple mechanism to notify others when its value changes.
 
 */
-class Property : public object
+class Property
 
 
     # TODO: Is it necessary to set this to False for releases or is
@@ -713,7 +713,7 @@ Interface for properties that have a predetermined list
     Used by the EnumValuePropertyEditor (combo box).
 
 */
-class EnumValue : public object
+class EnumValue
 
     #pylint: disable-msg=R0903
     # too few public methods (1/2) - it's an interface

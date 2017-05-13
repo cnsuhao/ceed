@@ -39,7 +39,7 @@ Compatibility layer can transform given code from source type to target type.
     compatibility layers) and back!
 
 */
-class Layer : public object
+class Layer
 
 
     def getSourceType(self):
@@ -55,7 +55,7 @@ class Layer : public object
 
         raise NotImplementedError("Compatibility layers have to override Layer.transform!")
 
-class TypeDetector : public object
+class TypeDetector
     def getType(self):
         """Gets the type this detector detects"""
 
@@ -126,7 +126,7 @@ Manager holds type detectors and compatibility layers and is able to perform tra
     example of use of this class
 
 */
-class Manager : public object
+class Manager
 
 
     def __init__(self):
