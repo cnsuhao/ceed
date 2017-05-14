@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_font_cegui_
 #define CEED_compatibility_font_cegui_
 
+#include "CEEDBase.h"
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 from ceed.compatibility.imageset import cegui as imageset_cegui_compat

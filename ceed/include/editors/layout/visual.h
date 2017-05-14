@@ -21,6 +21,8 @@
 #ifndef CEED_editors_layout_visual_
 #define CEED_editors_layout_visual_
 
+#include "CEEDBase.h"
+
 from collections import OrderedDict
 
 from PySide import QtCore

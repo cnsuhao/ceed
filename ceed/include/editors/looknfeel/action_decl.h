@@ -21,6 +21,8 @@
 #ifndef CEED_editors_looknfeel_action_decl_
 #define CEED_editors_looknfeel_action_decl_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

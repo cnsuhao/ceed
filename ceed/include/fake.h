@@ -21,6 +21,8 @@
 #ifndef CEED_fake_
 #define CEED_fake_
 
+#include "CEEDBase.h"
+
 # fake empty module for file path getting
 
 # You can normally use __file__ but that doesn't work when the whole application

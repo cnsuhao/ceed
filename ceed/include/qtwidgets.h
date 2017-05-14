@@ -21,6 +21,8 @@
 #ifndef CEED_qtwidgets_
 #define CEED_qtwidgets_
 
+#include "CEEDBase.h"
+
 """Contains reusable widgets that I haven't found in Qt for some reason
 """
 

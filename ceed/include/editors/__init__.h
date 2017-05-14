@@ -21,6 +21,8 @@
 #ifndef CEED_editors___init___
 #define CEED_editors___init___
 
+#include "CEEDBase.h"
+
 """This module contains interfaces needed to run editors tabs (multi-file editing)
 
 Also groups all the editors together to avoid cluttering the root directory.

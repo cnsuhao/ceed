@@ -21,6 +21,8 @@
 #ifndef CEED_editors_looknfeel_undoable_commands_
 #define CEED_editors_looknfeel_undoable_commands_
 
+#include "CEEDBase.h"
+
 from ceed import commands
 
 idbase = 1300

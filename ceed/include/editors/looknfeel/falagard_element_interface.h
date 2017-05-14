@@ -26,6 +26,8 @@
 #ifndef CEED_editors_looknfeel_falagard_element_interface_
 #define CEED_editors_looknfeel_falagard_element_interface_
 
+#include "CEEDBase.h"
+
 import PyCEGUI
 
 from falagard_element_inspector import FalagardElementAttributesManager

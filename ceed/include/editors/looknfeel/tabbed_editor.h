@@ -20,6 +20,8 @@
 
 #ifndef CEED_editors_looknfeel_tabbed_editor_
 #define CEED_editors_looknfeel_tabbed_editor_
+
+#include "CEEDBase.h"
 ##############################################################################
 #   CEED - Unified CEGUI asset editor
 #

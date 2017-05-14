@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_editors_
 #define CEED_propertytree_editors_
 
+#include "CEEDBase.h"
+
 """The standard editors for the property tree.
 
 PropertyEditorRegistry -- Maintains a list of the available editors and the types they can edit; creates the appropriate editor for a property.

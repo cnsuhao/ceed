@@ -21,6 +21,8 @@
 #ifndef CEED_propertysetinspector_
 #define CEED_propertysetinspector_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 from .qtwidgets import LineEditWithClearButton

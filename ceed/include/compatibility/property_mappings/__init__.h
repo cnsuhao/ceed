@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_property_mappings___init___
 #define CEED_compatibility_property_mappings___init___
 
+#include "CEEDBase.h"
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 

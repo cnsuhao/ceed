@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset___init___
 #define CEED_metaimageset___init___
 
+#include "CEEDBase.h"
+
 """This module provides all metaimageset API core functionality (except editing)
 """
 

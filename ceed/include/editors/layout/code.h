@@ -21,6 +21,8 @@
 #ifndef CEED_editors_layout_code_
 #define CEED_editors_layout_code_
 
+#include "CEEDBase.h"
+
 from ceed.editors import code_edit_restoring_view
 import PyCEGUI
 

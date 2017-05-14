@@ -21,6 +21,8 @@
 #ifndef CEED_action___init___
 #define CEED_action___init___
 
+#include "CEEDBase.h"
+
 """Uses the declaration API to declare generic actions in the application.
 
 Also provides ConnectionGroup, which can be used to make mass connecting and

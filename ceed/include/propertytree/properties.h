@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_properties_
 #define CEED_propertytree_properties_
 
+#include "CEEDBase.h"
+
 """The basic properties.
 
 Property -- The base class for all properties, has name, value, etc.

@@ -21,6 +21,8 @@
 #ifndef CEED_editors_htmlview_
 #define CEED_editors_htmlview_
 
+#include "CEEDBase.h"
+
 from ceed import editors
 
 from PySide import QtWebKit

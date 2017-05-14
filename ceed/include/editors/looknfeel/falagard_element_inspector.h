@@ -26,6 +26,8 @@
 #ifndef CEED_editors_looknfeel_falagard_element_inspector_
 #define CEED_editors_looknfeel_falagard_element_inspector_
 
+#include "CEEDBase.h"
+
 from ceed.propertytree import properties
 from ceed.propertytree import utility as ptUtility
 

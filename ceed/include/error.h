@@ -21,6 +21,8 @@
 #ifndef CEED_error_
 #define CEED_error_
 
+#include "CEEDBase.h"
+
 """Implements a hook that displays a dialog whenever an exception is uncaught.
 We display information to the user about where to submit a bug report and what
 to include.

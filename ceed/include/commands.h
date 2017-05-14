@@ -21,6 +21,8 @@
 #ifndef CEED_commands_
 #define CEED_commands_
 
+#include "CEEDBase.h"
+
 from PySide.QtGui import QUndoCommand, QDockWidget, QUndoView, QIcon, QWidget, QVBoxLayout
 
 /*!

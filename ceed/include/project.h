@@ -21,6 +21,8 @@
 #ifndef CEED_project_
 #define CEED_project_
 
+#include "CEEDBase.h"
+
 """Implements project file data model and GUI for interacting with it
 """
 

@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs_bitmap_
 #define CEED_metaimageset_inputs_bitmap_
 
+#include "CEEDBase.h"
+
 """Implements simple bitmaps as inputs of metaimageset.
 """
 

@@ -21,6 +21,8 @@
 #ifndef CEED_tests_cli_
 #define CEED_tests_cli_
 
+#include "CEEDBase.h"
+
 import unittest
 import subprocess
 import os

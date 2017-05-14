@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_utility_
 #define CEED_propertytree_utility_
 
+#include "CEEDBase.h"
+
 """Misc utilities.
 
 getDictionaryTreePath -- Retrieve a value from a dictionary tree.

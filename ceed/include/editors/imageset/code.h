@@ -21,6 +21,8 @@
 #ifndef CEED_editors_imageset_code_
 #define CEED_editors_imageset_code_
 
+#include "CEEDBase.h"
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import code_edit_restoring_view

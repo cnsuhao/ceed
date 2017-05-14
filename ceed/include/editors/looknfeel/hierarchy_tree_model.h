@@ -21,6 +21,8 @@
 #ifndef CEED_editors_looknfeel_hierarchy_tree_model_
 #define CEED_editors_looknfeel_hierarchy_tree_model_
 
+#include "CEEDBase.h"
+
 import PyCEGUI
 
 from PySide import QtCore

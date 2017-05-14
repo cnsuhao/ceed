@@ -21,6 +21,8 @@
 #ifndef CEED_paths_
 #define CEED_paths_
 
+#include "CEEDBase.h"
+
 """This module contains means to get various CEED related paths in various
 environments.
 """

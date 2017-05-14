@@ -21,6 +21,8 @@
 #ifndef CEED_editors_bitmap___init___
 #define CEED_editors_bitmap___init___
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 from ceed import editors
 

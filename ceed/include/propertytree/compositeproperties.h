@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_compositeproperties_
 #define CEED_propertytree_compositeproperties_
 
+#include "CEEDBase.h"
+
 """The standard composite properties.
 
 DictionaryProperty -- Generic property based on a dictionary.

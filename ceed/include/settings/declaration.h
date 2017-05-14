@@ -21,6 +21,8 @@
 #ifndef CEED_settings_declaration_
 #define CEED_settings_declaration_
 
+#include "CEEDBase.h"
+
 /*!
 \brief Entry
 

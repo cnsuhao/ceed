@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree___init___
 #define CEED_propertytree___init___
 
+#include "CEEDBase.h"
+
 """Provides a way to build, categorise, visualise and edit a list of properties.
 
 properties -- Built-in properties, representing one simple value.

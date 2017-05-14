@@ -21,6 +21,8 @@
 #ifndef CEED_editors_animation_list_timeline_
 #define CEED_editors_animation_list_timeline_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

@@ -21,6 +21,8 @@
 #ifndef CEED_messages_
 #define CEED_messages_
 
+#include "CEEDBase.h"
+
 """Provides messages that users can dismiss (choose to never show again)
 """
 

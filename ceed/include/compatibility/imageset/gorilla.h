@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_imageset_gorilla_
 #define CEED_compatibility_imageset_gorilla_
 
+#include "CEEDBase.h"
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed import compatibility

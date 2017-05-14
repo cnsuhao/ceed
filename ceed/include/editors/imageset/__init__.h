@@ -21,6 +21,8 @@
 #ifndef CEED_editors_imageset___init___
 #define CEED_editors_imageset___init___
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

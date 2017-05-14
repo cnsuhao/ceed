@@ -21,6 +21,8 @@
 #ifndef CEED_about_
 #define CEED_about_
 
+#include "CEEDBase.h"
+
 """Implements the License and About dialogs
 """
 

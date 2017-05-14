@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_project___init___
 #define CEED_compatibility_project___init___
 
+#include "CEEDBase.h"
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 

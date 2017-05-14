@@ -21,6 +21,8 @@
 #ifndef CEED_cegui_ceguitypes_
 #define CEED_cegui_ceguitypes_
 
+#include "CEEDBase.h"
+
 """Lightweight CEGUI property value types that can parse and write text."""
 
 import abc

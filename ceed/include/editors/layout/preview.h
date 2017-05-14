@@ -21,6 +21,8 @@
 #ifndef CEED_editors_layout_preview_
 #define CEED_editors_layout_preview_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 
 from ceed.editors import multi

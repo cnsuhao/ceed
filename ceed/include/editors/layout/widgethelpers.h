@@ -21,6 +21,8 @@
 #ifndef CEED_editors_layout_widgethelpers_
 #define CEED_editors_layout_widgethelpers_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

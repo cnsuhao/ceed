@@ -21,6 +21,8 @@
 #ifndef CEED_recentlyused_
 #define CEED_recentlyused_
 
+#include "CEEDBase.h"
+
 """Implements reusable functionality for "recently used" lists/menus.
 
 This is used mainly for "recent files" and "recent projects" in CEED.

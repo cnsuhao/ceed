@@ -21,6 +21,8 @@
 #ifndef CEED_settings_persistence_
 #define CEED_settings_persistence_
 
+#include "CEEDBase.h"
+
 class PersistenceProvider
     def __init__(self):
         pass

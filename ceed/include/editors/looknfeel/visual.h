@@ -26,6 +26,8 @@
 #ifndef CEED_editors_looknfeel_visual_
 #define CEED_editors_looknfeel_visual_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 import cPickle

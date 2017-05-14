@@ -21,6 +21,8 @@
 #ifndef CEED_editors_imageset_undo_
 #define CEED_editors_imageset_undo_
 
+#include "CEEDBase.h"
+
 from ceed import commands
 from ceed.editors.imageset import elements
 

@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility___init___
 #define CEED_compatibility___init___
 
+#include "CEEDBase.h"
+
 """This module is the root of all compatibility support and layers in the editor
 """
 

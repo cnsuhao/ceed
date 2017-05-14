@@ -21,6 +21,8 @@
 #ifndef CEED_action_declaration_
 #define CEED_action_declaration_
 
+#include "CEEDBase.h"
+
 """Provides API to declare actions that are remapable
 (shortcuts can be changed) using the settings interface
 

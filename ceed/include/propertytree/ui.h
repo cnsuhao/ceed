@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_ui_
 #define CEED_propertytree_ui_
 
+#include "CEEDBase.h"
+
 """Qt property tree widget supporting classes.
 
 PropertyTreeItem -- Base item for all items.

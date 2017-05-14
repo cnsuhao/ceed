@@ -21,6 +21,8 @@
 #ifndef CEED_editors_animation_list_code_
 #define CEED_editors_animation_list_code_
 
+#include "CEEDBase.h"
+
 from xml.etree import cElementTree as ElementTree
 
 from ceed.editors import multi

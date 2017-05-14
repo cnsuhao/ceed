@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_compiler_
 #define CEED_metaimageset_compiler_
 
+#include "CEEDBase.h"
+
 import math
 import os.path
 

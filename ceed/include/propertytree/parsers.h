@@ -21,6 +21,8 @@
 #ifndef CEED_propertytree_parsers_
 #define CEED_propertytree_parsers_
 
+#include "CEEDBase.h"
+
 """Parsing helpers.
 
 AstHelper -- Customised Python literal parsing.

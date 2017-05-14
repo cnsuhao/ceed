@@ -21,6 +21,8 @@
 #ifndef CEED_settings___init___
 #define CEED_settings___init___
 
+#include "CEEDBase.h"
+
 """Declares global settings entries. Provides an entry point to the settings
 system via getEntry(..).
 """

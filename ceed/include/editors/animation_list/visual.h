@@ -21,6 +21,8 @@
 #ifndef CEED_editors_animation_list_visual_
 #define CEED_editors_animation_list_visual_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 
 import PyCEGUI

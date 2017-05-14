@@ -21,6 +21,8 @@
 #ifndef CEED_cegui_container_
 #define CEED_cegui_container_
 
+#include "CEEDBase.h"
+
 """Implementation of a convenience Qt and CEGUI interaction containment.
 
 Allows you to use CEGUI as if it were a Qt widget.

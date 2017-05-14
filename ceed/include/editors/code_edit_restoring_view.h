@@ -21,6 +21,8 @@
 #ifndef CEED_editors_code_edit_restoring_view_
 #define CEED_editors_code_edit_restoring_view_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 
 from ceed.editors import multi

@@ -21,6 +21,8 @@
 #ifndef CEED_editors_multi_
 #define CEED_editors_multi_
 
+#include "CEEDBase.h"
+
 ##
 # This module contains interfaces for multi mode tabbed editors (visual, source, ...)
 

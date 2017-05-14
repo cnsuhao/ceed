@@ -21,6 +21,8 @@
 #ifndef CEED_resizable_
 #define CEED_resizable_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

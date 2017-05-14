@@ -21,6 +21,8 @@
 #ifndef CEED_propertymapping_
 #define CEED_propertymapping_
 
+#include "CEEDBase.h"
+
 """Settings for CEGUI properties.
 
 PropertyMappingEntry -- Settings for one property, identified by its origin and name.

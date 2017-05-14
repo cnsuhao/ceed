@@ -21,6 +21,8 @@
 #ifndef CEED_editors_animation_list_undo_
 #define CEED_editors_animation_list_undo_
 
+#include "CEEDBase.h"
+
 from ceed import commands
 
 idbase = 1300

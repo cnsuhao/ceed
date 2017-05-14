@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs_registry_
 #define CEED_metaimageset_inputs_registry_
 
+#include "CEEDBase.h"
+
 """You only have to extend these functions to add more inputs to metaimageset.
 """
 

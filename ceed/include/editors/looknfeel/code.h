@@ -21,6 +21,8 @@
 #ifndef CEED_editors_looknfeel_code_
 #define CEED_editors_looknfeel_code_
 
+#include "CEEDBase.h"
+
 from ceed.editors import multi
 
 from PySide import QtGui

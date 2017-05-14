@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_imageset___init___
 #define CEED_compatibility_imageset___init___
 
+#include "CEEDBase.h"
+
 from ceed import compatibility
 
 from ceed.compatibility.imageset import cegui

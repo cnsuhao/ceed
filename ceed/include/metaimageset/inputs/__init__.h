@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs___init___
 #define CEED_metaimageset_inputs___init___
 
+#include "CEEDBase.h"
+
 """Defines interfaces for metaimageset inputs and the images that are returned
 from these inputs.
 """

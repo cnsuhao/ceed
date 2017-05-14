@@ -26,6 +26,8 @@
 #ifndef CEED_editors_looknfeel_falagard_element_editor_
 #define CEED_editors_looknfeel_falagard_element_editor_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 
 from ceed.propertysetinspector import PropertyInspectorWidget

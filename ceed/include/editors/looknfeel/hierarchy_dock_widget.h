@@ -26,6 +26,8 @@
 #ifndef CEED_editors_looknfeel_hierarchy_dock_widget_
 #define CEED_editors_looknfeel_hierarchy_dock_widget_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

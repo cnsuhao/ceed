@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs_inkscape_svg_
 #define CEED_metaimageset_inputs_inkscape_svg_
 
+#include "CEEDBase.h"
+
 """Implements the more advanced SVG input of metaimageset (using Inkscape).
 """
 

@@ -21,6 +21,8 @@
 #ifndef CEED_filesystembrowser_
 #define CEED_filesystembrowser_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

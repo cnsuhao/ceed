@@ -21,6 +21,8 @@
 #ifndef CEED_editors_looknfeel_settings_decl_
 #define CEED_editors_looknfeel_settings_decl_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 
 def declare(settings):

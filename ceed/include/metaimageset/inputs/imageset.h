@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs_imageset_
 #define CEED_metaimageset_inputs_imageset_
 
+#include "CEEDBase.h"
+
 """Implements CEGUI imagesets as inputs of metaimageset.
 """
 

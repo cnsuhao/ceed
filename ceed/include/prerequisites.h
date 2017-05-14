@@ -21,6 +21,8 @@
 #ifndef CEED_prerequisites_
 #define CEED_prerequisites_
 
+#include "CEEDBase.h"
+
 """This module is used to check dependencies of CEED, check their versions
 and provide helpful info when something goes wrong.
 """

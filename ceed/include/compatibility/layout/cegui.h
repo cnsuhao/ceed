@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_layout_cegui_
 #define CEED_compatibility_layout_cegui_
 
+#include "CEEDBase.h"
+
 from ceed import compatibility
 from ceed.compatibility import ceguihelpers
 

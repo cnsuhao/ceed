@@ -21,6 +21,8 @@
 #ifndef CEED_application_
 #define CEED_application_
 
+#include "CEEDBase.h"
+
 from PySide.QtCore import Qt, QSettings
 from PySide.QtGui import QApplication, QSplashScreen, QPixmap
 

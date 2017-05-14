@@ -21,6 +21,8 @@
 #ifndef CEED_compileuifiles_
 #define CEED_compileuifiles_
 
+#include "CEEDBase.h"
+
 """This module allows to compile .ui files made in QtDesigner into python
 code that represents the same GUI layouts.
 

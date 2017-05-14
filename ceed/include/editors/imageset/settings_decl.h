@@ -21,6 +21,8 @@
 #ifndef CEED_editors_imageset_settings_decl_
 #define CEED_editors_imageset_settings_decl_
 
+#include "CEEDBase.h"
+
 def declare(settings):
     category = settings.createCategory(name = "imageset", label = "Imageset editing")
 

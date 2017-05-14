@@ -21,6 +21,8 @@
 #ifndef CEED_metaimageset_inputs_qsvg_
 #define CEED_metaimageset_inputs_qsvg_
 
+#include "CEEDBase.h"
+
 """Implements Qt TinySVG input of metaimageset.
 """
 

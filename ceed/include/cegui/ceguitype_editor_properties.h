@@ -21,6 +21,8 @@
 #ifndef CEED_cegui_ceguitype_editor_properties_
 #define CEED_cegui_ceguitype_editor_properties_
 
+#include "CEEDBase.h"
+
 """Lightweight CEGUI property value types that can parse and write text."""
 
 from ceguitypes import *

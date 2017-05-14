@@ -21,6 +21,8 @@
 #ifndef CEED_xmledit_
 #define CEED_xmledit_
 
+#include "CEEDBase.h"
+
 from PySide import QtGui
 from PySide import QtCore
 

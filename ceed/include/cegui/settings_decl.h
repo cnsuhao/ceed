@@ -21,6 +21,8 @@
 #ifndef CEED_cegui_settings_decl_
 #define CEED_cegui_settings_decl_
 
+#include "CEEDBase.h"
+
 from PySide import QtCore
 from PySide import QtGui
 

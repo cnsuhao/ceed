@@ -21,6 +21,8 @@
 #ifndef CEED_tests_compatibility_layout_cegui_
 #define CEED_tests_compatibility_layout_cegui_
 
+#include "CEEDBase.h"
+
 import unittest
 
 from ceed.compatibility.layout import cegui

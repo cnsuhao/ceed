@@ -21,6 +21,8 @@
 #ifndef CEED_compatibility_ceguihelpers_
 #define CEED_compatibility_ceguihelpers_
 
+#include "CEEDBase.h"
+
 """Misc helper functionality often reused in compatibility layers
 """
 

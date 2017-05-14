@@ -20,6 +20,8 @@
 
 #ifndef CEED_editors_property_mappings___init___
 #define CEED_editors_property_mappings___init___
+
+#include "CEEDBase.h"
 """
 from PySide import QtGui
 
